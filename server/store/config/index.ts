@@ -1,0 +1,9 @@
+const {
+    MONGO_ROOT_USERNAME,
+    MONGO_ROOT_PASSWORD,
+    MONGO_HOST,
+    MONGO_PORT,
+    MONGO_DATABASE_NAME,
+} = process.env
+
+export const storeUri = MONGO_HOST ? `mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DATABASE_NAME}` : ''
