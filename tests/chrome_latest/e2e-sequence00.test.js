@@ -134,3 +134,81 @@ describe('click on dice icon and close modal', () => {
     }
   })
 });
+
+describe('click on join as guest and attempt to play', () => {
+  
+  test('click on dice', async () => {
+    try{
+      await dice.click();
+    } catch(e){
+      return new Error(e);
+    }
+  });
+
+  test('click on join as guest', async () => {
+    const guest = await driver.wait(until.elementLocated(By.className('sc-TBWPX ikVkVz')), 10000, '10 second timeout', 1000);
+    try {
+      await guest.click()
+    } catch(e) {
+      return new Error(e);
+    }
+  });
+
+  
+  test('click on play', async () => {
+    const play = await driver.wait(until.elementsLocated(By.className('sc-dkPtRN dsFVlU sc-hKwDye hFSGnI game-panel')), 10000, '10 second timeout', 1000);
+    try {
+      // click on 2x
+      await play[0].click();
+    } catch(e) {
+      return new Error(e);
+    }
+  });
+  
+  test('click on red color', async () => {
+    const red = await driver.wait(until.elementLocated(By.className('sc-iqseJM hlqDqJ')), 10000, '10 second timeout', 1000);
+    try{
+      await red.click();
+    } catch(e) {
+      return new Error(e);
+    }
+  });
+
+  test('enter wager amount and submit', async () => {
+    const input = await driver.wait(until.elementLocated(By.xpath(`//html/body/div/section/div[2]/div/div[2]/div/div[2]/input`)), 10000, '10 second timeout', 1000);
+    try{
+      await input.click();
+      await input.sendKeys('10000');
+    } catch (e) {
+      return new Error(e);
+    }
+
+    const submit = await driver.wait(until.elementLocated(By.className('sc-jrQzAO hTapAQ sc-kLwhqv hgglOf')), 10000, '10 second timeout', 1000);
+    try{
+      submit.click();
+    } catch(e) {
+      return new Error(e);
+    }
+    const warning = await driver.wait(until.elementLocated(By.xpath(`//html/body/div/section/div[2]/div/div[2]/div/div[2]/span`)), 10000, '10 second timeout', 1000);
+    const isWarnDisplayed = await warning.isDisplayed();
+    expect(isWarnDisplayed).toBe(true);
+  });
+
+  test('deposit button appears', async () => {
+    const deposit = await driver.wait(until.elementLocated(By.className('sc-hBUSln ioNfJn')), 10000, '10 second timeout', 1000);
+    try {
+      await deposit.click();
+    } catch(e) {
+      return new Error(e); 
+    }
+  });
+
+  test('withrdaw button appears', async () => {
+    const withdraw = await driver.wait(until.elementLocated(By.className('sc-dlVxhl iVbvpI')), 10000, '10 second timeout', 1000);
+    try {
+      await withdraw.click();
+    } catch(e) {
+      return new Error(e); 
+    }
+  });
+});

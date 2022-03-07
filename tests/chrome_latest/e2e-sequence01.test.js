@@ -54,11 +54,6 @@ describe('set up MetaMask extension and connect with DAPP', () => {
   });
 
   afterAll(async () => {
-    await driver.findElement(By.xpath(`//html/body/div[1]/div/div[2]/div/div[2]/div[3]/div[2]/button[2][contains(., 'Next')]`)).click();
-    await driver.findElement(By.xpath(`//html/body/div[1]/div/div[2]/div/div[2]/div[2]/div[2]/footer/button[2][contains(., 'Connect')]`)).click();
-    await driver.wait(until.elementLocated(By.xpath(`//html/body/div[1]/div/div[2]/div/div[3]/button[2][contains(., 'Sign')]`)), 20000, '20 second timeout', 1000);
-    await driver.findElement(By.xpath(`//html/body/div[1]/div/div[2]/div/div[3]/button[2][contains(., 'Sign')]`)).click();
-
     let windows = await driver.getAllWindowHandles();
 
     // wait for MetaMask popup to auto close
@@ -68,7 +63,7 @@ describe('set up MetaMask extension and connect with DAPP', () => {
 
     await driver.switchTo().window(windows[0]);
     await driver.manage().window().maximize();
-    await driver.wait(until.elementLocated(By.xpath(`//html/body/div/section/div[2]/div/div/div[4][contains(., 'X')]`)), 20000, '20 second timeout', 1000);
+    // await driver.wait(until.elementLocated(By.xpath(`//html/body/div/section/div[2]/div/div/div[4][contains(., 'X')]`)), 20000, '20 second timeout', 1000);
   });
 
   test('click on rocket', async () => {
@@ -99,6 +94,10 @@ describe('set up MetaMask extension and connect with DAPP', () => {
   
     await driver.switchTo().window(windows[2]);
     await driver.wait(until.elementLocated(By.xpath(`//html/body/div[1]/div/div[2]/div/div[2]/div[3]/div[2]/button[2][contains(., 'Next')]`)), 20000, '20 second timeout', 1000);
+    await driver.findElement(By.xpath(`//html/body/div[1]/div/div[2]/div/div[2]/div[3]/div[2]/button[2][contains(., 'Next')]`)).click();
+    await driver.findElement(By.xpath(`//html/body/div[1]/div/div[2]/div/div[2]/div[2]/div[2]/footer/button[2][contains(., 'Connect')]`)).click();
+    await driver.wait(until.elementLocated(By.xpath(`//html/body/div[1]/div/div[2]/div/div[3]/button[2][contains(., 'Sign')]`)), 20000, '20 second timeout', 1000);
+    await driver.findElement(By.xpath(`//html/body/div[1]/div/div[2]/div/div[3]/button[2][contains(., 'Sign')]`)).click();
     expect(windows.length).toBe(3);
   });
 
