@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: pear-connect-rpc-proxy
+  name: pear-connect-rpc-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: pear-connect-rpc-proxy
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/pear-connect-network: "true"
+        io.kompose.service: pear-connect-rpc-proxy
+    spec:
+      containers:
+        - image: envoyproxy/envoy:v1.14.3
+          name: pear-connect-rpc-proxy
+          ports:
+            - containerPort: 8080
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/envoy/envoy.yaml
+              name: pear-connect-rpc-proxy-claim0
+      restartPolicy: Always
+      volumes:
+        - name: pear-connect-rpc-proxy-claim0
+          persistentVolumeClaim:
+            claimName: pear-connect-rpc-proxy-claim0
+status: {}
