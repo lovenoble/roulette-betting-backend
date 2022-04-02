@@ -1,4 +1,4 @@
-const environment = process.env.NODE_ENV || 'development'
+const environment = process.env.NODE_ENV as string || 'development'
 
 // Interfaces
 export interface IChainMetadata {
@@ -156,5 +156,5 @@ const constants: IConstants = {
     },
 }
 
-export default constants[environment] || constants.development
+export default constants[environment as keyof IConstants] || constants.development
 
