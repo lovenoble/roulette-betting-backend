@@ -24,7 +24,7 @@ const e2eSequence01 = () => {
   const CONNECT_WALLET_BTN = `//html/body/div/section/div[2]/div/div/div[3]/button[2][contains(., 'Connect Wallet')]`;
   const CLOSE_BTN = `//html/body/div/section/div[2]/div/div/div[4][contains(., 'X')]`;
 
-  const metamask = '10.10.2_0.crx'
+  const metamask = '10.12.2_0.crx'
   const MM_PATH = `./${metamask}`;
   const opt = new chrome.Options();
   let driver;
