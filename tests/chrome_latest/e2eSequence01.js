@@ -29,6 +29,7 @@ const e2eSequence01 = () => {
   const opt = new chrome.Options();
   let driver;
 
+  // refactor describe() into a canary test, updated test descriptions, and add test for private key
   describe('check testing environment', () => {
     test('check if METAMASK_PASSPHRASE and PASSWORD setup in /tests/.env', () => {
       expect(process.env.METAMASK_PASSPHRASE.length > 0 && process.env.PASSWORD.length > 0).toBe(true);

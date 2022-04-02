@@ -4,32 +4,31 @@ const path = require('chromedriver').path;
 
 const e2eSequence00 = () => { 
   // global fp elements
-  const GAME_BTN_GROUP = 'sc-bdvvtL GmdXX';
-  const GAME_BTN_GROUP_MODAL = 'sc-jIkXHa cEBdzH';
-  const MODAL_CLOSE_BTN = 'sc-jOxtWs dQZydE';
-  const ABOUT_BTN = `//html/body/div/div/img`;
-  const ABOUT_MODAL = `//html/body/div/div[2]/div/button`;
-  const CONNECT_WALLET_BTN = `//html/body/div/section/div[2]/div/div/div[3]/button[2][contains(., 'Connect Wallet')]`;
-  const CONNECT_WALLET_WARN = `//html/body/div/section/div[2]/div/div/div[3]`;
-  const GUEST_BTN = 'sc-TBWPX ikVkVz';
-  const PLAY_BTN_GROUP = 'sc-dkPtRN dsFVlU sc-hKwDye hFSGnI game-panel';
-  const RED_OPT_BTN = 'sc-iqseJM hlqDqJ';
-  const WAGER_INPUT = `//html/body/div/section/div[2]/div/div[2]/div/div[2]/input`;
-  const WAGER_SUBMIT = 'sc-jrQzAO hTapAQ sc-kLwhqv hgglOf';
-  const WAGER_WARN = `//html/body/div/section/div[2]/div/div[2]/div/div[2]/span`;
-  const EXIT_GAME = `//html/body/div/section/div[2]/div/div[4]`;
-  const F_LOGO_BTN = `//html/body/div/div/div/a`;
-  const META_DEMO_BTN = `//html/body/div/section/div[3][contains(., 'Metaverse Demo')]`;
-  const META_DEMO_MODAL = 'sc-hZpJaK bLpxBW';
+  const ABOUT_BTN = 'TEST_ABOUT_BUTTON';
+  const ABOUT_BTN_MDL = 'TEST_ABOUT_BUTTON_MODAL';
+  const ABOUT_MDL_CLOSE_BTN = 'TEST_MODAL_CLOSE_BUTTON';
+  const GAME_MENU = 'TEST_GAME_MENU';
+  const GAME_BTNS = 'TEST_GAME_BUTTONS';
+  const GAME_MENU_MDL = 'TEST_GAME_MENU_MODAL';
+  const GAME_MENU_MDL_CLOSE_BTN = 'TEST_GAME_MENU_MODAL_CLOSE_BUTTON';
+  const GAME_MENU_MDL_BTNS = 'TEST_GAME_MENU_MODAL_BUTTONS';
+  const CONNECT_WALLET_WARN = 'TEST_CONNECT_WALLET_WARNING';
+  const GAME_MODE_2X_BTN = 'TEST_GAME_MODE_2X_BUTTON';
+  const COLOR_SELECTION = 'TEST_COLOR_SELECTION';
+  const WAGER_INPUT = 'TEST_WAGER_INPUT';
+  const WAGER_SUBMIT = 'TEST_WAGER_SUBMIT';
+  const WAGER_WARNING = 'TEST_WAGER_WARNING';
+  const EXIT_GAME = 'TEST_EXIT_GAME';
+  const F_LOGO_BTN = 'TEST_F_LOGO_BTN';
+  const META_DEMO_BTN = 'TEST_META_DEMO_BTN';
+  const META_DEMO_MODAL = 'TEST_META_MODAL_DEMO';
 
-  let driver, divs, wheel, rocket, dice;
+  let driver;
   
   beforeAll(async () => {
     driver = chrome.Driver.createSession(new chrome.Options(), new chrome.ServiceBuilder(path).build());
     await driver.get('http://localhost:3000');
-    await driver.wait(until.elementsLocated(By.className(GAME_BTN_GROUP)), 10000, '10 second timeout', 1000);
-    divs = await driver.findElements(By.className(GAME_BTN_GROUP));
-    wheel = divs[0], rocket = divs[1], dice = divs[2];
+    await driver.wait(until.elementsLocated(By.name(GAME_MENU)), 5000, '5 second timeout --> wait for page to load', 1000);
   });
   
   describe('canary test', () => {
@@ -38,25 +37,41 @@ const e2eSequence00 = () => {
     });
   });
   
-  describe('test about button', () => {
-    test('click on about/info button', async () => {
-      const about = await driver.wait(until.elementLocated(By.xpath(ABOUT_BTN)), 20000, '20 second timeout', 1000);
-      try {
-        await about.click();
-      } catch (e) {
-        return new Error(e);
-      }
+  describe('test about/info button', () => {
+    test('check target strategy: ABOUT_BTN', async () => {
+      const about = await driver.wait(until.elementLocated(By.name(ABOUT_BTN)), 5000, '5 second timeout --> check target strategy: ABOUT_BTN', 1000);
+      if(about){
+        return true;
+      } else return false;
     });
-  
+
+    test('click on about/info button', async () => {
+      // refine tests to remove wait() from tests dependent on keystone, which already uses wait()
+      const about = await driver.findElement(By.name(ABOUT_BTN));
+      if(about){
+        try {
+          await about.click();
+        } catch (e) {
+          return new Error(e);
+        }
+      } else return false;
+    });
+
+    test('check if about/info modal displays', async () => {
+      const modal = await driver.wait(until.elementLocated(By.name(ABOUT_BTN_MDL)), 5000, '5 second timeout --> check if about/info modal displays', 1000);
+      const isModalDisplayed = await modal.isDisplayed();
+      return expect(isModalDisplayed).toBe(true);
+    });
+    
     test('close about/info modal', async () => {
-      const close = await driver.wait(until.elementLocated(By.xpath(ABOUT_MODAL)), 20000, '20 second timeout', 1000);
+      const close = await driver.wait(until.elementLocated(By.name(ABOUT_MDL_CLOSE_BTN)), 5000, '5 second timeout --> close about/info modal', 1000);
       try {
         await close.click();
       } catch(e) {
         return new Error(e);
       }
     });
-    
+
     // future features
     /* 
     test('click on about/info button', async () => {
@@ -101,37 +116,52 @@ const e2eSequence00 = () => {
     */
   });
   
-  describe('click on wheel icon, click on connect wallet, and close modal', () => {
+  describe('test wheel button', () => {
+    test('check target strategy: GAME_BTNS[0]', async () => {
+      const wheel = await driver.wait(until.elementsLocated(By.name(GAME_BTNS)), 5000, '5 second timeout --> check target strategy: GAME_BTNS[0]', 1000);
+      if(wheel[0]){
+        return true;
+      } else return false;
+    });
+
     test('click on wheel', async () => {
+      const wheel = await driver.findElements(By.name(GAME_BTNS));
       try{
-        await wheel.click();
+        await wheel[0].click();
       } catch(e){
         return new Error(e);
       }
     });
-  
-    test('check if modal displays', async () => {
-      const modal = await driver.findElement(By.className(GAME_BTN_GROUP_MODAL));
+
+    test('check if game menu modal displays', async () => {
+      const modal = await driver.findElement(By.name(GAME_MENU_MDL));
       const isModalDisplayed = await modal.isDisplayed();
       return expect(isModalDisplayed).toBe(true);
     });
-  
+
+    test('check target strategy: GAME_MENU_MDL_BTNS[1]', async () => {
+      const connect = await driver.wait(until.elementsLocated(By.name(GAME_BTNS)), 5000, '5 second timeout --> check target strategy: GAME_MENU_MDL_BTNS[1]', 1000);
+      if(connect[1]){
+        return true;
+      } else return false;
+    });
+
     test('click on connect wallet', async () => {
-      const button = await driver.wait(until.elementLocated(By.xpath(CONNECT_WALLET_BTN)), 10000, '10 second timeout', 1000);
+      const connect = await driver.findElements(By.name(GAME_MENU_MDL_BTNS));
       try {
-        await button.click();
+        await connect[1].click();
       } catch(e) {
         return new Error(e);
       }
   
-      const warning = await driver.wait(until.elementLocated(By.xpath(CONNECT_WALLET_WARN)), 10000, '10 second timeout', 1000);
+      const warning = await driver.wait(until.elementLocated(By.name(CONNECT_WALLET_WARN)), 5000, '5 second timeout', 1000);
       const isWarnDisplayed = await warning.isDisplayed();
   
       return expect(isWarnDisplayed).toBe(true);
     });
   
     test('click on close modal button', async() => {
-      const close = await driver.findElement(By.className(MODAL_CLOSE_BTN));
+      const close = await driver.findElement(By.name(GAME_MENU_MDL_CLOSE_BTN));
       try{
         await close.click();
       } catch(e){
@@ -140,95 +170,141 @@ const e2eSequence00 = () => {
     });
   });
   
-  describe('click on crash/rocket icon and close modal', () => {
+  describe('test crash/rocket button', () => {
+    test('check target strategy: GAME_BTNS[1]', async () => {
+      const rocket = await driver.wait(until.elementsLocated(By.name(GAME_BTNS)), 5000, '5 second timeout --> check target strategy: GAME_BTNS[1]', 1000);
+      if(rocket[1]){
+        return true;
+      } else return false;
+    });
+
     test('click on crash/rocket', async () => {
+      const rocket = await driver.findElements(By.name(GAME_BTNS));
       try{
-        await rocket.click();
+        await rocket[1].click();
       } catch(e){
         return new Error(e);
       }
     });
   
-    test('check if modal displays', async () => {
-      const modal = await driver.findElement(By.className(GAME_BTN_GROUP_MODAL));
+    test('check if game menu modal displays', async () => {
+      const modal = await driver.findElement(By.name(GAME_MENU_MDL));
       const isModalDisplayed = await modal.isDisplayed();
       return expect(isModalDisplayed).toBe(true);
     });
   
     test('click on close modal button', async() => {
-      const close = await driver.findElement(By.className(MODAL_CLOSE_BTN));
+      const close = await driver.findElement(By.name(GAME_MENU_MDL_CLOSE_BTN));
       try{
         await close.click();
       } catch(e){
         return new Error(e);
       }
-    })
+    });
   });
+
   
-  describe('click on dice icon and close modal', () => {
+  describe('test dice button', () => {
+    test('check target strategy: GAME_BTNS[2]', async () => {
+      const dice = await driver.wait(until.elementsLocated(By.name(GAME_BTNS)), 5000, '5 second timeout --> check target strategy: GAME_BTNS[2]', 1000);
+      if(dice[2]){
+        return true;
+      } else return false;
+    });
+
     test('click on dice', async () => {
+      const dice = await driver.findElements(By.name(GAME_BTNS));
       try{
-        await dice.click();
+        await dice[2].click();
       } catch(e){
         return new Error(e);
       }
     });
   
-    test('check if modal displays', async () => {
-      const modal = await driver.findElement(By.className(GAME_BTN_GROUP_MODAL));
+    test('check if game menu modal displays', async () => {
+      const modal = await driver.findElement(By.name(GAME_MENU_MDL));
       const isModalDisplayed = await modal.isDisplayed();
       return expect(isModalDisplayed).toBe(true);
     });
   
     test('click on close modal button', async() => {
-      const close = await driver.findElement(By.className(MODAL_CLOSE_BTN));
+      const close = await driver.findElement(By.name(GAME_MENU_MDL_CLOSE_BTN));
       try{
         await close.click();
       } catch(e){
         return new Error(e);
       }
-    })
+    });
   });
+
   
   describe('click on join as guest and attempt to play', () => {
-    test('click on dice', async () => {
+    test('check target strategy: GAME_BTNS[0]', async () => {
+      const wheel = await driver.wait(until.elementsLocated(By.name(GAME_BTNS)), 5000, '5 second timeout --> check target strategy: GAME_BTNS[0]', 1000);
+      if(wheel[0]){
+        return true;
+      } else return false;
+    });
+
+    test('click on wheel', async () => {
+      const wheel = await driver.findElements(By.name(GAME_BTNS));
       try{
-        await dice.click();
+        await wheel[0].click();
       } catch(e){
         return new Error(e);
       }
+    });
+
+    test('check target strategy: GAME_MENU_MDL_BTNS[0]', async () => {
+      const guest = await driver.wait(until.elementsLocated(By.name(GAME_MENU_MDL_BTNS)), 5000, '5 second timeout --> check target strategy: GAME_MENU_MDL_BTNS[0]', 1000);
+      if(guest[0]){
+        return true;
+      } else return false;
     });
   
     test('click on join as guest', async () => {
-      const guest = await driver.wait(until.elementLocated(By.className(GUEST_BTN)), 10000, '10 second timeout', 1000);
+      const guest = await driver.findElements(By.name(GAME_MENU_MDL_BTNS));
       try {
-        await guest.click()
+        await guest[0].click()
       } catch(e) {
         return new Error(e);
       }
     });
-    
-    test('click on play', async () => {
-      const play = await driver.wait(until.elementsLocated(By.className(PLAY_BTN_GROUP)), 10000, '10 second timeout', 1000);
+
+    test('check target strategy: GAME_MODE_2X_BTN', async () => {
+      const play2X = await driver.wait(until.elementLocated(By.name(GAME_MODE_2X_BTN)), 5000, '5 second timeout --> check target strategy: GAME_MODE_2X_BTN', 1000);
+      if(play2X){
+        return true;
+      } else return false;
+    });
+
+    test('click on play 2X', async () => {
+      const play2X = await driver.findElement(By.name(GAME_MODE_2X_BTN));
       try {
-        // click on 2x play option
-        await play[0].click();
+        await play2X.click();
       } catch(e) {
         return new Error(e);
       }
     });
-    
+
+    test('check target strategy: COLOR_SELECTION', async () => {
+      const colors = await driver.wait(until.elementsLocated(By.name(COLOR_SELECTION)), 5000, '5 second timeout --> check target strategy: COLOR_SELECTION', 1000);
+      if(colors.length > 0){
+        return expect(colors.length).toBe(2);
+      } else return false;
+    });
+
     test('click on red color', async () => {
-      const red = await driver.wait(until.elementLocated(By.className(RED_OPT_BTN)), 10000, '10 second timeout', 1000);
+      const red = await driver.findElement(By.name(COLOR_SELECTION));
       try{
-        await red.click();
+        await red[1].click();
       } catch(e) {
         return new Error(e);
       }
     });
-  
+
     test('enter wager amount and submit', async () => {
-      const input = await driver.wait(until.elementLocated(By.xpath(WAGER_INPUT)), 10000, '10 second timeout', 1000);
+      const input = await driver.wait(until.elementLocated(By.name(WAGER_INPUT)), 5000, '5 second timeout', 1000);
       try{
         await input.click();
         await input.sendKeys('10000');
@@ -236,19 +312,19 @@ const e2eSequence00 = () => {
         return new Error(e);
       }
   
-      const submit = await driver.wait(until.elementLocated(By.className(WAGER_SUBMIT)), 10000, '10 second timeout', 1000);
+      const submit = await driver.wait(until.elementLocated(By.name(WAGER_SUBMIT)), 5000, '5 second timeout', 1000);
       try{
         submit.click();
       } catch(e) {
         return new Error(e);
       }
-      const warning = await driver.wait(until.elementLocated(By.xpath(WAGER_WARN)), 10000, '10 second timeout', 1000);
+      const warning = await driver.wait(until.elementLocated(By.name(WAGER_WARNING)), 5000, '5 second timeout', 1000);
       const isWarnDisplayed = await warning.isDisplayed();
       return expect(isWarnDisplayed).toBe(true);
-    });
-    
+    }); 
+
     // future features
-    /* 
+    /*    
     test('deposit button appears', async () => {
       const deposit = await driver.wait(until.elementLocated(By.className('sc-hBUSln ioNfJn')), 10000, '10 second timeout', 1000);
       try {
@@ -267,9 +343,9 @@ const e2eSequence00 = () => {
       }
     });
     */
-    
+
     test('exit game', async () => {
-      const close = await driver.wait(until.elementLocated(By.xpath(EXIT_GAME)), 10000, '10 second timeout', 1000);
+      const close = await driver.findElement(By.name(EXIT_GAME));
       try {
         await close.click()
       } catch(e) {
@@ -277,45 +353,71 @@ const e2eSequence00 = () => {
       }
     });
   });
-  
-  describe('check F logo link', () => {
-    test('open F logo in new tab and check address', async () => {
-      const logo = await driver.wait(until.elementLocated(By.xpath(F_LOGO_BTN)), 20000, '20 second timeout', 1000);
-      const os = await driver.getCapabilities();
-      const openInNewTab = os.getPlatform() === 'mac os x' ? Key.chord(Key.COMMAND, Key.RETURN) : Key.chord(Key.CONTROL, Key.RETURN);
-      
-      try{
-        await logo.sendKeys(openInNewTab);
-      } catch(e) {
-        return new Error(e);
-      }
-  
-      let tabs = await driver.getAllWindowHandles();
-      while (tabs.length < 2) {
-        tabs = await driver.getAllWindowHandles();
-      }
-      await driver.switchTo().window(tabs[1]);
-      await driver.getCurrentUrl().then(url => expect(url).toBe('http://localhost:3000/'));
 
-      return expect(tabs.length).toBe(2);
-    });
-  });
-  
   describe('enter metaverse', () => {
+    test('check target strategy: META_DEMO_BTN', async () => {
+      const metaverse = await driver.wait(until.elementsLocated(By.name(META_DEMO_BTN)), 5000, '5 second timeout --> check target strategy: META_DEMO_BTN', 1000);
+      if(metaverse){
+        return true;
+      } else return false;
+    });
+
     test('click on metaverse demo', async () => {
-      const metaverse = await driver.wait(until.elementLocated(By.xpath(META_DEMO_BTN)), 20000, '20 second timeout', 1000);
+      const metaverse = await driver.findElement(By.name(META_DEMO_BTN));
+      console.log(metaverse);
       try { 
         await metaverse.click();
       } catch(e) {
         return new Error(e);
       }
     });
+
+    test('check target strategy: META_DEMO_MODAL', async () => {
+      const modal = await driver.wait(until.elementsLocated(By.name(META_DEMO_MODAL)), 20000, '20 second timeout --> check target strategy: META_DEMO_MODAL', 1000);
+      if(modal){
+        return true;
+      } else return false;
+    });
     
     test('metaverse modal appears', async () => {
-      const modal = await driver.wait(until.elementLocated(By.className(META_DEMO_MODAL)), 20000, '20 second timeout', 1000);
+      const modal = await driver.findElement(By.name(META_DEMO_MODAL));
       const modalIsDisPlayed = await modal.isDisplayed();
     
       return expect(modalIsDisPlayed).toBe(true);
+    });
+
+    afterAll(async () => await driver.get('http://localhost:3000'));
+  });
+
+  // delay occurs b/n logo and metaverse 
+  describe('check F logo link', () => {
+    test('check target strategy: F_LOGO_BTN', async () => {
+      const logo = await driver.wait(until.elementsLocated(By.name(F_LOGO_BTN)), 5000, '5 second timeout --> check target strategy: F_LOGO_BTN', 1000);
+      if(logo){
+        return true;
+      } else return false;
+    });
+
+    test('open F logo in new tab', async () => {
+      const logo = await driver.findElement(By.name(F_LOGO_BTN));
+      const os = await driver.getCapabilities();
+      const openInNewTab = os.getPlatform() === 'mac os x' ? Key.chord(Key.COMMAND, Key.RETURN) : Key.chord(Key.CONTROL, Key.RETURN);
+      console.log(logo);
+      try{
+        await logo.sendKeys(openInNewTab);
+
+        let tabs = await driver.getAllWindowHandles();
+        while (tabs.length < 2) {
+          tabs = await driver.getAllWindowHandles();
+        }
+        await driver.switchTo().window(tabs[1]);
+        
+        // await driver.getCurrentUrl().then(url => expect(url).toBe('http://localhost:3000/'));
+  
+        return expect(tabs.length).toBe(2);
+      } catch(e) {
+        return new Error(e);
+      }
     });
   });
 

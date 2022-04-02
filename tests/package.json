@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "chromedriver": "^98.0.1",
+    "chromedriver": "^100.0.0",
     "dotenv": "^16.0.0",
     "jest": "^27.5.1",
     "node": "^17.4.0",
