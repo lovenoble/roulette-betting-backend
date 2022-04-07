@@ -13,7 +13,7 @@ const e2eSequence00 = () => {
   const GAME_MENU_MDL_CLOSE_BTN = 'TEST_GAME_MENU_MODAL_CLOSE_BUTTON';
   const GAME_MENU_MDL_BTNS = 'TEST_GAME_MENU_MODAL_BUTTONS';
   const CONNECT_WALLET_WARN = 'TEST_CONNECT_WALLET_WARNING';
-  const GAME_MODE_2X_BTN = 'TEST_GAME_MODE_2X_BUTTON';
+  const GAME_MODE_BTNS = 'TEST_GAME_MODE_BUTTONS'
   const COLOR_SELECTION = 'TEST_COLOR_SELECTION';
   const WAGER_INPUT = 'TEST_WAGER_INPUT';
   const WAGER_SUBMIT = 'TEST_WAGER_SUBMIT';
@@ -46,25 +46,36 @@ const e2eSequence00 = () => {
     });
 
     test('click on about/info button', async () => {
-      // refine tests to remove wait() from tests dependent on keystone, which already uses wait()
       const about = await driver.findElement(By.name(ABOUT_BTN));
-      if(about){
-        try {
-          await about.click();
-        } catch (e) {
-          return new Error(e);
-        }
+      try {
+        await about.click();
+      } catch (e) {
+        return new Error(e);
+      }
+    });
+    
+    test('check target strategy: ABOUT_BTN_MDL', async () => {
+      const modal = await driver.wait(until.elementLocated(By.name(ABOUT_BTN_MDL)), 5000, '5 second timeout --> check target strategy: ABOUT_BTN_MDL', 1000);
+      if(modal){
+        return true;
       } else return false;
     });
 
     test('check if about/info modal displays', async () => {
-      const modal = await driver.wait(until.elementLocated(By.name(ABOUT_BTN_MDL)), 5000, '5 second timeout --> check if about/info modal displays', 1000);
+      const modal = await driver.findElement(By.name(ABOUT_BTN_MDL));
       const isModalDisplayed = await modal.isDisplayed();
       return expect(isModalDisplayed).toBe(true);
     });
+
+    test('check target strategy: ABOUT_MDL_CLOSE_BTN', async () => {
+      const close = await driver.wait(until.elementLocated(By.name(ABOUT_MDL_CLOSE_BTN)), 5000, '5 second timeout --> check target strategy: ABOUT_MDL_CLOSE_BTN', 1000);
+      if(close){
+        return true;
+      } else return false;
+    });
     
     test('close about/info modal', async () => {
-      const close = await driver.wait(until.elementLocated(By.name(ABOUT_MDL_CLOSE_BTN)), 5000, '5 second timeout --> close about/info modal', 1000);
+      const close = await driver.findElement(By.name(ABOUT_MDL_CLOSE_BTN));
       try {
         await close.click();
       } catch(e) {
@@ -140,7 +151,7 @@ const e2eSequence00 = () => {
     });
 
     test('check target strategy: GAME_MENU_MDL_BTNS[1]', async () => {
-      const connect = await driver.wait(until.elementsLocated(By.name(GAME_BTNS)), 5000, '5 second timeout --> check target strategy: GAME_MENU_MDL_BTNS[1]', 1000);
+      const connect = await driver.wait(until.elementsLocated(By.name(GAME_MENU_MDL_BTNS)), 5000, '5 second timeout --> check target strategy: GAME_MENU_MDL_BTNS[1]', 1000);
       if(connect[1]){
         return true;
       } else return false;
@@ -271,17 +282,17 @@ const e2eSequence00 = () => {
       }
     });
 
-    test('check target strategy: GAME_MODE_2X_BTN', async () => {
-      const play2X = await driver.wait(until.elementLocated(By.name(GAME_MODE_2X_BTN)), 5000, '5 second timeout --> check target strategy: GAME_MODE_2X_BTN', 1000);
-      if(play2X){
+    test('check target strategy: GAME_MODE_BTNS[0]', async () => {
+      const play2X = await driver.wait(until.elementsLocated(By.name(GAME_MODE_BTNS)), 5000, '5 second timeout --> check target strategy: GAME_MODE_BTNS[0]', 1000);
+      if(play2X.length === 3){
         return true;
       } else return false;
     });
 
     test('click on play 2X', async () => {
-      const play2X = await driver.findElement(By.name(GAME_MODE_2X_BTN));
+      const play2X = await driver.findElements(By.name(GAME_MODE_BTNS));
       try {
-        await play2X.click();
+        await play2X[0].click();
       } catch(e) {
         return new Error(e);
       }
@@ -364,7 +375,7 @@ const e2eSequence00 = () => {
 
     test('click on metaverse demo', async () => {
       const metaverse = await driver.findElement(By.name(META_DEMO_BTN));
-      console.log(metaverse);
+      
       try { 
         await metaverse.click();
       } catch(e) {
@@ -402,7 +413,7 @@ const e2eSequence00 = () => {
       const logo = await driver.findElement(By.name(F_LOGO_BTN));
       const os = await driver.getCapabilities();
       const openInNewTab = os.getPlatform() === 'mac os x' ? Key.chord(Key.COMMAND, Key.RETURN) : Key.chord(Key.CONTROL, Key.RETURN);
-      console.log(logo);
+
       try{
         await logo.sendKeys(openInNewTab);
 
