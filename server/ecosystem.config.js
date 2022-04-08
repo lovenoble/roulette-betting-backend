@@ -1,4 +1,5 @@
 // ecosystem.config.js
+require('dotenv')
 const os = require('os')
 module.exports = {
     apps: [
@@ -10,7 +11,7 @@ module.exports = {
             exec_mode: 'cluster',
             env: {
                 PORT: 80,
-                REDIS_URL: 'redis://127.0.0.1:6379/0',
+                REDIS_URL: process.env.REDIS_URL,
             },
         },
         {

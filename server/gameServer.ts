@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import { createServer } from 'http'
@@ -27,7 +28,7 @@ const gameServer = new Server({
         },
     }),
     presence: new RedisPresence({
-        url: 'redis://127.0.0.1:6379/0',
+        url: process.env.REDIS_URL,
     }),
     driver: new MongooseDriver(storeUri + '?authSource=admin'),
 })
