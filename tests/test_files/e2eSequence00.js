@@ -59,14 +59,7 @@ const e2eSequence00 = () => {
   });
   
   describe('test about/info button', () => {
-    //   test('check target strategy: ABOUT_BTN', async () => {
-    //     const about = await driver.wait(until.elementLocated(By.name(ABOUT_BTN)), 5000, '5 second timeout --> check target strategy: ABOUT_BTN', 1000);
-    //     if(about){
-    //       return true;
-    //     } else return false;
-    //   });
-
-    test('check target strategy: ABOUT_BTN --> testing refactor', async () => {
+    test('check target strategy: ABOUT_BTN', async () => {
       const about = await driver.wait(until.elementLocated(By.name(ABOUT_BTN)), 5000, '5 second timeout --> check target strategy: ABOUT_BTN', 1000);
       return checkExistence(about);
     });
@@ -87,9 +80,7 @@ const e2eSequence00 = () => {
     
     test('check target strategy: ABOUT_BTN_MDL', async () => {
       const modal = await driver.wait(until.elementLocated(By.name(ABOUT_BTN_MDL)), 5000, '5 second timeout --> check target strategy: ABOUT_BTN_MDL', 1000);
-      if(modal){
-        return true;
-      } else return false;
+      return checkExistence(modal);
     });
 
     test('check if about/info modal displays', async () => {
@@ -100,9 +91,7 @@ const e2eSequence00 = () => {
 
     test('check target strategy: ABOUT_MDL_CLOSE_BTN', async () => {
       const close = await driver.wait(until.elementLocated(By.name(ABOUT_MDL_CLOSE_BTN)), 5000, '5 second timeout --> check target strategy: ABOUT_MDL_CLOSE_BTN', 1000);
-      if(close){
-        return true;
-      } else return false;
+      return checkExistence(close);
     });
     
     test('close about/info modal', async () => {
@@ -161,9 +150,7 @@ const e2eSequence00 = () => {
   describe('test wheel button', () => {
     test('check target strategy: GAME_BTNS[0]', async () => {
       const wheel = await driver.wait(until.elementsLocated(By.name(GAME_BTNS)), 5000, '5 second timeout --> check target strategy: GAME_BTNS[0]', 1000);
-      if(wheel[0]){
-        return true;
-      } else return false;
+      return checkExistence(wheel[0])
     });
 
     test('click on wheel', async () => {
@@ -183,9 +170,7 @@ const e2eSequence00 = () => {
 
     test('check target strategy: GAME_MENU_MDL_BTNS[1]', async () => {
       const connect = await driver.wait(until.elementsLocated(By.name(GAME_MENU_MDL_BTNS)), 5000, '5 second timeout --> check target strategy: GAME_MENU_MDL_BTNS[1]', 1000);
-      if(connect[1]){
-        return true;
-      } else return false;
+      return checkExistence(connect[1]);
     });
 
     test('click on connect wallet', async () => {
@@ -215,9 +200,7 @@ const e2eSequence00 = () => {
   describe('test crash/rocket button', () => {
     test('check target strategy: GAME_BTNS[1]', async () => {
       const rocket = await driver.wait(until.elementsLocated(By.name(GAME_BTNS)), 5000, '5 second timeout --> check target strategy: GAME_BTNS[1]', 1000);
-      if(rocket[1]){
-        return true;
-      } else return false;
+      return checkExistence(rocket[1]);
     });
 
     test('click on crash/rocket', async () => {
@@ -249,9 +232,7 @@ const e2eSequence00 = () => {
   describe('test dice button', () => {
     test('check target strategy: GAME_BTNS[2]', async () => {
       const dice = await driver.wait(until.elementsLocated(By.name(GAME_BTNS)), 5000, '5 second timeout --> check target strategy: GAME_BTNS[2]', 1000);
-      if(dice[2]){
-        return true;
-      } else return false;
+      return checkExistence(dice[2]);
     });
 
     test('click on dice', async () => {
@@ -283,9 +264,7 @@ const e2eSequence00 = () => {
   describe('click on join as guest and attempt to play', () => {
     test('check target strategy: GAME_BTNS[0]', async () => {
       const wheel = await driver.wait(until.elementsLocated(By.name(GAME_BTNS)), 5000, '5 second timeout --> check target strategy: GAME_BTNS[0]', 1000);
-      if(wheel[0]){
-        return true;
-      } else return false;
+      return checkExistence(wheel[0]);
     });
 
     test('click on wheel', async () => {
@@ -299,9 +278,7 @@ const e2eSequence00 = () => {
 
     test('check target strategy: GAME_MENU_MDL_BTNS[0]', async () => {
       const guest = await driver.wait(until.elementsLocated(By.name(GAME_MENU_MDL_BTNS)), 5000, '5 second timeout --> check target strategy: GAME_MENU_MDL_BTNS[0]', 1000);
-      if(guest[0]){
-        return true;
-      } else return false;
+      return checkExistence(guest[0]);
     });
   
     test('click on join as guest', async () => {
@@ -399,9 +376,7 @@ const e2eSequence00 = () => {
   describe('enter metaverse', () => {
     test('check target strategy: META_DEMO_BTN', async () => {
       const metaverse = await driver.wait(until.elementsLocated(By.name(META_DEMO_BTN)), 5000, '5 second timeout --> check target strategy: META_DEMO_BTN', 1000);
-      if(metaverse){
-        return true;
-      } else return false;
+      return checkExistence(metaverse);
     });
 
     test('click on metaverse demo', async () => {
@@ -416,9 +391,7 @@ const e2eSequence00 = () => {
 
     test('check target strategy: META_DEMO_MODAL', async () => {
       const modal = await driver.wait(until.elementsLocated(By.name(META_DEMO_MODAL)), 20000, '20 second timeout --> check target strategy: META_DEMO_MODAL', 1000);
-      if(modal){
-        return true;
-      } else return false;
+      return checkExistence(modal);
     });
     
     test('metaverse modal appears', async () => {
@@ -431,13 +404,10 @@ const e2eSequence00 = () => {
     afterAll(async () => await driver.get('http://localhost:3000'));
   });
 
-  // delay occurs b/n logo and metaverse 
   describe('check F logo link', () => {
     test('check target strategy: F_LOGO_BTN', async () => {
       const logo = await driver.wait(until.elementsLocated(By.name(F_LOGO_BTN)), 5000, '5 second timeout --> check target strategy: F_LOGO_BTN', 1000);
-      if(logo){
-        return true;
-      } else return false;
+      return checkExistence(logo);
     });
 
     test('open F logo in new tab', async () => {
