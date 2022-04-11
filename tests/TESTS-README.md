@@ -1,6 +1,21 @@
 # END TO END TESTS FOR FP
 
 
+## mac resource download
+
+* download link:
+
+https://mega.nz/file/MjwlXA5L#TxajrGFcAKSH2-riMR_OY2UdvX7JRrXWd2QpDr1t7Qk
+
+* sha512 hash: 
+
+24e48ae2ef8cb30fe6bce247b733e84ef35d8bd789ada3317e77926ab54faf31da85b9111c4e5606ac7e280898b5b602eceed86627ac81ad3bb1ccc9cc03d16c
+
+* get downloaded hash, then compare output with above hash to ensure same file downloaded:
+
+`openssl dgst -sha512 /PATH/TO/DOWNLOADED/FILE/googlechrome.dmg`
+
+
 ## How to run tests
   1.  Ensure the dev environment is up and running.
   2.  As of now, tests are in the **selenium-test-0** branch of the **pear-connects-crypto** repo and the **selenium-test-0** branch of the **fareplay-frontend-metaverse** repo. **pear-connects-crypto** contains the tests, while **fareplay-frontend-metaverse** contains the test targets for the tests. Both repositories must be on the **selenium-test-0** branch for tests to work.
