@@ -3,7 +3,7 @@
 
 ## mac resource download
 
-* download link:
+* Download link:
 
 https://mega.nz/file/MjwlXA5L#TxajrGFcAKSH2-riMR_OY2UdvX7JRrXWd2QpDr1t7Qk
 
@@ -11,7 +11,7 @@ https://mega.nz/file/MjwlXA5L#TxajrGFcAKSH2-riMR_OY2UdvX7JRrXWd2QpDr1t7Qk
 
 24e48ae2ef8cb30fe6bce247b733e84ef35d8bd789ada3317e77926ab54faf31da85b9111c4e5606ac7e280898b5b602eceed86627ac81ad3bb1ccc9cc03d16c
 
-* get downloaded hash, then compare output with above hash to ensure same file downloaded:
+* Get the downloaded file hash, then compare output with above hash to ensure the same file is downloaded:
 
 `openssl dgst -sha512 /PATH/TO/DOWNLOADED/FILE/googlechrome.dmg`
 
@@ -40,7 +40,9 @@ https://mega.nz/file/MjwlXA5L#TxajrGFcAKSH2-riMR_OY2UdvX7JRrXWd2QpDr1t7Qk
       PRIVATE=
       ```
   5.  Then enter your MetaMask testing account information. Your 12 key MetaMask pass phrase keys are entered into indiviual fields (`METAMASK_PASSPHRASE01=`, `METAMASK_PASSPHRASE02=`, ... etc) without any whitespaces. Enter a local password for MetaMask in `PASSWORD`. Finally, enter your MetaMask testing account private key into `PRIVATE=` so that the testing account can be imported by Selenium WebDriver during the e2e tests.
-  6.  After all dependencies are installed and .env is setup:
+  6.  Move the downloaded Chrome installer file into /tests/mac_chrome, install Chrome to that directory.
+  7.  After Chrome has been installed in /tests/mac_chrome, open it at least once and provide it normal system permissions.
+  8.  After all dependencies are installed, .env is setup, and Chrome binary is setup, then while in /tests:
     *  `npm test`
 
 
@@ -63,19 +65,17 @@ https://mega.nz/file/MjwlXA5L#TxajrGFcAKSH2-riMR_OY2UdvX7JRrXWd2QpDr1t7Qk
   3.  Tests will not run reliably in Chrome headless mode. A fix is in progress.
 
 
-## Current run total: 16
-## Number of times successful: 12
 ## Errors (in total)
-  1.  02--**Chrome Alert**: Not enough PEAR. Please deposit less than 0
+  1.  **Chrome Alert**: Not enough PEAR. Please deposit less than 0
     *  fix: restart dev server because fe and be aren't communicating correctly
     *  throws an error b/c the fe hasn't gotten the amount from be
-  2.  03--**Chrome Alert**: Please enter a deposit amount.
+  2.  **Chrome Alert**: Please enter a deposit amount.
     *  fix: restart tests, caused by MetaMask and fp interaction hang
-  3.  02--**Chrome Alert**: Cannot withdraw that much. Please deposit less than 0.0
+  3.  **Chrome Alert**: Cannot withdraw that much. Please deposit less than 0.0
     *  fix: restart tests, caused by MetaMask and fp interaction hang
   4.  **FP Warning**: upstream connect error or disconnect/reset before headers. reset reason: connection termination
     *  fix: restart dev server because fe and be aren't communicating correctly
-  5.  02--**FP Alert**: Not enough in deposit balance. Please add more funds
+  5.  **FP Alert**: Not enough in deposit balance. Please add more funds
     *  fix: restart tests, caused by MetaMask and fp interaction hang
 
 
