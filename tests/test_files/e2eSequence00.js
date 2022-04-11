@@ -1,9 +1,29 @@
 const {By, until, Key} = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
-const path = require('chromedriver').path;
+const path = require('path');
+const fs = require('fs');
+const CD_PATH = require('chromedriver').path;
+
+const checkExistence = (elementRef) => {
+  if(elementRef){
+    return true;
+  } else return false;
+};
+
+const checkClickThrough = async (elementRef) => {
+  try{
+    await elementRef.click();
+  } catch(e) {
+    return new Error(e);
+  }
+}
 
 const e2eSequence00 = () => { 
-  // global fp elements
+  // testing globals
+  const GC_PATH = path.resolve(`./mac_chrome/Google\ Chrome.app/Contents/MacOS/Google\ Chrome`); // this path is relative to the jest runner file
+  let driver;
+  
+  // global fp target elements
   const ABOUT_BTN = 'TEST_ABOUT_BUTTON';
   const ABOUT_BTN_MDL = 'TEST_ABOUT_BUTTON_MODAL';
   const ABOUT_MDL_CLOSE_BTN = 'TEST_MODAL_CLOSE_BUTTON';
@@ -22,36 +42,47 @@ const e2eSequence00 = () => {
   const F_LOGO_BTN = 'TEST_F_LOGO_BTN';
   const META_DEMO_BTN = 'TEST_META_DEMO_BTN';
   const META_DEMO_MODAL = 'TEST_META_MODAL_DEMO';
-
-  let driver;
   
   beforeAll(async () => {
-    driver = chrome.Driver.createSession(new chrome.Options(), new chrome.ServiceBuilder(path).build());
+    const opt = new chrome.Options();
+    opt.setChromeBinaryPath(GC_PATH);
+    driver = chrome.Driver.createSession(opt, new chrome.ServiceBuilder(CD_PATH).build());
     await driver.get('http://localhost:3000');
     await driver.wait(until.elementsLocated(By.name(GAME_MENU)), 5000, '5 second timeout --> wait for page to load', 1000);
   });
   
   describe('canary test', () => {
-    test('check test environment', async () => {
-      await driver.getCurrentUrl().then(url => expect(url).toBe('http://localhost:3000/'));
+    test('check chrome binary exists in /mac_chrome', async () => {
+      let files = fs.readdirSync(`${path.resolve(process.cwd())}/mac_chrome/`);
+      return expect(files.includes('Google\ Chrome.app')).toBe(true);
     });
   });
   
   describe('test about/info button', () => {
-    test('check target strategy: ABOUT_BTN', async () => {
+    //   test('check target strategy: ABOUT_BTN', async () => {
+    //     const about = await driver.wait(until.elementLocated(By.name(ABOUT_BTN)), 5000, '5 second timeout --> check target strategy: ABOUT_BTN', 1000);
+    //     if(about){
+    //       return true;
+    //     } else return false;
+    //   });
+
+    test('check target strategy: ABOUT_BTN --> testing refactor', async () => {
       const about = await driver.wait(until.elementLocated(By.name(ABOUT_BTN)), 5000, '5 second timeout --> check target strategy: ABOUT_BTN', 1000);
-      if(about){
-        return true;
-      } else return false;
+      return checkExistence(about);
     });
 
-    test('click on about/info button', async () => {
+    // test('click on about/info button', async () => {
+    //   const about = await driver.findElement(By.name(ABOUT_BTN));
+    //   try {
+    //     await about.click();
+    //   } catch (e) {
+    //     return new Error(e);
+    //   }
+    // });
+
+    test('click on about/info button --> testing refactor', async () => {
       const about = await driver.findElement(By.name(ABOUT_BTN));
-      try {
-        await about.click();
-      } catch (e) {
-        return new Error(e);
-      }
+      return await checkClickThrough(about);
     });
     
     test('check target strategy: ABOUT_BTN_MDL', async () => {
@@ -325,7 +356,7 @@ const e2eSequence00 = () => {
   
       const submit = await driver.wait(until.elementLocated(By.name(WAGER_SUBMIT)), 5000, '5 second timeout', 1000);
       try{
-        submit.click();
+        await submit.click();
       } catch(e) {
         return new Error(e);
       }

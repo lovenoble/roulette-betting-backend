@@ -48,16 +48,19 @@
   3.  Tests will not run reliably in Chrome headless mode. A fix is in progress.
 
 
-## Errors
-  1.  **Chrome Alert**: Not enough PEAR. Please deposit less than 0
+## Current run total: 16
+## Number of times successful: 12
+## Errors (in total)
+  1.  02--**Chrome Alert**: Not enough PEAR. Please deposit less than 0
     *  fix: restart dev server because fe and be aren't communicating correctly
-  2.  **Chrome Alert**: Please enter a deposit amount.
+    *  throws an error b/c the fe hasn't gotten the amount from be
+  2.  03--**Chrome Alert**: Please enter a deposit amount.
     *  fix: restart tests, caused by MetaMask and fp interaction hang
-  3.  **Chrome Alert**: Cannot withdraw that much. Please deposit less than 0.0
+  3.  02--**Chrome Alert**: Cannot withdraw that much. Please deposit less than 0.0
     *  fix: restart tests, caused by MetaMask and fp interaction hang
   4.  **FP Warning**: upstream connect error or disconnect/reset before headers. reset reason: connection termination
     *  fix: restart dev server because fe and be aren't communicating correctly
-  5.  **Chrome Aler**: Not enough in deposit balance. Please add more funds
+  5.  02--**FP Alert**: Not enough in deposit balance. Please add more funds
     *  fix: restart tests, caused by MetaMask and fp interaction hang
 
 

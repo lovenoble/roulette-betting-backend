@@ -107,3 +107,7 @@ dist
 
 #hierophant's personal scripts
 status.sh
+
+#test assets
+*Google\ Chrome.app
+*googlechrome.dmg

@@ -4,7 +4,51 @@ const path = require('path');
 const chrome = require('selenium-webdriver/chrome');
 const CD_PATH = require('chromedriver').path;
 
+// add forced wait to allow fe to interact w/ backend, retry helper --> wrap around one of the below tests
+// const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+/*
+test('close deposit modal', async () => {
+  // wait for animation to complete
+  let isAnimationActive = true;
+  while(isAnimationActive){
+    const close = await driver.findElement(By.name(DEPOSIT_MDL_CLOSE_BTN));
+    try {
+      isAnimationActive = false;
+      await close.click();
+    } catch(e) {
+      isAnimationActive = true;
+    }
+  }
+  
+  return true;
+});
+*/
+const sleep = (timeInMS) => new Promise((resolve) => setTimeout(resolve, timeInMS));
+
+const retryHelper = async (time, action, ceiling) => {
+  let retryCnt = 0;
+  let isActive = true;
+  while(isActive && retryCnt < ceiling){
+    try{
+      isActive = false;
+      await action();
+    } catch(e) {
+      await sleep(time);
+      isActive = true;
+      retryCnt++;
+    }
+  }
+  if(retryCnt >= ceiling) throw new Error(`Attempted ${ceiling} retries, all failed.`);
+};
+
 const e2eSequence01 = () => {
+  // testing globals
+  const metamask = '10.12.2_0.crx'
+  const MM_PATH = path.resolve(`./mac_chrome/${metamask}`);
+  const GC_PATH = path.resolve('./mac_chrome/Google\ Chrome.app/Contents/MacOS/Google\ Chrome'); // this path is relative to the jest runner file
+  let driver; 
+
   // global metamask elements
   const GET_STARTED_BTN = `//html/body/div[1]/div/div[2]/div/div/div/button[contains(., 'Get Started')]`;
   const IMPORT_WALLET_BTN = `//html/body/div[1]/div/div[2]/div/div/div[2]/div/div[2]/div[1]/button[contains(., 'Import wallet')]`;
@@ -65,12 +109,6 @@ const e2eSequence01 = () => {
   // const WITHDRAW_MDL_BALANCE = 'TEST_WITHDRAW_MODAL_BALANCE';
   const WITHDRAW_MDL_CLOSE_BTN = 'TEST_WITHDRAW_MODAL_CLOSE_BUTTON';
 
-  // testing globals
-  const metamask = '10.12.2_0.crx'
-  const MM_PATH = `./${metamask}`;
-  const opt = new chrome.Options();
-  let driver; 
-
   describe('canary test', () => {
     test('check if METAMASK_PASSPHRASE01...12 is setup in /tests/.env', () => {
       
@@ -99,14 +137,21 @@ const e2eSequence01 = () => {
     });
 
     test('check if 10.12.2_0.crx is in /tests', () => {
-      let files = fs.readdirSync(path.resolve(process.cwd()));
+      let files = fs.readdirSync(`${path.resolve(process.cwd())}/mac_chrome/`);
       return expect(files.includes(metamask)).toBe(true);
+    });
+    test('check chrome binary exists in /mac_chrome', () => {
+      let files = fs.readdirSync(`${path.resolve(process.cwd())}/mac_chrome/`);
+      return expect(files.includes('Google\ Chrome.app')).toBe(true);
     });
   });
 
   describe('set up metamask extension and connect with DAPP', () => {
     beforeAll(async () => {
-      driver = chrome.Driver.createSession(opt.addExtensions(MM_PATH), new chrome.ServiceBuilder(CD_PATH).build());
+      const opt = new chrome.Options();
+      opt.setChromeBinaryPath(GC_PATH);
+      opt.addExtensions(MM_PATH);
+      driver = chrome.Driver.createSession(opt, new chrome.ServiceBuilder(CD_PATH).build());
       const tabs = await driver.getAllWindowHandles();
     
       await driver.switchTo().window(tabs[0]);
@@ -295,7 +340,7 @@ const e2eSequence01 = () => {
     test('select 2x game mode', async () => {
       const play2X = await driver.findElements(By.name(GAME_MODE_BTNS));
       try {
-        play2X[0].click();
+        await play2X[0].click();
       } catch(e) {
         return new Error(e)
       }
@@ -327,7 +372,7 @@ const e2eSequence01 = () => {
     test('click on 1st deposit button', async () => {
       const deposit = await driver.findElement(By.name(DEPOSIT_BTN));
       try {
-        deposit.click();
+        await deposit.click();
       } catch(e) {
         return new Error(e);
       }
@@ -343,8 +388,8 @@ const e2eSequence01 = () => {
     test('enter 10000 into deposit input', async () => {
       const depositInput = await driver.findElement(By.name(DEPOSIT_MDL_IN));
       try {
-        depositInput.click();
-        depositInput.sendKeys('10000');
+        await depositInput.click();
+        await depositInput.sendKeys('10000');
       } catch(e) {
         return new Error(e);
       }
@@ -357,10 +402,31 @@ const e2eSequence01 = () => {
       } else return false;
     });
 
+    /*  
+    test('click on 2nd deposit button', async () => {
+      const deposit = await driver.findElement(By.name(DEPOSIT_MDL_DEPOSIT_BTN));
+
+      const action = async () => {
+        await deposit.click();
+        
+        let windows = await driver.getAllWindowHandles();
+        
+        if(windows.length < 3) throw new Error('MetaMask not present');
+      };
+
+      try {
+        // await deposit.click();
+        await retryHelper(1000, action, 10);
+      } catch(e) {
+        return new Error(e);
+      }
+    });
+    */
+
     test('click on 2nd deposit button', async () => {
       const deposit = await driver.findElement(By.name(DEPOSIT_MDL_DEPOSIT_BTN));
       try {
-        deposit.click();
+        await deposit.click();
       } catch(e) {
         return new Error(e);
       }
@@ -481,7 +547,7 @@ const e2eSequence01 = () => {
     test('click on blue color', async () => {
       const blue = await driver.findElements(By.name(COLOR_SELECTION));
       try {
-        blue[0].click();
+        await blue[0].click();
       } catch(e) {
         return new Error(e);
       }
@@ -511,14 +577,55 @@ const e2eSequence01 = () => {
       } else return false;
     });
 
+    // const retryHelper = async (time, action, ceiling)
+
+    // test('click on submit wager', async () => {
+    //   const wagerSubmit = await driver.findElement(By.name(WAGER_SUBMIT));
+      
+    //   const action = async () => {
+    //     await wagerSubmit.click();
+        
+    //     let windows = await driver.getAllWindowHandles();
+        
+    //     if(windows.length < 3) throw new Error('MetaMask not present');
+    //   };
+
+    //   try {
+    //     await retryHelper(1000, action, 10);
+    //   } catch(e) {
+    //     return new Error(e);
+    //   }
+    // });
+
     test('click on submit wager', async () => {
       const wagerSubmit = await driver.findElement(By.name(WAGER_SUBMIT));
       try {
-        wagerSubmit.click();
+        await wagerSubmit.click();
       } catch(e) {
         return new Error(e);
       }
     });
+
+    // add forced wait to allow fe to interact w/ backend, retry helper --> wrap around one of the below tests
+    // const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+    /*
+    test('close deposit modal', async () => {
+      // wait for animation to complete
+      let isAnimationActive = true;
+      while(isAnimationActive){
+        const close = await driver.findElement(By.name(DEPOSIT_MDL_CLOSE_BTN));
+        try {
+          isAnimationActive = false;
+          await close.click();
+        } catch(e) {
+          isAnimationActive = true;
+        }
+      }
+      
+      return true;
+    });
+    */
     
     test('metamask pop up occurs', async () => {
       let windows = await driver.getAllWindowHandles();
@@ -587,7 +694,7 @@ const e2eSequence01 = () => {
     test('click on 1st deposit button', async () => {
       const deposit = await driver.findElement(By.name(DEPOSIT_BTN));
       try {
-        deposit.click();
+        await deposit.click();
       } catch(e) {
         return new Error(e);
       }
@@ -603,8 +710,8 @@ const e2eSequence01 = () => {
     test('enter 10000 into deposit input', async () => {
       const depositInput = await driver.findElement(By.name(DEPOSIT_MDL_IN));
       try {
-        depositInput.click();
-        depositInput.sendKeys('10000');
+        await depositInput.click();
+        await depositInput.sendKeys('10000');
       } catch(e) {
         return new Error(e);
       }
@@ -620,12 +727,13 @@ const e2eSequence01 = () => {
     test('click on 2nd deposit button', async () => {
       const deposit = await driver.findElement(By.name(DEPOSIT_MDL_DEPOSIT_BTN));
       try {
-        deposit.click();
+        await deposit.click();
       } catch(e) {
         return new Error(e);
       }
     });
 
+    // metamask hangs here --> deposit more money to test red wheel color
     test('1st metamask pop up occurs', async () => {
       let windows = await driver.getAllWindowHandles();
       while (windows.length < 3) {
@@ -741,7 +849,7 @@ const e2eSequence01 = () => {
     test('click on red color', async () => {
       const red = await driver.findElements(By.name(COLOR_SELECTION));
       try {
-        red[1].click();
+        await red[1].click();
       } catch(e) {
         return new Error(e);
       }
@@ -771,10 +879,11 @@ const e2eSequence01 = () => {
       } else return false;
     });
 
+    // metamask hangs here --> select red wheel color and enter wager amount
     test('click on submit wager', async () => {
       const wagerSubmit = await driver.findElement(By.name(WAGER_SUBMIT));
       try {
-        wagerSubmit.click();
+        await wagerSubmit.click();
       } catch(e) {
         return new Error(e);
       }
@@ -851,7 +960,7 @@ const e2eSequence01 = () => {
     test('click on 1st deposit button', async () => {
       const deposit = await driver.findElement(By.name(DEPOSIT_BTN));
       try {
-        deposit.click();
+        await deposit.click();
       } catch(e) {
         return new Error(e);
       }
@@ -867,8 +976,8 @@ const e2eSequence01 = () => {
     test('enter 10000 into deposit input', async () => {
       const depositInput = await driver.findElement(By.name(DEPOSIT_MDL_IN));
       try {
-        depositInput.click();
-        depositInput.sendKeys('10000');
+        await depositInput.click();
+        await depositInput.sendKeys('10000');
       } catch(e) {
         return new Error(e);
       }
@@ -884,7 +993,7 @@ const e2eSequence01 = () => {
     test('click on 2nd deposit button', async () => {
       const deposit = await driver.findElement(By.name(DEPOSIT_MDL_DEPOSIT_BTN));
       try {
-        deposit.click();
+        await deposit.click();
       } catch(e) {
         return new Error(e);
       }
@@ -942,6 +1051,9 @@ const e2eSequence01 = () => {
         return true;
       } else return false;
     });
+
+    // extract logic to create a retry helper function
+    // const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
     
     test('close deposit modal', async () => {
       // wait for animation to complete
@@ -1005,7 +1117,7 @@ const e2eSequence01 = () => {
     test('click on 1st withdraw button', async () => {
       const withdraw = await driver.findElement(By.name(WITHDRAW_BTN));
       try {
-        withdraw.click();
+        await withdraw.click();
       } catch(e) {
         return new Error(e);
       }
@@ -1021,8 +1133,8 @@ const e2eSequence01 = () => {
     test('enter amount to withdraw', async () => {
       const withdrawInput = await driver.findElement(By.name(WITHDRAW_MDL_IN));
       try{
-        withdrawInput.click();
-        withdrawInput.sendKeys('10000');
+        await withdrawInput.click();
+        await withdrawInput.sendKeys('10000');
       } catch(e) {
         return new Error(e);
       }
@@ -1038,12 +1150,13 @@ const e2eSequence01 = () => {
     test('click on 2nd withdraw button', async () => {
       const withdraw = await driver.findElement(By.name(WITHDRAW_MDL_WITHDRAW_BTN));
       try{
-        withdraw.click();
+        await withdraw.click();
       } catch(e) {
         return new Error(e);
       }
     });
     
+    // metamask hangs here --> withdraw deposited money
     test('metamask pop up occurs', async () => {
       let windows = await driver.getAllWindowHandles();
       while (windows.length < 3) {
