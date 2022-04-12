@@ -18,8 +18,6 @@ export class OnGuestPlayerJoined extends Command<
 > {
     async execute({ guestUsername, sessionId }) {
         try {
-            console.log('Dispatch Guest Username', guestUsername)
-
             const joinedGuestPlayer = new GuestPlayer({
                 guestUsername,
                 pearBalance: '5000000',
@@ -50,9 +48,6 @@ export class OnWalletUpdate extends Command<
                 queueBalance,
                 prizeBalance,
             } = await pear.getAllPearBalances(playerAddress)
-
-            console.log(playerAddress, pearBalance, ethBalance)
-
             const gp = this.state.gamePlayers.get(playerAddress)
             if (!gp) {
                 const joinedGamePlayer = new GamePlayer({
@@ -107,6 +102,7 @@ export class OnNewEntry extends Command<
             //     entryList.list.push(newEntry)
             // }
         } catch (err) {
+            console.log('HITTTTT')
             console.error(err)
         }
     }

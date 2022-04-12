@@ -719,10 +719,6 @@ function Navbar({ dragAreaRef }: INavbar) {
         }
     }, [prevIsMaximized, isMaximized, navbarControls])
 
-    // useEffect(() => {
-    //     console.log(prevIsClosed, isClosed)
-    // }, [prevIsClosed, isClosed])
-
     useEffect(() => {
         if (!navbarControls) return
 

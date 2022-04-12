@@ -11,29 +11,28 @@ const {
     BLOCKCHAIN_ETH_URL,
     PEAR_TOKEN_ADDRESS,
     PEAR_GAME_ADDRESS,
-    INFURA_POLY_TESTNET,
-    INFURA_ETH_KOVAN,
     PRIVATE_KEY,
-    NODE_ENV
+    INFURA_POLY_TESTNET,
+    NODE_ENV,
+    INFURA_ETH_KOVAN,
 } = process.env
-
-console.log(PEAR_TOKEN_ADDRESS, PEAR_GAME_ADDRESS)
 
 export const pearTokenAddress =
     PEAR_TOKEN_ADDRESS || '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6'
 export const pearGameAddress =
     PEAR_GAME_ADDRESS || '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318'
 
-// const isDev = NODE_ENV === 'development'
 const isDev = false
 
-const FUJI_RPC_URL = 'https://api.avax-test.network/ext/bc/C/rpc'
+// const FUJI_RPC_URL = 'https://api.avax-test.network/ext/bc/C/rpc'
+// const isDev = NODE_ENV === 'development'
 // const provider = new ethers.providers.JsonRpcProvider(isDev ? BLOCKCHAIN_ETH_URL : INFURA_POLY_TESTNET)
 // const provider = new ethers.providers.JsonRpcProvider(INFURA_POLY_TESTNET)
 const provider = new ethers.providers.JsonRpcProvider(BLOCKCHAIN_ETH_URL)
 
 export async function faucetPearMatic(address: string) {
     try {
+        console.log(provider.network)
         const signer = new Wallet(PRIVATE_KEY, provider)
         const _pearTokenContractSigner =  new Contract(pearTokenAddress, PearToken.abi, signer)
         const pearBalance = await _pearTokenContractSigner.balanceOf(address)

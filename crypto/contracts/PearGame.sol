@@ -196,7 +196,9 @@ contract PearGame is ReentrancyGuard, Ownable, VRFConsumerBase {
             winAmount: 0
         }));
 
-        emit EntrySubmitted(currentRoundId, msg.sender, amount, pickedNumber, gameMode, entryMap[currentRoundId].length);
+        uint _entryId = entryMap[currentRoundId].length.sub(1);
+
+        emit EntrySubmitted(currentRoundId, msg.sender, amount, pickedNumber, gameMode, _entryId);
     }
 
     function settleBatchMap(uint randomNumber) internal nonReentrant {

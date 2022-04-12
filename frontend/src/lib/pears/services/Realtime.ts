@@ -161,16 +161,13 @@ class Realtime {
     }
 
     async leaveAllConnectedRooms() {
-        console.log('hit')
         // @NOTE: Make sure all possible room connections are disconnected here
 
         if (this.lobby) {
-            console.log('hitttt')
             await this.lobby.leave()
         }
 
         if (this.room) {
-            console.log('HITTT')
             await this.room.leave()
         }
     }

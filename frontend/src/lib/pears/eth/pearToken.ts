@@ -52,9 +52,9 @@ export async function sendPearToken(
     try {
         const safeAmount = utils.parseUnits(amount, pearDecimals)
         const approveResp = await pearContract?.approve(to, safeAmount)
-        console.log('approveResp', approveResp)
+        console.log(`Approve tx(${approveResp.hash.substring(0, 12)}) was successful to ${to.substring(0, 12)} for ${amount}`)
         const transferResp = await pearContract?.transfer(to, safeAmount)
-        console.log('transferResp', transferResp)
+        console.log(`Approve tx(${transferResp.hash.substring(0, 12)}) was successful to ${to.substring(0, 12)} for ${amount}`)
         return true
     } catch (err: any) {
         throw new Error(err.toString())

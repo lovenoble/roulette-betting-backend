@@ -41,7 +41,7 @@ sockets.initRooms()
 export async function initializeGameServer(gameServerPort) {
     try {
         await gameServer.listen(gameServerPort)
-        console.log(`Pear game server running on ws://localhost:${gameServerPort}`)
+        console.log(`Pear game server running on WebSocket port :${gameServerPort}`)
     } catch (err) {
         console.log(err)
         process.exit(1)

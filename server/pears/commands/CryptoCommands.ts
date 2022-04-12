@@ -49,7 +49,7 @@ export class OnFetchRoundAndEntries extends Command<
 
             pear.pearGameContract.on(
                 'EntrySubmitted',
-                async (roundId, player, amount, color, gmaeMode, entryId) => {
+                async (roundId, player, amount, color, gameMode, entryId) => {
                     if (this.state.entries[fu(roundId, 0)].list[fu(entryId, 0)]) return
                     try {
                         log('-------------------------------')
