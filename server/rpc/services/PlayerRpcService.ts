@@ -7,13 +7,9 @@ import * as protoLoader from '@grpc/proto-loader'
 // Libraries
 import PlayerDBService from '../../store/services/Player'
 import PearHash from '../../pears/utils/PearHash'
-import { createLog } from '../../pears/utils'
-import { faucetPearMatic } from '../../pears/crypto'
+import { faucetFareMatic } from '../../pears/crypto'
+
 const __dirname = dirname(fileURLToPath(import.meta.url))
-
-const LOG_PATH = '[rpc/services/PlayerRpcService]:'
-
-const [logInfo, logError] = createLog(LOG_PATH)
 
 const PlayerModel = PlayerDBService.model
 
@@ -22,8 +18,8 @@ const SIGNING_MESSAGE_TEXT =
 
 class PlayerRpcService {
 	readonly PROTO_PATH: string = path.join(__dirname, '../protos/player.proto')
-	public proto: any
-	public methods: { [key: string]: any }
+	public proto: grpc.ServiceDefinition<grpc.UntypedServiceImplementation>
+	public methods: grpc.UntypedServiceImplementation
 
 	constructor() {
 		const packageDefs = protoLoader.loadSync(this.PROTO_PATH, {
@@ -34,18 +30,22 @@ class PlayerRpcService {
 			oneofs: true,
 		})
 
-		this.proto = grpc.loadPackageDefinition(packageDefs).player
+		const { verifyToken, verifySignature, generateNonce, logout, login, create } =
+			PlayerRpcService
+
+		// @ts-ignore
+		this.proto = grpc.loadPackageDefinition(packageDefs).player.Player.service
 		this.methods = {
-			create: this.create,
-			login: this.login,
-			logout: this.logout,
-			generateNonce: this.generateNonce,
-			verifySignature: this.verifySignature,
-			verifyToken: this.verifyToken,
+			create,
+			login,
+			logout,
+			generateNonce,
+			verifySignature,
+			verifyToken,
 		}
 	}
 
-	async generateNonce(call, callback) {
+	static async generateNonce(call, callback) {
 		try {
 			const { publicAddress } = call.request
 
@@ -55,7 +55,6 @@ class PlayerRpcService {
 
 			callback(null, { nonce: nonceHex })
 		} catch (err) {
-			logError(err)
 			callback({
 				code: grpc.status.INTERNAL,
 				status: grpc.status.INTERNAL,
@@ -64,7 +63,7 @@ class PlayerRpcService {
 		}
 	}
 
-	async verifyToken(call, callback) {
+	static async verifyToken(call, callback) {
 		// @NOTE Need error catching
 		try {
 			const { token } = call.request
@@ -92,7 +91,7 @@ class PlayerRpcService {
 			}
 
 			return callback(null, { publicAddress: decodedToken.publicAddress })
-		} catch (err: any) {
+		} catch (err) {
 			return callback({
 				code: grpc.status.PERMISSION_DENIED,
 				status: grpc.status.PERMISSION_DENIED,
@@ -101,7 +100,7 @@ class PlayerRpcService {
 		}
 	}
 
-	async verifySignature(call, callback) {
+	static async verifySignature(call, callback) {
 		try {
 			const { publicAddress, signature } = call.request
 
@@ -119,7 +118,7 @@ class PlayerRpcService {
 					nonce: nonceHex,
 				})
 
-				faucetPearMatic(publicAddress)
+				faucetFareMatic(publicAddress)
 
 				return callback(null, { token: createdJwt })
 			}
@@ -131,7 +130,7 @@ class PlayerRpcService {
 				message: 'Signature is invalid.',
 			})
 		} catch (err) {
-			callback({
+			return callback({
 				code: grpc.status.INTERNAL,
 				status: grpc.status.INTERNAL,
 				message: err.toString(),
@@ -139,7 +138,7 @@ class PlayerRpcService {
 		}
 	}
 
-	async create(call, callback) {
+	static async create(call, callback) {
 		try {
 			const { username, password, sessionId } = call.request
 
@@ -149,9 +148,8 @@ class PlayerRpcService {
 				sessionId,
 			})
 
-			callback(null, { token: createdUser._id, sessionId: sessionId })
+			callback(null, { token: createdUser._id, sessionId })
 		} catch (err) {
-			logError(err)
 			callback({
 				code: grpc.status.INTERNAL,
 				status: grpc.status.INTERNAL,
@@ -160,17 +158,18 @@ class PlayerRpcService {
 		}
 	}
 
-	async login(call, callback) {
+	static async login(call, callback) {
 		try {
 			const { username, password } = call.request
 
 			const player = await PlayerModel.findOne({ username })
-			if (!player)
+			if (!player) {
 				return callback({
 					code: grpc.status.NOT_FOUND,
 					status: grpc.status.NOT_FOUND,
 					message: 'Invalid username or password',
 				})
+			}
 
 			const doesPasswordMatch = await PearHash.compare(password, player.password)
 
@@ -182,10 +181,9 @@ class PlayerRpcService {
 				})
 			}
 
-			callback(null, { token: player._id, sessionId: 'sessionId here' })
+			return callback(null, { token: player._id, sessionId: 'sessionId here' })
 		} catch (err) {
-			logError(err)
-			callback({
+			return callback({
 				code: grpc.status.INTERNAL,
 				status: grpc.status.INTERNAL,
 				message: err.toString(),
@@ -194,10 +192,8 @@ class PlayerRpcService {
 	}
 
 	// @NOTE: Need to add logic to remove token from the PlayerToken collection
-	logout(call, callback) {
-		const { token } = call.request
-
-		console.log(token)
+	static logout(call, callback) {
+		// call.request.token
 
 		// Handle the request
 		callback(null, { message: 'You have successfully logged out!' })

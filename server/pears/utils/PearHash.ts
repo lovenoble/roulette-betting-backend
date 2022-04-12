@@ -12,62 +12,62 @@ const jwtSecret = process.env.JWT_SECRET || 'pears-are-yumyum4life'
 const jwtExpiration = process.env.JWT_EXPIRATION || '14d'
 
 class PearHash {
-    static async hash(password) {
-        try {
-            const salt = await bcrypt.genSalt(saltRounds)
+	static async hash(password) {
+		try {
+			const salt = await bcrypt.genSalt(saltRounds)
 
-            return bcrypt.hash(password, salt)
-        } catch (err) {
-            console.log(err)
-            return err
-        }
-    }
+			return bcrypt.hash(password, salt)
+		} catch (err) {
+			console.log(err)
+			return err
+		}
+	}
 
-    static async compare(password, hash): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            bcrypt.compare(password, hash, (err, res) => {
-                if (err) {
-                    reject(err)
-                } else {
-                    resolve(res)
-                }
-            })
-        })
-    }
+	static async compare(password, hash): Promise<boolean> {
+		return new Promise((resolve, reject) => {
+			bcrypt.compare(password, hash, (err, res) => {
+				if (err) {
+					reject(err)
+				} else {
+					resolve(res)
+				}
+			})
+		})
+	}
 
-    static async generateJwt(data: JWTDecodedData): Promise<string> {
-        try {
-            const authToken = jwt.sign(data, jwtSecret, {
-                expiresIn: jwtExpiration,
-            })
+	static async generateJwt(data: JWTDecodedData): Promise<string> {
+		try {
+			const authToken = jwt.sign(data, jwtSecret, {
+				expiresIn: jwtExpiration,
+			})
 
-            return authToken
-        } catch (err: any) {
-            throw new Error(err.toString())
-        }
-    }
+			return authToken
+		} catch (err: any) {
+			throw new Error(err.toString())
+		}
+	}
 
-    static async decodeJwt(token: string): Promise<JWTDecodedData> {
-        try {
-            const decoded = jwt.verify(token, jwtSecret)
+	static async decodeJwt(token: string): Promise<JWTDecodedData> {
+		try {
+			const decoded = jwt.verify(token, jwtSecret)
 
-            return decoded
-        } catch (err: any) {
-            throw new Error(err.toString())
-        }
-    }
+			return decoded
+		} catch (err: any) {
+			throw new Error(err.toString())
+		}
+	}
 
-    static fromUtf8ToHex(str: string) {
-        return utils.hexlify(utils.toUtf8Bytes(str))
-    }
+	static fromUtf8ToHex(str: string) {
+		return utils.hexlify(utils.toUtf8Bytes(str))
+	}
 
-    static generateNonce() {
-        return uuidv4()
-    }
+	static generateNonce() {
+		return uuidv4()
+	}
 
-    static generateNonceHex() {
-        return this.fromUtf8ToHex(uuidv4())
-    }
+	static generateNonceHex() {
+		return this.fromUtf8ToHex(uuidv4())
+	}
 }
 
 export default PearHash

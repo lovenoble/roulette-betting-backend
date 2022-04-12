@@ -7,7 +7,7 @@ import { MongooseDriver, RedisPresence } from 'colyseus'
 import { WebSocketTransport } from '@colyseus/ws-transport'
 
 // Libraries
-import { storeUri } from './store/config'
+import storeUri from './store/config'
 import Sockets from './pears/Sockets'
 
 // Initialize express HTTP server
@@ -20,17 +20,17 @@ app.use(cors())
 
 // Create colyseus server
 const gameServer = new Server({
-    transport: new WebSocketTransport({
-        server,
-        verifyClient: (info, next) => {
-            // console.log('Handshake successful!', info)
-            next(true)
-        },
-    }),
-    presence: new RedisPresence({
-        url: process.env.REDIS_URL,
-    }),
-    driver: new MongooseDriver(`${storeUri}?authSource=admin`),
+	transport: new WebSocketTransport({
+		server,
+		verifyClient: (info, next) => {
+			// console.log('Handshake successful!', info)
+			next(true)
+		},
+	}),
+	presence: new RedisPresence({
+		url: process.env.REDIS_URL,
+	}),
+	driver: new MongooseDriver(`${storeUri}?authSource=admin`),
 })
 
 // Sockets config
@@ -38,12 +38,9 @@ const sockets = new Sockets(gameServer)
 sockets.initRooms()
 
 // Initialize server
-export default async function initGameServer(gameServerPort) {
-    try {
-        await gameServer.listen(gameServerPort)
-        console.log(`Pear game server running on WebSocket port :${gameServerPort}`)
-    } catch (err) {
-        console.log(err)
-        process.exit(1)
-    }
+export default async function initGameServer(gameServerPort: number): Promise<Server> {
+	await gameServer.listen(gameServerPort)
+	console.log(`Pear game server running on WebSocket port :${gameServerPort}`)
+
+	return gameServer
 }

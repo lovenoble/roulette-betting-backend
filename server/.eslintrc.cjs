@@ -21,12 +21,18 @@ module.exports = {
 	rules: {
 		'node/no-missing-import': 'off',
 		'node/no-unsupported-features/node-builtins': 'off',
-		'no-unused-vars': 'warn',
+		'no-unused-vars': 'off',
+		'@typescript-eslint/no-unused-vars': 'warn',
 		'no-unreachable': 'off',
 		'prefer-const': 'off',
-		'@typescript-eslint/no-this-alias': 'off',
 		'no-console': 'off',
 		'prettier/prettier': 'off',
+		'no-underscore-dangle': 'off',
+		'@typescript-eslint/naming-convention': 'off',
+		'@typescript-eslint/lines-between-class-members': 'off',
+		'max-classes-per-file': 'off',
+		'@typescript-eslint/ban-ts-comment': 'off',
+		'@typescript-eslint/no-explicit-any': 'off', // @NOTE: change value to 'warn' later
 	},
 	settings: {
 		'import/parsers': {
