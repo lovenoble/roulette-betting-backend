@@ -32,7 +32,6 @@ const provider = new ethers.providers.JsonRpcProvider(BLOCKCHAIN_ETH_URL)
 
 export async function faucetPearMatic(address: string) {
     try {
-        console.log(provider.network)
         const signer = new Wallet(PRIVATE_KEY, provider)
         const _pearTokenContractSigner =  new Contract(pearTokenAddress, PearToken.abi, signer)
         const pearBalance = await _pearTokenContractSigner.balanceOf(address)
