@@ -38,7 +38,7 @@ const sockets = new Sockets(gameServer)
 sockets.initRooms()
 
 // Initialize server
-export async function initializeGameServer(gameServerPort) {
+export default async function initGameServer(gameServerPort) {
     try {
         await gameServer.listen(gameServerPort)
         console.log(`Pear game server running on WebSocket port :${gameServerPort}`)

@@ -1,30 +1,42 @@
 module.exports = {
+	root: true,
 	env: {
 		browser: false,
 		es2021: true,
 		node: true,
 	},
-	plugins: ['@typescript-eslint', 'promise', 'import'],
-	extends: ['airbnb-base', 'airbnb-typescript/base', 'prettier'],
+	extends: [
+		'airbnb-base',
+		'airbnb-typescript/base',
+		'plugin:@typescript-eslint/recommended',
+		'plugin:prettier/recommended',
+	],
 	parser: '@typescript-eslint/parser',
 	parserOptions: {
-		ecmaVersion: 'latest',
+		ecmaVersion: 12,
+		project: './tsconfig.json',
 		sourceType: 'module',
-		project: 'tsconfig.json'
 	},
-	settings: {
-		'import/parsers': {
-			'@typescript-eslint/parser': ['.ts'],
-		},
-	},
+	plugins: ['@typescript-eslint', 'promise', 'import'],
 	rules: {
-		'node/no-unsupported-features/es-syntax': ['error', { ignores: ['modules'] }],
 		'node/no-missing-import': 'off',
 		'node/no-unsupported-features/node-builtins': 'off',
 		'no-unused-vars': 'warn',
 		'no-unreachable': 'off',
 		'prefer-const': 'off',
 		'@typescript-eslint/no-this-alias': 'off',
+		'no-console': 'off',
+		'prettier/prettier': 'off',
 	},
-	ignorePatterns: ['dist/*', 'node_modules/*', '.eslintrc.js'],
+	settings: {
+		'import/parsers': {
+			'@typescript-eslint/parser': ['.ts'],
+		},
+		'import/resolver': {
+			typescript: {
+				alwaysTryTypes: true,
+			},
+		},
+	},
+	ignorePatterns: ['dist', 'node_modules', '.eslintrc.cjs'],
 }

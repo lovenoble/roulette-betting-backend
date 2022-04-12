@@ -1,7 +1,7 @@
 import StoreConnection, { ConnectionStatus } from './store/StoreConnection'
 
 import { initializeRpcServer } from './rpc'
-import { initializeGameServer } from './gameServer'
+import { initializeGameServer } from './initGameServer'
 
 import { pear } from './pears/defs/ColorGame'
 
