@@ -2,21 +2,20 @@ module.exports = {
 	env: {
 		browser: false,
 		es2021: true,
-		mocha: true,
 		node: true,
 	},
-	plugins: ['@typescript-eslint', 'import'],
-	extends: [
-		'standard',
-		'plugin:node/recommended',
-		'plugin:@typescript-eslint/eslint-recommended',
-		'plugin:@typescript-eslint/recommended',
-		'prettier',
-	],
+	plugins: ['@typescript-eslint', 'promise', 'import'],
+	extends: ['airbnb-base', 'airbnb-typescript/base', 'prettier'],
 	parser: '@typescript-eslint/parser',
 	parserOptions: {
-		ecmaVersion: 12,
-		project: 'tsconfig.json',
+		ecmaVersion: 'latest',
+		sourceType: 'module',
+		project: 'tsconfig.json'
+	},
+	settings: {
+		'import/parsers': {
+			'@typescript-eslint/parser': ['.ts'],
+		},
 	},
 	rules: {
 		'node/no-unsupported-features/es-syntax': ['error', { ignores: ['modules'] }],
@@ -25,6 +24,7 @@ module.exports = {
 		'no-unused-vars': 'warn',
 		'no-unreachable': 'off',
 		'prefer-const': 'off',
+		'@typescript-eslint/no-this-alias': 'off',
 	},
-	ignorePatterns: ['dist/*', 'node_modules/*'],
+	ignorePatterns: ['dist/*', 'node_modules/*', '.eslintrc.js'],
 }

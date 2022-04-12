@@ -47,8 +47,8 @@ class StoreConnection {
 
     public async connect() {
         try {
-            const status = this._reactiveStatus.value()
-            if (status == ConnectionStatus.Connected) {
+            const status: string = this._reactiveStatus.value()
+            if (status === ConnectionStatus.Connected) {
                 return 'Store is already connected.'
             }
 
