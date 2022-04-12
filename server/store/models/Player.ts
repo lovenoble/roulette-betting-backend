@@ -29,7 +29,7 @@ PlayerSchema.plugin(uniqueValidator)
 
 PlayerSchema.pre('save', async function(next) {
     try {
-        let player = this
+        const player = this
         player.updatedAt = new Date()
 
         if (!player.isModified('password')) {
