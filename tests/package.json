@@ -1,0 +1,18 @@
+{
+  "name": "tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --runInBand"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "chromedriver": "^100.0.0",
+    "dotenv": "^16.0.0",
+    "jest": "^27.5.1",
+    "node": "^17.7.2",
+    "selenium-webdriver": "^4.1.1"
+  }
+}

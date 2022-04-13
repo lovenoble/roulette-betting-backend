@@ -1,4 +1,4 @@
-FRONTEND_ENV_PATH="../frontend/.env"
+FRONTEND_ENV_PATH="../admin-dashboard/.env"
 CRYPTO_ENV_PATH="./.env"
 SERVER_ENV_PATH="../server/.env"
 
