@@ -74,7 +74,7 @@ class ColorGame extends Room<ColorGameState> {
 		}
 	}
 
-	static async onAuth(client: any, options) {
+	async onAuth(client: any, options) { // eslint-disable-line
 		// Validate token and get publicAddress for hashmap reference
 		if (options.authToken) {
 			const { publicAddress } = await PearHash.decodeJwt(options.authToken)
