@@ -43,17 +43,20 @@
   },
   "scripts": {
     "test": "mocha",
-    "cp:artifact:token": "cp artifacts/contracts/PearToken.sol/PearToken.json ../frontend/src/lib/pears/artifacts/PearToken.json",
-    "cp:artifact:game": "cp artifacts/contracts/PearGame.sol/PearGame.json ../frontend/src/lib/pears/artifacts/PearGame.json",
+    "cp:artifact:token": "cp artifacts/contracts/PearToken.sol/PearToken.json ../admin-dashboard/src/lib/pears/artifacts/PearToken.json",
+    "cp:artifact:game": "cp artifacts/contracts/PearGame.sol/PearGame.json ../admin-dashboard/src/lib/pears/artifacts/PearGame.json",
     "cp:artifact:token:server": "cp artifacts/contracts/PearToken.sol/PearToken.json ../server/pears/crypto/artifacts/PearToken.json",
     "cp:artifact:game:server": "cp artifacts/contracts/PearGame.sol/PearGame.json ../server/pears/crypto/artifacts/PearGame.json",
+    "cp:artifact:token:fe": "cp artifacts/contracts/PearToken.sol/PearToken.json ../../fareplay-frontend-metaverse/src/lib/pear/artifacts/PearToken.json",
+    "cp:artifact:game:fe": "cp artifacts/contracts/PearGame.sol/PearGame.json ../../fareplay-frontend-metaverse/src/lib/pear/artifacts/PearGame.json",
     "deploy:token:dev": "npx hardhat run scripts/deployToken.ts --network localhost",
     "deploy:token:kovan": "npx hardhat run scripts/deployToken.ts --network kovan",
     "deploy:token:mumbai": "npx hardhat run scripts/deployToken.ts --network matic",
     "deploy:game:dev": "npx hardhat run scripts/deployGame.ts --network localhost",
     "deploy:game:kovan": "npx hardhat run scripts/deployGame.ts --network kovan",
     "deploy:game:mumbai": "npx hardhat run scripts/deployGame.ts --network matic",
-    "gen:privkey": "openssl rand -hex 32"
+    "gen:privkey": "openssl rand -hex 32",
+    "prep:fe": "npx hardhat run scripts/prepFe.ts"
   },
   "keywords": [],
   "author": "",
