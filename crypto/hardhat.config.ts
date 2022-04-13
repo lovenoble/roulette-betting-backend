@@ -94,6 +94,8 @@ const config: HardhatUserConfig = {
 		hardhat: {
 			// chainId: 31337, // Default chainId for Hardhat
 			// Hardhat network configs
+			gas: 2100000,
+      		gasPrice: 8000000000
 		},
 		kovan: {
 			url: INFURA_ETH_KOVAN || '',

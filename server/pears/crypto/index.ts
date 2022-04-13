@@ -18,7 +18,7 @@ const {
 export const pearTokenAddress = PEAR_TOKEN_ADDRESS
 export const pearGameAddress = PEAR_GAME_ADDRESS
 
-const isDev = NODE_ENV === 'production'
+const isDev = NODE_ENV !== 'production'
 
 const provider = new ethers.providers.JsonRpcProvider(
 	isDev ? BLOCKCHAIN_ETH_URL : INFURA_POLY_TESTNET
