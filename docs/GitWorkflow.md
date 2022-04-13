@@ -7,7 +7,7 @@
 - Fetch any changes from the server by running `git pull`
 - Branch name format: "feature/<name-of-feature>"
 - Create a new branch by running `git checkout -b feature/<name-of-feature>`
-  - ~Make sure you use the branch name you copied from Linear!~ ***(Implement to GitLabs later)***
+  - ~~Make sure you use the branch name you copied from Linear!~~ ***(Implement to GitLabs later)***
 - Create the branch on the server by running `git push -u origin feature/<name-of-feature>`
 - Start working!
 
@@ -32,5 +32,5 @@
 - Create the merge request with the default options
 - Once the merge request is up, add information to the description to debrief the reviewer.
 - Once the code is approved and merged, it will be available in the `main` branch
-- Run `git checkout master` and then `git pull` to get the latest code
+- Run `git checkout main` and then `git pull` to get the latest code
   - You are now ready to move on to the next task
