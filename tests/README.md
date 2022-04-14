@@ -17,11 +17,11 @@
 ## How to run tests
 
   1. Ensure the dev environment is up and running.
-  2. As of now, tests are in the **selenium-test-0** branch of the **pear-connects-crypto** repo and the **selenium-test-0** branch of the **fareplay-frontend-metaverse** repo. **pear-connects-crypto** contains the tests, while **fareplay-frontend-metaverse** contains the test targets for the tests. Both repositories must be on the **selenium-test-0** branch for tests to work.
-  3. After moving to correct branch:
-    *`cd ~/pear-connects-crypto/tests`
+    *  **pear-connects-crypto** contains the tests, while **fareplay-frontend-metaverse** contains the test targets for the tests. 
+  2. After moving to correct branch:
+    *  `cd ~/pear-connects-crypto/tests`
     *  `npm install`
-  4. Create a .env in /tests with the following format:
+  3. Create a .env in /tests with the following format:
       ```
 
 METAMASK_PASSPHRASE01=idle
@@ -39,10 +39,10 @@ METAMASK_PASSPHRASE12=faith
 PASSWORD=7x03KXhusruJtv5H
 PRIVATE=ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
       ```
-  5.  Then enter your MetaMask testing account information. Your 12 key MetaMask pass phrase keys are entered into indiviual fields (`METAMASK_PASSPHRASE01=`, `METAMASK_PASSPHRASE02=`, ... etc) without any whitespaces. Enter a local password for MetaMask in `PASSWORD`. Finally, enter your MetaMask testing account private key into `PRIVATE=` so that the testing account can be imported by Selenium WebDriver during the e2e tests.
-  6.  Move the downloaded Chrome installer file into /tests/mac_chrome, install Chrome to that directory.
-  7.  After Chrome has been installed in /tests/mac_chrome, open it at least once and provide it normal system permissions.
-  8.  After all dependencies are installed, .env is setup, and Chrome binary is setup, then while in /tests:
+  4.  A testing account is already setup with the above credentials. To setup another, enter your MetaMask testing account information to the .env file. Your 12 key MetaMask pass phrase keys are entered into indiviual fields (`METAMASK_PASSPHRASE01=`, `METAMASK_PASSPHRASE02=`, ... etc) without any whitespaces. Enter a local password for MetaMask in `PASSWORD`. Finally, enter your MetaMask testing account private key into `PRIVATE=` so that the testing account can be imported by Selenium WebDriver during the e2e tests.
+  5.  Move the downloaded Chrome installer file into /tests/mac_chrome, install Chrome to that directory.
+  6.  After Chrome has been installed in /tests/mac_chrome, open it at least once and provide it normal system permissions.
+  7.  After all dependencies are installed, .env is setup, and Chrome binary is setup, then while in /tests:
     *  `npm test`
 
 ## Test file structure
