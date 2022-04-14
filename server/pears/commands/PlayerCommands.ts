@@ -4,14 +4,14 @@ import { utils } from 'ethers'
 
 // Libraries
 import PearCrypto from '../crypto'
-import { GamePlayer, Entry, GuestPlayer, ColorGameState } from '../schemas/ColorGameState'
+import { GamePlayer, Entry, GuestPlayer, SpinGameState } from '../schemas/SpinGameState'
 
 const fu = utils.formatUnits
 
-class ColorGame extends Room<ColorGameState> {}
+class SpinGame extends Room<SpinGameState> {}
 
 export class OnGuestPlayerJoined extends Command<
-	ColorGame,
+	SpinGame,
 	{
 		guestUsername: string
 		sessionId: string
@@ -34,7 +34,7 @@ export class OnGuestPlayerJoined extends Command<
 }
 
 export class OnWalletUpdate extends Command<
-	ColorGame,
+	SpinGame,
 	{
 		playerAddress: string
 		pear: PearCrypto
@@ -70,7 +70,7 @@ export class OnWalletUpdate extends Command<
 }
 
 export class OnNewEntry extends Command<
-	ColorGame,
+	SpinGame,
 	{
 		roundId: string
 		entryId: string

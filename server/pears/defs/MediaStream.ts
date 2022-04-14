@@ -2,15 +2,15 @@ import { Room, Client, ServerError } from 'colyseus'
 import { Dispatcher } from '@colyseus/command'
 
 import {
-	PearMediaStreamState,
-	PearMediaUser,
-	PearScreenShare,
-} from '../schemas/PearMediaStreamState'
-import PearMessages from '../types/PearMessages'
+	MediaStreamState,
+	MediaUser,
+	ScreenShare,
+} from '../schemas/MediaStreamState'
+import PearMessages from '../types/message.types'
 
 const { NEW_SCREEN_SHARE, STOP_SCREEN_SHARE, TOGGLE_SCREEN_SHARE } = PearMessages
 
-export default class PearMediaStream extends Room<PearMediaStreamState> {
+export default class MediaStream extends Room<MediaStreamState> {
 	maxClients = 100
 	private name: string
 	private desc: string
@@ -20,7 +20,7 @@ export default class PearMediaStream extends Room<PearMediaStreamState> {
 	onCreate(options: any) {
 		console.log('CREATED MEDIA STREAM')
 
-		this.setState(new PearMediaStreamState())
+		this.setState(new MediaStreamState())
 		const { name, desc, password } = options
 		this.name = name
 		this.desc = desc
@@ -28,21 +28,21 @@ export default class PearMediaStream extends Room<PearMediaStreamState> {
 		this.autoDispose = false
 
 		this.onMessage(NEW_SCREEN_SHARE, (client, peerId: string) => {
-			if (!this.state.pearScreenShares.has(client.sessionId)) {
-				const newScreenShare = new PearScreenShare(peerId, 'need_public_address')
-				this.state.pearScreenShares.set(client.sessionId, newScreenShare)
+			if (!this.state.screenShares.has(client.sessionId)) {
+				const newScreenShare = new ScreenShare(peerId, 'need_public_address')
+				this.state.screenShares.set(client.sessionId, newScreenShare)
 			}
 		})
 
 		this.onMessage(TOGGLE_SCREEN_SHARE, (client, isOn: boolean) => {
-			if (this.state.pearScreenShares.has(client.sessionId)) {
-				this.state.pearScreenShares.get(client.sessionId).isScreenSharing = isOn
+			if (this.state.screenShares.has(client.sessionId)) {
+				this.state.screenShares.get(client.sessionId).isScreenSharing = isOn
 			}
 		})
 
 		this.onMessage(STOP_SCREEN_SHARE, client => {
-			if (!this.state.pearScreenShares.has(client.sessionId)) {
-				this.state.pearScreenShares.delete(client.sessionId)
+			if (!this.state.screenShares.has(client.sessionId)) {
+				this.state.screenShares.delete(client.sessionId)
 			}
 		})
 	}
@@ -75,7 +75,7 @@ export default class PearMediaStream extends Room<PearMediaStreamState> {
 	onJoin(client: Client, options: any) {
 		this.state.connectedUsers.set(
 			client.sessionId,
-			new PearMediaUser({
+			new MediaUser({
 				publicAddress: options.authToken,
 				nickName: 'Something',
 				callId: options.callId,
@@ -87,8 +87,8 @@ export default class PearMediaStream extends Room<PearMediaStreamState> {
 		if (this.state.connectedUsers.has(client.sessionId)) {
 			this.state.connectedUsers.delete(client.sessionId)
 		}
-		if (this.state.pearScreenShares.has(client.sessionId)) {
-			this.state.pearScreenShares.delete(client.sessionId)
+		if (this.state.screenShares.has(client.sessionId)) {
+			this.state.screenShares.delete(client.sessionId)
 		}
 	}
 

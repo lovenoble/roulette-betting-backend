@@ -4,15 +4,15 @@ import chalk from 'chalk'
 import { utils } from 'ethers'
 
 import PearCrypto from '../crypto'
-import { Entry, EntryList, ColorGameState } from '../schemas/ColorGameState'
+import { Entry, EntryList, SpinGameState } from '../schemas/SpinGameState'
 
 const fu = utils.formatUnits
 const log = (val: string) => console.log(chalk.bgBlack.magenta(val))
 
-class ColorGame extends Room<ColorGameState> {}
+class SpinGame extends Room<SpinGameState> {}
 
 export class OnFetchFareSupply extends Command<
-	ColorGame,
+	SpinGame,
 	{
 		pear: PearCrypto
 	}
@@ -28,10 +28,10 @@ export class OnFetchFareSupply extends Command<
 }
 
 export class OnFetchRoundAndEntries extends Command<
-	ColorGame,
+	SpinGame,
 	{
 		pear: PearCrypto
-		dispatcher: Dispatcher<ColorGame>
+		dispatcher: Dispatcher<SpinGame>
 		OnNewEntry: any
 		OnWalletUpdate: any
 	}

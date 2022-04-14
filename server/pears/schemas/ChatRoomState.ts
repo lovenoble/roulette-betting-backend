@@ -1,20 +1,20 @@
 import { Schema, MapSchema, type } from '@colyseus/schema'
-import { IPlayer, IChatMessage, IChatRoomState } from '../types/IChatRoomState'
+import { IPlayerOptions, IChatMessageOptions } from '../types/chatRoom.types'
 
-export class Player extends Schema implements IPlayer {
+export class Player extends Schema implements IPlayerOptions {
 	@type('string')
 	username = ''
 	@type('string')
 	publicAddress = ''
 
-	constructor(player: { username: string; publicAddress: string }) {
+	constructor(player: IPlayerOptions) {
 		super(player)
 		this.username = player.username
 		this.publicAddress = player.publicAddress
 	}
 }
 
-export class ChatMessage extends Schema implements IChatMessage {
+export class ChatMessage extends Schema implements IChatMessageOptions {
 	@type('string')
 	id = ''
 	@type('string')
@@ -22,17 +22,11 @@ export class ChatMessage extends Schema implements IChatMessage {
 	@type('string')
 	createdBy = ''
 	@type('number')
-	createdAt: number
+	createdAt?: number
 	@type('boolean')
 	isInStore = false
 
-	constructor(chatMessage: {
-		id: string
-		text: string
-		createdBy: string
-		createdAt?: number
-		isInStore: boolean
-	}) {
+	constructor(chatMessage: IChatMessageOptions) {
 		super(chatMessage)
 		this.id = chatMessage.id
 		this.text = chatMessage.text
@@ -42,9 +36,9 @@ export class ChatMessage extends Schema implements IChatMessage {
 	}
 }
 
-export class ChatRoomState extends Schema implements IChatRoomState {
-	@type({ map: ChatMessage })
-	messages = new MapSchema<ChatMessage>()
+export class ChatRoomState extends Schema {
 	@type({ map: Player })
 	players = new MapSchema<Player>()
+	@type({ map: ChatMessage })
+	messages = new MapSchema<ChatMessage>()
 }

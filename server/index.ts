@@ -3,7 +3,7 @@ import StoreConnection, { ConnectionStatus } from './store/StoreConnection'
 import initRpcServer from './rpc'
 import initGameServer from './initGameServer'
 
-import { pear } from './pears/defs/ColorGame'
+import { pear } from './pears/defs/SpinGame'
 
 const { GAME_SERVER_PORT, NODE_APP_INSTANCE } = process.env
 
@@ -19,6 +19,7 @@ async function init() {
 				pear.pearGameContract.removeAllListeners()
 			}
 		})
+
 		// Handle status changes in the store connection here
 		StoreConnection.statusObserver(status => {
 			if (status === ConnectionStatus.Connected) {
@@ -29,6 +30,7 @@ async function init() {
 				console.log('Store status:', status)
 			}
 		})
+
 		await StoreConnection.connect()
 
 		if (gameServerPort === 3100) {

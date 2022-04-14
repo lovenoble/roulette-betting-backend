@@ -30,7 +30,7 @@ export interface IEntryList {
 	list: ArraySchema<IEntry>
 }
 
-export interface IColorGameState {
+export interface ISpinGameState {
 	gamePlayers: MapSchema<IGamePlayer>
 	guestPlayers: MapSchema<IGuestPlayer>
 	entries: MapSchema<IEntryList>

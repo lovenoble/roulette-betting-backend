@@ -1,19 +1,19 @@
 import { Schema, MapSchema } from '@colyseus/schema'
 
-export interface IPlayer extends Schema {
+export interface IPlayerOptions {
 	publicAddress: string
 	username: string
 }
 
-export interface IChatMessage extends Schema {
+export interface IChatMessageOptions {
 	id: string
 	text: string
 	createdBy: string
-	createdAt: number
+	createdAt?: number
 	isInStore: boolean
 }
 
 export interface IChatRoomState extends Schema {
-	players: MapSchema<IPlayer>
-	messages: MapSchema<IChatMessage>
+	players: MapSchema<IPlayerOptions>
+	messages: MapSchema<IChatMessageOptions>
 }

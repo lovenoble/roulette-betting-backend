@@ -6,9 +6,9 @@ import shortId from 'shortid'
 import ChatService from '../../store/services/Chat'
 import PlayerService from '../../store/services/Player'
 import PearHash from '../utils/PearHash'
-import PearMessages from '../types/PearMessages'
+import PearMessages from '../types/message.types'
 import { ChatRoomState, ChatMessage, Player } from '../schemas/ChatRoomState'
-import { IChatRoomData } from '../types/Rooms'
+import { IRoomOptions } from '../types/rooms.types'
 import createLog from '../utils'
 
 const LOG_PATH = '[pears/defs/ChatRoom]:'
@@ -22,7 +22,7 @@ class ChatRoom extends Room<ChatRoomState> {
 	private password: string | null = null
 	private dispatcher = new Dispatcher(this)
 
-	async onCreate(options: IChatRoomData) {
+	async onCreate(options: IRoomOptions) {
 		try {
 			const { name, desc, password } = options
 			this.name = name

@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { utils } from 'ethers'
 
 // Types
-import { JWTDecodedData } from '../types/Utils'
+import { JWTDecodedData } from '../types/utils.types'
 
 // @NOTE: Need an environment variable for salt rounds value
 const saltRounds = process.env.SALT_ROUNDS || 10

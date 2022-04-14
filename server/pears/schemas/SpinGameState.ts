@@ -1,24 +1,19 @@
 import { Schema, MapSchema, ArraySchema, type } from '@colyseus/schema'
 import {
 	IGuestPlayer,
-	IColorGameState,
+	ISpinGameState,
 	IGamePlayer,
 	IEntry,
 	IEntryList,
-} from '../types/IColorGameState'
+} from '../types/spinGame.types'
 
 export class GuestPlayer extends Schema implements IGuestPlayer {
 	@type('string') guestUsername = ''
-	@type('string') pearBalance = ''
-	@type('string') depositBalance = ''
-	@type('string') queueBalance = ''
+	@type('string') pearBalance? = ''
+	@type('string') depositBalance? = ''
+	@type('string') queueBalance? = ''
 
-	constructor(guestPlayer: {
-		guestUsername: string
-		pearBalance: string
-		depositBalance: string
-		queueBalance: string
-	}) {
+	constructor(guestPlayer: IGuestPlayer) {
 		super(guestPlayer)
 		this.guestUsername = guestPlayer.guestUsername
 		this.pearBalance = guestPlayer.pearBalance
@@ -29,20 +24,13 @@ export class GuestPlayer extends Schema implements IGuestPlayer {
 
 export class GamePlayer extends Schema implements IGamePlayer {
 	@type('string') publicAddress = ''
-	@type('string') ethBalance = ''
-	@type('string') pearBalance = ''
-	@type('string') depositBalance = ''
-	@type('string') queueBalance = ''
-	@type('string') prizeBalance = ''
+	@type('string') ethBalance? = ''
+	@type('string') pearBalance? = ''
+	@type('string') depositBalance? = ''
+	@type('string') queueBalance? = ''
+	@type('string') prizeBalance? = ''
 
-	constructor(gamePlayer: {
-		publicAddress: string
-		ethBalance: string
-		pearBalance: string
-		depositBalance: string
-		queueBalance: string
-		prizeBalance: string
-	}) {
+	constructor(gamePlayer: IGamePlayer) {
 		super(gamePlayer)
 		this.publicAddress = gamePlayer.publicAddress
 		this.ethBalance = gamePlayer.ethBalance
@@ -62,15 +50,7 @@ export class Entry extends Schema implements IEntry {
 	@type('string') result = ''
 	@type('string') winAmount = ''
 
-	constructor(entry: {
-		publicAddress: string
-		roundId: string
-		amount: string
-		pickedColor: string
-		isSettled: boolean
-		result: string
-		winAmount: string
-	}) {
+	constructor(entry: IEntry) {
 		super(entry)
 		this.publicAddress = entry.publicAddress
 		this.roundId = entry.roundId
@@ -86,7 +66,7 @@ export class EntryList extends Schema {
 	@type([Entry]) list = new ArraySchema<IEntry>()
 }
 
-export class ColorGameState extends Schema implements IColorGameState {
+export class SpinGameState extends Schema implements ISpinGameState {
 	@type({ map: GamePlayer })
 	gamePlayers = new MapSchema<IGamePlayer>()
 	@type({ map: EntryList })

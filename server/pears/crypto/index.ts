@@ -4,7 +4,7 @@ import autoBind from 'auto-bind'
 import PearToken from './artifacts/PearToken.json'
 import PearGame from './artifacts/PearGame.json'
 
-import { EntryList, Entry } from '../schemas/ColorGameState'
+import { EntryList, Entry } from '../schemas/SpinGameState'
 
 const {
 	BLOCKCHAIN_ETH_URL,

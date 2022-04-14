@@ -2,22 +2,21 @@ import { Room, ServerError } from '@colyseus/core'
 import { Dispatcher } from '@colyseus/command'
 
 // Libraries
-// import PearMessages from '../types/PearMessages'
 import PearHash from '../utils/PearHash'
 import PlayerService from '../../store/services/Player'
 import { OnGuestPlayerJoined, OnWalletUpdate, OnNewEntry } from '../commands/PlayerCommands'
 import { OnFetchFareSupply, OnFetchRoundAndEntries } from '../commands/CryptoCommands'
-import { ColorGameState } from '../schemas/ColorGameState'
+import { SpinGameState } from '../schemas/SpinGameState'
 import createLog from '../utils'
 import PearCrypto from '../crypto'
 
-const LOG_PATH = '[pears/defs/ColorGame]:'
+const LOG_PATH = '[pears/defs/SpinGame]:'
 
 const [logInfo, logError] = createLog(LOG_PATH)
 
 export const pear = new PearCrypto()
 
-class ColorGame extends Room<ColorGameState> {
+class SpinGame extends Room<SpinGameState> {
 	maxClients = 100
 	private name: string
 	private desc: string
@@ -48,7 +47,7 @@ class ColorGame extends Room<ColorGameState> {
 			// Get the game and token contract
 			await this.pear.init()
 
-			this.setState(new ColorGameState())
+			this.setState(new SpinGameState())
 
 			this.dispatcher.dispatch(new OnFetchFareSupply(), { pear: this.pear })
 
@@ -143,8 +142,8 @@ class ColorGame extends Room<ColorGameState> {
 			this.pear.pearGameContract.removeAllListeners()
 		}
 		this.dispatcher.stop()
-		logInfo('Disposing of ColorGame room...')
+		logInfo('Disposing of SpinGame room...')
 	}
 }
 
-export default ColorGame
+export default SpinGame

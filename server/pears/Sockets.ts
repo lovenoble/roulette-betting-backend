@@ -1,10 +1,11 @@
 import { Server, LobbyRoom } from '@colyseus/core'
-import ChatRoom from './defs/ChatRoom'
-import ColorGame from './defs/ColorGame'
-import PearMetaverse from './defs/PearMetaverse'
-import PearMediaStream from './defs/PearMediaStream'
 
-// @NOTE: Implement the command pattern
+import ChatRoom from './defs/ChatRoom'
+import SpinGame from './defs/SpinGame'
+import PearMediaStream from './defs/MediaStream'
+import { ROOM_NAMES } from './types/rooms.types'
+
+const { LOBBY, SPIN_GAME, MEDIA_STREAM, CHAT_ROOM } = ROOM_NAMES
 
 class Sockets {
 	gameServer: Server = null
@@ -14,26 +15,19 @@ class Sockets {
 	}
 
 	initRooms() {
-		this.gameServer.define('lobby', LobbyRoom)
-		this.gameServer.define('color-game', ColorGame, {
-			name: 'Game Color',
-			desc: 'Game where you select a color and a smart contract tells you if you win or lose',
+		this.gameServer.define(LOBBY, LobbyRoom)
+		this.gameServer.define(SPIN_GAME, SpinGame, {
+			name: 'Spin Game',
+			desc: 'Fareplay spin game room',
 			password: null,
 		})
-		this.gameServer.define('media-stream', PearMediaStream, {
-			name: 'Pear Media Stream',
-			desc: 'Pear Media Stream for audio, video, file-sharing, and screen-sharing',
+		this.gameServer.define(MEDIA_STREAM, PearMediaStream, {
+			name: 'Media Stream',
+			desc: 'Media Stream for audio, video, file-sharing, and screen-sharing',
 			password: null,
 		})
 		this.gameServer
-			.define('pear-metaverse', PearMetaverse, {
-				name: 'Pear Connect Metaverse',
-				desc: 'Welcome to Arcadia via Pear Connect!',
-				password: null,
-			})
-			.enableRealtimeListing()
-		this.gameServer
-			.define('chatRoom', ChatRoom, {
+			.define(CHAT_ROOM, ChatRoom, {
 				name: 'Chat Room',
 				desc: 'General chat room for players.',
 				password: null,
