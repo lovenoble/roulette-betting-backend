@@ -51,7 +51,7 @@ PRIVATE=ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 
 * **e2e-sequences.test.js** aka "The Runner File"
     1.  Jest is set to run all tests serailly or in sequence one after another via `jest --runInBand`, which disables Jest's default parallelism. This is to prevent intereference with Selenium WebDriver. Along with the command in package.json, structure tests with a single Jest file that has any Jest naming conventions because all test scripts must be called in that single file for Jest to run tests serially.
-    *  ***e2eSequence00.js** aka*The Landing Page* sequence
+    *  **e2eSequence00.js** aka *The Landing Page* sequence
       1. All test targets are at the top of the page stored as globals.
       2. *The Landing Page* checks all test targets to see if they are functioning, which also provides time for target components to load and for Selenium WebDriver to see them.
       3. The tests click through all frontend buttons, which relies on Selenium WebDriver to provide errors for when clicks do not work by wrapping all clicks in `try...catch(e)` blocks.
@@ -88,4 +88,4 @@ PRIVATE=ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 
 * All the tests are intended to demonstrate a proof of concept and to identify errors.
 * The Jest file naming conventions are to enable tests to run serially. The test suite scripts file naming convention is to preserve test running order, i.e, **e2eSequence00.js** and **e2eSequence01.js**. The running order of testings scripts in the Jest runner file should progress from less intensive to more intensive.
-* *The Landing Page* sequence is a baseline interaction of Selenium WebDriver and FP, since tests run in order from less intensive to more intensive, any complex interaction failures can be isolated by comparing against the baseline of tests. Any interaction sequences like *The MetaMask* should follow *The Landing Page* sequence in order to take advantage of *The Landing Page* as a baseline reference.
+* *The Landing Page* sequence is a baseline interaction of Selenium WebDriver and FP, since tests run in order from less intensive to more intensive, any complex interaction failures can be isolated by comparing against the baseline of tests. Any interaction sequences like *The MetaMask* sequence should follow *The Landing Page* sequence in order to take advantage of *The Landing Page* as a baseline reference.
