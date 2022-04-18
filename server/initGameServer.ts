@@ -9,14 +9,18 @@ import { WebSocketTransport } from '@colyseus/ws-transport'
 // Libraries
 import storeUri from './store/config'
 import Sockets from './pears/Sockets'
+import router from './routes'
 
 // Initialize express HTTP server
-const app = express()
+export const app = express()
 const server = createServer(app)
 
 // Middleware
 app.use(express.json())
 app.use(cors())
+
+// API
+app.use(router)
 
 // Create colyseus server
 const gameServer = new Server({

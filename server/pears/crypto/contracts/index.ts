@@ -37,7 +37,8 @@ export async function getFareBalance(address: string) {
 	try {
 		const fareBalance = await fareToken.balanceOf(address)
 		console.log('Current Balance:', utils.formatUnits(fareBalance, 18))
-
+		const tokenURI = await fareItems.uri(0)
+		console.log(tokenURI)
 	} catch (err) {
 		console.error(err)
 	}
