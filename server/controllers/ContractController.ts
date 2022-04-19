@@ -17,6 +17,33 @@ async function exists(filePath: string): Promise<boolean> {
 	}
 }
 
+const data = {
+	name: 'lootbox',
+	properties: [
+		{
+			name: 'prop1',
+		},
+		{
+			name: 'prop2',
+		},
+		{
+			name: 'prop3',
+		},
+	],
+}
+
+function createMetadata(startIdx: number, endIdx) {
+	try {
+		for (let idx = startIdx; idx < endIdx; idx += 1) {
+			data.name = `lootbox${idx}`
+			fs.writeFile(`${metadataPath}/lootbox/${idx}.json`, JSON.stringify(data), 'utf8')
+		}
+	} catch (err: any) {
+		console.error(err)
+		throw new Error(err)
+	}
+}
+
 export default class ContractController {
 	public static async getItemMetadata(req: Request, res: Response) {
 		try {
