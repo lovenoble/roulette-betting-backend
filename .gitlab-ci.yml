@@ -17,3 +17,11 @@ lint:
     - cd server/
     - npm install --include=dev
     - npm run lint
+
+build:
+  stage: build
+  script:
+    - echo 'BUILD'
+    - cd server/
+    - npm install --include=dev
+    - npm run build
