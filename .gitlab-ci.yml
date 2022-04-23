@@ -3,6 +3,7 @@ stages:
   - lint
   - test
   - deploy
+  - build
 
 cache: &global_cache
   key: $CI_COMMIT_REF_SLUG
