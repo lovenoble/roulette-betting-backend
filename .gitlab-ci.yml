@@ -13,6 +13,7 @@ cache: &global_cache
 lint:
   stage: lint
   script:
+    - echo 'LINT'
     - cd server/
     - npm install --include=dev
     - npm run lint
