@@ -1,3 +1,4 @@
+image: node:lts
 stages:
   - lint
   - test
