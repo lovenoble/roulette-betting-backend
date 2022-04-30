@@ -1,9 +1,12 @@
 image: node:lts
+
 stages:
+  - setup
   - lint
-  - test
-  - deploy
   - build
+
+variables:
+  CI: "true"
 
 cache: &global_cache
   key: $CI_COMMIT_REF_SLUG
@@ -11,18 +14,38 @@ cache: &global_cache
     - server/node_modules/
   policy: pull-push
 
+setup:
+  stage: setup
+  script:
+    - echo 'INSTALLING DEPENDENCIES'
+    - cd server/
+    - rm -rf node_modules/
+    - npm install --include=dev
+  cache:
+    key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
+    paths:
+      - server/node_modules/
+
 lint:
   stage: lint
+  cache:
+    key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
+    paths:
+      - server/node_modules/
+    policy: pull
   script:
     - echo 'LINT'
     - cd server/
-    - npm install --include=dev
-    - npm run lint
+    - npm run lint-ci
 
 build:
   stage: build
+  cache:
+    key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
+    paths:
+      - server/node_modules/
+    policy: pull
   script:
     - echo 'BUILD'
     - cd server/
-    - npm install --include=dev
     - npm run build

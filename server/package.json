@@ -19,6 +19,7 @@
 		"db:cli": "mongo admin -u admin -p password",
 		"envoy": "envoy -c envoy.config.yaml",
 		"lint": "npx eslint . --ext .ts",
+		"lint-ci": "eslint --max-warnings=0 ./src --ext .ts,.tsx,.js,.jsx",
 		"lint:fix": "npx eslint . --ext .ts --fix"
 	},
 	"keywords": [],
