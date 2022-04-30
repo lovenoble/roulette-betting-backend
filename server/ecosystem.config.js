@@ -1,5 +1,7 @@
 // ecosystem.config.js
 require('dotenv')
+
+/* eslint-disable */
 const os = require('os')
 
 module.exports = {
