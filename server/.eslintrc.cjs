@@ -24,7 +24,13 @@ module.exports = {
 		'node/no-missing-import': 'off',
 		'node/no-unsupported-features/node-builtins': 'off',
 		'no-unused-vars': 'off',
-		'@typescript-eslint/no-unused-vars': 'warn',
+		'@typescript-eslint/no-unused-vars': [
+			'warn',
+			{
+				varsIgnorePattern: '^_',
+				argsIgnorePattern: '^_',
+			},
+		],
 		'no-unreachable': 'off',
 		'prefer-const': 'off',
 		'no-console': 'off',

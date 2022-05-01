@@ -1,4 +1,4 @@
-import ethers, { utils, Contract, Wallet } from 'ethers'
+import ethers, { BigNumberish, utils, Wallet } from 'ethers'
 
 import {
 	FareToken__factory,
@@ -7,12 +7,6 @@ import {
 	FareNFTLootBox__factory,
 	FareNFTLootBoxController__factory,
 } from '../typechain-types'
-
-import FareTokenAbi from '../abis/FareToken.json'
-import FareSpinAbi from '../abis/FareSpinGame.json'
-import FareItemsAbi from '../abis/FareItems.json'
-import FareLootBoxAbi from '../abis/FareNFTLootBox.json'
-import FareLootBoxControllerAbi from '../abis/FareNFTLootBoxController.json'
 
 import {
 	FARE_TOKEN_CONTRACT,
@@ -32,6 +26,10 @@ export const fareSpin = FareSpinGame__factory.connect(FARE_GAME_CONTRACT, signer
 export const fareItems = FareItems__factory.connect(FARE_ITEMS_CONTRACT, signer)
 export const fareLootBox = FareNFTLootBox__factory.connect(FARE_LOOTBOX_CONTRACT, signer)
 export const fareLootBoxController = FareNFTLootBoxController__factory.connect(FARE_LOOTBOX_CONTROLLER_CONTRACT, signer)
+
+export function fmtn(num: BigNumberish, decimals = 18) {
+	return Number(ethers.utils.formatUnits(num, decimals))
+}
 
 export async function getFareBalance(address: string) {
 	try {
