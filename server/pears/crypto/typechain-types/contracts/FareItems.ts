@@ -32,6 +32,7 @@ export interface FareItemsInterface extends utils.Interface {
     "balanceOfBatch(address[],uint256[])": FunctionFragment;
     "burn(address,uint256,uint256)": FunctionFragment;
     "burnBatch(address,uint256[],uint256[])": FunctionFragment;
+    "controllerAddress()": FunctionFragment;
     "createItemToken(uint256,bytes)": FunctionFragment;
     "exists(uint256)": FunctionFragment;
     "getLatestItemId()": FunctionFragment;
@@ -56,6 +57,7 @@ export interface FareItemsInterface extends utils.Interface {
       | "balanceOfBatch"
       | "burn"
       | "burnBatch"
+      | "controllerAddress"
       | "createItemToken"
       | "exists"
       | "getLatestItemId"
@@ -89,6 +91,10 @@ export interface FareItemsInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "burnBatch",
     values: [string, BigNumberish[], BigNumberish[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "controllerAddress",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "createItemToken",
@@ -153,6 +159,10 @@ export interface FareItemsInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burnBatch", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "controllerAddress",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "createItemToken",
     data: BytesLike
@@ -328,6 +338,8 @@ export interface FareItems extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    controllerAddress(overrides?: CallOverrides): Promise<[string]>;
+
     createItemToken(
       _quantity: BigNumberish,
       _metadata: BytesLike,
@@ -441,6 +453,8 @@ export interface FareItems extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  controllerAddress(overrides?: CallOverrides): Promise<string>;
+
   createItemToken(
     _quantity: BigNumberish,
     _metadata: BytesLike,
@@ -548,6 +562,8 @@ export interface FareItems extends BaseContract {
       values: BigNumberish[],
       overrides?: CallOverrides
     ): Promise<void>;
+
+    controllerAddress(overrides?: CallOverrides): Promise<string>;
 
     createItemToken(
       _quantity: BigNumberish,
@@ -714,6 +730,8 @@ export interface FareItems extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    controllerAddress(overrides?: CallOverrides): Promise<BigNumber>;
+
     createItemToken(
       _quantity: BigNumberish,
       _metadata: BytesLike,
@@ -825,6 +843,8 @@ export interface FareItems extends BaseContract {
       values: BigNumberish[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    controllerAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     createItemToken(
       _quantity: BigNumberish,

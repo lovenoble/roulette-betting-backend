@@ -27,7 +27,7 @@ const gameServer = new Server({
 	transport: new WebSocketTransport({
 		server,
 		verifyClient: (info, next) => {
-			// console.log('Handshake successful!', info)
+			console.log('Handshake successful!', info)
 			next(true)
 		},
 	}),

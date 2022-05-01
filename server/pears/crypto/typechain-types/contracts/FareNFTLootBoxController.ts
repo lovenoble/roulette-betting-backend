@@ -40,47 +40,48 @@ export declare namespace FareNFTLootBoxController {
 
 export interface FareNFTLootBoxControllerInterface extends utils.Interface {
   functions: {
-    "addLootTable((uint256,uint256)[])": FunctionFragment;
+    "fareItems()": FunctionFragment;
+    "fareLootBox()": FunctionFragment;
     "getLatestLootTableId()": FunctionFragment;
     "getLootItemCount(uint256)": FunctionFragment;
-    "itemAddress()": FunctionFragment;
     "lootBoxMap(uint256)": FunctionFragment;
     "lootTableMap(uint256,uint256)": FunctionFragment;
     "lootTableWeightMap(uint256)": FunctionFragment;
-    "nftAddress()": FunctionFragment;
     "openLootBox(uint256)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "rewardLootBoxToken(uint8,uint256,address)": FunctionFragment;
     "selectedLootTableId()": FunctionFragment;
     "setItemThrehold(uint256)": FunctionFragment;
+    "setLootTable((uint256,uint256)[])": FunctionFragment;
     "setSelectedLootTableId(uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "addLootTable"
+      | "fareItems"
+      | "fareLootBox"
       | "getLatestLootTableId"
       | "getLootItemCount"
-      | "itemAddress"
       | "lootBoxMap"
       | "lootTableMap"
       | "lootTableWeightMap"
-      | "nftAddress"
       | "openLootBox"
       | "owner"
       | "renounceOwnership"
       | "rewardLootBoxToken"
       | "selectedLootTableId"
       | "setItemThrehold"
+      | "setLootTable"
       | "setSelectedLootTableId"
       | "transferOwnership"
   ): FunctionFragment;
 
+  encodeFunctionData(functionFragment: "fareItems", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "addLootTable",
-    values: [FareNFTLootBoxController.LootTableItemStruct[]]
+    functionFragment: "fareLootBox",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getLatestLootTableId",
@@ -89,10 +90,6 @@ export interface FareNFTLootBoxControllerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getLootItemCount",
     values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "itemAddress",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "lootBoxMap",
@@ -105,10 +102,6 @@ export interface FareNFTLootBoxControllerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "lootTableWeightMap",
     values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "nftAddress",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "openLootBox",
@@ -132,6 +125,10 @@ export interface FareNFTLootBoxControllerInterface extends utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "setLootTable",
+    values: [FareNFTLootBoxController.LootTableItemStruct[]]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setSelectedLootTableId",
     values: [BigNumberish]
   ): string;
@@ -140,8 +137,9 @@ export interface FareNFTLootBoxControllerInterface extends utils.Interface {
     values: [string]
   ): string;
 
+  decodeFunctionResult(functionFragment: "fareItems", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "addLootTable",
+    functionFragment: "fareLootBox",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -150,10 +148,6 @@ export interface FareNFTLootBoxControllerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getLootItemCount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "itemAddress",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "lootBoxMap", data: BytesLike): Result;
@@ -165,7 +159,6 @@ export interface FareNFTLootBoxControllerInterface extends utils.Interface {
     functionFragment: "lootTableWeightMap",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "nftAddress", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "openLootBox",
     data: BytesLike
@@ -185,6 +178,10 @@ export interface FareNFTLootBoxControllerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setItemThrehold",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setLootTable",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -242,10 +239,9 @@ export interface FareNFTLootBoxController extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    addLootTable(
-      lootTableItems: FareNFTLootBoxController.LootTableItemStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    fareItems(overrides?: CallOverrides): Promise<[string]>;
+
+    fareLootBox(overrides?: CallOverrides): Promise<[string]>;
 
     getLatestLootTableId(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -253,8 +249,6 @@ export interface FareNFTLootBoxController extends BaseContract {
       lootTableId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
-
-    itemAddress(overrides?: CallOverrides): Promise<[string]>;
 
     lootBoxMap(
       arg0: BigNumberish,
@@ -280,8 +274,6 @@ export interface FareNFTLootBoxController extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
-
-    nftAddress(overrides?: CallOverrides): Promise<[string]>;
 
     openLootBox(
       lootBoxId: BigNumberish,
@@ -308,6 +300,11 @@ export interface FareNFTLootBoxController extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    setLootTable(
+      lootTableItems: FareNFTLootBoxController.LootTableItemStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setSelectedLootTableId(
       lootTableId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -319,10 +316,9 @@ export interface FareNFTLootBoxController extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  addLootTable(
-    lootTableItems: FareNFTLootBoxController.LootTableItemStruct[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  fareItems(overrides?: CallOverrides): Promise<string>;
+
+  fareLootBox(overrides?: CallOverrides): Promise<string>;
 
   getLatestLootTableId(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -330,8 +326,6 @@ export interface FareNFTLootBoxController extends BaseContract {
     lootTableId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
-
-  itemAddress(overrides?: CallOverrides): Promise<string>;
 
   lootBoxMap(
     arg0: BigNumberish,
@@ -355,8 +349,6 @@ export interface FareNFTLootBoxController extends BaseContract {
     arg0: BigNumberish,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
-
-  nftAddress(overrides?: CallOverrides): Promise<string>;
 
   openLootBox(
     lootBoxId: BigNumberish,
@@ -383,6 +375,11 @@ export interface FareNFTLootBoxController extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setLootTable(
+    lootTableItems: FareNFTLootBoxController.LootTableItemStruct[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setSelectedLootTableId(
     lootTableId: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -394,10 +391,9 @@ export interface FareNFTLootBoxController extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    addLootTable(
-      lootTableItems: FareNFTLootBoxController.LootTableItemStruct[],
-      overrides?: CallOverrides
-    ): Promise<void>;
+    fareItems(overrides?: CallOverrides): Promise<string>;
+
+    fareLootBox(overrides?: CallOverrides): Promise<string>;
 
     getLatestLootTableId(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -405,8 +401,6 @@ export interface FareNFTLootBoxController extends BaseContract {
       lootTableId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    itemAddress(overrides?: CallOverrides): Promise<string>;
 
     lootBoxMap(
       arg0: BigNumberish,
@@ -433,8 +427,6 @@ export interface FareNFTLootBoxController extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    nftAddress(overrides?: CallOverrides): Promise<string>;
-
     openLootBox(
       lootBoxId: BigNumberish,
       overrides?: CallOverrides
@@ -455,6 +447,11 @@ export interface FareNFTLootBoxController extends BaseContract {
 
     setItemThrehold(
       newThreshold: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setLootTable(
+      lootTableItems: FareNFTLootBoxController.LootTableItemStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -481,10 +478,9 @@ export interface FareNFTLootBoxController extends BaseContract {
   };
 
   estimateGas: {
-    addLootTable(
-      lootTableItems: FareNFTLootBoxController.LootTableItemStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    fareItems(overrides?: CallOverrides): Promise<BigNumber>;
+
+    fareLootBox(overrides?: CallOverrides): Promise<BigNumber>;
 
     getLatestLootTableId(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -492,8 +488,6 @@ export interface FareNFTLootBoxController extends BaseContract {
       lootTableId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    itemAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
     lootBoxMap(
       arg0: BigNumberish,
@@ -510,8 +504,6 @@ export interface FareNFTLootBoxController extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    nftAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
     openLootBox(
       lootBoxId: BigNumberish,
@@ -538,6 +530,11 @@ export interface FareNFTLootBoxController extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    setLootTable(
+      lootTableItems: FareNFTLootBoxController.LootTableItemStruct[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     setSelectedLootTableId(
       lootTableId: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -550,10 +547,9 @@ export interface FareNFTLootBoxController extends BaseContract {
   };
 
   populateTransaction: {
-    addLootTable(
-      lootTableItems: FareNFTLootBoxController.LootTableItemStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    fareItems(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    fareLootBox(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getLatestLootTableId(
       overrides?: CallOverrides
@@ -563,8 +559,6 @@ export interface FareNFTLootBoxController extends BaseContract {
       lootTableId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    itemAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     lootBoxMap(
       arg0: BigNumberish,
@@ -581,8 +575,6 @@ export interface FareNFTLootBoxController extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    nftAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     openLootBox(
       lootBoxId: BigNumberish,
@@ -608,6 +600,11 @@ export interface FareNFTLootBoxController extends BaseContract {
 
     setItemThrehold(
       newThreshold: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setLootTable(
+      lootTableItems: FareNFTLootBoxController.LootTableItemStruct[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
