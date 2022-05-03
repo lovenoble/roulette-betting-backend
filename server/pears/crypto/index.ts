@@ -7,6 +7,8 @@ import PearGame from './artifacts/PearGame.json'
 import { EntryList, Entry } from '../schemas/SpinGameState'
 import './contracts'
 
+import '../cache'
+
 const {
 	BLOCKCHAIN_ETH_URL,
 	PEAR_TOKEN_ADDRESS,

@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url'
 import fs from 'node:fs/promises'
 import nConstants from 'node:constants'
 
-import { fmtn, fareItems, fareLootBox, fareLootBoxController } from '../pears/crypto/contracts'
+// import { fmtn, fareItems, fareLootBox, fareLootBoxController } from '../pears/crypto/contracts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -49,24 +49,23 @@ function createMetadata(startIdx: number, endIdx) {
 export default class NFTController {
 	public static async getNftBreakdown(req: Request, res: Response) {
 		try {
-		const totalItems = fmtn(await fareItems.getLatestItemId(), 0)
-		const totalLootTables = fmtn(await fareLootBoxController.getLatestLootTableId(), 0)
-		const selectedLootBoxId = fmtn(await fareLootBoxController.selectedLootTableId(), 0)
-		const selectedLootTableItemCount = fmtn(await fareLootBoxController.getLootItemCount(selectedLootBoxId), 0)
-		const totalLootBoxes = fmtn(await fareLootBox.getLatestNftId(), 0)
+			// const totalItems = fmtn(await fareItems.getLatestItemId(), 0)
+			// const totalLootTables = fmtn(await fareLootBoxController.getLatestLootTableId(), 0)
+			// const selectedLootBoxId = fmtn(await fareLootBoxController.selectedLootTableId(), 0)
+			// const selectedLootTableItemCount = fmtn(await fareLootBoxController.getLootItemCount(selectedLootBoxId), 0)
+			// const totalLootBoxes = fmtn(await fareLootBox.getLatestNftId(), 0)
 
-		return res.status(200).json({
-			totalItems,
-			totalLootTables,
-			selectedLootBoxId,
-			selectedLootTableItemCount,
-			totalLootBoxes,
-		})
-
+			// return res.status(200).json({
+			// 	totalItems,
+			// 	totalLootTables,
+			// 	selectedLootBoxId,
+			// 	selectedLootTableItemCount,
+			// 	totalLootBoxes,
+			// })
+			return res.status(200)
 		} catch (err) {
 			return res.status(500).json({ err: err.toString() })
 		}
-
 	}
 
 	public static async getItemMetadata(req: Request, res: Response) {

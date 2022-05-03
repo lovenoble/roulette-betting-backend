@@ -45,3 +45,5 @@ dist
 # Dev ops
 .env.prod
 .*.sw?
+
+.DS_Store

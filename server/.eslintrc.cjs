@@ -21,6 +21,7 @@ module.exports = {
 	},
 	plugins: ['@typescript-eslint', 'promise', 'import'],
 	rules: {
+		'no-promise-executor-return': 'off',
 		'node/no-missing-import': 'off',
 		'node/no-unsupported-features/node-builtins': 'off',
 		'no-unused-vars': 'off',

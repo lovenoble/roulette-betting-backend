@@ -1,7 +1,6 @@
 [
     "constructor(address,address,uint256)",
     "event OwnershipTransferred(address indexed,address indexed)",
-    "function addLootTable(tuple(uint256,uint256)[])",
     "function getLatestLootTableId() view returns (uint256)",
     "function getLootItemCount(uint256) view returns (uint256)",
     "function itemAddress() view returns (address)",
@@ -15,6 +14,7 @@
     "function rewardLootBoxToken(uint8,uint256,address)",
     "function selectedLootTableId() view returns (uint256)",
     "function setItemThrehold(uint256)",
+    "function setLootTable(tuple(uint256,uint256)[])",
     "function setSelectedLootTableId(uint256)",
     "function transferOwnership(address)"
 ]
