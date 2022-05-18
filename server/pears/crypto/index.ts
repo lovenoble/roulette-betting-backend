@@ -7,7 +7,9 @@ import PearGame from './artifacts/PearGame.json'
 import { EntryList, Entry } from '../schemas/SpinGameState'
 import './contracts'
 
-import '../cache'
+import defineEvents from '../events'
+
+defineEvents()
 
 const {
 	BLOCKCHAIN_ETH_URL,

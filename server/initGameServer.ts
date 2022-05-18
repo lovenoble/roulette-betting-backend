@@ -32,7 +32,7 @@ const gameServer = new Server({
 		},
 	}),
 	presence: new RedisPresence({
-		url: process.env.REDIS_URL,
+		url: `${process.env.REDIS_URL}/10`,
 	}),
 	driver: new MongooseDriver(`${storeUri}?authSource=admin`),
 })

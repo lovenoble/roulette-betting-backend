@@ -21,6 +21,7 @@ module.exports = {
 	},
 	plugins: ['@typescript-eslint', 'promise', 'import'],
 	rules: {
+		'import/prefer-default-export': 'off',
 		'no-promise-executor-return': 'off',
 		'node/no-missing-import': 'off',
 		'node/no-unsupported-features/node-builtins': 'off',
@@ -53,5 +54,5 @@ module.exports = {
 			},
 		},
 	},
-	ignorePatterns: ['dist', 'node_modules', '.eslintrc.cjs'],
+	ignorePatterns: ['dist', 'node_modules', '.eslintrc.cjs', 'ecosystem.config.js'],
 }
