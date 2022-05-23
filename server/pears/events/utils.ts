@@ -14,6 +14,7 @@ export enum ContractNames {
 
 export enum EventNames {
 	Transfer = 'Transfer',
+	GameModeUpdated = 'GameModeUpdated',
 	EntrySubmitted = 'EntrySubmitted',
 	EntrySettled = 'EntrySettled',
 	RoundConcluded = 'RoundConcluded',
@@ -24,8 +25,6 @@ export enum EventNames {
 export const formatBN = (bn: BigNumberish, decimals = 0) => ethers.utils.formatUnits(bn, decimals)
 export const formatETH = ethers.utils.formatEther
 export const BNToNumber = (bn: BigNumber) => bn.toNumber()
-
-export const gmMultiplierMap = [2, 10, 100]
 
 export async function handleEventLog(event: Event, contractName: ContractNames): Promise<string> {
 	const doesExist = await repo.eventLog

@@ -4,17 +4,19 @@ import type { Schema, Entity, Repository } from 'redis-om'
 // Schemas
 import {
 	eventLogSchema,
+	gameModeSchema,
 	fareTransferSchema,
 	entrySchema,
 	batchEntrySchema,
 	roundSchema,
 } from './schema'
-import { EventLog, FareTransfer, Entry, BatchEntry, Round } from './schema/types'
+import { EventLog, GameMode, FareTransfer, Entry, BatchEntry, Round } from './schema/types'
 
 const { REDIS_URL } = process.env
 
 interface IRepoObj {
 	eventLog?: Repository<EventLog>
+	gameMode?: Repository<GameMode>
 	fareTransfer?: Repository<FareTransfer>
 	entry?: Repository<Entry>
 	batchEntry?: Repository<BatchEntry>
@@ -27,6 +29,7 @@ export class RedisStore {
 	public repo: IRepoObj = {}
 	public schmea = {
 		eventLog: eventLogSchema,
+		gameMode: gameModeSchema,
 		fareTransfer: fareTransferSchema,
 		entry: entrySchema,
 		batchEntry: batchEntrySchema,
@@ -38,6 +41,7 @@ export class RedisStore {
 
 		this.om = await new Client().open(this.omUrl)
 		this.repo.eventLog = await this.initRepo(eventLogSchema)
+		this.repo.gameMode = await this.initRepo(gameModeSchema)
 		this.repo.fareTransfer = await this.initRepo(fareTransferSchema)
 		this.repo.entry = await this.initRepo(entrySchema)
 		this.repo.batchEntry = await this.initRepo(batchEntrySchema)

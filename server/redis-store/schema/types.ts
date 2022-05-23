@@ -1,4 +1,5 @@
 export { EventLog } from './eventLog'
+export { GameMode } from './gameMode'
 export { FareTransfer } from './fareTransfer'
 export { Entry } from './entry'
 export { BatchEntry } from './batchEntry'

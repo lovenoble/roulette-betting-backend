@@ -21,6 +21,7 @@ module.exports = {
 	},
 	plugins: ['@typescript-eslint', 'promise', 'import'],
 	rules: {
+		'no-param-reassign': 'off',
 		'import/prefer-default-export': 'off',
 		'no-promise-executor-return': 'off',
 		'node/no-missing-import': 'off',
