@@ -31,7 +31,7 @@ setup:
   stage: setup
   script:
     - echo 'INSTALLING DEPENDENCIES'
-    - apt-get install -y zip
+    - apt-get update -y && apt-get install -y zip
     - cd server/
     - rm -rf node_modules/
     - npm install --include=dev
