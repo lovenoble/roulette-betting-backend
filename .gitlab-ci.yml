@@ -31,7 +31,6 @@ setup:
   stage: setup
   script:
     - echo 'INSTALLING DEPENDENCIES'
-    - apt-get update -y && apt-get install -y zip
     - cd server/
     - rm -rf node_modules/
     - npm install --include=dev
@@ -61,6 +60,7 @@ build:
     policy: pull
   script:
     - echo 'BUILD'
+    - apt-get update -y && apt-get install -y zip
     - cd server/
     - npm run build
     - zip -r ./dist/* ./builds/build-$CI_COMMIT_REF_SLUG
