@@ -12,14 +12,14 @@ stages:
 variables:
   CI: "true"
   AWS_REGION: us-west-2
-  APP_NAME: fp-frontend
-  ENV_NAME: fp-frontend-test
+  APP_NAME: fp-api
+  ENV_NAME: fp-api-test
   FILE: $CI_COMMIT_REF_NAME-$CI_PIPELINE_ID
   BUILD_DIR: $CI_PROJECT_DIR/builds
   BUILD_FILENAME: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA-$CI_PIPELINE_ID.zip
   BUILD_FILE: $BUILD_DIR/$BUILD_FILENAME
   BUCKET: elasticbeanstalk-us-west-2-390985807324
-  BUCKET_PREFIX: builds/test/
+  BUCKET_PREFIX: builds/test
   AWS_PLATFORM: Docker
   KEY: gitlab-ci-west
 
@@ -85,7 +85,7 @@ deploy-test:
       aws elasticbeanstalk create-application-version \
         --application-name $APP_NAME \
         --version-label v_$CI_COMMIT_SHORT_SHA \
-        --source-bundle S3Bucket=$S3_BUCKET,S3Key=$ARTIFACT_NAME
+        --source-bundle S3Bucket=$BUCKET,S3Key=$BUCKET_PREFIX/$BUILD_FILENAME
     - aws elasticbeanstalk update-environment --environment-name $ENV_DEV --version-label v_$CI_COMMIT_SHORT_SHA
   dependencies:
     - build
