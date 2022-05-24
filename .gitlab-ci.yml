@@ -15,7 +15,7 @@ variables:
   APP_NAME: fp-frontend
   ENV_NAME: fp-frontend-test
   FILE: $CI_COMMIT_REF_NAME-$CI_PIPELINE_ID
-  BUILD_FILE: ./builds/build-$CI_COMMIT_REF_SLUG.zip
+  BUILD_FILE: ./builds/build-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.zip
   BUCKET: fp-ci
   BUCKET_PREFIX: builds/test
   AWS_PLATFORM: Docker
@@ -63,12 +63,13 @@ build:
     - apt-get update -y && apt-get install -y zip
     - cd server/
     - npm run build
+    - mkdir -p ./builds
     - zip -r $BUILD_FILE ./dist/*
   artifacts:
     untracked: false
     expire_in: 30 days
     paths:
-      - ./builds/build-$CI_COMMIT_REF_SLUG
+      - $BUILD_FILE
 
 deploy-test:
   image: python:latest
