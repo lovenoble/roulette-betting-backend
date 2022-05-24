@@ -67,7 +67,7 @@ build:
     - npm run build
     - npm run postbuild
     - mkdir -p $BUILD_DIR
-    - zip -r $BUILD_FILE ./dist/*
+    - cd dist && zip -r $BUILD_FILE * && cd ..
     - ls $BUILD_DIR
   artifacts:
     paths:
