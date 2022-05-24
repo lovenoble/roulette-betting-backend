@@ -63,7 +63,7 @@ build:
     - apt-get update -y && apt-get install -y zip
     - cd server/
     - npm run build
-    - zip -r ./dist/* ./builds/build-$CI_COMMIT_REF_SLUG
+    - zip -r $BUILD_FILE ./dist/*
   artifacts:
     untracked: false
     expire_in: 30 days
