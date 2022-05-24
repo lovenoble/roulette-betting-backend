@@ -65,9 +65,8 @@ build:
     - npm run build
     - mkdir -p ./builds
     - zip -r $BUILD_FILE ./dist/*
+    - ls ./builds
   artifacts:
-    untracked: false
-    expire_in: 30 days
     paths:
       - $BUILD_FILE
 
