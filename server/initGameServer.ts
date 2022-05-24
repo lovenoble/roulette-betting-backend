@@ -17,7 +17,9 @@ const server = createServer(app)
 // Middleware
 app.use(express.json())
 app.use(cors())
-
+app.get('/health', async (req, res) => {
+	res.status(200).send('OK')
+})
 // Create colyseus server
 const gameServer = new Server({
 	transport: new WebSocketTransport({
