@@ -65,6 +65,7 @@ build:
     - apt-get update -y && apt-get install -y zip
     - cd server/
     - npm run build
+    - npm run postbuild
     - mkdir -p $BUILD_DIR
     - zip -r $BUILD_FILE ./dist/*
     - ls $BUILD_DIR
