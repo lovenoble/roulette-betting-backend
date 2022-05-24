@@ -4,7 +4,7 @@ import chalk from 'chalk'
 import { utils } from 'ethers'
 
 import PearCrypto from '../crypto'
-import { Entry, EntryList, SpinGameState } from '../schemas/SpinGameState'
+import { Entry, EntryList, SpinGameState } from '../state/SpinGameState'
 
 const fu = utils.formatUnits
 const log = (val: string) => console.log(chalk.bgBlack.magenta(val))

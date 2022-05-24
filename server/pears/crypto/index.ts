@@ -4,7 +4,7 @@ import autoBind from 'auto-bind'
 import PearToken from './artifacts/PearToken.json'
 import PearGame from './artifacts/PearGame.json'
 
-import { EntryList, Entry } from '../schemas/SpinGameState'
+import { EntryList, Entry } from '../state/SpinGameState'
 import './contracts'
 
 import defineEvents from '../../redis/events'

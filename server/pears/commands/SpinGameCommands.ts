@@ -4,7 +4,7 @@ import { utils } from 'ethers'
 
 // Libraries
 import PearCrypto from '../crypto'
-import { SpinGameState, GamePlayer } from '../schemas/SpinGameState.new'
+import { SpinGameState, GamePlayer } from '../state/SpinGameState.new'
 import { tokenAPI, spinAPI } from '../crypto/contracts'
 
 export const fu = utils.formatUnits

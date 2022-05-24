@@ -6,7 +6,7 @@ import PearHash from '../utils/PearHash'
 import PlayerService from '../../store/services/Player'
 import { OnGuestPlayerJoined, OnWalletUpdate, OnNewEntry } from '../commands/PlayerCommands'
 import { OnFetchFareSupply, OnFetchRoundAndEntries } from '../commands/CryptoCommands'
-import { SpinGameState } from '../schemas/SpinGameState'
+import { SpinGameState } from '../state/SpinGameState'
 import createLog from '../utils'
 import PearCrypto from '../crypto'
 
@@ -73,7 +73,8 @@ class SpinGame extends Room<SpinGameState> {
 		}
 	}
 
-	async onAuth(client: any, options) { // eslint-disable-line
+	async onAuth(client: any, options) {
+		// eslint-disable-line
 		// Validate token and get publicAddress for hashmap reference
 		if (options.authToken) {
 			const { publicAddress } = await PearHash.decodeJwt(options.authToken)

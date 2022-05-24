@@ -1,11 +1,7 @@
 import { Room, Client, ServerError } from 'colyseus'
 import { Dispatcher } from '@colyseus/command'
 
-import {
-	MediaStreamState,
-	MediaUser,
-	ScreenShare,
-} from '../schemas/MediaStreamState'
+import { MediaStreamState, MediaUser, ScreenShare } from '../state/MediaStreamState'
 import PearMessages from '../types/message.types'
 
 const { NEW_SCREEN_SHARE, STOP_SCREEN_SHARE, TOGGLE_SCREEN_SHARE } = PearMessages

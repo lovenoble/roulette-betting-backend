@@ -2,20 +2,19 @@ import { Room, ServerError } from 'colyseus'
 import type { Client } from 'colyseus'
 import { Dispatcher } from '@colyseus/command'
 
-import {
-	MediaStreamState,
-	MediaUser,
-	ScreenShare,
-} from '../schemas/MediaStreamState'
+import { MediaStreamState, MediaUser, ScreenShare } from '../state/MediaStreamState'
 import PearMessages from '../types/message.types'
 
 const { NEW_SCREEN_SHARE, STOP_SCREEN_SHARE, TOGGLE_SCREEN_SHARE } = PearMessages
 
 abstract class MediaStream {
-  abstract state: MediaStreamState
-  abstract onMessage<T = any>(messageType: string | number, callback: (client: Client, message: T) => void): any
-  
-  defineMediaStreamMessages() {
+	abstract state: MediaStreamState
+	abstract onMessage<T = any>(
+		messageType: string | number,
+		callback: (client: Client, message: T) => void
+	): any
+
+	defineMediaStreamMessages() {
 		this.onMessage<string>(NEW_SCREEN_SHARE, (client, peerId) => {
 			if (!this.state.screenShares.has(client.sessionId)) {
 				const newScreenShare = new ScreenShare(peerId, 'need_public_address')
@@ -34,10 +33,8 @@ abstract class MediaStream {
 				this.state.screenShares.delete(client.sessionId)
 			}
 		})
-
-  }
+	}
 }
-
 
 class MediaStreamDef extends Room<MediaStreamState> {
 	maxClients = 100
@@ -123,7 +120,6 @@ class MediaStreamDef extends Room<MediaStreamState> {
 
 	// onDispose() {
 	// }
-
 }
 
 export default MediaStream

@@ -1,5 +1,5 @@
 import ChatModel from '../models/Chat'
-import { ChatRoomState } from '../../pears/schemas/ChatRoomState'
+import { ChatRoomState } from '../../pears/state/ChatRoomState'
 
 abstract class ChatService {
 	public static model = ChatModel

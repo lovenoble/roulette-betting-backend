@@ -7,7 +7,7 @@ import ChatService from '../../store/services/Chat'
 import PlayerService from '../../store/services/Player'
 import PearHash from '../utils/PearHash'
 import PearMessages from '../types/message.types'
-import { ChatRoomState, ChatMessage, Player } from '../schemas/ChatRoomState'
+import { ChatRoomState, ChatMessage, Player } from '../state/ChatRoomState'
 import { IRoomOptions } from '../types/rooms.types'
 import createLog from '../utils'
 

@@ -6,7 +6,7 @@ import PearHash from '../utils/PearHash'
 import PlayerService from '../../store/services/Player'
 import { OnGuestPlayerJoined, OnWalletUpdate, OnNewEntry } from '../commands/PlayerCommands'
 import { OnFetchFareSupply, OnFetchRoundAndEntries } from '../commands/CryptoCommands'
-import { SpinGameState } from '../schemas/SpinGameState.new'
+import { SpinGameState } from '../state/SpinGameState.new'
 import PearCrypto from '../crypto'
 
 export const pear = new PearCrypto()
@@ -68,17 +68,19 @@ class SpinGame extends Room<SpinGameState> {
 		}
 	}
 
-  async onAuth(_client: any, options: any) { // eslint-disable-line
+	async onAuth(_client: any, options: any) {
+		// eslint-disable-line
 		// Validate token and get publicAddress for hashmap reference
-    if (!options.authToken || !options.guestUsername) throw new ServerError(400, 'An identity is required to login.')
+		if (!options.authToken || !options.guestUsername)
+			throw new ServerError(400, 'An identity is required to login.')
 
-    if (options.guestUsername) {
+		if (options.guestUsername) {
 			console.log('User logging in as guest with username:', options.guestUsername)
 			return `guest:${options.guestUsername}`
-    }
+		}
 
-    if (options.authToken) {
-		  const { publicAddress } = await PearHash.decodeJwt(options.authToken)
+		if (options.authToken) {
+			const { publicAddress } = await PearHash.decodeJwt(options.authToken)
 
 			if (!publicAddress) {
 				throw new ServerError(400, 'Invalid access token.')
@@ -96,10 +98,11 @@ class SpinGame extends Room<SpinGameState> {
 			}
 
 			return playerStore.publicAddress
-    }
-  }
+		}
+	}
 
-	async onAuthOld(_client: any, options: any) { // eslint-disable-line
+	async onAuthOld(_client: any, options: any) {
+		// eslint-disable-line
 		// Validate token and get publicAddress for hashmap reference
 		if (options.authToken) {
 			const { publicAddress } = await PearHash.decodeJwt(options.authToken)
@@ -157,7 +160,7 @@ class SpinGame extends Room<SpinGameState> {
 		if (this.state.gamePlayers.has(client.auth)) {
 			this.state.gamePlayers.delete(client.auth)
 		}
-  }
+	}
 
 	onDispose() {
 		// @NOTE: Need to clear garbage here
@@ -176,10 +179,9 @@ export default SpinGame
 // Room global text chat (chat shared between rooms for the game the user is playing)
 
 // MediaStream (video, audio, screenshare, text)
-  // This only exists inside the room you are in
+// This only exists inside the room you are in
 
 // Each metaverse room should have it's own instance of SpinGame
 // Each metaverse room should have it's own instance of MediaStream
 // Global text chat
 // Metaverse room based text chat
-
