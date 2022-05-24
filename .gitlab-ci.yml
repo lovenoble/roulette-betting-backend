@@ -4,9 +4,22 @@ stages:
   - setup
   - lint
   - build
+  - deploy-test
 
+# These variables will default to those appropriate to deploy
+#   the test environment. Manual build steps will deploy to
+#   other environments for now.
 variables:
   CI: "true"
+  AWS_REGION: us-west-2
+  APP_NAME: fp-frontend
+  ENV_NAME: fp-frontend-test
+  FILE: $CI_COMMIT_REF_NAME-$CI_PIPELINE_ID
+  BUILD_FILE: ./builds/build-$CI_COMMIT_REF_SLUG.zip
+  BUCKET: fp-ci
+  BUCKET_PREFIX: builds/test
+  AWS_PLATFORM: Docker
+  KEY: gitlab-ci-west
 
 cache: &global_cache
   key: $CI_COMMIT_REF_SLUG
@@ -49,3 +62,27 @@ build:
     - echo 'BUILD'
     - cd server/
     - npm run build
+    - zip -r ./dist/* ./builds/build-$CI_COMMIT_REF_SLUG
+  artifacts:
+    untracked: false
+    expire_in: 30 days
+    paths:
+      - ./builds/build-$CI_COMMIT_REF_SLUG
+
+deploy-test:
+  image: python:latest
+  stage: deploy
+  script:
+    - pip install awscli
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set region $AWS_REGION
+    - aws s3 cp $BUILD_FILE s3://$BUCKET/$BUCKET_PREFIX/build-$CI_COMMIT_REF_SLUG.zip
+    - |
+      aws elasticbeanstalk create-application-version \
+        --application-name $APP_NAME \
+        --version-label v_$CI_COMMIT_SHORT_SHA \
+        --source-bundle S3Bucket=$S3_BUCKET,S3Key=$ARTIFACT_NAME
+    - aws elasticbeanstalk update-environment --environment-name $ENV_DEV --version-label v_$CI_COMMIT_SHORT_SHA
+  dependencies:
+    - build
