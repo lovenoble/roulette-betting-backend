@@ -86,6 +86,6 @@ deploy-test:
         --application-name $APP_NAME \
         --version-label v_$CI_COMMIT_SHORT_SHA \
         --source-bundle S3Bucket=$BUCKET,S3Key=$BUCKET_PREFIX/$BUILD_FILENAME
-    - aws elasticbeanstalk update-environment --environment-name $ENV_DEV --version-label v_$CI_COMMIT_SHORT_SHA
+    - aws elasticbeanstalk update-environment --environment-name $ENV_NAME --version-label v_$CI_COMMIT_SHORT_SHA
   dependencies:
     - build
