@@ -15,7 +15,8 @@ variables:
   APP_NAME: fp-frontend
   ENV_NAME: fp-frontend-test
   FILE: $CI_COMMIT_REF_NAME-$CI_PIPELINE_ID
-  BUILD_FILE: ./builds/build-$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID.zip
+  BUILD_DIR: $CI_PROJECT_DIR/builds
+  BUILD_FILE: $BUILD_DIR/$CI_COMMIT_REF_SLUG-CI_COMMIT_SHORT_SHA-$CI_PIPELINE_ID.zip
   BUCKET: fp-ci
   BUCKET_PREFIX: builds/test
   AWS_PLATFORM: Docker
@@ -63,9 +64,9 @@ build:
     - apt-get update -y && apt-get install -y zip
     - cd server/
     - npm run build
-    - mkdir -p ./builds
+    - mkdir -p $BUILD_DIR
     - zip -r $BUILD_FILE ./dist/*
-    - ls ./builds
+    - ls $BUILD_DIR
   artifacts:
     paths:
       - $BUILD_FILE
