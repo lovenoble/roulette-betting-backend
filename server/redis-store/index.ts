@@ -1,5 +1,9 @@
-import { Client } from 'redis-om'
-import type { Schema, Entity, Repository } from 'redis-om'
+import { Client, Repository } from 'redis-om'
+import type { Schema, Entity } from 'redis-om'
+
+// Types
+import type { SchemaAdditions, Repo } from './index.types'
+import { EventLog, GameMode, FareTransfer, Entry, BatchEntry, Round } from './schema/types'
 
 // Schemas
 import {
@@ -10,7 +14,9 @@ import {
 	batchEntrySchema,
 	roundSchema,
 } from './schema'
-import { EventLog, GameMode, FareTransfer, Entry, BatchEntry, Round } from './schema/types'
+
+// Utils
+import { numify } from './utils'
 
 const { REDIS_URL } = process.env
 
@@ -50,9 +56,16 @@ export class RedisStore {
 		return this.om
 	}
 
-	async initRepo<T extends Entity>(schema: Schema<T>): Promise<Repository<T>> {
-		const repo = this.om.fetchRepository<T>(schema)
+	async initRepo<T extends Entity>(schema: Schema<T>): Promise<Repo<T>> {
+		const repo = this.om.fetchRepository<T>(schema) as Repo<T>
 		await repo.createIndex()
+
+		// @NOTE: Create a save version that casts BigNumbers to numbers safely
+		repo.create = async obj => {
+			const newObj = numify<T>(obj as T & SchemaAdditions)
+			return repo.createAndSave(newObj)
+		}
+
 		return repo
 	}
 

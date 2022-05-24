@@ -2,14 +2,18 @@ import type { BigNumber, Event, BigNumberish } from 'ethers'
 
 import redisStore from '../../redis-store'
 import { tokenAPI as _tokenAPI, spinAPI } from '../crypto/contracts'
-import { handleEventLog, ContractNames, formatBN, formatETH, BNToNumber } from './utils'
+import { handleEventLog, ContractNames, formatBN, formatETH, BNToNumber, toEth, BN } from './utils'
+import type { BNGameMode, BNEntry, BNBatchEntry } from '../../redis-store/schema/types'
 
 const { repo } = redisStore
 
 // Stream -> WebSocket
 // 1000ms delay to wait for batch entry to settle
+// Implement bullmq queuing solution
 
 const spin = spinAPI.contract
+
+// #region HELPERS
 
 export const createOrUpdateGameMode = async (gameModeId: BigNumberish, eventLogId?: string) => {
 	const [
@@ -27,13 +31,13 @@ export const createOrUpdateGameMode = async (gameModeId: BigNumberish, eventLogI
 
 	// If gameMode exists ensure values are up to date
 	if (gameMode) {
-		gameMode.id = id.toNumber()
-		gameMode.cardinality = cardinality.toNumber()
+		gameMode.id = BNToNumber(id)
+		gameMode.cardinality = BNToNumber(cardinality)
 		gameMode.gameEdgeFloor = formatBN(gameEdgeFloor)
-		gameMode.mintMultiplier = mintMultiplier.toNumber()
+		gameMode.mintMultiplier = BNToNumber(mintMultiplier)
 		gameMode.minAmount = formatETH(minAmount)
 		gameMode.maxAmount = formatETH(maxAmount)
-		gameMode.entryLimit = entryLimit.toNumber()
+		gameMode.entryLimit = BNToNumber(entryLimit)
 		gameMode.isActive = isActive
 
 		if (eventLogId) {
@@ -41,22 +45,24 @@ export const createOrUpdateGameMode = async (gameModeId: BigNumberish, eventLogI
 		}
 
 		await repo.gameMode.save(gameMode)
+
 		// If gameMode does not exist create and save
 	} else {
 		await repo.gameMode.createAndSave({
 			eventLogId,
-			id: id.toNumber(),
-			cardinality: cardinality.toNumber(),
+			id: BNToNumber(id),
+			cardinality: BNToNumber(cardinality),
 			gameEdgeFloor: formatBN(gameEdgeFloor),
-			mintMultiplier: mintMultiplier.toNumber(),
+			mintMultiplier: BNToNumber(mintMultiplier),
 			minAmount: formatETH(minAmount),
 			maxAmount: formatETH(maxAmount),
-			entryLimit: entryLimit.toNumber(),
+			entryLimit: BNToNumber(entryLimit),
 			isActive,
 		})
 	}
 }
 
+// Ensures that gameModes in the smart contract are update to date in Redis
 export const ensureGameMode = async () => {
 	const currentGameModeId = (await spin.getCurrentGameModeId()).toNumber()
 	const gameModeIds: number[] = [...Array(currentGameModeId).keys()]
@@ -68,17 +74,10 @@ export const ensureGameMode = async () => {
 	return Promise.all(promiseList)
 }
 
-export const gameModeUpdated = async (gameModeId: BigNumber, event: Event) => {
-	console.log('gameModeUpdated')
-	const eventLogId = await handleEventLog(event, ContractNames.FareSpinGame)
-	if (!eventLogId) return
-
-	await createOrUpdateGameMode(gameModeId, eventLogId)
-}
-
 export const createEntriesFromBatchEntry = async (
 	entryId: BigNumber,
-	batchEntryId: BigNumber
+	batchEntryId: BigNumber,
+	roundId: BigNumber
 ): Promise<any[]> => {
 	const entryCount = (await spinAPI.contract.getEntryCount(entryId)).toNumber()
 	const entryIdxs: number[] = [...Array(entryCount).keys()]
@@ -90,11 +89,12 @@ export const createEntriesFromBatchEntry = async (
 				.then(async ([amount, gameModeId, pickedNumber]) => {
 					const entry = {
 						amount: formatETH(amount),
-						gameModeId: gameModeId.toNumber(),
-						pickedNumber: pickedNumber.toNumber(),
-						batchEntryId: batchEntryId.toNumber(),
-						entryId: entryId.toNumber(),
-						winAmount: '',
+						roundId: BNToNumber(roundId),
+						gameModeId: BNToNumber(gameModeId),
+						pickedNumber: BNToNumber(pickedNumber),
+						batchEntryId: BNToNumber(batchEntryId),
+						entryId: BNToNumber(entryId),
+						winAmount: null,
 						settled: false,
 						timestamp: Date.now(),
 					}
@@ -107,66 +107,26 @@ export const createEntriesFromBatchEntry = async (
 	return Promise.all(promiseList)
 }
 
-export const entrySubmittedEvent = async (
-	roundId: BigNumber,
-	batchId: BigNumber,
-	player: string,
-	entryId: BigNumber,
-	event: Event
-) => {
-	console.log('entrySubmittedEvent')
-	const eventLogId = await handleEventLog(event, ContractNames.FareSpinGame)
-	if (!eventLogId) return
-
-	const batchEntry = await spinAPI.contract.batchEntryMap(roundId, batchId)
-	await createEntriesFromBatchEntry(entryId, batchId)
-
-	const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] = batchEntry
-
-	await repo.batchEntry.createAndSave({
-		eventLogId,
-		roundId: roundId.toNumber(),
-		batchEntryId: batchId.toNumber(),
-		entryId: entryId.toNumber(),
-		settled: _settled,
-		player,
-		totalEntryAmount: formatETH(_totalEntryAmount),
-		totalWinAmount: formatETH(_totalWinAmount),
-	})
-}
-
-// struct Entry {
-//     uint256 amount;
-//     uint256 gameModeId;
-//     uint256 pickedNumber;
-// }
-
-// struct BatchEntry {
-//     uint256 entryId;
-//     address player;
-//     bool settled;
-//     uint256 totalEntryAmount;
-//     uint256 totalWinAmount;
-// }
-
 const updateBatchEntries = async (
 	roundId: BigNumber,
 	_randomNum: BigNumber,
 	_randomEliminator: BigNumber
 ) => {
-	const randomNum = _randomNum.toNumber()
-	const randomEliminator = Number(formatBN(_randomEliminator))
+	const randomNum = _randomNum
+	const randomEliminator = _randomEliminator
 
 	const batchEntries = await repo.batchEntry
 		.search()
 		.where('roundId')
-		.eq(roundId.toNumber())
+		.eq(BNToNumber(roundId))
 		.returnAll()
 
 	const gameModes = await repo.gameMode.search().where('isActive').equals(true).returnAll()
-	const gameModeMap = {}
+
+	// public ethFields = ['cardinality', 'mintMultiplier', 'gameEdgeFloor', 'minAmount', 'maxAmount']
+	const gameModeMap: { [key: number]: BNGameMode } = {}
 	gameModes.forEach(gm => {
-		gameModeMap[gm.id] = gm
+		gameModeMap[gm.id] = gm.bnify()
 	})
 
 	const fetchAllEntries = batchEntries.map(async batchEntry => {
@@ -185,36 +145,86 @@ const updateBatchEntries = async (
 	const data = await Promise.all(fetchAllEntries)
 
 	const promiseList = data.map(async ({ batchEntry, entries }) => {
-		let totalWinAmount = 0
+		let totalWinAmount = BN('0')
 
 		const entryPromise = entries.map(async entry => {
-			const gm = gameModes[entry.gameModeId]
+			const gm = gameModeMap[entry.gameModeId].bn
 
-			if (Number(gm.gameEdgeFloor) < randomEliminator) {
+			if (BN(gm.gameEdgeFloor).lt(randomEliminator)) {
 				// @NOTE: MINT NFT LOOTBOX (ONLY ONCE PER BATCH ENTRY)
 			} else {
 				let rng = randomNum
-				if (gm.cardinality === 10) {
-					rng = Math.floor(rng / 10)
+				if (gm.cardinality.eq('10')) {
+					rng = BN(Math.floor(rng.toNumber() / 10).toString())
 				}
-				if (rng % gm.cardinality === entry.pickedNumber) {
-					entry.winAmount = (Number(entry.amount) * gm.mintMultiplier).toString()
-					totalWinAmount = Number(totalWinAmount) + Number(entry.winAmount)
+
+				if (rng.mod(gm.cardinality).eq(entry.pickedNumber)) {
+					entry.winAmount = formatETH(gm.mintMultiplier.mul(toEth(entry.amount)))
+					totalWinAmount = totalWinAmount.add(toEth(entry.winAmount))
 				}
 			}
-
 			await repo.entry.save(entry)
 		})
 
 		await Promise.all(entryPromise)
-		batchEntry.totalWinAmount = totalWinAmount.toString()
+		batchEntry.totalWinAmount = formatETH(totalWinAmount)
 		await repo.batchEntry.save(batchEntry)
 	})
 
 	await Promise.all(promiseList)
 }
 
-export const roundConcluded = async (
+// #endregion HELPERS
+
+// #region EVENTS
+
+export const gameModeUpdatedEvent = async (gameModeId: BigNumber, event: Event) => {
+	console.log('gameModeUpdated')
+	const eventLogId = await handleEventLog(event, ContractNames.FareSpinGame)
+	if (!eventLogId) return
+
+	await createOrUpdateGameMode(gameModeId, eventLogId)
+}
+
+export const createBatchEntry = async (
+	eventLogId: string,
+	roundId: BigNumber,
+	batchEntryId: BigNumber,
+	entryId: BigNumber,
+	player: string
+) => {
+	await createEntriesFromBatchEntry(entryId, batchEntryId, roundId)
+
+	const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
+		await spinAPI.contract.batchEntryMap(roundId, batchEntryId)
+
+	await repo.batchEntry.createAndSave({
+		eventLogId,
+		roundId: BNToNumber(roundId),
+		batchEntryId: BNToNumber(batchEntryId),
+		entryId: BNToNumber(entryId),
+		settled: _settled,
+		player,
+		totalEntryAmount: formatETH(_totalEntryAmount),
+		totalWinAmount: formatETH(_totalWinAmount),
+	})
+}
+
+export const entrySubmittedEvent = async (
+	roundId: BigNumber,
+	batchEntryId: BigNumber,
+	player: string,
+	entryId: BigNumber,
+	event: Event
+) => {
+	console.log('entrySubmittedEvent')
+	const eventLogId = await handleEventLog(event, ContractNames.FareSpinGame)
+	if (!eventLogId) return
+
+	await createBatchEntry(eventLogId, roundId, batchEntryId, entryId, player)
+}
+
+export const roundConcludedEvent = async (
 	roundId: BigNumber,
 	vrfRequestId: string,
 	randomNum: BigNumber,
@@ -225,24 +235,62 @@ export const roundConcluded = async (
 	const eventLogId = await handleEventLog(event, ContractNames.FareSpinGame)
 	if (!eventLogId) return
 
-	// calculate entries and save values
-
+	// calculate entries and save updated values
 	await updateBatchEntries(roundId, randomNum, randomEliminator)
 
 	await repo.round.createAndSave({
 		eventLogId,
-		roundId: roundId.toNumber(),
-		randomNum: randomNum.toNumber(),
+		roundId: BNToNumber(roundId),
+		randomNum: BNToNumber(randomNum),
 		randomEliminator: formatBN(randomEliminator),
 		vrfRequestId,
 	})
 }
 
+export const settleBatchEntry = async (roundId: BigNumber, batchEntryId: BigNumber) => {
+	const batchEntryEntity = await repo.batchEntry
+		.search()
+		.where('batchEntryId')
+		.equal(BNToNumber(batchEntryId))
+		.where('roundId')
+		.equal(BNToNumber(roundId))
+		.returnFirst()
+
+	if (!batchEntryEntity) {
+		// @NOTE: Push to queue to wait retry again in 10 seconds.
+		// @NOTE: Problem occurs because settleBatchEntry and entrySubmitted even are fired off on connection
+		console.log(
+			'@NOTE: NEED TO RACE CONDITION TO CREATE BATCH ENTRY AND ENTRIES SINCE IT IS NULL!!!'
+		)
+	}
+
+	batchEntryEntity.settled = true
+
+	const entries = await repo.entry
+		.search()
+		.where('batchEntryId')
+		.equal(BNToNumber(batchEntryId))
+		.where('roundId')
+		.equal(BNToNumber(roundId))
+		.returnAll()
+
+	const promiseList = entries.map(entry => {
+		return new Promise((resolve, reject) => {
+			entry.settled = true
+			repo.entry.save(entry).then(resolve).catch(reject)
+		})
+	})
+
+	await Promise.all(promiseList)
+
+	return batchEntryEntity
+}
+
 export const entrySettledEvent = async (
 	roundId: BigNumber,
-	batchId: BigNumber,
-	player: string,
-	entryId: BigNumber,
+	batchEntryId: BigNumber,
+	_NUplayer: string,
+	_NUentryId: BigNumber,
 	hasWon: boolean,
 	event: Event
 ) => {
@@ -250,84 +298,16 @@ export const entrySettledEvent = async (
 	const eventLogId = await handleEventLog(event, ContractNames.FareSpinGame)
 	if (!eventLogId) return
 
-	const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
-		await spinAPI.contract.batchEntryMap(roundId, batchId)
-	const batchEntryEntity = await repo.batchEntry
-		.search()
-		.where('batchEntryId')
-		.equal(BNToNumber(batchId))
-		.where('roundId')
-		.equal(BNToNumber(roundId))
-		.returnFirst()
+	const batchEntryEntity = await settleBatchEntry(roundId, batchEntryId)
 
-	batchEntryEntity.settled = true
-	// SHOULD ONLY SETTLED ENTRIES AND BATCH ENTRY
-	if (hasWon) {
+	const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
+		await spinAPI.contract.batchEntryMap(roundId, batchEntryId)
+
+	// Ensure blockchain totalWinAmount and calculated Redis totalWinAmount is correct
+	if (hasWon && !toEth(batchEntryEntity.totalWinAmount).eq(_totalWinAmount)) {
 		batchEntryEntity.totalWinAmount = formatETH(_totalWinAmount)
+		await repo.batchEntry.save(batchEntryEntity)
 	}
-	await repo.batchEntry.save(batchEntryEntity)
 }
 
-// struct Entry {
-//     uint256 amount;
-//     uint256 gameModeId;
-//     uint256 pickedNumber;
-// }
-
-// struct BatchEntry {
-//     uint256 entryId;
-//     address player;
-//     bool settled;
-//     uint256 totalEntryAmount;
-//     uint256 totalWinAmount;
-// }
-
-// struct GameMode {
-//     uint256 id;
-//     uint256 cardinality;
-//     uint256 gameEdgeFloor;
-//     uint256 mintMultiplier;
-//     uint256 minAmount;
-//     uint256 maxAmount;
-//     uint256 entryLimit;
-//     bool isActive;
-// }
-
-// struct Round {
-//     uint256 id;
-//     uint256 randomNum;
-//     uint256 randomEliminator;
-//     bytes32 vrfRequestId;
-// }
-
-// struct Eliminator {
-//     uint256 gameModeId;
-//     uint256 recordedEdgeFloor; // gameModeFloor at the time of the round
-//     bool isEliminator;
-// }
-
-// event EntrySubmitted(
-//     uint256 indexed roundId,
-//     uint256 indexed batchId,
-//     address indexed player,
-//     uint256 entryId
-// );
-// event EntrySettled(
-//     uint256 indexed roundId,
-//     uint256 indexed batchId,
-//     address indexed player,
-//     uint256 entryId,
-//     bool hasWon
-// );
-// event RoundConcluded(
-//     uint256 indexed roundId,
-//     bytes32 indexed vrfRequestId,
-//     uint256 randomNum,
-//     uint256 randomEliminator
-// );
-// event RandomNumberRequested(bytes32 indexed vrfRequestId);
-// event NFTWon(
-//     uint256 indexed roundId,
-//     uint256 indexed batchId,
-//     address indexed player
-// );
+// #endregion EVENTS

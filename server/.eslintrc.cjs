@@ -44,6 +44,7 @@ module.exports = {
 		'max-classes-per-file': 'off',
 		'@typescript-eslint/ban-ts-comment': 'off',
 		'@typescript-eslint/no-explicit-any': 'off', // @NOTE: change value to 'warn' later
+		'@typescript-eslint/no-empty-interface': 'off',
 	},
 	settings: {
 		'import/parsers': {

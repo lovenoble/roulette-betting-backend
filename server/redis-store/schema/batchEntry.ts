@@ -1,4 +1,8 @@
 import { Entity, Schema } from 'redis-om'
+import type { BigNumber } from 'ethers'
+
+import { bnify } from '../utils'
+import type { Overwrite } from '../index.types'
 
 export interface BatchEntry {
 	eventLogId: string
@@ -12,7 +16,24 @@ export interface BatchEntry {
 	timestamp: number
 }
 
-export class BatchEntry extends Entity {}
+export interface BNBatchEntry
+	extends Overwrite<
+		BatchEntry,
+		{
+			bn: {
+				totalEntryAmount: BigNumber
+				totalWinAmount: BigNumber
+			}
+		}
+	> {}
+
+export class BatchEntry extends Entity {
+	ethFields = ['totalEntryAmount', 'totalWinAmount']
+
+	bnify(): BNBatchEntry & Entity {
+		return bnify(this)
+	}
+}
 
 export default new Schema(
 	BatchEntry,

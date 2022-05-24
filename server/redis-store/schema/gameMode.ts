@@ -1,15 +1,8 @@
 import { Entity, Schema } from 'redis-om'
+import type { BigNumber } from 'ethers'
 
-// struct GameMode {
-//     uint256 id;
-//     uint256 cardinality;
-//     uint256 gameEdgeFloor;
-//     uint256 mintMultiplier;
-//     uint256 minAmount;
-//     uint256 maxAmount;
-//     uint256 entryLimit;
-//     bool isActive;
-// }
+import { bnify } from '../utils'
+import type { Overwrite } from '../index.types'
 
 export interface GameMode {
 	eventLogId: string
@@ -21,9 +14,30 @@ export interface GameMode {
 	maxAmount: string
 	entryLimit: number
 	isActive: boolean
+	timestamp: number
 }
 
-export class GameMode extends Entity {}
+export interface BNGameMode
+	extends Overwrite<
+		GameMode,
+		{
+			bn: {
+				cardinality: BigNumber
+				mintMultiplier: BigNumber
+				gameEdgeFloor: BigNumber
+				minAmount: BigNumber
+				maxAmount: BigNumber
+			}
+		}
+	> {}
+
+export class GameMode extends Entity {
+	public ethFields = ['cardinality', 'mintMultiplier', 'gameEdgeFloor', 'minAmount', 'maxAmount']
+
+	public bnify(): BNGameMode & Entity {
+		return bnify(this)
+	}
+}
 
 export default new Schema(
 	GameMode,
@@ -37,6 +51,7 @@ export default new Schema(
 		maxAmount: { type: 'string' },
 		entryLimit: { type: 'number' },
 		isActive: { type: 'boolean' },
+		timestamp: { type: 'date' },
 	},
 	{ dataStructure: 'JSON' }
 )
