@@ -17,8 +17,8 @@ variables:
   FILE: $CI_COMMIT_REF_NAME-$CI_PIPELINE_ID
   BUILD_DIR: $CI_PROJECT_DIR/builds
   BUILD_FILE: $BUILD_DIR/$CI_COMMIT_REF_SLUG-CI_COMMIT_SHORT_SHA-$CI_PIPELINE_ID.zip
-  BUCKET: fp-ci
-  BUCKET_PREFIX: builds/test
+  BUCKET: elasticbeanstalk-us-west-2-390985807324
+  BUCKET_PREFIX: builds/test/
   AWS_PLATFORM: Docker
   KEY: gitlab-ci-west
 
