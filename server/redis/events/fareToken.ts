@@ -1,6 +1,6 @@
 import type { BigNumber, Event } from 'ethers'
 
-import redisStore from '../../redis-store'
+import redisStore from '..'
 import { ContractNames, checkMintBurn, handleEventLog, formatETH } from './utils'
 
 const { repo } = redisStore

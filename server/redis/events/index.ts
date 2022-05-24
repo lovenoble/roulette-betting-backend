@@ -1,4 +1,4 @@
-import { tokenAPI, spinAPI } from '../crypto/contracts'
+import { tokenAPI, spinAPI } from '../../pears/crypto/contracts'
 import { EventNames } from './utils'
 
 import { fareTransferEvent } from './fareToken'

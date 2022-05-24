@@ -1,7 +1,7 @@
 import ethers from 'ethers'
 import type { Event, BigNumber, BigNumberish } from 'ethers'
 
-import redisStore from '../../redis-store'
+import redisStore from '..'
 
 const { repo } = redisStore
 

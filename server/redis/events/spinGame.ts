@@ -1,9 +1,9 @@
 import type { BigNumber, Event, BigNumberish } from 'ethers'
 
-import redisStore from '../../redis-store'
-import { tokenAPI as _tokenAPI, spinAPI } from '../crypto/contracts'
+import redisStore from '..'
+import { tokenAPI as _tokenAPI, spinAPI } from '../../pears/crypto/contracts'
 import { handleEventLog, ContractNames, formatBN, formatETH, BNToNumber, toEth, BN } from './utils'
-import type { BNGameMode, BNEntry, BNBatchEntry } from '../../redis-store/schema/types'
+import type { BNGameMode, BNEntry, BNBatchEntry } from '../schema/types'
 
 const { repo } = redisStore
 
