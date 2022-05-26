@@ -14,6 +14,7 @@ variables:
   AWS_REGION: us-west-2
   APP_NAME: fp-api
   ENV_NAME: fp-api-test
+  ENV_URL: http://fp-api-test.us-west-2.elasticbeanstalk.com/
   FILE: $CI_COMMIT_REF_NAME-$CI_PIPELINE_ID
   BUILD_DIR: $CI_PROJECT_DIR/builds
   BUILD_FILENAME: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA-$CI_PIPELINE_ID.zip
@@ -76,9 +77,13 @@ build:
 deploy-test:
   image: python:latest
   stage: deploy-test
+  environment:
+    name: $ENV_NAME
+    url: $ENV_URL
   script:
     - pip install awsebcli --upgrade --user
     - pip install awscli
+    - export PATH=~/.local/bin:$PATH
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
     - aws configure set region $AWS_REGION
