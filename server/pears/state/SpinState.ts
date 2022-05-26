@@ -8,7 +8,7 @@ import {
 
 import { BatchEntry, GuestPlayer, Player, Round } from '../entities'
 
-export class SpinGameState extends Schema {
+export class SpinState extends Schema {
 	// sessionId -> Player, GuestPlayer
 	@type({ map: GuestPlayer }) guestPlayer = new MapSchema<GuestPlayer>()
 	@type({ map: Player }) players = new MapSchema<Player>()

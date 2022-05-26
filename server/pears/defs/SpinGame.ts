@@ -6,7 +6,7 @@ import PearHash from '../utils/PearHash'
 import PlayerService from '../../store/services/Player'
 import { OnGuestPlayerJoined, OnWalletUpdate, OnNewEntry } from '../commands/PlayerCommands'
 import { OnFetchFareSupply, OnFetchRoundAndEntries } from '../commands/CryptoCommands'
-import { SpinGameState } from '../state/SpinGameState'
+import { SpinState } from '../state/SpinState'
 import createLog from '../utils'
 import PearCrypto from '../crypto'
 
@@ -16,20 +16,20 @@ const [logInfo, logError] = createLog(LOG_PATH)
 
 export const pear = new PearCrypto()
 
-class SpinGame extends Room<SpinGameState> {
+class SpinGame extends Room<SpinState> {
 	maxClients = 100
-	private name: string
-	private desc: string
-	private password: string | null = null
+	private _name?: string
+	private _desc?: string
+	private _password?: string | null = null
 	private dispatcher = new Dispatcher(this)
 	private pear = pear
 
 	async onCreate(options: any) {
 		try {
 			const { name, desc, password } = options
-			this.name = name
-			this.desc = desc
-			this.password = password
+			this._name = name
+			this._desc = desc
+			this._password = password
 
 			let hasPassword = false
 			if (password) {
@@ -138,10 +138,10 @@ class SpinGame extends Room<SpinGameState> {
 
 	onDispose() {
 		// @NOTE: Need to clear garbage here
-		if (this.pear.pearTokenContract && this.pear.pearGameContract) {
-			this.pear.pearTokenContract.removeAllListeners()
-			this.pear.pearGameContract.removeAllListeners()
-		}
+		// if (this.pear.pearTokenContract && this.pear.pearGameContract) {
+		// 	this.pear.pearTokenContract.removeAllListeners()
+		// 	this.pear.pearGameContract.removeAllListeners()
+		// }
 		this.dispatcher.stop()
 		logInfo('Disposing of SpinGame room...')
 	}

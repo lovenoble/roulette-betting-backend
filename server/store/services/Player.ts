@@ -75,7 +75,7 @@ abstract class PlayerService {
 		}
 	}
 
-	public static async playerExists(publicAddress) {
+	public static async playerExists(publicAddress: string) {
 		try {
 			const count = await this.model.countDocuments({ publicAddress })
 

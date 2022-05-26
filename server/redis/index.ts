@@ -3,10 +3,11 @@ import type { Schema, Entity } from 'redis-om'
 
 // Types
 import type { SchemaAdditions, Repo } from './index.types'
-import { EventLog, GameMode, FareTransfer, Entry, BatchEntry, Round } from './schema/types'
+import { User, EventLog, GameMode, FareTransfer, Entry, BatchEntry, Round } from './schema/types'
 
 // Schemas
 import {
+	userSchema,
 	eventLogSchema,
 	gameModeSchema,
 	fareTransferSchema,
@@ -27,6 +28,7 @@ interface IRepoObj {
 	entry?: Repository<Entry>
 	batchEntry?: Repository<BatchEntry>
 	round?: Repository<Round>
+	user?: Repository<User>
 }
 
 export class RedisStore {
@@ -34,6 +36,7 @@ export class RedisStore {
 	public om!: Client
 	public repo: IRepoObj = {}
 	public schmea = {
+		user: userSchema,
 		eventLog: eventLogSchema,
 		gameMode: gameModeSchema,
 		fareTransfer: fareTransferSchema,
@@ -46,6 +49,7 @@ export class RedisStore {
 		if (this.om?.isOpen) return this.om
 
 		this.om = await new Client().open(this.omUrl)
+		this.repo.user = await this.initRepo(userSchema)
 		this.repo.eventLog = await this.initRepo(eventLogSchema)
 		this.repo.gameMode = await this.initRepo(gameModeSchema)
 		this.repo.fareTransfer = await this.initRepo(fareTransferSchema)

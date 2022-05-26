@@ -9,23 +9,23 @@ import { JWTDecodedData } from '../types/utils.types'
 // @NOTE: Need an environment variable for salt rounds value
 const saltRounds = process.env.SALT_ROUNDS || 10
 const jwtSecret = process.env.JWT_SECRET || 'pears-are-yumyum4life'
-const jwtExpiration = process.env.JWT_EXPIRATION || '14d'
+const jwtExpiration = process.env.JWT_EXPIRATION || '30d'
 
 class PearHash {
-	static async hash(password) {
+	static async hash(password: string): Promise<string> {
 		try {
-			const salt = await bcrypt.genSalt(saltRounds)
+			const salt = await bcrypt.genSalt(Number(saltRounds))
 
 			return bcrypt.hash(password, salt)
-		} catch (err) {
+		} catch (err: any) {
 			console.log(err)
 			return err
 		}
 	}
 
-	static async compare(password, hash): Promise<boolean> {
+	static async compare(password: string, hash: string): Promise<boolean> {
 		return new Promise((resolve, reject) => {
-			bcrypt.compare(password, hash, (err, res) => {
+			bcrypt.compare(password, hash, (err: any, res) => {
 				if (err) {
 					reject(err)
 				} else {
@@ -49,7 +49,7 @@ class PearHash {
 
 	static async decodeJwt(token: string): Promise<JWTDecodedData> {
 		try {
-			const decoded = jwt.verify(token, jwtSecret)
+			const decoded = jwt.verify(token, jwtSecret) as JWTDecodedData
 
 			return decoded
 		} catch (err: any) {

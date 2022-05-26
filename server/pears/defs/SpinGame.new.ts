@@ -1,18 +1,19 @@
 import { Room, ServerError } from '@colyseus/core'
+import type { Client } from '@colyseus/core'
 import { Dispatcher } from '@colyseus/command'
 
 // Libraries
 import PearHash from '../utils/PearHash'
 import PlayerService from '../../store/services/Player'
-import { OnGuestPlayerJoined, OnWalletUpdate, OnNewEntry } from '../commands/PlayerCommands'
-import { OnFetchFareSupply, OnFetchRoundAndEntries } from '../commands/CryptoCommands'
-import { SpinGameState } from '../state/SpinGameState.new'
+// import { OnGuestPlayerJoined, OnWalletUpdate, OnNewEntry } from '../commands/PlayerCommands'
+// import { OnFetchFareSupply, OnFetchRoundAndEntries } from '../commands/CryptoCommands'
+import { SpinState } from '../state/SpinState'
 import PearCrypto from '../crypto'
 
 export const pear = new PearCrypto()
 
-class SpinGame extends Room<SpinGameState> {
-	maxClients = 64
+class SpinGame extends Room<SpinState> {
+	public maxClients = 2500 // @NOTE: Need to determine the number of clients where performance begins to fall off
 	private name: string
 	private desc: string
 	private password: string | null = null
@@ -40,9 +41,9 @@ class SpinGame extends Room<SpinGameState> {
 			})
 
 			// Get the game and token contract
-			await this.pear.init()
+			// await this.pear.init()
 
-			this.setState(new SpinGameState())
+			this.setState(new SpinState())
 
 			// this.dispatcher.dispatch(new OnFetchFareSupply(), { pear: this.pear })
 
@@ -68,7 +69,7 @@ class SpinGame extends Room<SpinGameState> {
 		}
 	}
 
-	async onAuth(_client: any, options: any) {
+	async onAuth(_client: Client, options: any) {
 		// eslint-disable-line
 		// Validate token and get publicAddress for hashmap reference
 		if (!options.authToken || !options.guestUsername)
@@ -101,7 +102,7 @@ class SpinGame extends Room<SpinGameState> {
 		}
 	}
 
-	async onAuthOld(_client: any, options: any) {
+	async onAuthOld(_client: Client, options: any) {
 		// eslint-disable-line
 		// Validate token and get publicAddress for hashmap reference
 		if (options.authToken) {
@@ -131,21 +132,22 @@ class SpinGame extends Room<SpinGameState> {
 		throw new ServerError(400, 'An identity is required to login.')
 	}
 
-	async onJoin(client: any, options: any, auth: any) {
+	async onJoin(client: Client, options: any, auth: any) {
 		try {
 			const [authToken, guestUsername] = auth.split(':')
 			console.log(authToken, guestUsername)
 			// Fetch balances
+
 			if (guestUsername) {
-				this.dispatcher.dispatch(new OnGuestPlayerJoined(), {
-					guestUsername: options.guestUsername,
-					sessionId: client.sessionId,
-				})
+				// this.dispatcher.dispatch(new OnGuestPlayerJoined(), {
+				// 	guestUsername: options.guestUsername,
+				// 	sessionId: client.sessionId,
+				// })
 			} else if (authToken) {
-				this.dispatcher.dispatch(new OnWalletUpdate(), {
-					pear: this.pear,
-					playerAddress: auth,
-				})
+				// this.dispatcher.dispatch(new OnWalletUpdate(), {
+				// 	pear: this.pear,
+				// 	playerAddress: auth,
+				// })
 			} else {
 				throw new ServerError(400, 'Auth token does not exist.')
 			}
@@ -155,10 +157,10 @@ class SpinGame extends Room<SpinGameState> {
 		}
 	}
 
-	onLeave(client: any) {
+	onLeave(client: Client) {
 		// Remove player from state
-		if (this.state.gamePlayers.has(client.auth)) {
-			this.state.gamePlayers.delete(client.auth)
+		if (this.state.players.has(client.sessionId)) {
+			this.state.players.delete(client.sessionId)
 		}
 	}
 
