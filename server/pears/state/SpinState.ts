@@ -1,4 +1,10 @@
-import { Schema, SetSchema, MapSchema, ArraySchema, type } from '@colyseus/schema'
+import {
+	Schema,
+	MapSchema,
+	// SetSchema,
+	// ArraySchema,
+	type,
+} from '@colyseus/schema'
 
 import { BatchEntry, GuestPlayer, Player, Round } from '../entities'
 
@@ -14,6 +20,6 @@ export class SpinGameState extends Schema {
 	@type('string') fareTotalSupply: number
 	@type('number') currentRoundId: number
 
-	// 5 mins or (300 players)
+	// @NOTE: Determine if we should start wheel at 5 mins or once 300 players are reached
 	@type('number') countdownTimer: number
 }
