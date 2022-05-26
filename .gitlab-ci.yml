@@ -19,6 +19,7 @@ variables:
   BUILD_DIR: $CI_PROJECT_DIR/builds
   BUILD_FILENAME: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA-$CI_PIPELINE_ID.zip
   BUILD_FILE: $BUILD_DIR/$BUILD_FILENAME
+  EB_CONFIG_FILE: .elasticbeanstalk/config.yml
   BUCKET: elasticbeanstalk-us-west-2-390985807324
   BUCKET_PREFIX: builds/test
   AWS_PLATFORM: Docker
@@ -73,6 +74,7 @@ build:
   artifacts:
     paths:
       - $BUILD_FILE
+      - $EB_CONFIG_FILE
 
 deploy-test:
   image: python:latest
