@@ -42,7 +42,7 @@ export default abstract class UserService {
 	}
 
 	// Fetch userEntity nonce by publicAddress
-	public static async getUserNonce(publicAddress: string): Promise<string> {
+	public static async getUserNonce(publicAddress: string) {
 		if (!utils.isAddress(publicAddress)) throw new Error('Public address is not valid')
 
 		const userEntity = await this.getUserEntity(publicAddress)

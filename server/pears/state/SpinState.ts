@@ -20,6 +20,7 @@ export class SpinState extends Schema {
 	@type('string') fareTotalSupply: number
 	@type('number') currentRoundId: number
 
-	// @NOTE: Determine if we should start wheel at 5 mins or once 300 players are reached
+	// @NOTE: Ensure that publicAddress can only submit one batchEntry per round (in smart contract)
+	// @NOTE: Determine if we should start wheel at 2-5 mins or once 300 players are reached
 	@type('number') countdownTimer: number
 }
