@@ -77,6 +77,8 @@ deploy-test:
   image: python:latest
   stage: deploy-test
   script:
+    - git clone https://github.com/aws/aws-elastic-beanstalk-cli-setup.git
+    - python ./aws-elastic-beanstalk-cli-setup/scripts/ebcli_installer.py
     - pip install awscli
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
