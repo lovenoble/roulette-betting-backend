@@ -22,14 +22,30 @@ app.use(cors())
 // API
 app.use(router)
 
-// Create colyseus server
+// @NOTE: Configure these options in WebSocketTransport
+// pingInterval?: number;
+// pingMaxRetries?: number;
+// host?: string | undefined;
+// port?: number | undefined;
+// backlog?: number | undefined;
+// server?: HTTPServer | HTTPSServer | undefined;
+// verifyClient?: VerifyClientCallbackAsync | VerifyClientCallbackSync | undefined;
+// handleProtocols?: any;
+// path?: string | undefined;
+// noServer?: boolean | undefined;
+// clientTracking?: boolean | undefined;
+// perMessageDeflate?: boolean | PerMessageDeflateOptions | undefined;
+// maxPayload?: number | undefined;
 const gameServer = new Server({
 	transport: new WebSocketTransport({
 		server,
-		verifyClient: (info, next) => {
-			console.log('Handshake successful!', info)
-			next(true)
-		},
+		// @NOTE: Configure client validation (domain whitelist in production)
+		// verifyClient: (info, next) => {
+		// 	console.log('Handshake successful!', info)
+		// 	next(true)
+		// },
+		// pingInterval: 3000, // Default
+		// pingMaxRetries: 2, // Default
 	}),
 	presence: new RedisPresence({
 		url: `${process.env.REDIS_URL}/10`,

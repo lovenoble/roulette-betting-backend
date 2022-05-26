@@ -3,13 +3,9 @@ import type { BigNumber, Event, BigNumberish } from 'ethers'
 import redisStore from '..'
 import { tokenAPI as _tokenAPI, spinAPI } from '../../pears/crypto/contracts'
 import { handleEventLog, ContractNames, formatBN, formatETH, BNToNumber, toEth, BN } from './utils'
-import type { BNGameMode, BNEntry, BNBatchEntry } from '../schema/types'
+import type { BNGameMode } from '../schema/types'
 
 const { repo } = redisStore
-
-// Stream -> WebSocket
-// 1000ms delay to wait for batch entry to settle
-// Implement bullmq queuing solution
 
 const spin = spinAPI.contract
 
@@ -123,7 +119,6 @@ const updateBatchEntries = async (
 
 	const gameModes = await repo.gameMode.search().where('isActive').equals(true).returnAll()
 
-	// public ethFields = ['cardinality', 'mintMultiplier', 'gameEdgeFloor', 'minAmount', 'maxAmount']
 	const gameModeMap: { [key: number]: BNGameMode } = {}
 	gameModes.forEach(gm => {
 		gameModeMap[gm.id] = gm.bnify()
@@ -152,6 +147,7 @@ const updateBatchEntries = async (
 
 			if (BN(gm.gameEdgeFloor).lt(randomEliminator)) {
 				// @NOTE: MINT NFT LOOTBOX (ONLY ONCE PER BATCH ENTRY)
+				console.log('@NOTE: ELIMINATOR ROUND: NFT LOOTBOXES SHOULD BE MINTED')
 			} else {
 				let rng = randomNum
 				if (gm.cardinality.eq('10')) {
