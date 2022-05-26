@@ -77,12 +77,12 @@ deploy-test:
   image: python:latest
   stage: deploy-test
   script:
-    - git clone https://github.com/aws/aws-elastic-beanstalk-cli-setup.git
     - pip install awsebcli --upgrade --user
     - pip install awscli
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
     - aws configure set region $AWS_REGION
+    - eb status
     - aws s3 cp $BUILD_FILE s3://$BUCKET/$BUCKET_PREFIX/$BUILD_FILENAME
     - |
       aws elasticbeanstalk create-application-version \
