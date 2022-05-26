@@ -5,7 +5,7 @@ export interface Round {
 	roundId: number
 	randomNum: number
 	randomEliminator: string
-	vrfRequestId: number
+	vrfRequestId: string
 	timestamp: number
 }
 
