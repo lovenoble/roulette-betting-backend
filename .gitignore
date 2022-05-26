@@ -113,3 +113,8 @@ status.sh
 *googlechrome.dmg
 
 builds/**
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
