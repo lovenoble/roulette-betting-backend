@@ -11,6 +11,10 @@ const spin = spinAPI.contract
 export default abstract class GameMode {
 	public static repo = gameModeRepo
 
+	public static async getActiveGameModes() {
+		return this.repo.search().where('isActive').equals(true).returnAll()
+	}
+
 	// Ensures that gameModes in the smart contract are update to date in Redis
 	public static async ensureGameModes() {
 		const currentGameModeId = (await spin.getCurrentGameModeId()).toNumber()

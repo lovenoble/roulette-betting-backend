@@ -31,6 +31,8 @@ export const BNToNumber = (bn: BigNumber) => {
 }
 export const toEth = (bn: string) => ethers.utils.parseEther(bn)
 export const BN = ethers.BigNumber.from
+export const ensureNumber = (val: BigNumber | number): number =>
+	val instanceof BN ? BNToNumber(val as BigNumber) : (val as number)
 
 export const checkMintBurn = (from: string, to: string) => {
 	let isMintBurn = ''

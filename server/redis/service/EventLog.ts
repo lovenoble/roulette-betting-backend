@@ -8,6 +8,19 @@ const { eventLog } = redisStore.repo
 export default abstract class EventLog {
 	public static repo = eventLog
 
+	// Returns the needed fields from the Event object to pass to the worker
+	public static parseForQueue(event: Event, contractName: ContractNames) {
+		return {
+			contractName,
+			blockNumber: event.blockNumber,
+			transactionHash: event.transactionHash,
+			logIndex: event.logIndex,
+			event: event.event,
+			topics: event.topics,
+			timestamp: Date.now(),
+		}
+	}
+
 	// If event doesn't exist, eventLog entity will be added to the EventLog repo
 	// Returns empty string if eventLog already exists
 	public static async process(event: Event, contractName: ContractNames) {

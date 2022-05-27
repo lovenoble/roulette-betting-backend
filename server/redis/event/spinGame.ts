@@ -1,120 +1,19 @@
-import type { BigNumber, Event, BigNumberish } from 'ethers'
+import type { BigNumber, Event } from 'ethers'
 
 import redisStore from '..'
 import { tokenAPI as _tokenAPI, spinAPI } from '../../pears/crypto/contracts'
-import { ContractNames, formatBN, formatETH, BNToNumber, toEth, BN } from './utils'
-import type { BNGameMode } from '../schema/types'
-import { EventLog, GameMode } from '../service'
+import { EventNames, ContractNames, formatBN, formatETH, BNToNumber, toEth } from './utils'
+import { Entry, BatchEntry, EventLog, GameMode, Round } from '../service'
+import { contractEventQueue } from '../queue'
 
 const { repo } = redisStore
 
-const spin = spinAPI.contract
-
-// #region HELPERS
-
-export const createEntriesFromBatchEntry = async (
-	entryId: BigNumber,
-	batchEntryId: BigNumber,
-	roundId: BigNumber
-): Promise<any[]> => {
-	const entryCount = (await spinAPI.contract.getEntryCount(entryId)).toNumber()
-	const entryIdxs: number[] = [...Array(entryCount).keys()]
-
-	const promiseList: Promise<any>[] = entryIdxs.map(entryIdx => {
-		return new Promise((resolve, reject) => {
-			spinAPI.contract
-				.entryMap(entryId, entryIdx)
-				.then(async ([amount, gameModeId, pickedNumber]) => {
-					const entry = {
-						amount: formatETH(amount),
-						roundId: BNToNumber(roundId),
-						gameModeId: BNToNumber(gameModeId),
-						pickedNumber: BNToNumber(pickedNumber),
-						batchEntryId: BNToNumber(batchEntryId),
-						entryId: BNToNumber(entryId),
-						winAmount: null,
-						settled: false,
-						timestamp: Date.now(),
-					}
-					resolve(await repo.entry.createAndSave(entry))
-				})
-				.catch(reject)
-		})
+export const _gameModeUpdatedEvent = async (gameModeId: BigNumber, event: Event) => {
+	await contractEventQueue.add(EventNames.GameModeUpdated, {
+		gameModeId: BNToNumber(gameModeId),
+		event: EventLog.parseForQueue(event, ContractNames.FareSpinGame),
 	})
-
-	return Promise.all(promiseList)
 }
-
-const updateBatchEntries = async (
-	roundId: BigNumber,
-	_randomNum: BigNumber,
-	_randomEliminator: BigNumber
-) => {
-	const randomNum = _randomNum
-	const randomEliminator = _randomEliminator
-
-	const batchEntries = await repo.batchEntry
-		.search()
-		.where('roundId')
-		.eq(BNToNumber(roundId))
-		.returnAll()
-
-	const gameModes = await repo.gameMode.search().where('isActive').equals(true).returnAll()
-
-	const gameModeMap: { [key: number]: BNGameMode } = {}
-	gameModes.forEach(gm => {
-		gameModeMap[gm.id] = gm.bnify()
-	})
-
-	const fetchAllEntries = batchEntries.map(async batchEntry => {
-		const obj = {
-			batchEntry,
-			entries: await repo.entry
-				.search()
-				.where('batchEntryId')
-				.eq(batchEntry.batchEntryId)
-				.returnAll(),
-		}
-
-		return obj
-	})
-
-	const data = await Promise.all(fetchAllEntries)
-
-	const promiseList = data.map(async ({ batchEntry, entries }) => {
-		let totalWinAmount = BN('0')
-
-		const entryPromise = entries.map(async entry => {
-			const gm = gameModeMap[entry.gameModeId].bn
-
-			if (BN(gm.gameEdgeFloor).lt(randomEliminator)) {
-				// @NOTE: MINT NFT LOOTBOX (ONLY ONCE PER BATCH ENTRY)
-				console.log('@NOTE: ELIMINATOR ROUND: NFT LOOTBOXES SHOULD BE MINTED')
-			} else {
-				let rng = randomNum
-				if (gm.cardinality.eq('10')) {
-					rng = BN(Math.floor(rng.toNumber() / 10).toString())
-				}
-
-				if (rng.mod(gm.cardinality).eq(entry.pickedNumber)) {
-					entry.winAmount = formatETH(gm.mintMultiplier.mul(toEth(entry.amount)))
-					totalWinAmount = totalWinAmount.add(toEth(entry.winAmount))
-				}
-			}
-			await repo.entry.save(entry)
-		})
-
-		await Promise.all(entryPromise)
-		batchEntry.totalWinAmount = formatETH(totalWinAmount)
-		await repo.batchEntry.save(batchEntry)
-	})
-
-	await Promise.all(promiseList)
-}
-
-// #endregion HELPERS
-
-// #region EVENTS
 
 export const gameModeUpdatedEvent = async (gameModeId: BigNumber, event: Event) => {
 	console.log('gameModeUpdated')
@@ -124,6 +23,7 @@ export const gameModeUpdatedEvent = async (gameModeId: BigNumber, event: Event) 
 	await GameMode.createOrUpdate(gameModeId, eventLogId)
 }
 
+// @NOTE: MOVE TO BATCHENTRYSERVICE !!!
 export const createBatchEntry = async (
 	eventLogId: string,
 	roundId: BigNumber,
@@ -131,12 +31,13 @@ export const createBatchEntry = async (
 	entryId: BigNumber,
 	player: string
 ) => {
-	await createEntriesFromBatchEntry(entryId, batchEntryId, roundId)
+	// BULLMQ
+	await Entry.populateEntriesFromBatchEntryId(entryId, batchEntryId, roundId)
 
 	const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
 		await spinAPI.contract.batchEntryMap(roundId, batchEntryId)
 
-	await repo.batchEntry.createAndSave({
+	await BatchEntry.repo.createAndSave({
 		eventLogId,
 		roundId: BNToNumber(roundId),
 		batchEntryId: BNToNumber(batchEntryId),
@@ -145,6 +46,22 @@ export const createBatchEntry = async (
 		player,
 		totalEntryAmount: formatETH(_totalEntryAmount),
 		totalWinAmount: formatETH(_totalWinAmount),
+	})
+}
+
+export const _entrySubmittedEvent = async (
+	roundId: BigNumber,
+	batchEntryId: BigNumber,
+	player: string,
+	entryId: BigNumber,
+	event: Event
+) => {
+	await contractEventQueue.add(EventNames.EntrySubmitted, {
+		roundId,
+		batchEntryId,
+		player,
+		entryId,
+		event,
 	})
 }
 
@@ -159,7 +76,24 @@ export const entrySubmittedEvent = async (
 	const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
 	if (!eventLogId) return
 
+	// BULLMQ
 	await createBatchEntry(eventLogId, roundId, batchEntryId, entryId, player)
+}
+
+export const _roundConcludedEvent = async (
+	roundId: BigNumber,
+	vrfRequestId: string,
+	randomNum: BigNumber,
+	randomEliminator: BigNumber,
+	event: Event
+) => {
+	await contractEventQueue.add(EventNames.EntrySubmitted, {
+		roundId,
+		vrfRequestId,
+		randomNum,
+		randomEliminator,
+		event,
+	})
 }
 
 export const roundConcludedEvent = async (
@@ -173,8 +107,8 @@ export const roundConcludedEvent = async (
 	const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
 	if (!eventLogId) return
 
-	// calculate entries and save updated values
-	await updateBatchEntries(roundId, randomNum, randomEliminator)
+	// BULLMQ
+	await Round.updateRoundBatchEntries(roundId, randomNum, randomEliminator)
 
 	await repo.round.createAndSave({
 		eventLogId,
@@ -185,43 +119,22 @@ export const roundConcludedEvent = async (
 	})
 }
 
-export const settleBatchEntry = async (roundId: BigNumber, batchEntryId: BigNumber) => {
-	const batchEntryEntity = await repo.batchEntry
-		.search()
-		.where('batchEntryId')
-		.equal(BNToNumber(batchEntryId))
-		.where('roundId')
-		.equal(BNToNumber(roundId))
-		.returnFirst()
-
-	if (!batchEntryEntity) {
-		// @NOTE: Push to queue to wait retry again in 10 seconds.
-		// @NOTE: Problem occurs because settleBatchEntry and entrySubmitted even are fired off on connection
-		console.log(
-			'@NOTE: NEED TO RACE CONDITION TO CREATE BATCH ENTRY AND ENTRIES SINCE IT IS NULL!!!'
-		)
-	}
-
-	batchEntryEntity.settled = true
-
-	const entries = await repo.entry
-		.search()
-		.where('batchEntryId')
-		.equal(BNToNumber(batchEntryId))
-		.where('roundId')
-		.equal(BNToNumber(roundId))
-		.returnAll()
-
-	const promiseList = entries.map(entry => {
-		return new Promise((resolve, reject) => {
-			entry.settled = true
-			repo.entry.save(entry).then(resolve).catch(reject)
-		})
+export const _entrySettledEvent = async (
+	roundId: BigNumber,
+	batchEntryId: BigNumber,
+	_NUplayer: string,
+	_NUentryId: BigNumber,
+	hasWon: boolean,
+	event: Event
+) => {
+	await contractEventQueue.add(EventNames.EntrySubmitted, {
+		roundId,
+		batchEntryId,
+		_NUplayer,
+		_NUentryId,
+		hasWon,
+		event,
 	})
-
-	await Promise.all(promiseList)
-
-	return batchEntryEntity
 }
 
 export const entrySettledEvent = async (
@@ -236,7 +149,8 @@ export const entrySettledEvent = async (
 	const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
 	if (!eventLogId) return
 
-	const batchEntryEntity = await settleBatchEntry(roundId, batchEntryId)
+	// BULLMQ
+	const batchEntryEntity = await BatchEntry.settle(roundId, batchEntryId)
 
 	const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
 		await spinAPI.contract.batchEntryMap(roundId, batchEntryId)
@@ -247,5 +161,3 @@ export const entrySettledEvent = async (
 		await repo.batchEntry.save(batchEntryEntity)
 	}
 }
-
-// #endregion EVENTS
