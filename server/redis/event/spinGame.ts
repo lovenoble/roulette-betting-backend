@@ -1,6 +1,6 @@
 import type { BigNumber, Event } from 'ethers'
 
-import { EventNames, ContractNames, BNToNumber } from './utils'
+import { EventNames, ContractNames, BNToNumber, formatBN } from './utils'
 import { EventLog } from '../service'
 import { contractEventQueue } from '../queue'
 
@@ -34,11 +34,11 @@ export const roundConcludedEvent = async (
 	randomEliminator: BigNumber,
 	event: Event
 ) => {
-	await contractEventQueue.add(EventNames.EntrySubmitted, {
+	await contractEventQueue.add(EventNames.RoundConcluded, {
 		roundId: BNToNumber(roundId),
 		vrfRequestId,
 		randomNum: BNToNumber(randomNum),
-		randomEliminator: BNToNumber(randomEliminator),
+		randomEliminator: formatBN(randomEliminator, 0),
 		event: EventLog.parseForQueue(event, ContractNames.FareSpinGame),
 	})
 }
@@ -51,7 +51,7 @@ export const entrySettledEvent = async (
 	hasWon: boolean,
 	event: Event
 ) => {
-	await contractEventQueue.add(EventNames.EntrySubmitted, {
+	await contractEventQueue.add(EventNames.EntrySettled, {
 		roundId: BNToNumber(roundId),
 		batchEntryId: BNToNumber(batchEntryId),
 		_NUplayer,

@@ -7,7 +7,8 @@ import ChatService from '../../store/services/Chat'
 import PlayerService from '../../store/services/Player'
 import PearHash from '../utils/PearHash'
 import PearMessages from '../types/message.types'
-import { ChatRoomState, ChatMessage, Player } from '../state/ChatRoomState'
+import { ChatRoomState } from '../state/ChatState'
+import { Player, Message } from '../entities'
 import { IRoomOptions } from '../types/rooms.types'
 import createLog from '../utils'
 
@@ -48,7 +49,7 @@ class ChatRoom extends Room<ChatRoomState> {
 			// Potentially created a new map here and pass it into state at once
 			messages.forEach(message => {
 				console.log(message.player)
-				const existingMessage = new ChatMessage({
+				const existingMessage = new Message({
 					id: message._id.toString(),
 					text: message.text,
 					createdBy: message.player.publicAddress,
@@ -67,7 +68,7 @@ class ChatRoom extends Room<ChatRoomState> {
 
 				const chatMessageId: string = shortId()
 
-				const newMessage = new ChatMessage({
+				const newMessage = new Message({
 					id: chatMessageId,
 					text: message.text,
 					createdBy: client.auth,

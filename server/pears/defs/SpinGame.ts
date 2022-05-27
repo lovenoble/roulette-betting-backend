@@ -1,40 +1,51 @@
 import { Room, ServerError } from '@colyseus/core'
+import type { Client } from '@colyseus/core'
+import type { Job } from 'bullmq'
 import { Dispatcher } from '@colyseus/command'
 
 // Libraries
 import PearHash from '../utils/PearHash'
 import PlayerService from '../../store/services/Player'
-import { OnGuestPlayerJoined, OnWalletUpdate, OnNewEntry } from '../commands/PlayerCommands'
-import { OnFetchFareSupply, OnFetchRoundAndEntries } from '../commands/CryptoCommands'
+// import { OnGuestPlayerJoined, OnWalletUpdate, OnNewEntry } from '../commands/PlayerCommands'
+// import { OnFetchFareSupply, OnFetchRoundAndEntries } from '../commands/CryptoCommands'
 import { SpinState } from '../state/SpinState'
-import createLog from '../utils'
-import PearCrypto from '../crypto'
+import {
+	entrySubmittedWorker,
+	roundConcludedWorker,
+	gameModeUpdatedWorker,
+	entrySettledWorker,
+} from '../../redis/worker'
 
-const LOG_PATH = '[pears/defs/SpinGame]:'
+// @NOTE: Determine user balancing for room capacity - [spin-room-1: 1800, spin-room-2: 600]
+// @NOTE: VIP room rentals for FARE token (smart contract)
 
-const [logInfo, logError] = createLog(LOG_PATH)
-
-export const pear = new PearCrypto()
+entrySubmittedWorker.on('completed', (job: Job) => console.log(job.id))
+entrySubmittedWorker.on('failed', (job: Job) => console.log(job.id))
+roundConcludedWorker.on('completed', (job: Job) => console.log(job.id))
+roundConcludedWorker.on('failed', (job: Job) => console.log(job.id))
+gameModeUpdatedWorker.on('completed', (job: Job) => console.log(job.id))
+gameModeUpdatedWorker.on('failed', (job: Job) => console.log(job.id))
+entrySettledWorker.on('completed', (job: Job) => console.log(job.id))
+entrySettledWorker.on('failed', (job: Job) => console.log(job.id))
 
 class SpinGame extends Room<SpinState> {
-	maxClients = 100
-	private _name?: string
-	private _desc?: string
-	private _password?: string | null = null
+	public maxClients = 2500 // @NOTE: Need to determine the number of clients where performance begins to fall off
+	private name: string
+	private desc: string
+	private password: string | null = null
 	private dispatcher = new Dispatcher(this)
-	private pear = pear
 
 	async onCreate(options: any) {
 		try {
 			const { name, desc, password } = options
-			this._name = name
-			this._desc = desc
-			this._password = password
+			this.name = name
+			this.desc = desc
+			this.password = password
 
 			let hasPassword = false
 			if (password) {
 				// @NOTE: Handle hashing password before setting the metadata
-				logInfo('Password was set', password)
+				console.log('Password was set', password)
 				hasPassword = true
 			}
 
@@ -44,37 +55,18 @@ class SpinGame extends Room<SpinState> {
 				hasPassword,
 			})
 
-			// Get the game and token contract
-			await this.pear.init()
+			this.setState(new SpinState())
 
-			this.setState(new SpinGameState())
-
-			this.dispatcher.dispatch(new OnFetchFareSupply(), { pear: this.pear })
-
-			this.dispatcher.dispatch(new OnFetchRoundAndEntries(), {
-				pear: this.pear,
-				dispatcher: this.dispatcher,
-				OnNewEntry,
-				OnWalletUpdate,
-			})
-
-			this.onMessage('round-started', (client, message) => {
-				console.log(message)
-				this.state.roundStarted = message
-				setTimeout(() => {}, 15000)
-			})
-
-			this.onMessage('vrfNum', (client, message) => {
-				this.state.vrfNum = message
-			})
+			// @NOTE: Define WebSocket message handling here
+			// Define Redis pubsub events
 		} catch (err) {
 			// @NOTE: Need better error handling here. If this fails the state doesn't get set
-			logError(err)
+			console.error(err)
 		}
 	}
 
-	async onAuth(client: any, options) {
-		// eslint-disable-line
+	async onAuth(_client: Client, options: any) {
+		// @NOTE: Need to rework how we identify guestUsers
 		// Validate token and get publicAddress for hashmap reference
 		if (options.authToken) {
 			const { publicAddress } = await PearHash.decodeJwt(options.authToken)
@@ -96,54 +88,58 @@ class SpinGame extends Room<SpinState> {
 
 			return playerStore.publicAddress
 		}
+
 		if (options.guestUsername) {
 			console.log('User logging in as guest with username:', options.guestUsername)
 			return `guest:${options.guestUsername}`
 		}
+
 		throw new ServerError(400, 'An identity is required to login.')
 	}
 
-	async onJoin(client: any, options, auth) {
+	async onJoin(client: Client, _options: any, auth: any) {
 		try {
 			const [authToken, guestUsername] = auth.split(':')
 			console.log(authToken, guestUsername)
 			// Fetch balances
+
 			if (guestUsername) {
-				this.dispatcher.dispatch(new OnGuestPlayerJoined(), {
-					guestUsername: options.guestUsername,
-					sessionId: client.sessionId,
-				})
+				// this.dispatcher.dispatch(new OnGuestPlayerJoined(), {
+				// 	guestUsername: options.guestUsername,
+				// 	sessionId: client.sessionId,
+				// })
 			} else if (authToken) {
-				this.dispatcher.dispatch(new OnWalletUpdate(), {
-					pear: this.pear,
-					playerAddress: auth,
-				})
+				// this.dispatcher.dispatch(new OnWalletUpdate(), {
+				// 	pear: this.pear,
+				// 	playerAddress: auth,
+				// })
 			} else {
 				throw new ServerError(400, 'Auth token does not exist.')
 			}
 		} catch (err) {
 			// @NOTE: Need better error handling here. If this fails the state doesn't get set
-			logError(err)
+			console.error(err)
 		}
 	}
 
-	onLeave(client: any) {
+	onLeave(client: Client) {
 		// Remove player from state
-		if (this.state.gamePlayers.has(client.auth)) {
-			this.state.gamePlayers.delete(client.auth)
-		} else if (this.state.guestPlayers.has(client.sessionId)) {
-			this.state.guestPlayers.delete(client.sessionId)
+		if (this.state.players.has(client.sessionId)) {
+			// Clear sessionId on user model for Redis
+			this.state.players.delete(client.sessionId)
 		}
 	}
 
 	onDispose() {
 		// @NOTE: Need to clear garbage here
+
 		// if (this.pear.pearTokenContract && this.pear.pearGameContract) {
 		// 	this.pear.pearTokenContract.removeAllListeners()
 		// 	this.pear.pearGameContract.removeAllListeners()
 		// }
+
 		this.dispatcher.stop()
-		logInfo('Disposing of SpinGame room...')
+		console.log('Disposing of SpinGame room...')
 	}
 }
 

@@ -1,7 +1,8 @@
 import type { BigNumber, Event } from 'ethers'
 
 import redisStore from '..'
-import { ContractNames, checkMintBurn, handleEventLog, formatETH } from './utils'
+import { ContractNames, checkMintBurn, formatETH } from './utils'
+import { EventLog } from '../service'
 
 const { repo } = redisStore
 
@@ -12,7 +13,7 @@ export const fareTransferEvent = async (
 	event: Event
 ) => {
 	console.log('fareTokenEvent')
-	const eventLogId = await handleEventLog(event, ContractNames.FareToken)
+	const eventLogId = await EventLog.process(event, ContractNames.FareToken)
 	if (!eventLogId) return
 
 	const isMintBurn = checkMintBurn(from, to)

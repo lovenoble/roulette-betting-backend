@@ -45,6 +45,7 @@ module.exports = {
 		'@typescript-eslint/ban-ts-comment': 'off',
 		'@typescript-eslint/no-explicit-any': 'off', // @NOTE: change value to 'warn' later
 		'@typescript-eslint/no-empty-interface': 'off',
+		'class-methods-use-this': 'off',
 	},
 	settings: {
 		'import/parsers': {
