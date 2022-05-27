@@ -1,8 +1,9 @@
 import type { BigNumber } from 'ethers'
 
 import redisStore from '..'
-import { ensureNumber } from '../event/utils'
+import { ensureNumber, BNToNumber, formatETH } from '../event/utils'
 import Entry from './Entry'
+import { spinAPI } from '../../pears/crypto/contracts'
 
 const { batchEntry: batchEntryRepo } = redisStore.repo
 
@@ -17,6 +18,31 @@ export default abstract class BatchEntry {
 			.where('batchEntryId')
 			.equal(ensureNumber(batchEntryId))
 			.returnFirst()
+	}
+
+	public static async create(
+		eventLogId: string,
+		roundId: BigNumber,
+		batchEntryId: BigNumber,
+		entryId: BigNumber,
+		player: string
+	) {
+		// BULLMQ
+		await Entry.populateEntriesFromBatchEntryId(entryId, batchEntryId, roundId)
+
+		const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
+			await spinAPI.contract.batchEntryMap(roundId, batchEntryId)
+
+		await BatchEntry.repo.createAndSave({
+			eventLogId,
+			roundId: BNToNumber(roundId),
+			batchEntryId: BNToNumber(batchEntryId),
+			entryId: BNToNumber(entryId),
+			settled: _settled,
+			player,
+			totalEntryAmount: formatETH(_totalEntryAmount),
+			totalWinAmount: formatETH(_totalWinAmount),
+		})
 	}
 
 	public static async settle(roundId: BigNumber, batchEntryId: BigNumber) {
