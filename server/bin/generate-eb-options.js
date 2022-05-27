@@ -21,7 +21,7 @@ const outputMap = []
 lineInterface.on('line', (line) => {
     if (process.env[line] !== undefined && process.env[line].length > 0) {
         outputMap.push({
-            NameSpace: envVarNamespace,
+            Namespace: envVarNamespace,
             OptionName: line,
             Value: process.env[line]
         })
