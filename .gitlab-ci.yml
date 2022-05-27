@@ -19,7 +19,8 @@ variables:
   BUILD_DIR: $CI_PROJECT_DIR/server/builds
   BUILD_FILENAME: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA-$CI_PIPELINE_ID.zip
   BUILD_FILE: $BUILD_DIR/$BUILD_FILENAME
-  EB_OPTIONS_FILE: $CI_PROJECT_DIR/server/tmp/ebOptions.json
+  TMP_DIR: $CI_PROJECT_DIR/server/tmp
+  EB_OPTIONS_FILE: $TMP_DIR/ebOptions.json
   BIN_DIR: $CI_PROJECT_DIR/server/bin
   BUCKET: elasticbeanstalk-us-west-2-390985807324
   BUCKET_PREFIX: builds/test
@@ -66,6 +67,7 @@ build:
   script:
     - echo 'BUILD'
     - $BIN_DIR/ensure-env-vars.sh
+    - mkdir -p $TMP_DIR
     - touch $EB_OPTIONS_FILE
     - node $BIN_DIR/generate-eb-options.js > $EB_OPTIONS_FILE
     - apt-get update -y && apt-get install -y zip
