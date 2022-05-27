@@ -66,6 +66,7 @@ build:
   script:
     - echo 'BUILD'
     - $BIN_DIR/ensure-env-vars.sh
+    - touch $EB_OPTIONS_FILE
     - node $BIN_DIR/generate-eb-options.js > $EB_OPTIONS_FILE
     - apt-get update -y && apt-get install -y zip
     - cd server/
