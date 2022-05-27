@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-envRequiredFile=".env.required_vars"
+envRequiredFile="$CI_PROJECT_DIR/server/.env.required_vars"
 pwd
 while read -r line
 do
