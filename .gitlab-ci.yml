@@ -19,8 +19,8 @@ variables:
   BUILD_DIR: $CI_PROJECT_DIR/builds
   BUILD_FILENAME: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA-$CI_PIPELINE_ID.zip
   BUILD_FILE: $BUILD_DIR/$BUILD_FILENAME
-  EB_CONFIG_FILE: .elasticbeanstalk/config.yml
-  BASH_SCRIPTS_DIR: ./bash-scripts
+  EB_OPTIONS_FILE: tmp/ebOptions.json
+  BIN_DIR: ./bash-scripts
   BUCKET: elasticbeanstalk-us-west-2-390985807324
   BUCKET_PREFIX: builds/test
   AWS_PLATFORM: Docker
@@ -65,6 +65,8 @@ build:
     policy: pull
   script:
     - echo 'BUILD'
+    - $BIN_DIR/ensure-env-vars.sh
+    - node $BIN_DIR/generate-eb-options.js > $EB_OPTIONS_FILE
     - apt-get update -y && apt-get install -y zip
     - cd server/
     - npm run build
@@ -75,9 +77,7 @@ build:
   artifacts:
     paths:
       - $BUILD_FILE
-      - $EB_CONFIG_FILE
-      - $BASH_SCRIPTS_DIR/ensure-env-vars.sh
-      - $BASH_SCRIPTS_DIR/propagate-env-vars.sh
+      - $EB_OPTIONS_FILE
 
 deploy-test:
   image: python:latest
@@ -92,16 +92,17 @@ deploy-test:
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
     - aws configure set region $AWS_REGION
-    - eb status
-    - $BASH_SCRIPTS_DIR/ensure-env-vars.sh
-    - $BASH_SCRIPTS_DIR/propagate-env-vars.sh
     - aws s3 cp $BUILD_FILE s3://$BUCKET/$BUCKET_PREFIX/$BUILD_FILENAME
     - |
       aws elasticbeanstalk create-application-version \
         --application-name $APP_NAME \
         --version-label v_$CI_COMMIT_SHORT_SHA \
         --source-bundle S3Bucket=$BUCKET,S3Key=$BUCKET_PREFIX/$BUILD_FILENAME
-    - aws elasticbeanstalk update-environment --environment-name $ENV_NAME --version-label v_$CI_COMMIT_SHORT_SHA
+    - |
+      aws elasticbeanstalk update-environment \
+      --environment-name $ENV_NAME \
+      --version-label v_$CI_COMMIT_SHORT_SHA \
+      --option-settings file://$EB_OPTIONS_FILE
   dependencies:
     - build
   only:
