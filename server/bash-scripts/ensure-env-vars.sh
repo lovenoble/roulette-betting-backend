@@ -4,13 +4,13 @@ envRequiredFile=".env.required_vars"
 pwd
 while read -r line
 do
-    echo "Checking for $line";
+    echo "[ENV] Checking for $line";
 
     if [ -z "${!line}" ]; then
-        echo "$line is unset";
+        echo "[ENV] $line is unset";
         exit 1;
     else
-        echo "$line is set";
+        echo "[ENV] $line is set";
     fi
 done < "$envRequiredFile"
 

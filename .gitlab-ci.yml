@@ -76,6 +76,8 @@ build:
     paths:
       - $BUILD_FILE
       - $EB_CONFIG_FILE
+      - $BASH_SCRIPTS_DIR/ensure-env-vars.sh
+      - $BASH_SCRIPTS_DIR/propagate-env-vars.sh
 
 deploy-test:
   image: python:latest
@@ -84,7 +86,6 @@ deploy-test:
     name: $ENV_NAME
     url: $ENV_URL
   script:
-    - $BASH_SCRIPTS_DIR/ensure-env-vars.sh
     - pip install awsebcli --upgrade --user
     - pip install awscli
     - export PATH=~/.local/bin:$PATH
@@ -93,6 +94,8 @@ deploy-test:
     - aws configure set region $AWS_REGION
     - eb init $APP_NAME
     - eb status
+    - $BASH_SCRIPTS_DIR/ensure-env-vars.sh
+    - $BASH_SCRIPTS_DIR/propagate-env-vars.sh
     - aws s3 cp $BUILD_FILE s3://$BUCKET/$BUCKET_PREFIX/$BUILD_FILENAME
     - |
       aws elasticbeanstalk create-application-version \
@@ -102,3 +105,6 @@ deploy-test:
     - aws elasticbeanstalk update-environment --environment-name $ENV_NAME --version-label v_$CI_COMMIT_SHORT_SHA
   dependencies:
     - build
+  only:
+    - feature/gitlab-ci
+    - test
