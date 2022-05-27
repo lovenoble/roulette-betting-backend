@@ -1,9 +1,5 @@
 import ethers from 'ethers'
-import type { Event, BigNumber, BigNumberish } from 'ethers'
-
-import redisStore from '..'
-
-const { repo } = redisStore
+import type { BigNumber, BigNumberish } from 'ethers'
 
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
 export const upperETHLimit = ethers.BigNumber.from('1000000000')
