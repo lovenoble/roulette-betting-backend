@@ -14,5 +14,5 @@ do
     fi
 done < "$envRequiredFile"
 
-echo "Correct environment variables are present."
+echo "[ENV] Correct environment variables are present."
 exit 0;
