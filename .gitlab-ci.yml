@@ -16,7 +16,7 @@ variables:
   ENV_NAME: fp-api-test
   ENV_URL: http://fp-api-test.us-west-2.elasticbeanstalk.com/
   FILE: $CI_COMMIT_REF_NAME-$CI_PIPELINE_ID
-  BUILD_DIR: $CI_PROJECT_DIR/builds
+  BUILD_DIR: $CI_PROJECT_DIR/server/builds
   BUILD_FILENAME: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA-$CI_PIPELINE_ID.zip
   BUILD_FILE: $BUILD_DIR/$BUILD_FILENAME
   EB_OPTIONS_FILE: tmp/ebOptions.json
