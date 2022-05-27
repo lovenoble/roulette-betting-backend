@@ -59,6 +59,9 @@ lint:
 
 build:
   stage: build
+  environment:
+    name: $ENV_NAME
+    url: $ENV_URL
   cache:
     key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
     paths:
