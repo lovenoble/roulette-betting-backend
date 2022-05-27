@@ -20,6 +20,7 @@ variables:
   BUILD_FILENAME: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA-$CI_PIPELINE_ID.zip
   BUILD_FILE: $BUILD_DIR/$BUILD_FILENAME
   EB_CONFIG_FILE: .elasticbeanstalk/config.yml
+  BASH_SCRIPTS_DIR: ./bash-scripts
   BUCKET: elasticbeanstalk-us-west-2-390985807324
   BUCKET_PREFIX: builds/test
   AWS_PLATFORM: Docker
@@ -83,6 +84,7 @@ deploy-test:
     name: $ENV_NAME
     url: $ENV_URL
   script:
+    - $BASH_SCRIPTS_DIR/ensure-env-vars.sh
     - pip install awsebcli --upgrade --user
     - pip install awscli
     - export PATH=~/.local/bin:$PATH
