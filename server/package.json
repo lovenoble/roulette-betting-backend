@@ -10,7 +10,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon -r dotenv/config --exec 'node --experimental-specifier-resolution=node --loader ts-node/esm' index.ts",
-    "copy-protos": "bash-scripts/copy-protos.sh",
+    "copy-protos": "bin/copy-protos.sh",
     "build": "tsc --build && npm run copy-protos",
     "postbuild": "npm run copy-dockerfile && npm run copy-deps",
     "copy-deps": "cp package.json ./dist/package.json && cd ./dist && npm install --only=production",
