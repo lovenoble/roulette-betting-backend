@@ -7,7 +7,7 @@ import PearGame from './artifacts/PearGame.json'
 import { EntryList, Entry } from '../state/SpinGameState'
 import './contracts'
 
-import defineEvents from '../../redis/events'
+import defineEvents from '../../redis/event'
 
 defineEvents()
 

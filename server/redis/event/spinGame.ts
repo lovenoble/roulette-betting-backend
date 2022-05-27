@@ -2,8 +2,9 @@ import type { BigNumber, Event, BigNumberish } from 'ethers'
 
 import redisStore from '..'
 import { tokenAPI as _tokenAPI, spinAPI } from '../../pears/crypto/contracts'
-import { handleEventLog, ContractNames, formatBN, formatETH, BNToNumber, toEth, BN } from './utils'
+import { ContractNames, formatBN, formatETH, BNToNumber, toEth, BN } from './utils'
 import type { BNGameMode } from '../schema/types'
+import { EventLog } from '../service'
 
 const { repo } = redisStore
 
@@ -176,7 +177,7 @@ const updateBatchEntries = async (
 
 export const gameModeUpdatedEvent = async (gameModeId: BigNumber, event: Event) => {
 	console.log('gameModeUpdated')
-	const eventLogId = await handleEventLog(event, ContractNames.FareSpinGame)
+	const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
 	if (!eventLogId) return
 
 	await createOrUpdateGameMode(gameModeId, eventLogId)
@@ -214,7 +215,7 @@ export const entrySubmittedEvent = async (
 	event: Event
 ) => {
 	console.log('entrySubmittedEvent')
-	const eventLogId = await handleEventLog(event, ContractNames.FareSpinGame)
+	const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
 	if (!eventLogId) return
 
 	await createBatchEntry(eventLogId, roundId, batchEntryId, entryId, player)
@@ -228,7 +229,7 @@ export const roundConcludedEvent = async (
 	event: Event
 ) => {
 	console.log('roundConcluded')
-	const eventLogId = await handleEventLog(event, ContractNames.FareSpinGame)
+	const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
 	if (!eventLogId) return
 
 	// calculate entries and save updated values
@@ -291,7 +292,7 @@ export const entrySettledEvent = async (
 	event: Event
 ) => {
 	console.log('entrySettledEvent')
-	const eventLogId = await handleEventLog(event, ContractNames.FareSpinGame)
+	const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
 	if (!eventLogId) return
 
 	const batchEntryEntity = await settleBatchEntry(roundId, batchEntryId)

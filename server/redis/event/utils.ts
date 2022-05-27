@@ -36,29 +36,6 @@ export const BNToNumber = (bn: BigNumber) => {
 export const toEth = (bn: string) => ethers.utils.parseEther(bn)
 export const BN = ethers.BigNumber.from
 
-export async function handleEventLog(event: Event, contractName: ContractNames): Promise<string> {
-	const doesExist = await repo.eventLog
-		.search()
-		.where('transactionHash')
-		.equals(event.transactionHash)
-		.where('logIndex')
-		.equals(event.logIndex)
-		.returnCount()
-
-	if (doesExist > 0) return ''
-
-	const eventLogEntry = await repo.eventLog.createAndSave({
-		contractName,
-		transactionHash: event.transactionHash,
-		logIndex: event.logIndex,
-		event: event.event,
-		topics: event.topics,
-		timestamp: Date.now(),
-	})
-
-	return eventLogEntry.entityId
-}
-
 export const checkMintBurn = (from: string, to: string) => {
 	let isMintBurn = ''
 	if (from === zeroAddress) {
