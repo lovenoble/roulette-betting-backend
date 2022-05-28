@@ -32,6 +32,7 @@ module.exports = {
 			{
 				varsIgnorePattern: '^_',
 				argsIgnorePattern: '^_',
+				destructuredArrayIgnorePattern: '^_',
 			},
 		],
 		'no-unreachable': 'off',

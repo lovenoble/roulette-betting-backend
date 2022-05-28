@@ -2,6 +2,7 @@ import type { Event } from 'ethers'
 
 import redisStore from '..'
 import type { ContractNames } from '../event/utils'
+import type { IEventLogQueue } from '../queue/queue.types'
 
 const { eventLog } = redisStore.repo
 
@@ -9,8 +10,8 @@ export default abstract class EventLog {
 	public static repo = eventLog
 
 	// Returns the needed fields from the Event object to pass to the worker
-	public static parseForQueue(event: Event, contractName: ContractNames) {
-		return {
+	public static parseForQueue(event: Event, contractName: ContractNames): IEventLogQueue {
+		const parsedEvent: IEventLogQueue = {
 			contractName,
 			blockNumber: event.blockNumber,
 			transactionHash: event.transactionHash,
@@ -19,6 +20,8 @@ export default abstract class EventLog {
 			topics: event.topics,
 			timestamp: Date.now(),
 		}
+
+		return parsedEvent
 	}
 
 	// If event doesn't exist, eventLog entity will be added to the EventLog repo

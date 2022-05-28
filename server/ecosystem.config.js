@@ -1,6 +1,8 @@
 require('dotenv')
 const os = require('os')
 
+const REDIS_URL = `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/10`
+
 module.exports = {
 	apps: [
 		{
@@ -11,7 +13,7 @@ module.exports = {
 			exec_mode: 'cluster',
 			env: {
 				PORT: 80,
-				REDIS_URL: `${process.env.REDIS_URL}/10`,
+				REDIS_URL,
 			},
 		},
 		{

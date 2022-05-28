@@ -5,7 +5,7 @@ export interface FareTransfer {
 	from: string
 	to: string
 	amount: string
-	isMintBurn: string
+	transferType: string
 	timestamp: number
 }
 
@@ -18,7 +18,7 @@ export default new Schema(
 		from: { type: 'string' },
 		to: { type: 'string' },
 		amount: { type: 'string' },
-		isMintBurn: { type: 'string' },
+		transferType: { type: 'string' },
 		timestamp: { type: 'date' },
 	},
 	{ dataStructure: 'JSON' }

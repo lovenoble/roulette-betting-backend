@@ -1,14 +1,11 @@
 import { Queue } from 'bullmq'
 
+import { connection } from '../config'
+
 export enum QueueNames {
 	ContractEvent = 'ContractEvent',
 	PearState = 'PearState',
 	Latency = 'Latency',
-}
-
-const connection = {
-	host: 'localhost',
-	port: 6379,
 }
 
 export const contractEventQueue = new Queue(QueueNames.ContractEvent, { connection })

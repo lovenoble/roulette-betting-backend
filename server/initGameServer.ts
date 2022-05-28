@@ -8,6 +8,7 @@ import { WebSocketTransport } from '@colyseus/ws-transport'
 
 // Libraries
 import storeUri from './store/config'
+import { redisUrl } from './redis/config'
 import Sockets from './pears/Sockets'
 import router from './routes'
 
@@ -48,7 +49,7 @@ const gameServer = new Server({
 		// pingMaxRetries: 2, // Default
 	}),
 	presence: new RedisPresence({
-		url: `${process.env.REDIS_URL}/10`,
+		url: `${redisUrl}/10`,
 	}),
 	driver: new MongooseDriver(`${storeUri}?authSource=admin`),
 })

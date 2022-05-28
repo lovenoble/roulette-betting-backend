@@ -1,4 +1,5 @@
 export { default as EventLog } from './EventLog'
+export { default as FareTransfer } from './FareTransfer'
 export { default as User } from './User'
 export { default as GameMode } from './GameMode'
 export { default as BatchEntry } from './BatchEntry'

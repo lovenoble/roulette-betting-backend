@@ -10,8 +10,6 @@ import {
 	roundConcludedEvent,
 } from './spinGame'
 
-// @NOTE: Users model - (Redis cache set-x[TIME] and save user data to postgres)
-
 async function initEnsure() {
 	await GameMode.ensureGameModes()
 }

@@ -3,12 +3,20 @@ import type { BigNumber, Event } from 'ethers'
 import { EventNames, ContractNames, BNToNumber, formatBN } from './utils'
 import { EventLog } from '../service'
 import { contractEventQueue } from '../queue'
+import {
+	IGameModeUpdatedQueue,
+	IEntrySubmittedQueue,
+	IEntrySettledQueue,
+	IRoundConcludedQueue,
+} from '../queue/queue.types'
 
 export const gameModeUpdatedEvent = async (gameModeId: BigNumber, event: Event) => {
-	await contractEventQueue.add(EventNames.GameModeUpdated, {
+	const queueData: IGameModeUpdatedQueue = {
 		gameModeId: BNToNumber(gameModeId),
 		event: EventLog.parseForQueue(event, ContractNames.FareSpinGame),
-	})
+		timestamp: Date.now(),
+	}
+	await contractEventQueue.add(EventNames.GameModeUpdated, queueData)
 }
 
 export const entrySubmittedEvent = async (
@@ -18,13 +26,16 @@ export const entrySubmittedEvent = async (
 	entryId: BigNumber,
 	event: Event
 ) => {
-	await contractEventQueue.add(EventNames.EntrySubmitted, {
+	const queueData: IEntrySubmittedQueue = {
 		roundId: BNToNumber(roundId),
 		batchEntryId: BNToNumber(batchEntryId),
 		player,
 		entryId: BNToNumber(entryId),
 		event: EventLog.parseForQueue(event, ContractNames.FareSpinGame),
-	})
+		timestamp: Date.now(),
+	}
+
+	await contractEventQueue.add(EventNames.EntrySubmitted, queueData)
 }
 
 export const roundConcludedEvent = async (
@@ -34,13 +45,16 @@ export const roundConcludedEvent = async (
 	randomEliminator: BigNumber,
 	event: Event
 ) => {
-	await contractEventQueue.add(EventNames.RoundConcluded, {
+	const queueData: IRoundConcludedQueue = {
 		roundId: BNToNumber(roundId),
 		vrfRequestId,
 		randomNum: BNToNumber(randomNum),
 		randomEliminator: formatBN(randomEliminator, 0),
 		event: EventLog.parseForQueue(event, ContractNames.FareSpinGame),
-	})
+		timestamp: Date.now(),
+	}
+
+	await contractEventQueue.add(EventNames.RoundConcluded, queueData)
 }
 
 export const entrySettledEvent = async (
@@ -51,12 +65,15 @@ export const entrySettledEvent = async (
 	hasWon: boolean,
 	event: Event
 ) => {
-	await contractEventQueue.add(EventNames.EntrySettled, {
+	const queueData: IEntrySettledQueue = {
 		roundId: BNToNumber(roundId),
 		batchEntryId: BNToNumber(batchEntryId),
-		_NUplayer,
-		_NUentryId: BNToNumber(_NUentryId),
+		player: _NUplayer,
+		entryId: BNToNumber(_NUentryId),
 		hasWon,
 		event: EventLog.parseForQueue(event, ContractNames.FareSpinGame),
-	})
+		timestamp: Date.now(),
+	}
+
+	await contractEventQueue.add(EventNames.EntrySettled, queueData)
 }

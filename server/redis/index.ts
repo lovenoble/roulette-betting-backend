@@ -16,10 +16,8 @@ import {
 	roundSchema,
 } from './schema'
 
-// Utils
+import { redisUrl } from './config'
 import { numify } from './utils'
-
-const { REDIS_URL } = process.env
 
 interface IRepoObj {
 	eventLog?: Repository<EventLog>
@@ -32,7 +30,7 @@ interface IRepoObj {
 }
 
 export class RedisStore {
-	public omUrl = `${REDIS_URL}/0`
+	public omUrl = `${redisUrl}/0`
 	public om!: Client
 	public repo: IRepoObj = {}
 	public schmea = {
