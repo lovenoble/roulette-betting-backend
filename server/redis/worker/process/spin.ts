@@ -1,5 +1,5 @@
 import { spinAPI } from '../../../pears/crypto/contracts'
-import { ContractNames, formatETH, toEth } from '../../event/utils'
+import { ContractNames, EventNames, formatETH, toEth } from '../../event/utils'
 import { BatchEntry, EventLog, GameMode, Round } from '../../service'
 import {
 	IGameModeUpdatedQueue,
@@ -7,47 +7,66 @@ import {
 	IEntrySettledQueue,
 	IRoundConcludedQueue,
 } from '../../queue/queue.types'
+import type { IEventReturnData } from '../worker.types'
 
 export const processGameModeUpdated = async (queueData: IGameModeUpdatedQueue) => {
 	const { event, gameModeId, timestamp } = queueData
 
 	const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
-	if (!eventLogId) return ''
+	if (!eventLogId) return null
 
-	await GameMode.createOrUpdate(gameModeId, timestamp, eventLogId)
+	const data = (await GameMode.createOrUpdate(gameModeId, timestamp, eventLogId)).toJSON()
 
-	return 'gameModeUpdated'
+	return JSON.stringify({
+		eventName: EventNames.GameModeUpdated,
+		data,
+	} as IEventReturnData)
 }
 
 export const processEntrySubmitted = async (queueData: IEntrySubmittedQueue) => {
 	const { roundId, batchEntryId, player, entryId, event, timestamp } = queueData
 
 	const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
-	if (!eventLogId) return ''
+	if (!eventLogId) return null
 
-	await BatchEntry.create(eventLogId, roundId, batchEntryId, entryId, player, timestamp)
+	const data = await BatchEntry.create(
+		eventLogId,
+		roundId,
+		batchEntryId,
+		entryId,
+		player,
+		timestamp
+	)
 
-	return 'entrySubmitted'
+	return JSON.stringify({
+		eventName: EventNames.EntrySubmitted,
+		data,
+	} as IEventReturnData)
 }
 
 export const processRoundConcluded = async (queueData: IRoundConcludedQueue) => {
 	const { roundId, vrfRequestId, randomNum, randomEliminator, event, timestamp } = queueData
 
 	const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
-	if (!eventLogId) return ''
+	if (!eventLogId) return null
 
 	await Round.updateRoundBatchEntries(roundId, randomNum, randomEliminator)
 
-	await Round.repo.createAndSave({
-		eventLogId,
-		roundId,
-		randomNum,
-		randomEliminator,
-		vrfRequestId,
-		timestamp,
-	})
+	const data = (
+		await Round.repo.createAndSave({
+			eventLogId,
+			roundId,
+			randomNum,
+			randomEliminator,
+			vrfRequestId,
+			timestamp,
+		})
+	).toJSON()
 
-	return 'roundConcludedWorker'
+	return JSON.stringify({
+		eventName: EventNames.RoundConcluded,
+		data,
+	} as IEventReturnData)
 }
 
 export const processEntrySettled = async (queueData: IEntrySettledQueue) => {
@@ -62,7 +81,7 @@ export const processEntrySettled = async (queueData: IEntrySettledQueue) => {
 	} = queueData
 
 	const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
-	if (!eventLogId) return ''
+	if (!eventLogId) return null
 
 	const batchEntryEntity = await BatchEntry.settle(roundId, batchEntryId, timestamp)
 
@@ -83,5 +102,9 @@ export const processEntrySettled = async (queueData: IEntrySettledQueue) => {
 		await BatchEntry.repo.save(batchEntryEntity)
 	}
 
-	return 'entrySettled'
+	// @NOTE: Need to include updated entry values as well
+	return JSON.stringify({
+		eventName: EventNames.EntrySettled,
+		data: batchEntryEntity.toJSON(),
+	} as IEventReturnData)
 }

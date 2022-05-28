@@ -78,5 +78,7 @@ export default abstract class GameMode {
 				isActive,
 			})
 		}
+
+		return gameMode
 	}
 }

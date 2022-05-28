@@ -28,7 +28,7 @@ export default abstract class FareTransfer {
 	public static async create({ eventLogId, from, to, amount, timestamp }: ICreateOptions) {
 		const transferType = this.getTransferType(from, to)
 
-		await this.repo.createAndSave({
+		return this.repo.createAndSave({
 			eventLogId,
 			from,
 			to,

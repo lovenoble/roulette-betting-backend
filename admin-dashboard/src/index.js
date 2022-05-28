@@ -1,14 +1,14 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import { enableMapSet } from 'immer'
+import React from "react";
+import ReactDOM from "react-dom";
+import { enableMapSet } from "immer";
 
-import App from './App'
+import App from "./NewApp";
 
-enableMapSet()
+enableMapSet();
 
 ReactDOM.render(
     <React.StrictMode>
         <App />
     </React.StrictMode>,
-    document.getElementById('root')
-)
+    document.getElementById("root")
+);

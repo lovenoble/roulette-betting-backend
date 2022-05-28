@@ -28,12 +28,18 @@ export default abstract class BatchEntry {
 		player: string,
 		timestamp = Date.now()
 	) {
-		await Entry.populateEntriesFromBatchEntryId(entryId, batchEntryId, roundId, timestamp)
+		const entries = await Entry.populateEntriesFromBatchEntryId(
+			eventLogId,
+			entryId,
+			batchEntryId,
+			roundId,
+			timestamp
+		)
 
 		const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
 			await spinAPI.contract.batchEntryMap(roundId, batchEntryId)
 
-		await BatchEntry.repo.createAndSave({
+		const batchEntry = await BatchEntry.repo.createAndSave({
 			eventLogId,
 			roundId,
 			batchEntryId,
@@ -44,6 +50,11 @@ export default abstract class BatchEntry {
 			totalWinAmount: formatETH(_totalWinAmount),
 			timestamp,
 		})
+
+		return {
+			batchEntry: batchEntry.toJSON(),
+			entries,
+		}
 	}
 
 	public static async settle(roundId: number, batchEntryId: number, settledOn = Date.now()) {

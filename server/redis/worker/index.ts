@@ -8,87 +8,82 @@ import { QueueNames } from '../queue'
 import { sleep } from '../utils'
 import { processFareTransfer } from './process/fare'
 import {
-    processGameModeUpdated,
-    processEntrySettled,
-    processRoundConcluded,
-    processEntrySubmitted,
+	processGameModeUpdated,
+	processEntrySettled,
+	processRoundConcluded,
+	processEntrySubmitted,
 } from './process/spin'
 
 export const fareContractWorker = new Worker(
-    QueueNames.FareContractEvent,
-    async (job: Job) => {
-        switch (job.name) {
-            case EventNames.Transfer:
-                processFareTransfer(job.data)
-                break
-            default:
-                break
-        }
-    },
-    workerDefaultOpts
+	QueueNames.FareContractEvent,
+	async (job: Job) => {
+		switch (job.name) {
+			case EventNames.Transfer:
+				return processFareTransfer(job.data)
+			default:
+				throw new Error(`[Worker]: Invalid eventName ${job.name}`)
+		}
+	},
+	workerDefaultOpts
 )
 
 export const spinContractWorker = new Worker(
-    QueueNames.SpinContractEvent,
-    async (job: Job) => {
-        switch (job.name) {
-            case EventNames.GameModeUpdated:
-                processGameModeUpdated(job.data)
-                break
-            case EventNames.EntrySubmitted:
-                processEntrySubmitted(job.data)
-                break
-            case EventNames.RoundConcluded:
-                processRoundConcluded(job.data)
-                break
-            case EventNames.EntrySettled:
-                processEntrySettled(job.data)
-                break
-            default:
-                break
-        }
-    },
-    workerDefaultOpts
+	QueueNames.SpinContractEvent,
+	async (job: Job) => {
+		switch (job.name) {
+			case EventNames.GameModeUpdated:
+				return processGameModeUpdated(job.data)
+			case EventNames.EntrySubmitted:
+				return processEntrySubmitted(job.data)
+			case EventNames.RoundConcluded:
+				return processRoundConcluded(job.data)
+			case EventNames.EntrySettled:
+				return processEntrySettled(job.data)
+			default:
+				throw new Error(`[Worker]: Invalid eventName ${job.name}`)
+		}
+	},
+	workerDefaultOpts
 )
 
 const workerMap = {
-    fareContractWorker,
-    spinContractWorker,
+	fareContractWorker,
+	spinContractWorker,
 }
 
 export async function runWorkers() {
-    const workerKeys = Object.keys(workerMap)
+	const workerKeys = Object.keys(workerMap)
 
-    const promiseList = workerKeys.map(async key => {
-        return new Promise((resolve, reject) => {
-            const worker: Worker = workerMap[key]
-            worker.run()
+	const promiseList = workerKeys.map(async key => {
+		return new Promise((resolve, reject) => {
+			const worker: Worker = workerMap[key]
+			worker.run()
 
-            const maxAttempts = 10
-            let attempts = 0
-            while (attempts < maxAttempts) {
-                if (worker.isRunning()) {
-                    console.log(
-                        chalk.hex('#1DE9B6')(
-                            `[${key}]: Worker started successfully! Waiting for jobs...`
-                        )
-                    )
-                    break
-                }
+			const maxAttempts = 10
+			let attempts = 0
+			while (attempts < maxAttempts) {
+				if (worker.isRunning()) {
+					console.log(
+						chalk.hex('#1DE9B6')(
+							`[${key}]: Worker started successfully! Waiting for jobs...`
+						)
+					)
+					break
+				}
 
-                attempts += 1
-                sleep(500)
-            }
+				attempts += 1
+				sleep(500)
+			}
 
-            if (attempts >= maxAttempts) {
-                reject(new Error(`[${key}]: Worker failed to start!`))
-            }
+			if (attempts >= maxAttempts) {
+				reject(new Error(`[${key}]: Worker failed to start!`))
+			}
 
-            resolve(null)
-        })
-    })
+			resolve(null)
+		})
+	})
 
-    await Promise.all(promiseList)
+	await Promise.all(promiseList)
 }
 
 // @NOTE: Create global error/failed listeners for workers

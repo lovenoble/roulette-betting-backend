@@ -6,6 +6,7 @@ import type { Overwrite } from '../index.types'
 
 // @NOTE: Need to add roundId, entryId, and settled to this and update on settlement
 export interface Entry {
+	eventLogId: string
 	amount: string
 	roundId: number
 	gameModeId: number
@@ -39,6 +40,7 @@ export class Entry extends Entity {
 export default new Schema(
 	Entry,
 	{
+		eventLogId: { type: 'string' },
 		amount: { type: 'string' },
 		roundId: { type: 'number' },
 		gameModeId: { type: 'number' },
