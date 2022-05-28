@@ -40,3 +40,5 @@ export function bnify<T extends Entity>(obj: T & SchemaAdditions, includeKeys: s
 
 	return newObj
 }
+
+export const sleep = (ms: any) => new Promise(resolve => setTimeout(resolve, ms))

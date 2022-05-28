@@ -1,13 +1,15 @@
 import { Queue } from 'bullmq'
 
-import { connection } from '../config'
+import { queueDefaultOpts } from '../config'
 
 export enum QueueNames {
-	ContractEvent = 'ContractEvent',
+	FareContractEvent = 'FareContractEvent',
+	SpinContractEvent = 'SpinContractEvent',
 	PearState = 'PearState',
 	Latency = 'Latency',
 }
 
-export const contractEventQueue = new Queue(QueueNames.ContractEvent, { connection })
-export const pearStateQueue = new Queue(QueueNames.PearState, { connection })
-export const latencyQueue = new Queue(QueueNames.Latency, { connection })
+export const fareContractEventQueue = new Queue(QueueNames.FareContractEvent, queueDefaultOpts)
+export const spinContractEventQueue = new Queue(QueueNames.SpinContractEvent, queueDefaultOpts)
+export const pearStateQueue = new Queue(QueueNames.PearState, queueDefaultOpts)
+export const latencyQueue = new Queue(QueueNames.Latency, queueDefaultOpts)

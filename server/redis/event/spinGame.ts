@@ -2,7 +2,7 @@ import type { BigNumber, Event } from 'ethers'
 
 import { EventNames, ContractNames, BNToNumber, formatBN } from './utils'
 import { EventLog } from '../service'
-import { contractEventQueue } from '../queue'
+import { spinContractEventQueue } from '../queue'
 import {
 	IGameModeUpdatedQueue,
 	IEntrySubmittedQueue,
@@ -16,7 +16,7 @@ export const gameModeUpdatedEvent = async (gameModeId: BigNumber, event: Event) 
 		event: EventLog.parseForQueue(event, ContractNames.FareSpinGame),
 		timestamp: Date.now(),
 	}
-	await contractEventQueue.add(EventNames.GameModeUpdated, queueData)
+	await spinContractEventQueue.add(EventNames.GameModeUpdated, queueData)
 }
 
 export const entrySubmittedEvent = async (
@@ -35,7 +35,7 @@ export const entrySubmittedEvent = async (
 		timestamp: Date.now(),
 	}
 
-	await contractEventQueue.add(EventNames.EntrySubmitted, queueData)
+	await spinContractEventQueue.add(EventNames.EntrySubmitted, queueData)
 }
 
 export const roundConcludedEvent = async (
@@ -54,7 +54,7 @@ export const roundConcludedEvent = async (
 		timestamp: Date.now(),
 	}
 
-	await contractEventQueue.add(EventNames.RoundConcluded, queueData)
+	await spinContractEventQueue.add(EventNames.RoundConcluded, queueData)
 }
 
 export const entrySettledEvent = async (
@@ -75,5 +75,5 @@ export const entrySettledEvent = async (
 		timestamp: Date.now(),
 	}
 
-	await contractEventQueue.add(EventNames.EntrySettled, queueData)
+	await spinContractEventQueue.add(EventNames.EntrySettled, queueData)
 }

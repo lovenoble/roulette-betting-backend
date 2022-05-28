@@ -26,7 +26,7 @@ export default abstract class EventLog {
 
 	// If event doesn't exist, eventLog entity will be added to the EventLog repo
 	// Returns empty string if eventLog already exists
-	public static async process(event: Event, contractName: ContractNames) {
+	public static async process(event: IEventLogQueue, contractName: ContractNames) {
 		const doesExist = await eventLog
 			.search()
 			.where('transactionHash')

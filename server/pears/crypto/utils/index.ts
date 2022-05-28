@@ -55,6 +55,14 @@ export const fareLootBoxControllerContract = new Contract(
 	signer
 ) as FareNFTLootBoxController
 
+export const removeAllContractListener = () => {
+	fareTokenContract.removeAllListeners()
+	fareSpinGameContract.removeAllListeners()
+	fareItemsContract.removeAllListeners()
+	fareLootBoxContract.removeAllListeners()
+	fareLootBoxControllerContract.removeAllListeners()
+}
+
 export const BNToNumber = (bn: BigNumber, decimals = 0) => Number(utils.formatUnits(bn, decimals))
 
 export const prettyNumber = (num: number | string | BigNumber, decimals = 18) => {

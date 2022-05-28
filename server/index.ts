@@ -2,6 +2,8 @@ import StoreConnection, { ConnectionStatus } from './store/StoreConnection'
 
 import initRpcServer from './rpc'
 import initGameServer from './initGameServer'
+import { runWorkers } from './redis/worker'
+import { removeAllContractListener } from './pears/crypto/utils'
 
 const { GAME_SERVER_PORT, NODE_APP_INSTANCE } = process.env
 
@@ -10,16 +12,12 @@ const gameServerPort = Number(GAME_SERVER_PORT || 3100) + Number(NODE_APP_INSTAN
 
 async function init() {
 	try {
-		// process.once('SIGUSR2', () => {
-		// if (pear.pearTokenContract && pear.pearGameContract) {
-		// 	console.log('Removing contract event listeners!')
-		// 	pear.pearTokenContract.removeAllListeners()
-		// 	pear.pearGameContract.removeAllListeners()
-		// }
-		// })
+		process.once('SIGUSR2', () => {
+			removeAllContractListener()
+		})
 
 		// Handle status changes in the store connection here
-		StoreConnection.statusObserver(status => {
+		StoreConnection.statusObserver((status: string) => {
 			if (status === ConnectionStatus.Connected) {
 				console.log('Connected to store successfully.')
 			} else if (status === ConnectionStatus.Failed) {
@@ -30,6 +28,8 @@ async function init() {
 		})
 
 		await StoreConnection.connect()
+
+		await runWorkers()
 
 		if (gameServerPort === 3100) {
 			await initRpcServer()

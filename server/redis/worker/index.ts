@@ -1,94 +1,101 @@
 import { Worker } from 'bullmq'
 import type { Job } from 'bullmq'
+import chalk from 'chalk'
 
-import { connection } from '../config'
-import { spinAPI } from '../../pears/crypto/contracts'
-import { EventNames, ContractNames, formatBN, formatETH, BNToNumber, toEth } from '../event/utils'
-import { FareTransfer, BatchEntry, EventLog, GameMode, Round } from '../service'
+import { workerDefaultOpts } from '../config'
+import { EventNames } from '../event/utils'
+import { QueueNames } from '../queue'
+import { sleep } from '../utils'
+import { processFareTransfer } from './process/fare'
+import {
+    processGameModeUpdated,
+    processEntrySettled,
+    processRoundConcluded,
+    processEntrySubmitted,
+} from './process/spin'
 
-export const fareTransferWorker = new Worker(EventNames.Transfer, async (job: Job) => {
-	const { from, to, amount, timestamp, event } = job.data
-
-	const eventLogId = await EventLog.process(event, ContractNames.FareToken)
-	if (!eventLogId) return
-
-	await FareTransfer.create({
-		eventLogId,
-		from,
-		to,
-		amount,
-		timestamp,
-	})
-})
-
-export const gameModeUpdatedWorker = new Worker(
-	EventNames.GameModeUpdated,
-	async (job: Job) => {
-		const { event, gameModeId } = job.data
-
-		const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
-
-		if (!eventLogId) return
-
-		await GameMode.createOrUpdate(gameModeId, eventLogId)
-	},
-	{ connection }
+export const fareContractWorker = new Worker(
+    QueueNames.FareContractEvent,
+    async (job: Job) => {
+        switch (job.name) {
+            case EventNames.Transfer:
+                processFareTransfer(job.data)
+                break
+            default:
+                break
+        }
+    },
+    workerDefaultOpts
 )
 
-export const entrySubmittedWorker = new Worker(
-	EventNames.EntrySubmitted,
-	async (job: Job) => {
-		const { roundId, batchEntryId, player, entryId, event } = job.data
-
-		const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
-
-		if (!eventLogId) return
-
-		await BatchEntry.create(eventLogId, roundId, batchEntryId, entryId, player)
-	},
-	{ connection }
+export const spinContractWorker = new Worker(
+    QueueNames.SpinContractEvent,
+    async (job: Job) => {
+        switch (job.name) {
+            case EventNames.GameModeUpdated:
+                processGameModeUpdated(job.data)
+                break
+            case EventNames.EntrySubmitted:
+                processEntrySubmitted(job.data)
+                break
+            case EventNames.RoundConcluded:
+                processRoundConcluded(job.data)
+                break
+            case EventNames.EntrySettled:
+                processEntrySettled(job.data)
+                break
+            default:
+                break
+        }
+    },
+    workerDefaultOpts
 )
 
-export const roundConcludedWorker = new Worker(
-	EventNames.RoundConcluded,
-	async (job: Job) => {
-		const { roundId, vrfRequestId, randomNum, randomEliminator, event } = job.data
+const workerMap = {
+    fareContractWorker,
+    spinContractWorker,
+}
 
-		const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
-		if (!eventLogId) return
+export async function runWorkers() {
+    const workerKeys = Object.keys(workerMap)
 
-		await Round.updateRoundBatchEntries(roundId, randomNum, randomEliminator)
+    const promiseList = workerKeys.map(async key => {
+        return new Promise((resolve, reject) => {
+            const worker: Worker = workerMap[key]
+            worker.run()
 
-		await Round.repo.createAndSave({
-			eventLogId,
-			roundId: BNToNumber(roundId),
-			randomNum: BNToNumber(randomNum),
-			randomEliminator: formatBN(randomEliminator),
-			vrfRequestId,
-		})
-	},
-	{ connection }
-)
+            const maxAttempts = 10
+            let attempts = 0
+            while (attempts < maxAttempts) {
+                if (worker.isRunning()) {
+                    console.log(
+                        chalk.hex('#1DE9B6')(
+                            `[${key}]: Worker started successfully! Waiting for jobs...`
+                        )
+                    )
+                    break
+                }
 
-export const entrySettledWorker = new Worker(
-	EventNames.EntrySettled,
-	async (job: Job) => {
-		const { roundId, batchEntryId, _NUplayer, _NUentryId, hasWon, event } = job.data
+                attempts += 1
+                sleep(500)
+            }
 
-		const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
-		if (!eventLogId) return
+            if (attempts >= maxAttempts) {
+                reject(new Error(`[${key}]: Worker failed to start!`))
+            }
 
-		// BULLMQ
-		const batchEntryEntity = await BatchEntry.settle(roundId, batchEntryId)
+            resolve(null)
+        })
+    })
 
-		const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
-			await spinAPI.contract.batchEntryMap(roundId, batchEntryId)
+    await Promise.all(promiseList)
+}
 
-		// Ensure blockchain totalWinAmount and calculated Redis totalWinAmount is correct
-		if (hasWon && !toEth(batchEntryEntity.totalWinAmount).eq(_totalWinAmount)) {
-			batchEntryEntity.totalWinAmount = formatETH(_totalWinAmount)
-			await BatchEntry.repo.save(batchEntryEntity)
-		}
-	},
-	{ connection }
-)
+// @NOTE: Create global error/failed listeners for workers
+// fareContractWorker.on('completed', (job: Job) => console.log(job.id))
+// fareContractWorker.on('failed', (job: Job) => console.log(job.id))
+// fareContractWorker.on('error', console.error)
+
+// spinContractWorker.on('completed', (job: Job) => console.log(job.id))
+// spinContractWorker.on('failed', (job: Job) => console.log(job.id))
+// spinContractWorker.on('error', console.error)

@@ -14,6 +14,7 @@ export interface BatchEntry {
 	totalEntryAmount: string
 	totalWinAmount: string
 	timestamp: number
+	settledOn: number
 }
 
 export interface BNBatchEntry
@@ -47,6 +48,7 @@ export default new Schema(
 		totalEntryAmount: { type: 'string' },
 		totalWinAmount: { type: 'string' },
 		timestamp: { type: 'date' },
+		settledOn: { type: 'date' },
 	},
 	{ dataStructure: 'JSON' }
 )

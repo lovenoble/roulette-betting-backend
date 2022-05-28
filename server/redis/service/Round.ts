@@ -2,7 +2,7 @@ import type { BigNumber } from 'ethers'
 
 import type { BNGameMode } from '../schema/types'
 import redisStore from '..'
-import { ensureNumber, formatETH, BNToNumber, BN, toEth } from '../event/utils'
+import { ensureNumber, formatETH, BN, toEth } from '../event/utils'
 import GameMode from './GameMode'
 
 const { round: roundRepo, entry: entryRepo, batchEntry: batchEntryRepo } = redisStore.repo
@@ -16,18 +16,14 @@ export default abstract class Round {
 
 	// Calculates winners and losers from randomNum/randomEliminator by round
 	public static async updateRoundBatchEntries(
-		roundId: BigNumber,
-		_randomNum: BigNumber,
-		_randomEliminator: BigNumber
+		roundId: number,
+		_randomNum: number,
+		_randomEliminator: string
 	) {
-		const randomNum = _randomNum
-		const randomEliminator = _randomEliminator
+		const randomNum = BN(_randomNum)
+		const randomEliminator = BN(_randomEliminator)
 
-		const batchEntries = await batchEntryRepo
-			.search()
-			.where('roundId')
-			.eq(BNToNumber(roundId))
-			.returnAll()
+		const batchEntries = await batchEntryRepo.search().where('roundId').eq(roundId).returnAll()
 
 		const gameModes = await GameMode.getActiveGameModes()
 

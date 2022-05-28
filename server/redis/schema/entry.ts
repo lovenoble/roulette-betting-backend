@@ -15,6 +15,7 @@ export interface Entry {
 	winAmount: string
 	settled: boolean
 	timestamp: number
+	settledOn: number
 }
 
 export interface BNEntry
@@ -47,6 +48,7 @@ export default new Schema(
 		winAmount: { type: 'string' },
 		settled: { type: 'boolean' },
 		timestamp: { type: 'date' },
+		settledOn: { type: 'date' },
 	},
 	{ dataStructure: 'JSON' }
 )

@@ -24,9 +24,10 @@ export default abstract class Entry {
 
 	// Fetches all entries that are associated with a single batchEntry
 	public static async populateEntriesFromBatchEntryId(
-		entryId: BigNumber,
-		batchEntryId: BigNumber,
-		roundId: BigNumber
+		entryId: number,
+		batchEntryId: number,
+		roundId: number,
+		timestamp = Date.now()
 	): Promise<any[]> {
 		const entryCount = (await spinAPI.contract.getEntryCount(entryId)).toNumber()
 		const entryIdxs: number[] = [...Array(entryCount).keys()]
@@ -38,14 +39,14 @@ export default abstract class Entry {
 					.then(async ([amount, gameModeId, pickedNumber]) => {
 						const entry = {
 							amount: formatETH(amount),
-							roundId: BNToNumber(roundId),
+							roundId,
 							gameModeId: BNToNumber(gameModeId),
 							pickedNumber: BNToNumber(pickedNumber),
-							batchEntryId: BNToNumber(batchEntryId),
-							entryId: BNToNumber(entryId),
+							batchEntryId,
+							entryId,
 							winAmount: null,
 							settled: false,
-							timestamp: Date.now(),
+							timestamp,
 						}
 						resolve(await entryRepo.createAndSave(entry))
 					})

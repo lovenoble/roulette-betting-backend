@@ -2,7 +2,7 @@ import type { BigNumber, Event } from 'ethers'
 
 import { ContractNames, formatETH, EventNames } from './utils'
 import { EventLog } from '../service'
-import { contractEventQueue } from '../queue'
+import { fareContractEventQueue } from '../queue'
 import { IFareTransferQueue } from '../queue/queue.types'
 
 export const fareTransferEvent = async (
@@ -19,5 +19,5 @@ export const fareTransferEvent = async (
 		event: EventLog.parseForQueue(event, ContractNames.FareToken),
 	}
 
-	await contractEventQueue.add(EventNames.Transfer, queueData)
+	await fareContractEventQueue.add(EventNames.Transfer, queueData)
 }

@@ -27,7 +27,11 @@ export default abstract class GameMode {
 		return Promise.all(promiseList)
 	}
 
-	public static async createOrUpdate(gameModeId: BigNumberish, eventLogId?: string) {
+	public static async createOrUpdate(
+		gameModeId: BigNumberish,
+		timestamp = Date.now(),
+		eventLogId?: string
+	) {
 		const [
 			id,
 			cardinality,
@@ -51,6 +55,7 @@ export default abstract class GameMode {
 			gameMode.maxAmount = formatETH(maxAmount)
 			gameMode.entryLimit = BNToNumber(entryLimit)
 			gameMode.isActive = isActive
+			gameMode.timestamp = timestamp
 
 			if (eventLogId) {
 				gameMode.eventLogId = eventLogId
@@ -69,6 +74,7 @@ export default abstract class GameMode {
 				minAmount: formatETH(minAmount),
 				maxAmount: formatETH(maxAmount),
 				entryLimit: BNToNumber(entryLimit),
+				timestamp,
 				isActive,
 			})
 		}

@@ -9,24 +9,24 @@ import PlayerService from '../../store/services/Player'
 // import { OnGuestPlayerJoined, OnWalletUpdate, OnNewEntry } from '../commands/PlayerCommands'
 // import { OnFetchFareSupply, OnFetchRoundAndEntries } from '../commands/CryptoCommands'
 import { SpinState } from '../state/SpinState'
-import {
-	entrySubmittedWorker,
-	roundConcludedWorker,
-	gameModeUpdatedWorker,
-	entrySettledWorker,
-} from '../../redis/worker'
+// import {
+// 	entrySubmittedWorker,
+// 	roundConcludedWorker,
+// 	gameModeUpdatedWorker,
+// 	entrySettledWorker,
+// } from '../../redis/worker'
 
 // @NOTE: Determine user balancing for room capacity - [spin-room-1: 1800, spin-room-2: 600]
 // @NOTE: VIP room rentals for FARE token (smart contract)
 
-entrySubmittedWorker.on('completed', (job: Job) => console.log(job.id))
-entrySubmittedWorker.on('failed', (job: Job) => console.log(job.id))
-roundConcludedWorker.on('completed', (job: Job) => console.log(job.id))
-roundConcludedWorker.on('failed', (job: Job) => console.log(job.id))
-gameModeUpdatedWorker.on('completed', (job: Job) => console.log(job.id))
-gameModeUpdatedWorker.on('failed', (job: Job) => console.log(job.id))
-entrySettledWorker.on('completed', (job: Job) => console.log(job.id))
-entrySettledWorker.on('failed', (job: Job) => console.log(job.id))
+// entrySubmittedWorker.on('completed', (job: Job) => console.log(job.id))
+// entrySubmittedWorker.on('failed', (job: Job) => console.log(job.id))
+// roundConcludedWorker.on('completed', (job: Job) => console.log(job.id))
+// roundConcludedWorker.on('failed', (job: Job) => console.log(job.id))
+// gameModeUpdatedWorker.on('completed', (job: Job) => console.log(job.id))
+// gameModeUpdatedWorker.on('failed', (job: Job) => console.log(job.id))
+// entrySettledWorker.on('completed', (job: Job) => console.log(job.id))
+// entrySettledWorker.on('failed', (job: Job) => console.log(job.id))
 
 class SpinGame extends Room<SpinState> {
 	public maxClients = 2500 // @NOTE: Need to determine the number of clients where performance begins to fall off

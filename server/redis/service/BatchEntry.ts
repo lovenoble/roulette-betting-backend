@@ -1,7 +1,7 @@
 import type { BigNumber } from 'ethers'
 
 import redisStore from '..'
-import { ensureNumber, BNToNumber, formatETH } from '../event/utils'
+import { ensureNumber, formatETH } from '../event/utils'
 import Entry from './Entry'
 import { spinAPI } from '../../pears/crypto/contracts'
 
@@ -22,30 +22,31 @@ export default abstract class BatchEntry {
 
 	public static async create(
 		eventLogId: string,
-		roundId: BigNumber,
-		batchEntryId: BigNumber,
-		entryId: BigNumber,
-		player: string
+		roundId: number,
+		batchEntryId: number,
+		entryId: number,
+		player: string,
+		timestamp = Date.now()
 	) {
-		// BULLMQ
-		await Entry.populateEntriesFromBatchEntryId(entryId, batchEntryId, roundId)
+		await Entry.populateEntriesFromBatchEntryId(entryId, batchEntryId, roundId, timestamp)
 
 		const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
 			await spinAPI.contract.batchEntryMap(roundId, batchEntryId)
 
 		await BatchEntry.repo.createAndSave({
 			eventLogId,
-			roundId: BNToNumber(roundId),
-			batchEntryId: BNToNumber(batchEntryId),
-			entryId: BNToNumber(entryId),
+			roundId,
+			batchEntryId,
+			entryId,
 			settled: _settled,
 			player,
 			totalEntryAmount: formatETH(_totalEntryAmount),
 			totalWinAmount: formatETH(_totalWinAmount),
+			timestamp,
 		})
 	}
 
-	public static async settle(roundId: BigNumber, batchEntryId: BigNumber) {
+	public static async settle(roundId: number, batchEntryId: number, settledOn = Date.now()) {
 		const batchEntryEntity = await BatchEntry.fetch(roundId, batchEntryId)
 
 		// BULLMQ
@@ -58,17 +59,20 @@ export default abstract class BatchEntry {
 		}
 
 		batchEntryEntity.settled = true
+		batchEntryEntity.settledOn = settledOn
 
 		const entries = await Entry.fetchEntriesByBatchEntryId(roundId, batchEntryId)
 
 		const promiseList = entries.map(entry => {
 			return new Promise((resolve, reject) => {
 				entry.settled = true
+				entry.settledOn = settledOn
 				Entry.repo.save(entry).then(resolve).catch(reject)
 			})
 		})
 
 		await Promise.all(promiseList)
+		await this.repo.save(batchEntryEntity)
 
 		return batchEntryEntity
 	}
