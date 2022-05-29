@@ -1,5 +1,5 @@
 import { tokenAPI, spinAPI } from '../../pears/crypto/contracts'
-import { EventNames } from './utils'
+import { EventNames } from '../utils'
 import { GameMode } from '../service'
 
 import { fareTransferEvent } from './fareToken'

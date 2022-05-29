@@ -30,7 +30,7 @@ services:
         ports:
             - 8080:8080
         volumes:
-            - ./envoy.yaml:/etc/envoy/envoy.yaml
+            - ./config/envoy.docker.yaml:/etc/envoy/envoy.yaml
             # - ./envoy.config.yaml:/etc/envoy/envoy.yaml
     pear-connect-redis:
         image: redis

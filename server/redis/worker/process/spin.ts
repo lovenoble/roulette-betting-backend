@@ -1,15 +1,16 @@
+import { ContractNames, EventNames } from '../../constants'
 import { spinAPI } from '../../../pears/crypto/contracts'
-import { ContractNames, EventNames, formatETH, toEth } from '../../event/utils'
+import { formatETH, toEth } from '../../utils'
 import { BatchEntry, EventLog, GameMode, Round } from '../../service'
 import {
 	IGameModeUpdatedQueue,
 	IEntrySubmittedQueue,
 	IEntrySettledQueue,
 	IRoundConcludedQueue,
-} from '../../queue/queue.types'
-import type { IEventReturnData } from '../worker.types'
+	EventReturnData,
+} from '../../types'
 
-export const processGameModeUpdated = async (queueData: IGameModeUpdatedQueue) => {
+export async function processGameModeUpdated<T>(queueData: IGameModeUpdatedQueue) {
 	const { event, gameModeId, timestamp } = queueData
 
 	const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
@@ -20,10 +21,10 @@ export const processGameModeUpdated = async (queueData: IGameModeUpdatedQueue) =
 	return JSON.stringify({
 		eventName: EventNames.GameModeUpdated,
 		data,
-	} as IEventReturnData)
+	} as EventReturnData<T>)
 }
 
-export const processEntrySubmitted = async (queueData: IEntrySubmittedQueue) => {
+export async function processEntrySubmitted(queueData: IEntrySubmittedQueue) {
 	const { roundId, batchEntryId, player, entryId, event, timestamp } = queueData
 
 	const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
@@ -41,10 +42,10 @@ export const processEntrySubmitted = async (queueData: IEntrySubmittedQueue) => 
 	return JSON.stringify({
 		eventName: EventNames.EntrySubmitted,
 		data,
-	} as IEventReturnData)
+	} as EventReturnData<typeof data>)
 }
 
-export const processRoundConcluded = async (queueData: IRoundConcludedQueue) => {
+export async function processRoundConcluded<T>(queueData: IRoundConcludedQueue) {
 	const { roundId, vrfRequestId, randomNum, randomEliminator, event, timestamp } = queueData
 
 	const eventLogId = await EventLog.process(event, ContractNames.FareSpinGame)
@@ -66,10 +67,10 @@ export const processRoundConcluded = async (queueData: IRoundConcludedQueue) => 
 	return JSON.stringify({
 		eventName: EventNames.RoundConcluded,
 		data,
-	} as IEventReturnData)
+	} as EventReturnData<T>)
 }
 
-export const processEntrySettled = async (queueData: IEntrySettledQueue) => {
+export async function processEntrySettled<T>(queueData: IEntrySettledQueue) {
 	const {
 		roundId,
 		batchEntryId,
@@ -106,5 +107,5 @@ export const processEntrySettled = async (queueData: IEntrySettledQueue) => {
 	return JSON.stringify({
 		eventName: EventNames.EntrySettled,
 		data: batchEntryEntity.toJSON(),
-	} as IEventReturnData)
+	} as EventReturnData<T>)
 }

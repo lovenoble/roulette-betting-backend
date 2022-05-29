@@ -9,7 +9,7 @@ import { WebSocketTransport } from '@colyseus/ws-transport'
 // Libraries
 import storeUri from './store/config'
 import { redisUrl } from './redis/config'
-import Sockets from './pears/Sockets'
+import Rooms from './rooms'
 import router from './routes'
 
 // Initialize express HTTP server

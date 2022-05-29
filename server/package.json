@@ -17,7 +17,8 @@
     "docker:up": "docker-compose -p pear-connect --env-file .env up -d",
     "docker:down": "docker-compose -p pear-connect  --env-file .env down",
     "db:cli": "mongo admin -u admin -p password",
-    "envoy": "envoy -c envoy.config.yaml",
+    "envoy": "envoy -c config/envoy.config.yaml",
+    "envoy:docker": "envoy -c config/envoy.docker.yaml",
     "lint": "npx eslint . --ext .ts",
     "lint:fix": "npx eslint . --ext .ts --fix",
     "cp:contract-types": "rm -rf ./pears/crypto/typechain-types && cp -r ../../fare-smart-contracts/crypto/typechain-types ./pears/crypto/typechain-types"
@@ -33,7 +34,6 @@
     "@colyseus/ws-transport": "^0.14.21",
     "@grpc/grpc-js": "^1.4.5",
     "@grpc/proto-loader": "^0.6.7",
-    "@ngbites/reactive-enum": "0.0.2",
     "@types/mongoose": "^5.11.97",
     "auto-bind": "^5.0.1",
     "bcrypt": "^5.0.1",

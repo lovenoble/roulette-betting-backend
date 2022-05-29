@@ -1,4 +1,4 @@
-import { ContractNames } from '../event/utils'
+import { ContractNames } from '../constants'
 
 export interface IEventLogQueue {
 	contractName: ContractNames

@@ -7,7 +7,7 @@ const {
 	MONGO_CONNECTION_STRING,
 } = process.env
 
-const getStoreUri = () => {
+const getMongoUri = () => {
 	// Connecting to stage/pre/prod requires a different format for the connection string.
 	// It should be specified in the MONGO_CONNECTION_STRING environment variable.
 	if (MONGO_CONNECTION_STRING) {
@@ -24,4 +24,4 @@ const getStoreUri = () => {
 	)
 }
 
-export default getStoreUri()
+export const mongoUri = getMongoUri()

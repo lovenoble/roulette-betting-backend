@@ -1,10 +1,27 @@
-import ethers, { BigNumber } from 'ethers'
+import { utils, BigNumber } from 'ethers'
 import type { Entity } from 'redis-om'
-import { SchemaAdditions } from './index.types'
+import { SchemaAdditions } from './types'
 
-export const upperETHLimit = BigNumber.from('1000000000')
-export const formatETH = ethers.utils.formatEther
-export const formatBN = (bn: BigNumber) => ethers.utils.formatUnits(bn, 0)
+export const zeroAddress = '0x0000000000000000000000000000000000000000'
+export const formatETH = utils.formatEther
+export const formatBN = (bn: BigNumber, decimals = 0) => utils.formatUnits(bn, decimals)
+export const toEth = (bn: string) => utils.parseEther(bn)
+export const BN = BigNumber.from
+export const upperETHLimit = BN('1000000000')
+
+export const BNToNumber = (bn: BigNumber) => {
+	try {
+		return bn.toNumber()
+	} catch (err) {
+		console.error(err)
+		return Number(formatBN(bn))
+	}
+}
+
+export const ensureNumber = (val: BigNumber | number): number =>
+	val instanceof BN ? BNToNumber(val as BigNumber) : (val as number)
+
+export const sleep = (ms: any) => new Promise(resolve => setTimeout(resolve, ms))
 
 export function numify<T extends Entity>(obj: T & SchemaAdditions) {
 	const newObj: any = {}
@@ -34,11 +51,9 @@ export function bnify<T extends Entity>(obj: T & SchemaAdditions, includeKeys: s
 	const keys = [...includeKeys, ...obj.ethFields]
 	keys.forEach(key => {
 		if (obj[key]) {
-			newObj.bn[key] = ethers.utils.parseUnits(String(obj[key]), 'wei')
+			newObj.bn[key] = utils.parseUnits(String(obj[key]), 'wei')
 		}
 	})
 
 	return newObj
 }
-
-export const sleep = (ms: any) => new Promise(resolve => setTimeout(resolve, ms))

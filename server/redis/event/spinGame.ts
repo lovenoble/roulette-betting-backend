@@ -1,6 +1,7 @@
 import type { BigNumber, Event } from 'ethers'
 
-import { EventNames, ContractNames, BNToNumber, formatBN } from './utils'
+import { BNToNumber, formatBN } from '../utils'
+import { EventNames, ContractNames } from '../constants'
 import { EventLog } from '../service'
 import { spinContractEventQueue } from '../queue'
 import {
@@ -8,7 +9,7 @@ import {
 	IEntrySubmittedQueue,
 	IEntrySettledQueue,
 	IRoundConcludedQueue,
-} from '../queue/queue.types'
+} from '../types'
 
 export const gameModeUpdatedEvent = async (gameModeId: BigNumber, event: Event) => {
 	const queueData: IGameModeUpdatedQueue = {
@@ -26,6 +27,7 @@ export const entrySubmittedEvent = async (
 	entryId: BigNumber,
 	event: Event
 ) => {
+	console.log('Received event:', Date.now())
 	const queueData: IEntrySubmittedQueue = {
 		roundId: BNToNumber(roundId),
 		batchEntryId: BNToNumber(batchEntryId),

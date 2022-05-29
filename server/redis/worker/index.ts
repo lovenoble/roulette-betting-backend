@@ -3,8 +3,7 @@ import type { Job } from 'bullmq'
 import chalk from 'chalk'
 
 import { workerDefaultOpts } from '../config'
-import { EventNames } from '../event/utils'
-import { QueueNames } from '../queue'
+import { QueueNames, EventNames } from '../constants'
 import { sleep } from '../utils'
 import { processFareTransfer } from './process/fare'
 import {
@@ -30,6 +29,7 @@ export const fareContractWorker = new Worker(
 export const spinContractWorker = new Worker(
 	QueueNames.SpinContractEvent,
 	async (job: Job) => {
+		console.log(`Process started: ${job.name} - ${Date.now()}`)
 		switch (job.name) {
 			case EventNames.GameModeUpdated:
 				return processGameModeUpdated(job.data)
@@ -85,6 +85,10 @@ export async function runWorkers() {
 
 	await Promise.all(promiseList)
 }
+
+fareContractWorker.on('active', () => {
+	console.log('FARECONTRACTWORKER ACTIVE')
+})
 
 // @NOTE: Create global error/failed listeners for workers
 // fareContractWorker.on('completed', (job: Job) => console.log(job.id))

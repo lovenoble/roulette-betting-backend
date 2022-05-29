@@ -2,7 +2,7 @@ import { Client, Repository } from 'redis-om'
 import type { Schema, Entity } from 'redis-om'
 
 // Types
-import type { SchemaAdditions, Repo } from './index.types'
+import type { SchemaAdditions, Repo } from './types'
 import { User, EventLog, GameMode, FareTransfer, Entry, BatchEntry, Round } from './schema/types'
 
 // Schemas

@@ -2,7 +2,7 @@ import { Entity, Schema } from 'redis-om'
 import type { BigNumber } from 'ethers'
 
 import { bnify } from '../utils'
-import type { Overwrite } from '../index.types'
+import type { Overwrite } from '../types'
 
 export interface BatchEntry {
 	eventLogId: string

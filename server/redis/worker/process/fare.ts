@@ -1,9 +1,8 @@
-import { ContractNames, EventNames } from '../../event/utils'
+import { ContractNames, EventNames } from '../../constants'
 import { FareTransfer, EventLog } from '../../service'
-import { IFareTransferQueue } from '../../queue/queue.types'
-import { IEventReturnData } from '../worker.types'
+import type { EventReturnData, IFareTransferQueue } from '../../types'
 
-export const processFareTransfer = async (queueData: IFareTransferQueue) => {
+export async function processFareTransfer<T>(queueData: IFareTransferQueue) {
 	const { from, to, amount, timestamp, event } = queueData
 
 	const eventLogId = await EventLog.process(event, ContractNames.FareToken)
@@ -22,5 +21,5 @@ export const processFareTransfer = async (queueData: IFareTransferQueue) => {
 	return JSON.stringify({
 		eventName: EventNames.Transfer,
 		data,
-	} as IEventReturnData)
+	} as EventReturnData<T>)
 }

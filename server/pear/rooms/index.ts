@@ -1,11 +1,16 @@
 import { Server, LobbyRoom } from '@colyseus/core'
 
-import ChatRoom from './defs/ChatRoom'
-import SpinGame from './defs/SpinGame'
+import ChatRoom from './rooms/ChatRoom'
+import SpinRoom from './rooms/SpinRoom'
 // import PearMediaStream from './defs/MediaStream'
 import { ROOM_NAMES } from './types/rooms.types'
 
-const { LOBBY, SPIN_GAME, MEDIA_STREAM, CHAT_ROOM } = ROOM_NAMES
+const {
+	LOBBY,
+	SPIN_GAME,
+	// MEDIA_STREAM,
+	CHAT_ROOM,
+} = ROOM_NAMES
 
 class Sockets {
 	gameServer: Server = null
@@ -16,7 +21,7 @@ class Sockets {
 
 	initRooms() {
 		this.gameServer.define(LOBBY, LobbyRoom)
-		this.gameServer.define(SPIN_GAME, SpinGame, {
+		this.gameServer.define(SPIN_GAME, SpinRoom, {
 			name: 'Spin Game',
 			desc: 'Fareplay spin game room',
 			password: null,

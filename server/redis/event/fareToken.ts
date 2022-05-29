@@ -1,9 +1,10 @@
 import type { BigNumber, Event } from 'ethers'
 
-import { ContractNames, formatETH, EventNames } from './utils'
+import { ContractNames, EventNames } from '../constants'
+import { formatETH } from '../utils'
 import { EventLog } from '../service'
 import { fareContractEventQueue } from '../queue'
-import { IFareTransferQueue } from '../queue/queue.types'
+import { IFareTransferQueue } from '../types'
 
 export const fareTransferEvent = async (
 	from: string,
