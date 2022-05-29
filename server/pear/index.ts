@@ -39,7 +39,7 @@ const defaultPearOptions: IPearOptions = {
 const logColor = chalk.hex('#1de9b6').bold
 const log = (...args: any) => console.log(logColor('[PearServer]:', ...args))
 
-export default class Pear {
+export class PearServer {
 	server!: Server
 	rooms!: Rooms
 	#port = pearServerPort
@@ -88,3 +88,5 @@ export default class Pear {
 
 	// @NOTE: Add match making, room handles, event handlers here
 }
+
+export default new PearServer()

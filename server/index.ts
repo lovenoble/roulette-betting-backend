@@ -1,6 +1,8 @@
-import PearServer from './pear'
+import pearServer from './pear'
 import redisStore from './store'
-// import initRpcServer from './rpc'
+
+// import postgresStore from './postgresStore'
+// import rpcServer from './rpc'
 
 async function init() {
 	// @NOTE: Need to add more exit eventListeners
@@ -15,7 +17,6 @@ async function init() {
 	await redisStore.initQueue()
 	await redisStore.initSmartContractListeners()
 
-	const pearServer = new PearServer()
 	await pearServer.listen()
 
 	// If running multiple processes, ensures only one RPC server instance is created
