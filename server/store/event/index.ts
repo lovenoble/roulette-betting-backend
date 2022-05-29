@@ -1,30 +1,8 @@
-import { tokenAPI, spinAPI } from '../../pears/crypto/contracts'
-import { EventNames } from '../utils'
-import { GameMode } from '../service'
+import { QueueEvents } from 'bullmq'
 
-import { fareTransferEvent } from './fareToken'
-import {
-	gameModeUpdatedEvent,
-	entrySubmittedEvent,
-	entrySettledEvent,
-	roundConcludedEvent,
-} from './spinGame'
+import { QueueNames } from '../constants'
+import { queueEventDefaultOpts } from '../../config'
 
-async function initEnsure() {
-	await GameMode.ensureGameModes()
-}
-
-async function defineEvents() {
-	await initEnsure()
-
-	tokenAPI.contract.on(EventNames.Transfer, fareTransferEvent)
-	spinAPI.contract.on(EventNames.EntrySubmitted, entrySubmittedEvent)
-	spinAPI.contract.on(EventNames.EntrySettled, entrySettledEvent)
-	spinAPI.contract.on(EventNames.GameModeUpdated, gameModeUpdatedEvent)
-	spinAPI.contract.on(EventNames.RoundConcluded, roundConcludedEvent)
-
-	// @NOTE: Perhaps this event won't be needed since we already get the random number from roundConcluded
-	// spinAPI.contract.on(EventNames.RandomNumberRequested, (...args) => console.log(args))
-}
-
-export default defineEvents
+// Instantiate function to create a new queue event listener
+export const FareEvent = () => new QueueEvents(QueueNames.FareContractEvent, queueEventDefaultOpts)
+export const SpinEvent = () => new QueueEvents(QueueNames.SpinContractEvent, queueEventDefaultOpts)

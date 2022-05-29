@@ -31,8 +31,13 @@ const defaultPresenceOpts: RedisClientOptions = {
 	url: `${redisUri}/10`,
 }
 
-const logColor = chalk.hex('green').bgHex('cyan')
-const log = (...args: any) => console.log(logColor(...args))
+const defaultPearOptions: IPearOptions = {
+	transportOpts: defaultTransportOpts,
+	presenceOpts: defaultPresenceOpts,
+}
+
+const logColor = chalk.hex('#1de9b6').bold
+const log = (...args: any) => console.log(logColor('[PearServer]:', ...args))
 
 export default class Pear {
 	server!: Server
@@ -53,29 +58,27 @@ export default class Pear {
 		return this.#redisUri
 	}
 
-	constructor({
-		transportOpts = defaultTransportOpts,
-		presenceOpts = defaultPresenceOpts,
-	}: IPearOptions) {
+	constructor(options = defaultPearOptions) {
+		const { transportOpts, presenceOpts } = options
+
 		this.server = new Server({
 			transport: new WebSocketTransport(transportOpts),
 			presence: new RedisPresence(presenceOpts),
 			driver: new MongooseDriver(mongoUri),
 		})
-		log(`[PearServer]: Created Server instance!`)
-		log(`[PearServer] Created WebSocketTransport instance!`)
-		log(`[PearServer]: Created RedisPresence instance!`)
-		log(`[PearServer]: Created MongooseDriver instance!`)
+		log(`Created Server instance!`)
+		log(`Created WebSocketTransport instance!`)
+		log(`Created RedisPresence instance!`)
+		log(`Created MongooseDriver instance!`)
 
 		this.rooms = new Rooms(this.server)
 		this.rooms.createAll()
-		log(`[PearServer]: Added Room defintions!`)
+		log(`Added Room defintions!`)
 	}
 
 	async listen(port = this.#port) {
-		log(`[PearServer]: Starting server instance...`)
 		await this.server.listen(port)
-		log(`[PearServer] Running on WebSocket port:${port}`)
+		log(`Running on WebSocket port ${port}...`)
 	}
 
 	async stopAll() {

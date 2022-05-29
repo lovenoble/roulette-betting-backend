@@ -1,25 +1,32 @@
 import { ContractNames, EventNames } from '../../constants'
-import { FareTransfer, EventLog } from '../../service'
-import type { EventReturnData, IFareTransferQueue } from '../../types'
+import type { EventReturnData, IFareTransferQueue, IServiceObj } from '../../types'
 
-export async function processFareTransfer<T>(queueData: IFareTransferQueue) {
-	const { from, to, amount, timestamp, event } = queueData
+const createFareJobProcesses = (service: IServiceObj) => {
+	async function fareTransfer<T>(queueData: IFareTransferQueue) {
+		const { from, to, amount, timestamp, event } = queueData
 
-	const eventLogId = await EventLog.process(event, ContractNames.FareToken)
-	if (!eventLogId) return null
+		const eventLogId = await service.eventLog.process(event, ContractNames.FareToken)
+		if (!eventLogId) return null
 
-	const data = (
-		await FareTransfer.create({
-			eventLogId,
-			from,
-			to,
-			amount,
-			timestamp,
-		})
-	).toJSON()
+		const data = (
+			await service.fareTransfer.create({
+				eventLogId,
+				from,
+				to,
+				amount,
+				timestamp,
+			})
+		).toJSON()
 
-	return JSON.stringify({
-		eventName: EventNames.Transfer,
-		data,
-	} as EventReturnData<T>)
+		return JSON.stringify({
+			eventName: EventNames.Transfer,
+			data,
+		} as EventReturnData<T>)
+	}
+
+	return {
+		fareTransfer,
+	}
 }
+
+export default createFareJobProcesses

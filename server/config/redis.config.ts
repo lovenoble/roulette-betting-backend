@@ -1,4 +1,4 @@
-import type { WorkerOptions, QueueOptions, ConnectionOptions } from 'bullmq'
+import type { WorkerOptions, QueueOptions, ConnectionOptions, QueueEventsOptions } from 'bullmq'
 
 const { REDIS_HOST, REDIS_PORT } = process.env
 
@@ -16,6 +16,11 @@ export const workerDefaultOpts: WorkerOptions = {
 export const queueDefaultOpts: QueueOptions = {
 	connection,
 	// @NOTE: Look into different queueOpt configurations
+}
+
+export const queueEventDefaultOpts: QueueEventsOptions = {
+	connection,
+	// @NOTE: Look into different queueEventsOpts configurations
 }
 
 export const redisUri = `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`

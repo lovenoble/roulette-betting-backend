@@ -1,7 +1,6 @@
-import redisStore from '..'
-import { zeroAddress } from '../event/utils'
-
-const { fareTransfer: fareTransferRepo } = redisStore.repo
+import ServiceBase from './ServiceBase'
+import { zeroAddress } from '../utils'
+import type { FareTransfer } from '../schema/types'
 
 interface ICreateOptions {
 	eventLogId?: string
@@ -11,10 +10,8 @@ interface ICreateOptions {
 	timestamp: number
 }
 
-export default abstract class FareTransfer {
-	public static repo = fareTransferRepo
-
-	public static getTransferType(from: string, to: string): string {
+export default class FareTransferService extends ServiceBase<FareTransfer> {
+	public getTransferType(from: string, to: string): string {
 		let transferType = 'transfer'
 		if (from === zeroAddress) {
 			transferType = 'mint'
@@ -25,7 +22,7 @@ export default abstract class FareTransfer {
 		return transferType
 	}
 
-	public static async create({ eventLogId, from, to, amount, timestamp }: ICreateOptions) {
+	public async create({ eventLogId, from, to, amount, timestamp }: ICreateOptions) {
 		const transferType = this.getTransferType(from, to)
 
 		return this.repo.createAndSave({

@@ -1,16 +1,21 @@
 import type { BigNumber } from 'ethers'
 
-import redisStore from '..'
-import { ensureNumber, formatETH } from '../event/utils'
-import Entry from './Entry'
-import { spinAPI } from '../../pears/crypto/contracts'
+import ServiceBase from './ServiceBase'
+import { ensureNumber, formatETH } from '../utils'
+import type EntryService from './Entry'
+import type { BatchEntry } from '../schema/types'
+import { spinAPI } from '../../crypto/contracts'
 
-const { batchEntry: batchEntryRepo } = redisStore.repo
+export default class BatchEntryService extends ServiceBase<BatchEntry> {
+	entryService!: EntryService
 
-export default abstract class BatchEntry {
-	public static repo = batchEntryRepo
+	constructor(entryService: EntryService) {
+		super()
 
-	public static fetch(roundId: BigNumber | number, batchEntryId: BigNumber | number) {
+		this.entryService = entryService
+	}
+
+	public fetch(roundId: BigNumber | number, batchEntryId: BigNumber | number) {
 		return this.repo
 			.search()
 			.where('roundId')
@@ -20,7 +25,7 @@ export default abstract class BatchEntry {
 			.returnFirst()
 	}
 
-	public static async create(
+	public async create(
 		eventLogId: string,
 		roundId: number,
 		batchEntryId: number,
@@ -28,7 +33,7 @@ export default abstract class BatchEntry {
 		player: string,
 		timestamp = Date.now()
 	) {
-		const entries = await Entry.populateEntriesFromBatchEntryId(
+		const entries = await this.entryService.populateEntriesFromBatchEntryId(
 			eventLogId,
 			entryId,
 			batchEntryId,
@@ -39,7 +44,7 @@ export default abstract class BatchEntry {
 		const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
 			await spinAPI.contract.batchEntryMap(roundId, batchEntryId)
 
-		const batchEntry = await BatchEntry.repo.createAndSave({
+		const batchEntry = await this.repo.createAndSave({
 			eventLogId,
 			roundId,
 			batchEntryId,
@@ -57,8 +62,8 @@ export default abstract class BatchEntry {
 		}
 	}
 
-	public static async settle(roundId: number, batchEntryId: number, settledOn = Date.now()) {
-		const batchEntryEntity = await BatchEntry.fetch(roundId, batchEntryId)
+	public async settle(roundId: number, batchEntryId: number, settledOn = Date.now()) {
+		const batchEntryEntity = await this.fetch(roundId, batchEntryId)
 
 		// BULLMQ
 		if (!batchEntryEntity) {
@@ -72,13 +77,13 @@ export default abstract class BatchEntry {
 		batchEntryEntity.settled = true
 		batchEntryEntity.settledOn = settledOn
 
-		const entries = await Entry.fetchEntriesByBatchEntryId(roundId, batchEntryId)
+		const entries = await this.entryService.fetchEntriesByBatchEntryId(roundId, batchEntryId)
 
 		const promiseList = entries.map(entry => {
 			return new Promise((resolve, reject) => {
 				entry.settled = true
 				entry.settledOn = settledOn
-				Entry.repo.save(entry).then(resolve).catch(reject)
+				this.entryService.repo.save(entry).then(resolve).catch(reject)
 			})
 		})
 

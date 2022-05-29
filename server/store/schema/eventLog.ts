@@ -20,7 +20,7 @@ export default new Schema(
 		transactionHash: { type: 'string' },
 		logIndex: { type: 'number' },
 		event: { type: 'string' },
-		topics: { type: 'array' },
+		topics: { type: 'string[]' },
 		timestamp: { type: 'date' },
 	},
 	{ dataStructure: 'JSON' }

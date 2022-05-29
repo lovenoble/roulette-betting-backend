@@ -1,7 +1,8 @@
 import { Command } from '@colyseus/command'
 import { Room } from 'colyseus'
 import { utils } from 'ethers'
-import type * as types from '../../redis/schema/types'
+
+import type * as types from '../../store/types'
 
 // Libraries
 import { SpinState } from '../state/SpinState'

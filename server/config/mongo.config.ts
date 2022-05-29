@@ -18,10 +18,7 @@ const getMongoUri = () => {
 		return ''
 	}
 
-	return (
-		`mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}` +
-		`/${MONGO_DATABASE_NAME}`
-	)
+	return `mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DATABASE_NAME}`
 }
 
 export const mongoUri = getMongoUri()

@@ -2,99 +2,114 @@ import { Worker } from 'bullmq'
 import type { Job } from 'bullmq'
 import chalk from 'chalk'
 
+import { IServiceObj } from 'store/types'
 import { workerDefaultOpts } from '../../config/redis.config'
 import { QueueNames, EventNames } from '../constants'
 import { sleep } from '../utils'
-import { processFareTransfer } from './process/fare'
-import {
-	processGameModeUpdated,
-	processEntrySettled,
-	processRoundConcluded,
-	processEntrySubmitted,
-} from './process/spin'
+import createFareJobProcesses from './process/fare'
+import createSpinJobProcesses from './process/spin'
 
-export const fareContractWorker = new Worker(
-	QueueNames.FareContractEvent,
-	async (job: Job) => {
+export default class StoreWorker {
+	fareWorker!: Worker
+	spinWorker!: Worker
+	process: ReturnType<typeof createFareJobProcesses> & ReturnType<typeof createSpinJobProcesses>
+
+	constructor(service: IServiceObj) {
+		this.process = {
+			...createFareJobProcesses(service),
+			...createSpinJobProcesses(service),
+		}
+
+		// Define workers below
+		this.fareWorker = new Worker(
+			QueueNames.FareContractEvent,
+			this.handleFareContractJob,
+			workerDefaultOpts
+		)
+
+		this.spinWorker = new Worker(
+			QueueNames.SpinContractEvent,
+			this.handleSpinContractJob,
+			workerDefaultOpts
+		)
+	}
+
+	public get list() {
+		return {
+			fareContractWorker: this.fareWorker,
+			spinContractWorker: this.spinWorker,
+		}
+	}
+
+	async handleFareContractJob(job: Job) {
 		switch (job.name) {
 			case EventNames.Transfer:
-				return processFareTransfer(job.data)
+				return this.process.fareTransfer(job.data)
 			default:
 				throw new Error(`[Worker]: Invalid eventName ${job.name}`)
 		}
-	},
-	workerDefaultOpts
-)
+	}
 
-export const spinContractWorker = new Worker(
-	QueueNames.SpinContractEvent,
-	async (job: Job) => {
+	async handleSpinContractJob(job: Job) {
 		console.log(`Process started: ${job.name} - ${Date.now()}`)
 		switch (job.name) {
 			case EventNames.GameModeUpdated:
-				return processGameModeUpdated(job.data)
+				return this.process.gameModeUpdated(job.data)
 			case EventNames.EntrySubmitted:
-				return processEntrySubmitted(job.data)
+				return this.process.entrySubmitted(job.data)
 			case EventNames.RoundConcluded:
-				return processRoundConcluded(job.data)
+				return this.process.roundConcluded(job.data)
 			case EventNames.EntrySettled:
-				return processEntrySettled(job.data)
+				return this.process.entrySettled(job.data)
 			default:
 				throw new Error(`[Worker]: Invalid eventName ${job.name}`)
 		}
-	},
-	workerDefaultOpts
-)
+	}
 
-const workerMap = {
-	fareContractWorker,
-	spinContractWorker,
-}
+	async start() {
+		const workerKeys = Object.keys(this.list)
 
-export async function runWorkers() {
-	const workerKeys = Object.keys(workerMap)
+		const promiseList = workerKeys.map(async key => {
+			return new Promise((resolve, reject) => {
+				const worker: Worker = this.list[key]
 
-	const promiseList = workerKeys.map(async key => {
-		return new Promise((resolve, reject) => {
-			const worker: Worker = workerMap[key]
-			worker.run()
+				worker.run()
 
-			const maxAttempts = 10
-			let attempts = 0
-			while (attempts < maxAttempts) {
-				if (worker.isRunning()) {
-					console.log(
-						chalk.hex('#1DE9B6')(
-							`[${key}]: Worker started successfully! Waiting for jobs...`
+				const maxAttempts = 10
+				let attempts = 0
+				while (attempts < maxAttempts) {
+					if (worker.isRunning()) {
+						console.log(
+							chalk.hex('#F06292')(
+								`[${key}]: Worker started successfully! Waiting for jobs...`
+							)
 						)
-					)
-					break
+						break
+					}
+
+					attempts += 1
+					sleep(500)
 				}
 
-				attempts += 1
-				sleep(500)
-			}
+				if (attempts >= maxAttempts) {
+					reject(new Error(`[${key}]: Worker failed to start!`))
+				}
 
-			if (attempts >= maxAttempts) {
-				reject(new Error(`[${key}]: Worker failed to start!`))
-			}
-
-			resolve(null)
+				resolve(null)
+			})
 		})
-	})
 
-	await Promise.all(promiseList)
+		await Promise.all(promiseList)
+	}
+
+	async stop() {
+		const workerKeys = Object.keys(this.list)
+
+		const promiseList = workerKeys.map(async key => {
+			const worker: Worker = this.list[key]
+			await worker.close()
+		})
+
+		return Promise.all(promiseList)
+	}
 }
-
-fareContractWorker.on('active', () => {
-	console.log('FARECONTRACTWORKER ACTIVE')
-})
-
-// @NOTE: Create global error/failed listeners for workers
-// fareContractWorker.on('completed', (job: Job) => console.log(job.id))
-// fareContractWorker.on('failed', (job: Job) => console.log(job.id))
-// fareContractWorker.on('error', console.error)
-
-// spinContractWorker.on('completed', (job: Job) => console.log(job.id))
-// spinContractWorker.on('failed', (job: Job) => console.log(job.id))
-// spinContractWorker.on('error', console.error)

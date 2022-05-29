@@ -1,0 +1,16 @@
+import type { Client, Repository, Entity, Schema } from 'redis-om'
+
+export default abstract class ServiceBase<T extends Entity> {
+	public repo!: Repository<T>
+	public schema!: Schema<T>
+
+	async init(client: Client, schema: Schema<T>) {
+		if (this.repo) throw new Error('Repo already initialized')
+
+		this.schema = schema
+		this.repo = client.fetchRepository(schema)
+		this.repo.createIndex()
+
+		return this.repo
+	}
+}

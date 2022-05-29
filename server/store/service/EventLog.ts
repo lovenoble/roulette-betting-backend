@@ -1,16 +1,12 @@
 import type { Event } from 'ethers'
 
-import redisStore from '..'
-import type { ContractNames } from '../event/utils'
-import type { IEventLogQueue } from '../queue/queue.types'
+import ServiceBase from './ServiceBase'
+import { EventLog } from '../schema/eventLog'
+import type { ContractNames } from '../constants'
+import type { IEventLogQueue } from '../types'
 
-const { eventLog } = redisStore.repo
-
-export default abstract class EventLog {
-	public static repo = eventLog
-
-	// Returns the needed fields from the Event object to pass to the worker
-	public static parseForQueue(event: Event, contractName: ContractNames): IEventLogQueue {
+export default class EventLogService extends ServiceBase<EventLog> {
+	public parseForQueue(event: Event, contractName: ContractNames): IEventLogQueue {
 		const parsedEvent: IEventLogQueue = {
 			contractName,
 			blockNumber: event.blockNumber,
@@ -26,8 +22,8 @@ export default abstract class EventLog {
 
 	// If event doesn't exist, eventLog entity will be added to the EventLog repo
 	// Returns empty string if eventLog already exists
-	public static async process(event: IEventLogQueue, contractName: ContractNames) {
-		const doesExist = await eventLog
+	public async process(event: IEventLogQueue, contractName: ContractNames) {
+		const doesExist = await this.repo
 			.search()
 			.where('transactionHash')
 			.equals(event.transactionHash)
@@ -37,7 +33,7 @@ export default abstract class EventLog {
 
 		if (doesExist > 0) return ''
 
-		const eventLogEntry = await eventLog.createAndSave({
+		const eventLogEntry = await this.repo.createAndSave({
 			contractName,
 			transactionHash: event.transactionHash,
 			logIndex: event.logIndex,

@@ -1,16 +1,12 @@
 import type { BigNumber } from 'ethers'
 
-import redisStore from '..'
-import { spinAPI } from '../../pears/crypto/contracts'
-import { ensureNumber, formatETH, BNToNumber } from '../event/utils'
-import type { Entry as IEntry } from '../schema/types'
+import ServiceBase from './ServiceBase'
+import { spinAPI } from '../../crypto/contracts'
+import { ensureNumber, formatETH, BNToNumber } from '../utils'
+import type { Entry } from '../schema/types'
 
-const { entry: entryRepo } = redisStore.repo
-
-export default abstract class Entry {
-	public static repo = entryRepo
-
-	public static async fetchEntriesByBatchEntryId(
+export default class EntryService extends ServiceBase<Entry> {
+	public async fetchEntriesByBatchEntryId(
 		roundId: BigNumber | number,
 		batchEntryId: BigNumber | number
 	) {
@@ -24,13 +20,13 @@ export default abstract class Entry {
 	}
 
 	// Fetches all entries that are associated with a single batchEntry
-	public static async populateEntriesFromBatchEntryId(
+	public async populateEntriesFromBatchEntryId(
 		eventLogId: string,
 		entryId: number,
 		batchEntryId: number,
 		roundId: number,
 		timestamp = Date.now()
-	): Promise<IEntry[]> {
+	): Promise<Entry[]> {
 		const entryCount = (await spinAPI.contract.getEntryCount(entryId)).toNumber()
 		const entryIdxs: number[] = [...Array(entryCount).keys()]
 
@@ -52,7 +48,7 @@ export default abstract class Entry {
 								settled: false,
 								timestamp,
 							}
-							const entryJson = (await entryRepo.createAndSave(entry)).toJSON()
+							const entryJson = (await this.repo.createAndSave(entry)).toJSON()
 							resolve(entryJson)
 						} catch (err) {
 							reject(err)

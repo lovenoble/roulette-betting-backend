@@ -1,20 +1,19 @@
 import { utils } from 'ethers'
 
-import redisStore from '..'
+import ServiceBase from './ServiceBase'
+import type { User } from '../schema/types'
 import { PearHash } from '../utils'
 
-export default abstract class UserService {
-	public static repo = redisStore.repo.user
-
+export default class UserService extends ServiceBase<User> {
 	// Fetch userEntity by publicAddress
-	public static async getUserEntity(publicAddress: string) {
+	public async getUserEntity(publicAddress: string) {
 		return this.repo.search().where('publicAddress').eq(publicAddress).returnFirst()
 	}
 
 	// Check if publicAddress exists.
 	// If true, generate a new nonce, update the player record, and return the nonce
 	// If false, generate a new nonce, create a new player record, and return the none
-	public static async authPublicAddress(publicAddress: string) {
+	public async authPublicAddress(publicAddress: string) {
 		if (!utils.isAddress(publicAddress)) throw new Error('Public address is not valid')
 		const nonceHex = PearHash.generateNonceHex()
 
@@ -42,7 +41,7 @@ export default abstract class UserService {
 	}
 
 	// Fetch userEntity nonce by publicAddress
-	public static async getUserNonce(publicAddress: string) {
+	public async getUserNonce(publicAddress: string) {
 		if (!utils.isAddress(publicAddress)) throw new Error('Public address is not valid')
 
 		const userEntity = await this.getUserEntity(publicAddress)
@@ -55,7 +54,7 @@ export default abstract class UserService {
 	}
 
 	// Checks if user exists by publicAddress
-	public static async playerExists(publicAddress: string) {
+	public async playerExists(publicAddress: string) {
 		const count = await this.repo
 			.search()
 			.where('publicAddress')

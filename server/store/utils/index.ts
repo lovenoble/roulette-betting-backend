@@ -1,9 +1,13 @@
+import chalk from 'chalk'
 import { utils, BigNumber } from 'ethers'
 import type { Entity } from 'redis-om'
+
 import { SchemaAdditions } from '../types'
 
-// Import/Exports
 export { default as PearHash } from './PearHash'
+
+export const logColor = chalk.hex('#ab47bc').bold
+export const log = (...args: any) => console.log(logColor('[RedisStore]:', ...args))
 
 // Definitions
 // @NOTE: A lot of these should move to the crypto directory

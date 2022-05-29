@@ -1,9 +1,13 @@
 import { Queue } from 'bullmq'
 
 import { QueueNames } from '../constants'
-import { queueDefaultOpts } from '../config'
+import { queueDefaultOpts } from '../../config'
 
-export const fareContractEventQueue = new Queue(QueueNames.FareContractEvent, queueDefaultOpts)
-export const spinContractEventQueue = new Queue(QueueNames.SpinContractEvent, queueDefaultOpts)
-export const pearStateQueue = new Queue(QueueNames.PearState, queueDefaultOpts)
-export const latencyQueue = new Queue(QueueNames.Latency, queueDefaultOpts)
+export class StoreQueue {
+	fareContract = new Queue(QueueNames.FareContractEvent, queueDefaultOpts)
+	spinContract = new Queue(QueueNames.SpinContractEvent, queueDefaultOpts)
+	pearState = new Queue(QueueNames.PearState, queueDefaultOpts)
+	latency = new Queue(QueueNames.Latency, queueDefaultOpts)
+}
+
+export default new StoreQueue()

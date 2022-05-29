@@ -1,21 +1,36 @@
 import type { BigNumber } from 'ethers'
 
-import type { BNGameMode } from '../schema/types'
-import redisStore from '..'
-import { ensureNumber, formatETH, BN, toEth } from '../event/utils'
-import GameMode from './GameMode'
+import type EntryService from './Entry'
+import type BatchEntryService from './BatchEntry'
+import type GameModeService from './GameMode'
 
-const { round: roundRepo, entry: entryRepo, batchEntry: batchEntryRepo } = redisStore.repo
+import type { Round, BNGameMode } from '../schema/types'
+import ServiceBase from './ServiceBase'
+import { ensureNumber, formatETH, BN, toEth } from '../utils'
 
-export default abstract class Round {
-	public static repo = roundRepo
+export default class RoundService extends ServiceBase<Round> {
+	gameModeService!: GameModeService
+	batchEntryService!: BatchEntryService
+	entryService!: EntryService
 
-	public static fetch(roundId: BigNumber | number) {
+	constructor(
+		gameModeService: GameModeService,
+		batchEntryService: BatchEntryService,
+		entryService: EntryService
+	) {
+		super()
+
+		this.batchEntryService = batchEntryService
+		this.entryService = entryService
+		this.gameModeService = gameModeService
+	}
+
+	public fetch(roundId: BigNumber | number) {
 		return this.repo.search().where('roundId').equal(ensureNumber(roundId)).returnFirst()
 	}
 
 	// Calculates winners and losers from randomNum/randomEliminator by round
-	public static async updateRoundBatchEntries(
+	public async updateRoundBatchEntries(
 		roundId: number,
 		_randomNum: number,
 		_randomEliminator: string
@@ -23,9 +38,13 @@ export default abstract class Round {
 		const randomNum = BN(_randomNum)
 		const randomEliminator = BN(_randomEliminator)
 
-		const batchEntries = await batchEntryRepo.search().where('roundId').eq(roundId).returnAll()
+		const batchEntries = await this.batchEntryService.repo
+			.search()
+			.where('roundId')
+			.eq(roundId)
+			.returnAll()
 
-		const gameModes = await GameMode.getActiveGameModes()
+		const gameModes = await this.gameModeService.getActiveGameModes()
 
 		const gameModeMap: { [key: number]: BNGameMode } = {}
 		gameModes.forEach(gm => {
@@ -35,7 +54,7 @@ export default abstract class Round {
 		const fetchAllEntries = batchEntries.map(async batchEntry => {
 			const obj = {
 				batchEntry,
-				entries: await entryRepo
+				entries: await this.entryService.repo
 					.search()
 					.where('batchEntryId')
 					.eq(batchEntry.batchEntryId)
@@ -67,12 +86,12 @@ export default abstract class Round {
 						totalWinAmount = totalWinAmount.add(toEth(entry.winAmount))
 					}
 				}
-				await entryRepo.save(entry)
+				await this.entryService.repo.save(entry)
 			})
 
 			await Promise.all(entryPromise)
 			batchEntry.totalWinAmount = formatETH(totalWinAmount)
-			await batchEntryRepo.save(batchEntry)
+			await this.batchEntryService.repo.save(batchEntry)
 		})
 
 		await Promise.all(promiseList)

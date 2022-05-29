@@ -1,20 +1,18 @@
 import { Room, ServerError } from '@colyseus/core'
 import type { Client } from '@colyseus/core'
-import { QueueEvents } from 'bullmq'
 import { Dispatcher } from '@colyseus/command'
 
 // Libraries
-import { QueueNames } from '../../redis/queue'
-import { EventNames } from '../../redis/event/utils'
-import type { IEventReturnData } from '../../redis/worker/worker.types'
+import { EventNames } from '../../store/constants'
+import { SpinEvent, FareEvent } from '../../store/event'
 import { OnBatchEntry, OnBatchEntrySettled } from '../commands/SpinCommands'
 import { SpinState } from '../state/SpinState'
 
 // @NOTE: Determine user balancing for room capacity - [spin-room-1: 1800, spin-room-2: 600]
 // @NOTE: VIP room rentals for FARE token (smart contract)
 
-const fareEvent = new QueueEvents(QueueNames.FareContractEvent)
-const spinEvent = new QueueEvents(QueueNames.SpinContractEvent)
+const fareEvent = FareEvent()
+const spinEvent = SpinEvent()
 
 // spinEvent.on('completed', ({ jobId, returnvalue, prev }, id) => {
 // spinEvent.on('completed', ({ returnvalue }) => {
@@ -59,7 +57,7 @@ class SpinGame extends Room<SpinState> {
 			try {
 				if (!returnvalue) return
 
-				const { eventName, data }: IEventReturnData = JSON.parse(returnvalue)
+				const { eventName, data } = JSON.parse(returnvalue)
 
 				console.log(eventName, data)
 
