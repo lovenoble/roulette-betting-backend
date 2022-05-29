@@ -1,4 +1,4 @@
-const {
+export const {
 	MONGO_ROOT_USERNAME,
 	MONGO_ROOT_PASSWORD,
 	MONGO_HOST,

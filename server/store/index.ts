@@ -96,7 +96,7 @@ export class RedisStore {
 	async initSmartContractListeners() {
 		this.listener = new SmartContractListener(this.service, this.queue)
 		await this.listener.start()
-		log(`Smart contract listeners started (${this.listener.listenerCount} listeners)!`)
+		log(`Smart contract listeners started! (${this.listener.listenerCount} listeners)`)
 	}
 
 	async disconnectAll() {

@@ -1,13 +1,11 @@
 import { Worker } from 'bullmq'
 import type { Job } from 'bullmq'
-import chalk from 'chalk'
 
-import { IServiceObj } from 'store/types'
-import { workerDefaultOpts } from '../../config/redis.config'
+import type { IServiceObj } from 'store/types'
 import { QueueNames, EventNames } from '../constants'
-import { sleep } from '../utils'
-import createFareJobProcesses from './process/fare'
-import createSpinJobProcesses from './process/spin'
+import { workerDefaultOpts } from '../../config/redis.config'
+import { sleep, workerLog } from '../utils'
+import { createFareJobProcesses, createSpinJobProcesses } from './process'
 
 export default class StoreWorker {
 	fareWorker!: Worker
@@ -15,6 +13,7 @@ export default class StoreWorker {
 	process: ReturnType<typeof createFareJobProcesses> & ReturnType<typeof createSpinJobProcesses>
 
 	constructor(service: IServiceObj) {
+		// Pass in Redis Store service references and create processes
 		this.process = {
 			...createFareJobProcesses(service),
 			...createSpinJobProcesses(service),
@@ -79,11 +78,7 @@ export default class StoreWorker {
 				let attempts = 0
 				while (attempts < maxAttempts) {
 					if (worker.isRunning()) {
-						console.log(
-							chalk.hex('#F06292')(
-								`[${key}]: Worker started successfully! Waiting for jobs...`
-							)
-						)
+						workerLog(`[RedisStore/Worker]: ${key} waiting for jobs...`)
 						break
 					}
 

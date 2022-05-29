@@ -21,6 +21,7 @@ module.exports = {
 	},
 	plugins: ['@typescript-eslint', 'promise', 'import'],
 	rules: {
+		'new-cap': 'off',
 		'no-param-reassign': 'off',
 		'import/prefer-default-export': 'off',
 		'no-promise-executor-return': 'off',

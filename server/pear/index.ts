@@ -2,38 +2,33 @@ import chalk from 'chalk'
 import { Server } from '@colyseus/core'
 import { RedisPresence } from '@colyseus/redis-presence'
 import { MongooseDriver } from '@colyseus/mongoose-driver'
-import { WebSocketTransport } from '@colyseus/ws-transport'
 
 import type { RedisClientOptions } from 'redis'
-import type { TransportOptions } from '@colyseus/ws-transport'
 
-import { mongoUri, redisUri, pearServerPort } from '../config'
+import { MONGO_ROOT_USERNAME, mongoUri, redisUri, pearServerPort } from '../config'
 import Rooms from './rooms'
-import httpServer from '../http'
+import transport from '../transport'
 
 export interface IPearOptions {
-	transportOpts: TransportOptions
-	presenceOpts: RedisClientOptions
-}
-
-const defaultTransportOpts: TransportOptions = {
-	server: httpServer,
-	// @NOTE: Configure client validation (domain whitelist in production)
-	// verifyClient: (info, next) => {
-	// 	console.log('Handshake successful!', info)
-	// 	next(true)
-	// },
-	// pingInterval: 3000, // Default
-	// pingMaxRetries: 2, // Default
+	presenceOpts?: RedisClientOptions
+	pearServerPort?: number
+	mongoBaseUri?: string
+	mongoAuthSource?: string
+	redisBaseUri?: string
+	redisDbIdx?: number
 }
 
 const defaultPresenceOpts: RedisClientOptions = {
-	url: `${redisUri}/10`,
+	url: redisUri,
 }
 
 const defaultPearOptions: IPearOptions = {
-	transportOpts: defaultTransportOpts,
+	pearServerPort,
 	presenceOpts: defaultPresenceOpts,
+	mongoBaseUri: mongoUri,
+	mongoAuthSource: MONGO_ROOT_USERNAME,
+	redisBaseUri: redisUri,
+	redisDbIdx: 10,
 }
 
 const logColor = chalk.hex('#1de9b6').bold
@@ -43,8 +38,8 @@ export class PearServer {
 	server!: Server
 	rooms!: Rooms
 	#port = pearServerPort
-	#mongoUri = `${mongoUri}?authSource=admin`
-	#redisUri = `${redisUri}/10`
+	#mongoUri: string
+	#redisUri: string
 
 	public get port() {
 		return this.#port
@@ -59,12 +54,19 @@ export class PearServer {
 	}
 
 	constructor(options = defaultPearOptions) {
-		const { transportOpts, presenceOpts } = options
+		const { presenceOpts, mongoBaseUri, redisBaseUri, redisDbIdx, mongoAuthSource } =
+			Object.assign(defaultPearOptions, options)
+
+		this.#redisUri = `${redisBaseUri}/${redisDbIdx}`
+		this.#mongoUri = mongoBaseUri
+		if (mongoAuthSource) {
+			this.#mongoUri += `?authSource=${mongoAuthSource}`
+		}
 
 		this.server = new Server({
-			transport: new WebSocketTransport(transportOpts),
+			transport,
 			presence: new RedisPresence(presenceOpts),
-			driver: new MongooseDriver(mongoUri),
+			driver: new MongooseDriver(this.#mongoUri),
 		})
 		log(`Created Server instance!`)
 		log(`Created WebSocketTransport instance!`)

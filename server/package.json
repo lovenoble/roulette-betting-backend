@@ -33,9 +33,11 @@
     "@colyseus/proxy": "^0.12.7",
     "@colyseus/redis-presence": "^0.14.20",
     "@colyseus/schema": "^1.0.34",
+    "@colyseus/uwebsockets-transport": "^0.14.27",
     "@colyseus/ws-transport": "^0.14.21",
     "@grpc/grpc-js": "^1.4.5",
     "@grpc/proto-loader": "^0.6.7",
+    "@sinclair/typebox": "^0.23.5",
     "@types/mongoose": "^5.11.97",
     "auto-bind": "^5.0.1",
     "bcrypt": "^5.0.1",
@@ -47,6 +49,7 @@
     "dotenv": "^10.0.0",
     "ethers": "^5.5.2",
     "express": "^4.17.2",
+    "fastify": "^3.29.0",
     "ioredis": "^5.0.4",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.1.4",
@@ -60,7 +63,9 @@
     "rxjs": "^7.5.1",
     "shortid": "^2.2.16",
     "ts-node": "^10.4.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "uwebsockets-express": "^1.2.2",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.10.0"
   },
   "devDependencies": {
     "@tsconfig/node16": "^1.0.2",

@@ -9,6 +9,9 @@ export { default as PearHash } from './PearHash'
 export const logColor = chalk.hex('#ab47bc').bold
 export const log = (...args: any) => console.log(logColor('[RedisStore]:', ...args))
 
+const workerLogColor = chalk.hex('#A760FF').bold
+export const workerLog = (...args: any) => console.log(workerLogColor(...args))
+
 // Definitions
 // @NOTE: A lot of these should move to the crypto directory
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
