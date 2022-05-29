@@ -4,7 +4,11 @@ import { v4 as uuidv4 } from 'uuid'
 import { utils } from 'ethers'
 
 import { saltRounds, jwtSecret, jwtExpiration } from '../../config/pear.config'
-import { JWTDecodedData } from '../types/utils.types'
+
+export type JWTDecodedData = {
+	publicAddress: string
+	nonce: string
+}
 
 class PearHash {
 	static async hash(password: string) {

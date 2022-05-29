@@ -2,7 +2,7 @@ import { Worker } from 'bullmq'
 import type { Job } from 'bullmq'
 import chalk from 'chalk'
 
-import { workerDefaultOpts } from '../config'
+import { workerDefaultOpts } from '../../config/redis.config'
 import { QueueNames, EventNames } from '../constants'
 import { sleep } from '../utils'
 import { processFareTransfer } from './process/fare'

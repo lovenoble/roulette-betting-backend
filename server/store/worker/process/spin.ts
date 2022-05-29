@@ -1,5 +1,5 @@
 import { ContractNames, EventNames } from '../../constants'
-import { spinAPI } from '../../../pears/crypto/contracts'
+import { spinAPI } from '../../../crypto/contracts'
 import { formatETH, toEth } from '../../utils'
 import { BatchEntry, EventLog, GameMode, Round } from '../../service'
 import {

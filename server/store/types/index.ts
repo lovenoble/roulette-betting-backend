@@ -21,5 +21,6 @@ export abstract class Repo<T extends Entity> extends Repository<T> {
 }
 
 // Import/Exports
+export * from './utils.types'
 export * from './queue.types'
 export * from './worker.types'

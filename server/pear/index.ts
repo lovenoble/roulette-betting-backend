@@ -1,67 +1,87 @@
-import 'dotenv/config'
-import express from 'express'
-import cors from 'cors'
-import { createServer } from 'http'
+import chalk from 'chalk'
 import { Server } from '@colyseus/core'
-import { MongooseDriver, RedisPresence } from 'colyseus'
+import { RedisPresence } from '@colyseus/redis-presence'
+import { MongooseDriver } from '@colyseus/mongoose-driver'
 import { WebSocketTransport } from '@colyseus/ws-transport'
 
-// Libraries
-import storeUri from './store/config'
-import { redisUrl } from './redis/config'
+import type { RedisClientOptions } from 'redis'
+import type { TransportOptions } from '@colyseus/ws-transport'
+
+import { mongoUri, redisUri, pearServerPort } from '../config'
 import Rooms from './rooms'
-import router from './routes'
+import httpServer from '../http'
 
-// Initialize express HTTP server
-export const app = express()
-const server = createServer(app)
+export interface IPearOptions {
+	transportOpts: TransportOptions
+	presenceOpts: RedisClientOptions
+}
 
-// Middleware
-app.use(express.json())
-app.use(cors())
+const defaultTransportOpts: TransportOptions = {
+	server: httpServer,
+	// @NOTE: Configure client validation (domain whitelist in production)
+	// verifyClient: (info, next) => {
+	// 	console.log('Handshake successful!', info)
+	// 	next(true)
+	// },
+	// pingInterval: 3000, // Default
+	// pingMaxRetries: 2, // Default
+}
 
-// API
-app.use(router)
+const defaultPresenceOpts: RedisClientOptions = {
+	url: `${redisUri}/10`,
+}
 
-// @NOTE: Configure these options in WebSocketTransport
-// pingInterval?: number;
-// pingMaxRetries?: number;
-// host?: string | undefined;
-// port?: number | undefined;
-// backlog?: number | undefined;
-// server?: HTTPServer | HTTPSServer | undefined;
-// verifyClient?: VerifyClientCallbackAsync | VerifyClientCallbackSync | undefined;
-// handleProtocols?: any;
-// path?: string | undefined;
-// noServer?: boolean | undefined;
-// clientTracking?: boolean | undefined;
-// perMessageDeflate?: boolean | PerMessageDeflateOptions | undefined;
-// maxPayload?: number | undefined;
-const gameServer = new Server({
-	transport: new WebSocketTransport({
-		server,
-		// @NOTE: Configure client validation (domain whitelist in production)
-		// verifyClient: (info, next) => {
-		// 	console.log('Handshake successful!', info)
-		// 	next(true)
-		// },
-		// pingInterval: 3000, // Default
-		// pingMaxRetries: 2, // Default
-	}),
-	presence: new RedisPresence({
-		url: `${redisUrl}/10`,
-	}),
-	driver: new MongooseDriver(`${storeUri}?authSource=admin`),
-})
+const logColor = chalk.hex('green').bgHex('cyan')
+const log = (...args: any) => console.log(logColor(...args))
 
-// Sockets config
-const sockets = new Sockets(gameServer)
-sockets.initRooms()
+export default class Pear {
+	server!: Server
+	rooms!: Rooms
+	#port = pearServerPort
+	#mongoUri = `${mongoUri}?authSource=admin`
+	#redisUri = `${redisUri}/10`
 
-// Initialize server
-export default async function initGameServer(gameServerPort: number): Promise<Server> {
-	await gameServer.listen(gameServerPort)
-	console.log(`Pear game server running on WebSocket port :${gameServerPort}`)
+	public get port() {
+		return this.#port
+	}
 
-	return gameServer
+	public get mongoUri() {
+		return this.#mongoUri
+	}
+
+	public get redisUri() {
+		return this.#redisUri
+	}
+
+	constructor({
+		transportOpts = defaultTransportOpts,
+		presenceOpts = defaultPresenceOpts,
+	}: IPearOptions) {
+		this.server = new Server({
+			transport: new WebSocketTransport(transportOpts),
+			presence: new RedisPresence(presenceOpts),
+			driver: new MongooseDriver(mongoUri),
+		})
+		log(`[PearServer]: Created Server instance!`)
+		log(`[PearServer] Created WebSocketTransport instance!`)
+		log(`[PearServer]: Created RedisPresence instance!`)
+		log(`[PearServer]: Created MongooseDriver instance!`)
+
+		this.rooms = new Rooms(this.server)
+		this.rooms.createAll()
+		log(`[PearServer]: Added Room defintions!`)
+	}
+
+	async listen(port = this.#port) {
+		log(`[PearServer]: Starting server instance...`)
+		await this.server.listen(port)
+		log(`[PearServer] Running on WebSocket port:${port}`)
+	}
+
+	async stopAll() {
+		// @NOTE: Include other servers that need to be stopped here
+		return this.server.gracefullyShutdown()
+	}
+
+	// @NOTE: Add match making, room handles, event handlers here
 }

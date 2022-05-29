@@ -18,4 +18,4 @@ export const queueDefaultOpts: QueueOptions = {
 	// @NOTE: Look into different queueOpt configurations
 }
 
-export const redisUrl = `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`
+export const redisUri = `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`

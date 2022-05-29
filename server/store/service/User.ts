@@ -1,7 +1,7 @@
 import { utils } from 'ethers'
 
 import redisStore from '..'
-import PearHash from '../../pears/utils/PearHash'
+import { PearHash } from '../utils'
 
 export default abstract class UserService {
 	public static repo = redisStore.repo.user

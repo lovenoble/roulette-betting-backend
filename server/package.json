@@ -29,7 +29,9 @@
   "dependencies": {
     "@colyseus/command": "^0.2.0",
     "@colyseus/core": "^0.14.24",
+    "@colyseus/mongoose-driver": "^0.14.22",
     "@colyseus/proxy": "^0.12.7",
+    "@colyseus/redis-presence": "^0.14.20",
     "@colyseus/schema": "^1.0.34",
     "@colyseus/ws-transport": "^0.14.21",
     "@grpc/grpc-js": "^1.4.5",

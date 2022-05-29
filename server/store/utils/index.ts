@@ -1,7 +1,12 @@
 import { utils, BigNumber } from 'ethers'
 import type { Entity } from 'redis-om'
-import { SchemaAdditions } from './types'
+import { SchemaAdditions } from '../types'
 
+// Import/Exports
+export { default as PearHash } from './PearHash'
+
+// Definitions
+// @NOTE: A lot of these should move to the crypto directory
 export const zeroAddress = '0x0000000000000000000000000000000000000000'
 export const formatETH = utils.formatEther
 export const formatBN = (bn: BigNumber, decimals = 0) => utils.formatUnits(bn, decimals)

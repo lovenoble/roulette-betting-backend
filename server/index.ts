@@ -4,6 +4,10 @@ import initGameServer from './initGameServer'
 import { runWorkers } from './redis/worker'
 import { removeAllContractListener } from './pear/crypto/utils'
 
+// import defineEvents from '../../redis/event'
+
+// defineEvents()
+
 async function init() {
 	// @NOTE: Need to add more exit eventListeners
 	process.once('SIGUSR2', () => {

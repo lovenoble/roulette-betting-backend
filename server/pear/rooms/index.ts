@@ -1,38 +1,33 @@
 import { Server, LobbyRoom } from '@colyseus/core'
 
-import ChatRoom from './rooms/ChatRoom'
-import SpinRoom from './rooms/SpinRoom'
-// import PearMediaStream from './defs/MediaStream'
-import { ROOM_NAMES } from './types/rooms.types'
+import ChatRoom from './ChatRoom'
+import SpinRoom from './SpinRoom'
+// import MediaStream from './MediaStream'
 
-const {
-	LOBBY,
-	SPIN_GAME,
-	// MEDIA_STREAM,
-	CHAT_ROOM,
-} = ROOM_NAMES
+import { RoomDef, RoomName } from '../types/rooms.types'
 
-class Sockets {
-	gameServer: Server = null
+class Rooms {
+	pearServer: Server = null
+	ROOM_NAMES = RoomName
 
-	constructor(gameServer: Server) {
-		this.gameServer = gameServer
+	constructor(pearServer: Server) {
+		this.pearServer = pearServer
 	}
 
-	initRooms() {
-		this.gameServer.define(LOBBY, LobbyRoom)
-		this.gameServer.define(SPIN_GAME, SpinRoom, {
+	createAll() {
+		this.pearServer.define(RoomName.Lobby, LobbyRoom)
+		this.pearServer.define(RoomName.Spin, SpinRoom, {
 			name: 'Spin Game',
-			desc: 'Fareplay spin game room',
+			desc: 'Fareplay Spin Game Room',
 			password: null,
 		})
-		// this.gameServer.define(MEDIA_STREAM, PearMediaStream, {
+		// this.pearServer.define(RoomName.MediaStream, PearMediaStream, {
 		// 	name: 'Media Stream',
 		// 	desc: 'Media Stream for audio, video, file-sharing, and screen-sharing',
 		// 	password: null,
 		// })
-		this.gameServer
-			.define(CHAT_ROOM, ChatRoom, {
+		this.pearServer
+			.define(RoomName.ChatRoom, ChatRoom, {
 				name: 'Chat Room',
 				desc: 'General chat room for players.',
 				password: null,
@@ -41,4 +36,4 @@ class Sockets {
 	}
 }
 
-export default Sockets
+export default Rooms

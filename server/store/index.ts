@@ -16,7 +16,7 @@ import {
 	roundSchema,
 } from './schema'
 
-import { redisUrl } from './config'
+import { redisUri } from '../config/redis.config'
 import { numify } from './utils'
 
 interface IRepoObj {
@@ -30,7 +30,8 @@ interface IRepoObj {
 }
 
 export class RedisStore {
-	public omUrl = `${redisUrl}/0`
+	public redisUri = redisUri
+	public omUrl = `${redisUri}/0`
 	public om!: Client
 	public repo: IRepoObj = {}
 	public schmea = {
