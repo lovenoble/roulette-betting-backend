@@ -4,9 +4,19 @@ import { Dispatcher } from '@colyseus/command'
 
 // Libraries
 import { EventNames } from '../../store/constants'
+import { HttpStatusCode } from '../constants'
 import { SpinEvent, FareEvent } from '../../store/event'
-import { OnBatchEntry, OnBatchEntrySettled } from '../commands/SpinCommands'
-import { SpinState } from '../state/SpinState'
+import {
+	OnBatchEntry,
+	OnBatchEntrySettled,
+	OnUserJoined,
+	OnGuestUserJoined,
+	OnBalanceUpdate,
+	OnUserLeave,
+} from '../commands'
+import SpinState from '../state/SpinState'
+import { logger } from '../utils'
+import store from '../../store'
 
 // @NOTE: Determine user balancing for room capacity - [spin-room-1: 1800, spin-room-2: 600]
 // @NOTE: VIP room rentals for FARE token (smart contract)
@@ -46,11 +56,11 @@ const spinEvent = SpinEvent()
 // })
 
 class SpinGame extends Room<SpinState> {
-	public maxClients = 2500 // @NOTE: Need to determine the number of clients where performance begins to fall off
-	private name: string
-	private desc: string
-	private password: string | null = null
-	private dispatcher = new Dispatcher(this)
+	maxClients = 2500 // @NOTE: Need to determine the number of clients where performance begins to fall off
+	dispatcher = new Dispatcher(this)
+	#name: string
+	#desc: string
+	#password: string | null = null
 
 	defineEvents() {
 		spinEvent.on('completed', ({ returnvalue }) => {
@@ -90,9 +100,9 @@ class SpinGame extends Room<SpinState> {
 		try {
 			console.log('CREATED!')
 			const { name, desc, password } = options
-			this.name = name
-			this.desc = desc
-			this.password = password
+			this.#name = name
+			this.#desc = desc
+			this.#password = password
 
 			let hasPassword = false
 			if (password) {
@@ -118,63 +128,68 @@ class SpinGame extends Room<SpinState> {
 		}
 	}
 
-	// async onAuth(_client: Client, options: any) {
-	// // @NOTE: Need to rework how we identify guestUsers
-	// // Validate token and get publicAddress for hashmap reference
-	// if (options.authToken) {
-	// 	const { publicAddress } = await PearHash.decodeJwt(options.authToken)
-	// 	if (!publicAddress) {
-	// 		throw new ServerError(400, 'Invalid access token.')
-	// 	}
-	// 	const playerStore = await PlayerService.model.findOne(
-	// 		{
-	// 			publicAddress,
-	// 		},
-	// 		'_id username publicAddress'
-	// 	) // @NOTE: Need to assign and return session token here
-	// 	if (!playerStore) {
-	// 		throw new ServerError(400, 'Invalid access token.')
-	// 	}
-	// 	return playerStore.publicAddress
-	// }
-	// if (options.guestUsername) {
-	// 	console.log('User logging in as guest with username:', options.guestUsername)
-	// 	return `guest:${options.guestUsername}`
-	// }
-	// throw new ServerError(400, 'An identity is required to login.')
-	// }
+	async onAuth(_client: Client, options: any) {
+		try {
+			const { authToken, guestToken }: { authToken: string; guestToken: string } =
+				options.authToken
+
+			if (authToken) {
+				const user = await store.service.user.getUserFromToken(authToken)
+
+				if (!user) {
+					logger.error('Invalid user authToken.')
+					throw new ServerError(HttpStatusCode.UNAUTHORIZED, 'Invalid user authToken.')
+				}
+
+				return user.publicAddress
+			}
+			if (guestToken) {
+				logger.info('User logging in as guest with username:', options.guestUsername)
+				return `guest:${options.guestUsername}`
+			}
+
+			throw new ServerError(
+				HttpStatusCode.UNAUTHORIZED,
+				'A valid token is required to connect to room.'
+			)
+		} catch (err) {
+			logger.error(err.toString())
+			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
+		}
+	}
 
 	async onJoin(client: Client, _options: any, auth: any) {
-		console.log('USER CONNECTED!')
-		// try {
-		// 	const [authToken, guestUsername] = auth.split(':')
-		// 	console.log(authToken, guestUsername)
-		// 	// Fetch balances
-		// 	if (guestUsername) {
-		// 		// this.dispatcher.dispatch(new OnGuestPlayerJoined(), {
-		// 		// 	guestUsername: options.guestUsername,
-		// 		// 	sessionId: client.sessionId,
-		// 		// })
-		// 	} else if (authToken) {
-		// 		// this.dispatcher.dispatch(new OnWalletUpdate(), {
-		// 		// 	pear: this.pear,
-		// 		// 	playerAddress: auth,
-		// 		// })
-		// 	} else {
-		// 		throw new ServerError(400, 'Auth token does not exist.')
-		// 	}
-		// } catch (err) {
-		// 	// @NOTE: Need better error handling here. If this fails the state doesn't get set
-		// 	console.error(err)
-		// }
+		try {
+			const { sessionId } = client
+			const [publicAddress, guestToken] = auth.split(':')
+			logger.info(publicAddress, guestToken)
+
+			if (guestToken) {
+				this.dispatcher.dispatch(new OnGuestUserJoined(), { sessionId, guestToken })
+			} else if (publicAddress) {
+				logger.info('Updated users sessionId:', publicAddress, sessionId)
+				this.dispatcher.dispatch(new OnUserJoined(), {
+					publicAddress,
+					sessionId,
+				})
+			} else {
+				throw new ServerError(
+					HttpStatusCode.INTERNAL_SERVER_ERROR,
+					'Auth token does not exist.'
+				)
+			}
+		} catch (err) {
+			logger.error(err.toString())
+			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
+		}
 	}
 
 	onLeave(client: Client) {
-		// // Remove player from state
-		// if (this.state.players.has(client.sessionId)) {
-		// 	// Clear sessionId on user model for Redis
-		// 	this.state.players.delete(client.sessionId)
-		// }
+		const { sessionId } = client
+
+		this.dispatcher.dispatch(new OnUserLeave(), {
+			sessionId,
+		})
 	}
 
 	onDispose() {

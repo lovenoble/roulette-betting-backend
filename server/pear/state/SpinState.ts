@@ -6,12 +6,12 @@ import {
 	type,
 } from '@colyseus/schema'
 
-import { BatchEntry, GuestPlayer, Player, Round } from '../entities'
+import { BatchEntry, GuestUser, User, Round } from '../entities'
 
-export class SpinState extends Schema {
+export default class SpinState extends Schema {
 	// sessionId -> Player, GuestPlayer
-	@type({ map: GuestPlayer }) guestPlayer = new MapSchema<GuestPlayer>()
-	@type({ map: Player }) players = new MapSchema<Player>()
+	@type({ map: GuestUser }) guestUsers = new MapSchema<GuestUser>()
+	@type({ map: User }) users = new MapSchema<User>()
 
 	// roundId -> BatchEntry, Round
 	@type({ map: BatchEntry }) batchEntries = new MapSchema<BatchEntry>()

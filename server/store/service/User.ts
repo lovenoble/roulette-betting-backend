@@ -1,10 +1,10 @@
 import { utils } from 'ethers'
 import validator from 'validator'
 
+import type { SetUserDataRequest } from '../../rpc/models/user'
 import { userColorThemeToJSON } from '../../rpc/models/user'
 import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from '../constants'
 import { Omit } from '../types'
-import type { SetUserDataRequest } from '../../rpc/models/user'
 import ServiceBase from './ServiceBase'
 import type { User } from '../types'
 import { PearHash, logger, isValidUsername } from '../utils'
@@ -19,6 +19,10 @@ export default class UserService extends ServiceBase<User> {
 
 	public async getUserByUsername(username: string) {
 		return this.repo.search().where('username').eq(username).returnFirst()
+	}
+
+	public async getUserBySessionId(sessionId: string) {
+		return this.repo.search().where('sessionId').eq(sessionId).returnFirst()
 	}
 
 	// Check if publicAddress exists.
@@ -97,6 +101,23 @@ export default class UserService extends ServiceBase<User> {
 		const userEntity = await this.getUserByUsername(username)
 
 		return !!userEntity
+	}
+
+	public async getUserFromToken(token: string) {
+		const publicAddress = PearHash.getAddressFromToken(token)
+		return this.getUserByAddress(publicAddress)
+	}
+
+	public async updateUserSessionId(publicAddress: string, sessionId: string) {
+		const userEntity = await this.getUserByAddress(publicAddress)
+		userEntity.sessionId = sessionId
+		return this.repo.save(userEntity)
+	}
+
+	public async clearOutSessionId(sessionId: string) {
+		const userEntity = await this.getUserBySessionId(sessionId)
+		userEntity.sessionId = null
+		return this.repo.save(userEntity)
 	}
 
 	public async setUserData(
