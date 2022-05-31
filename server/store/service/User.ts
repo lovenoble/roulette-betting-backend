@@ -114,8 +114,10 @@ export default class UserService extends ServiceBase<User> {
 		return this.repo.save(userEntity)
 	}
 
-	public async clearOutSessionId(sessionId: string) {
+	public async clearOutSessionId(sessionId: string): Promise<string | null> {
 		const userEntity = await this.getUserBySessionId(sessionId)
+		if (!userEntity) return null
+
 		userEntity.sessionId = null
 		return this.repo.save(userEntity)
 	}

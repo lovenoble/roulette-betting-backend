@@ -1,3 +1,3 @@
-export * from './CryptoCommands'
+// export * from './CryptoCommads'
 export * from './SpinCommands'
 export * from './UserCommands'

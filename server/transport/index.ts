@@ -3,43 +3,95 @@ import type { AppOptions } from 'uWebSockets.js'
 import type { TransportOptions } from '@colyseus/uwebsockets-transport'
 import { DEDICATED_COMPRESSOR_3KB } from 'uWebSockets.js'
 import { uWebSocketsTransport } from '@colyseus/uwebsockets-transport'
+import { v4 as uuid } from 'uuid'
 
 import { logger, binaryEncoder, binaryDecoder } from './utils'
 
 const webSocketOptions = {
-    /* There are many common helper features */
-    idleTimeout: 32,
-    maxBackpressure: 1024,
-    maxPayloadLength: 512,
-    compression: DEDICATED_COMPRESSOR_3KB,
+	/* There are many common helper features */
+	idleTimeout: 32,
+	maxBackpressure: 1024,
+	maxPayloadLength: 512,
+	compression: DEDICATED_COMPRESSOR_3KB,
 }
 
 // @NOTE: Configure later (options at the bottom)
 const appOptions: AppOptions = {}
 
 // @NOTE: Configure later (options at the bottom)
-const transportOptions: TransportOptions = {}
+const transportOptions: TransportOptions = {
+	ping: (ws, message) => {
+		const decodedMsg = binaryDecoder.decode(message)
+		logger.info('WebSocket', 'Received HealthCheck message', decodedMsg)
+		const responseMsg = binaryEncoder.encode(`HealthCheck successful! Echo: "${decodedMsg}"`)
+		ws.send(responseMsg, true)
+	},
+}
 
 const transport = new uWebSocketsTransport(transportOptions, appOptions)
 
 transport.app.get('/health', (res, req) => {
-    logger.info('HTTP', 'GET HealthCheck requested', req.getUrl())
-    res.writeStatus('200 OK')
-        .writeHeader('HealthCheck', 'Active')
-        .end('[PearServer]: HealthCheck successful')
+	logger.info('HTTP', 'GET HealthCheck requested', req.getUrl())
+	res.writeStatus('200 OK')
+		.writeHeader('HealthCheck', 'Active')
+		.end('[PearServer]: HealthCheck successful')
 })
 
 transport.app.ws('/health', {
-    ...webSocketOptions,
-    /* You can do app.publish('sensors/home/temperature', '22C') kind of pub/sub as well */
-    /* For brevity we skip the other events (upgrade, open, ping, pong, close) */
-    message: (ws, message, isBinary) => {
-        // Decode message and echo message back to sender
-        const decodedMsg = binaryDecoder.decode(message)
-        logger.info('WebSocket', 'Received HealthCheck message', decodedMsg)
-        const responseMsg = binaryEncoder.encode(`HealthCheck successful! Echo: "${decodedMsg}"`)
-        ws.send(responseMsg, isBinary, true)
-    },
+	...webSocketOptions,
+	/* You can do app.publish('sensors/home/temperature', '22C') kind of pub/sub as well */
+	/* For brevity we skip the other events (upgrade, open, ping, pong, close) */
+	message: (ws, message, isBinary) => {
+		// Decode message and echo message back to sender
+		const decodedMsg = binaryDecoder.decode(message)
+		logger.info('WebSocket', 'Received HealthCheck message', decodedMsg)
+		const responseMsg = binaryEncoder.encode(`HealthCheck successful! Echo: "${decodedMsg}"`)
+		ws.send(responseMsg, isBinary, true)
+	},
+})
+
+const clientMap = new Map()
+
+transport.app.ws('/ping', {
+	...webSocketOptions,
+	message: (ws, message, isBinary) => {
+		const pingData = binaryDecoder.decode(message)
+		const pingJson = JSON.parse(pingData)
+		let clientId = ''
+		let resp: any = {}
+
+		if (!clientMap.has(pingJson.clientId)) {
+			clientId = uuid()
+			clientMap.set(clientId, {
+				clientId,
+				timestamp: pingJson.timestamp,
+				pingMs: 0,
+			})
+			resp.clientId = clientId
+			resp.timestamp = new Date().valueOf()
+		} else {
+			resp.clientId = pingJson.clientId
+			resp.timestamp = new Date().valueOf()
+		}
+
+		// Decode message and echo message back to sender
+		// logger.info('WebSocket', 'Ping Received', JSON.stringify(clientMap.get(pingJson.clientId)))
+		const responseMsg = binaryEncoder.encode(JSON.stringify(resp))
+
+		if (!pingJson.isPingingBack) {
+			ws.send(responseMsg, isBinary, true)
+		} else {
+			const ping = new Date().valueOf() - pingJson.latestTimestamp
+			clientMap.set(pingJson.clientId, {
+				clientId,
+				clientTimestamp: pingJson.newTimestamp,
+				serverTimestamp: pingJson.latestTimestamp,
+				currentTimeStamp: new Date().valueOf(),
+				pingMs: ping,
+			})
+			logger.info(`${pingJson.clientId}:`, `ping ${ping}ms`)
+		}
+	},
 })
 
 export default transport

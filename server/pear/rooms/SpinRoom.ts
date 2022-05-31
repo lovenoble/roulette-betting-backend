@@ -1,8 +1,10 @@
-import { Room, ServerError } from '@colyseus/core'
+import { Room, ServerError, Delayed } from '@colyseus/core'
 import type { Client } from '@colyseus/core'
 import { Dispatcher } from '@colyseus/command'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
 
-// Libraries
+import type { ISpinRoomOptions, ICreateSpinRoomOptions } from '../types'
 import { EventNames } from '../../store/constants'
 import { HttpStatusCode } from '../constants'
 import { SpinEvent, FareEvent } from '../../store/event'
@@ -17,6 +19,8 @@ import {
 import SpinState from '../state/SpinState'
 import { logger } from '../utils'
 import store from '../../store'
+
+dayjs.extend(relativeTime)
 
 // @NOTE: Determine user balancing for room capacity - [spin-room-1: 1800, spin-room-2: 600]
 // @NOTE: VIP room rentals for FARE token (smart contract)
@@ -62,6 +66,8 @@ class SpinGame extends Room<SpinState> {
 	#desc: string
 	#password: string | null = null
 
+	public delayedInterval!: Delayed
+
 	defineEvents() {
 		spinEvent.on('completed', ({ returnvalue }) => {
 			try {
@@ -96,10 +102,11 @@ class SpinGame extends Room<SpinState> {
 		})
 	}
 
-	async onCreate(options: any) {
+	async onCreate(options: ICreateSpinRoomOptions) {
 		try {
-			console.log('CREATED!')
 			const { name, desc, password } = options
+			logger.info('Creating new SpinRoom', name, desc)
+
 			this.#name = name
 			this.#desc = desc
 			this.#password = password
@@ -107,7 +114,7 @@ class SpinGame extends Room<SpinState> {
 			let hasPassword = false
 			if (password) {
 				// @NOTE: Handle hashing password before setting the metadata
-				console.log('Password was set', password)
+				logger.info('Password was set', password)
 				hasPassword = true
 			}
 
@@ -122,16 +129,40 @@ class SpinGame extends Room<SpinState> {
 			// @NOTE: Define WebSocket message handling here
 			// Define Redis pubsub events
 			this.defineEvents()
+
+			this.startTimer()
 		} catch (err) {
 			// @NOTE: Need better error handling here. If this fails the state doesn't get set
-			console.error(err)
+			logger.error(err)
+			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
 		}
 	}
 
-	async onAuth(_client: Client, options: any) {
+	// @NOTE: Create dispatch command
+	// @NOTE: Consider sending the elapsedTime initially and just verfying with the client the countdown time
+	// @NOTE: Rather to constantly updating the clients with the new time
+	startTimer() {
+		// @NOTE: Define timer here
+		this.clock.start()
+		const endTime = dayjs().add(300, 'seconds')
+		this.state.timer.runTimeMs = dayjs().add(300, 'seconds').unix()
+
+		this.delayedInterval = this.clock.setInterval(() => {
+			const startTime = dayjs()
+			const diff = endTime.diff(startTime, 'seconds')
+			const display = startTime.to(endTime)
+			this.state.timer.timeDisplay = display
+			this.state.timer.elapsedTime = diff
+		}, 1000)
+
+		this.clock.setTimeout(() => {
+			this.delayedInterval.clear()
+		}, this.state.timer.runTimeMs)
+	}
+
+	async onAuth(_client: Client, options: ISpinRoomOptions = {}) {
 		try {
-			const { authToken, guestToken }: { authToken: string; guestToken: string } =
-				options.authToken
+			const { authToken, guestId } = options
 
 			if (authToken) {
 				const user = await store.service.user.getUserFromToken(authToken)
@@ -143,9 +174,9 @@ class SpinGame extends Room<SpinState> {
 
 				return user.publicAddress
 			}
-			if (guestToken) {
-				logger.info('User logging in as guest with username:', options.guestUsername)
-				return `guest:${options.guestUsername}`
+			if (guestId) {
+				logger.info('User logging in as guest with username:', guestId)
+				return `guest:${guestId}`
 			}
 
 			throw new ServerError(
@@ -158,14 +189,15 @@ class SpinGame extends Room<SpinState> {
 		}
 	}
 
-	async onJoin(client: Client, _options: any, auth: any) {
+	async onJoin(client: Client, _options: ISpinRoomOptions = {}, auth?: string) {
 		try {
+			/* @ts-ignore */
 			const { sessionId } = client
-			const [publicAddress, guestToken] = auth.split(':')
-			logger.info(publicAddress, guestToken)
+			const [publicAddress, guestId] = auth.split(':')
+			logger.info(publicAddress, guestId)
 
-			if (guestToken) {
-				this.dispatcher.dispatch(new OnGuestUserJoined(), { sessionId, guestToken })
+			if (guestId) {
+				this.dispatcher.dispatch(new OnGuestUserJoined(), { sessionId, guestId })
 			} else if (publicAddress) {
 				logger.info('Updated users sessionId:', publicAddress, sessionId)
 				this.dispatcher.dispatch(new OnUserJoined(), {
@@ -193,16 +225,16 @@ class SpinGame extends Room<SpinState> {
 	}
 
 	onDispose() {
-		console.log('DISPOSED!!!')
 		// @NOTE: Need to clear garbage here
 
 		// if (this.pear.pearTokenContract && this.pear.pearGameContract) {
 		// 	this.pear.pearTokenContract.removeAllListeners()
 		// 	this.pear.pearGameContract.removeAllListeners()
 		// }
-
+		this.delayedInterval.clear()
+		this.clock.clear()
 		this.dispatcher.stop()
-		console.log('Disposing of SpinGame room...')
+		logger.info('Disposing of SpinGame room...')
 	}
 }
 

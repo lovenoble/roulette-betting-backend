@@ -3,10 +3,9 @@ import { Room } from 'colyseus'
 import { utils } from 'ethers'
 
 import type * as types from '../../store/types'
-
-// Libraries
-import { SpinState } from '../state/SpinState'
-import { IEntry, Entry, IBatchEntry, BatchEntry, GuestPlayer, Player, Round } from '../entities'
+import SpinState from '../state/SpinState'
+import type { SpinRoom } from '../types'
+import { IEntry, Entry, IBatchEntry, BatchEntry, GuestUser, User, Round } from '../entities'
 
 // export class SpinState extends Schema {
 // 	// sessionId -> Player, GuestPlayer
@@ -25,10 +24,8 @@ import { IEntry, Entry, IBatchEntry, BatchEntry, GuestPlayer, Player, Round } fr
 // 	@type('number') countdownTimer: number
 // }
 
-class SpinGame extends Room<SpinState> {}
-
 // @NOTE: Define types for options
-export class OnBatchEntry extends Command<SpinGame, any> {
+export class OnBatchEntry extends Command<SpinRoom, any> {
 	async execute(data) {
 		const { batchEntry, entries }: { batchEntry: any; entries: any[] } = data
 
@@ -61,7 +58,7 @@ export class OnBatchEntry extends Command<SpinGame, any> {
 	}
 }
 
-export class OnBatchEntrySettled extends Command<SpinGame, any> {
+export class OnBatchEntrySettled extends Command<SpinRoom, any> {
 	async execute(batchEntry) {
 		const be = this.state.batchEntries.get(batchEntry.entityId)
 

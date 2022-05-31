@@ -7,9 +7,9 @@ import { User, IUserOptions, GuestUser, IGuestUser } from '../entities'
 import store from '../../store'
 
 export class OnGuestUserJoined extends Command<SpinRoom, IGuestUser> {
-	async execute({ guestToken, sessionId }: IGuestUser) {
+	async execute({ guestId, sessionId }: IGuestUser) {
 		const guestUser = new GuestUser({
-			guestToken,
+			guestId,
 			sessionId,
 		})
 

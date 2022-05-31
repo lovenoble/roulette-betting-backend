@@ -17,3 +17,14 @@ export interface IChatRoomState extends Schema {
 	players: MapSchema<IPlayerOptions>
 	messages: MapSchema<IChatMessageOptions>
 }
+
+export interface ISpinRoomOptions {
+	authToken?: string
+	guestId?: string
+}
+
+export interface ICreateSpinRoomOptions {
+	name?: string
+	desc?: string
+	password?: string
+}

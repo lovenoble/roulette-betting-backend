@@ -6,7 +6,7 @@ import {
 	type,
 } from '@colyseus/schema'
 
-import { BatchEntry, GuestUser, User, Round } from '../entities'
+import { BatchEntry, GuestUser, User, Round, Timer } from '../entities'
 
 export default class SpinState extends Schema {
 	// sessionId -> Player, GuestPlayer
@@ -17,10 +17,10 @@ export default class SpinState extends Schema {
 	@type({ map: BatchEntry }) batchEntries = new MapSchema<BatchEntry>()
 	@type({ map: Round }) rounds = new MapSchema<Round>()
 
-	@type('string') fareTotalSupply: number
-	@type('number') currentRoundId: number
-
 	// @NOTE: Ensure that publicAddress can only submit one batchEntry per round (in smart contract)
 	// @NOTE: Determine if we should start wheel at 2-5 mins or once 300 players are reached
-	@type('number') countdownTimer: number
+	@type(Timer) timer = new Timer()
+
+	@type('string') fareTotalSupply: number
+	@type('number') currentRoundId: number
 }
