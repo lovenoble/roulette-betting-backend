@@ -1,31 +1,25 @@
 import pearServer from './pear'
 import redisStore from './store'
 import rpcServer from './rpc'
-
-// import postgresStore from './postgresStore'
-// import rpcServer from './rpc'
+import { pearServerPort } from './config'
 
 async function init() {
-	// @NOTE: Need to add more exit eventListeners
-	process.once('SIGUSR2', () => {
-		// Handles cleaning up on exit, error, or close
-		// removeAllContractListener()
-		// @NOTE: Stop bullmq workers here
-	})
-
-	// @NOTE: Combine these into one command
-	await redisStore.initialize()
-	await redisStore.initQueue()
-	await redisStore.initSmartContractListeners()
+	// If running multiple processes, ensures only one RPC server and RedisStore instance is created
+	if (pearServerPort === 3100) {
+		await redisStore.initialize()
+		await redisStore.initQueue()
+		await redisStore.initSmartContractListeners()
+		await rpcServer.start()
+	}
 
 	await pearServer.listen()
 
-	await rpcServer.start()
-
-	// If running multiple processes, ensures only one RPC server instance is created
-	// if (pearServerPort === 3100) {
-	// 	await initRpcServer()
-	// }
+	// @NOTE: Need to add more exit eventListeners conditions
+	process.once('SIGUSR2', () => {
+		redisStore.disconnectAll()
+		pearServer.stopAll()
+		rpcServer.stop()
+	})
 }
 
 init().catch(err => {

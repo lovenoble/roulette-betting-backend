@@ -1,3 +1,5 @@
-import { createLog } from '../../utils'
+import { Logger } from '../../utils'
 
-export const log = createLog('RPCServer', 'pink')
+export const logger = new Logger('postiveGreen')
+
+export * from './error'

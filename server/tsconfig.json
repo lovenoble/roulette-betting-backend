@@ -1,17 +1,16 @@
 {
   "compilerOptions": {
-    "types": [
-      "node"
-    ],
     "baseUrl": ".",
     "outDir": "dist",
     "lib": [
       "ESNext"
     ],
+    "preserveSymlinks": true,
     "moduleResolution": "node",
     "target": "ES2020",
     "module": "ESNext",
     "declaration": true,
+    "declarationMap": true,
     "noImplicitAny": false,
     "experimentalDecorators": true,
     "sourceMap": false,

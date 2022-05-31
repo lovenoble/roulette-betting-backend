@@ -34,7 +34,6 @@
     "@colyseus/uwebsockets-transport": "^0.14.27",
     "@colyseus/ws-transport": "^0.14.21",
     "@grpc/grpc-js": "^1.6.7",
-    "@grpc/proto-loader": "^0.6.7",
     "@sinclair/typebox": "^0.23.5",
     "@types/mongoose": "^5.11.97",
     "auto-bind": "^5.0.1",
@@ -62,9 +61,9 @@
     "shelljs": "^0.8.5",
     "shortid": "^2.2.16",
     "ts-node": "^10.4.0",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.10.0",
     "uuid": "^8.3.2",
-    "uwebsockets-express": "^1.2.2",
-    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.10.0"
+    "uwebsockets-express": "^1.2.2"
   },
   "devDependencies": {
     "@tsconfig/node16": "^1.0.2",

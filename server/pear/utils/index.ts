@@ -1,3 +1,3 @@
-import { createLog } from '../../utils'
+import { Logger } from '../../utils'
 
-export const log = createLog('PearServer', 'blue')
+export const logger = new Logger('neonGreen')

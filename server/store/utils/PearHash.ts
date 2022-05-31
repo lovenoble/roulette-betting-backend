@@ -56,6 +56,10 @@ export default abstract class PearHash {
 		return this.fromUtf8ToHex(uuidv4())
 	}
 
+	static getSigningMsgText() {
+		return SIGNING_MESSAGE_TEXT
+	}
+
 	static generateNonceWithSigningMessage() {
 		const nonce = this.generateNonceHex()
 

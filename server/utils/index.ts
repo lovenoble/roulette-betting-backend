@@ -5,8 +5,8 @@ export const isDev = NODE_ENV !== 'production'
 export const sleep = (ms: any) => new Promise(resolve => setTimeout(resolve, ms))
 
 export function randomizer(min: number, max: number) {
-	return Math.floor(Math.random() * (max - min + 1)) + min
+    return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
 // Import/exports
-export * from './log'
+export * from './logger'

@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package Analytics;
+
+service Analytics {
+    rpc UserProfile(UserProfileRequest) returns (UserProfileResponse) {}
+}
+
+message UserProfileRequest {
+    string entityId = 1;
+}
+
+message UserProfileResponse {
+    string fareAmount = 1;
+    int32 totalWins = 2;
+    int32 totalLosses = 3;
+}
+

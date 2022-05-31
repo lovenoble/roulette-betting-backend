@@ -12,7 +12,7 @@ import {
 	CallOptions,
 	ServiceError,
 } from '@grpc/grpc-js'
-import * as _m0 from 'protobufjs/minimal'
+import _m0 from 'protobufjs/minimal'
 
 export interface GenerateNonceRequest {
 	publicAddress: string
@@ -38,27 +38,6 @@ export interface VerifyTokenRequest {
 
 export interface VerifyTokenResponse {
 	publicAddress: string
-}
-
-export interface CreateRequest {
-	username: string
-	password: string
-	sessionId: string
-}
-
-export interface CreateResponse {
-	token: string
-	sessionId: string
-}
-
-export interface LoginRequest {
-	username: string
-	password: string
-}
-
-export interface LoginResponse {
-	token: string
-	sessionId: string
 }
 
 export interface LogoutRequest {
@@ -393,247 +372,6 @@ export const VerifyTokenResponse = {
 	},
 }
 
-function createBaseCreateRequest(): CreateRequest {
-	return { username: '', password: '', sessionId: '' }
-}
-
-export const CreateRequest = {
-	encode(message: CreateRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-		if (message.username !== '') {
-			writer.uint32(10).string(message.username)
-		}
-		if (message.password !== '') {
-			writer.uint32(18).string(message.password)
-		}
-		if (message.sessionId !== '') {
-			writer.uint32(26).string(message.sessionId)
-		}
-		return writer
-	},
-
-	decode(input: _m0.Reader | Uint8Array, length?: number): CreateRequest {
-		const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input)
-		let end = length === undefined ? reader.len : reader.pos + length
-		const message = createBaseCreateRequest()
-		while (reader.pos < end) {
-			const tag = reader.uint32()
-			switch (tag >>> 3) {
-				case 1:
-					message.username = reader.string()
-					break
-				case 2:
-					message.password = reader.string()
-					break
-				case 3:
-					message.sessionId = reader.string()
-					break
-				default:
-					reader.skipType(tag & 7)
-					break
-			}
-		}
-		return message
-	},
-
-	fromJSON(object: any): CreateRequest {
-		return {
-			username: isSet(object.username) ? String(object.username) : '',
-			password: isSet(object.password) ? String(object.password) : '',
-			sessionId: isSet(object.sessionId) ? String(object.sessionId) : '',
-		}
-	},
-
-	toJSON(message: CreateRequest): unknown {
-		const obj: any = {}
-		message.username !== undefined && (obj.username = message.username)
-		message.password !== undefined && (obj.password = message.password)
-		message.sessionId !== undefined && (obj.sessionId = message.sessionId)
-		return obj
-	},
-
-	fromPartial<I extends Exact<DeepPartial<CreateRequest>, I>>(object: I): CreateRequest {
-		const message = createBaseCreateRequest()
-		message.username = object.username ?? ''
-		message.password = object.password ?? ''
-		message.sessionId = object.sessionId ?? ''
-		return message
-	},
-}
-
-function createBaseCreateResponse(): CreateResponse {
-	return { token: '', sessionId: '' }
-}
-
-export const CreateResponse = {
-	encode(message: CreateResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-		if (message.token !== '') {
-			writer.uint32(10).string(message.token)
-		}
-		if (message.sessionId !== '') {
-			writer.uint32(18).string(message.sessionId)
-		}
-		return writer
-	},
-
-	decode(input: _m0.Reader | Uint8Array, length?: number): CreateResponse {
-		const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input)
-		let end = length === undefined ? reader.len : reader.pos + length
-		const message = createBaseCreateResponse()
-		while (reader.pos < end) {
-			const tag = reader.uint32()
-			switch (tag >>> 3) {
-				case 1:
-					message.token = reader.string()
-					break
-				case 2:
-					message.sessionId = reader.string()
-					break
-				default:
-					reader.skipType(tag & 7)
-					break
-			}
-		}
-		return message
-	},
-
-	fromJSON(object: any): CreateResponse {
-		return {
-			token: isSet(object.token) ? String(object.token) : '',
-			sessionId: isSet(object.sessionId) ? String(object.sessionId) : '',
-		}
-	},
-
-	toJSON(message: CreateResponse): unknown {
-		const obj: any = {}
-		message.token !== undefined && (obj.token = message.token)
-		message.sessionId !== undefined && (obj.sessionId = message.sessionId)
-		return obj
-	},
-
-	fromPartial<I extends Exact<DeepPartial<CreateResponse>, I>>(object: I): CreateResponse {
-		const message = createBaseCreateResponse()
-		message.token = object.token ?? ''
-		message.sessionId = object.sessionId ?? ''
-		return message
-	},
-}
-
-function createBaseLoginRequest(): LoginRequest {
-	return { username: '', password: '' }
-}
-
-export const LoginRequest = {
-	encode(message: LoginRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-		if (message.username !== '') {
-			writer.uint32(10).string(message.username)
-		}
-		if (message.password !== '') {
-			writer.uint32(18).string(message.password)
-		}
-		return writer
-	},
-
-	decode(input: _m0.Reader | Uint8Array, length?: number): LoginRequest {
-		const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input)
-		let end = length === undefined ? reader.len : reader.pos + length
-		const message = createBaseLoginRequest()
-		while (reader.pos < end) {
-			const tag = reader.uint32()
-			switch (tag >>> 3) {
-				case 1:
-					message.username = reader.string()
-					break
-				case 2:
-					message.password = reader.string()
-					break
-				default:
-					reader.skipType(tag & 7)
-					break
-			}
-		}
-		return message
-	},
-
-	fromJSON(object: any): LoginRequest {
-		return {
-			username: isSet(object.username) ? String(object.username) : '',
-			password: isSet(object.password) ? String(object.password) : '',
-		}
-	},
-
-	toJSON(message: LoginRequest): unknown {
-		const obj: any = {}
-		message.username !== undefined && (obj.username = message.username)
-		message.password !== undefined && (obj.password = message.password)
-		return obj
-	},
-
-	fromPartial<I extends Exact<DeepPartial<LoginRequest>, I>>(object: I): LoginRequest {
-		const message = createBaseLoginRequest()
-		message.username = object.username ?? ''
-		message.password = object.password ?? ''
-		return message
-	},
-}
-
-function createBaseLoginResponse(): LoginResponse {
-	return { token: '', sessionId: '' }
-}
-
-export const LoginResponse = {
-	encode(message: LoginResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-		if (message.token !== '') {
-			writer.uint32(10).string(message.token)
-		}
-		if (message.sessionId !== '') {
-			writer.uint32(18).string(message.sessionId)
-		}
-		return writer
-	},
-
-	decode(input: _m0.Reader | Uint8Array, length?: number): LoginResponse {
-		const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input)
-		let end = length === undefined ? reader.len : reader.pos + length
-		const message = createBaseLoginResponse()
-		while (reader.pos < end) {
-			const tag = reader.uint32()
-			switch (tag >>> 3) {
-				case 1:
-					message.token = reader.string()
-					break
-				case 2:
-					message.sessionId = reader.string()
-					break
-				default:
-					reader.skipType(tag & 7)
-					break
-			}
-		}
-		return message
-	},
-
-	fromJSON(object: any): LoginResponse {
-		return {
-			token: isSet(object.token) ? String(object.token) : '',
-			sessionId: isSet(object.sessionId) ? String(object.sessionId) : '',
-		}
-	},
-
-	toJSON(message: LoginResponse): unknown {
-		const obj: any = {}
-		message.token !== undefined && (obj.token = message.token)
-		message.sessionId !== undefined && (obj.sessionId = message.sessionId)
-		return obj
-	},
-
-	fromPartial<I extends Exact<DeepPartial<LoginResponse>, I>>(object: I): LoginResponse {
-		const message = createBaseLoginResponse()
-		message.token = object.token ?? ''
-		message.sessionId = object.sessionId ?? ''
-		return message
-	},
-}
-
 function createBaseLogoutRequest(): LogoutRequest {
 	return { token: '' }
 }
@@ -734,26 +472,16 @@ export const LogoutResponse = {
 
 export type UserService = typeof UserService
 export const UserService = {
-	create: {
-		path: '/User.User/Create',
+	generateNonce: {
+		path: '/User.User/GenerateNonce',
 		requestStream: false,
 		responseStream: false,
-		requestSerialize: (value: CreateRequest) =>
-			Buffer.from(CreateRequest.encode(value).finish()),
-		requestDeserialize: (value: Buffer) => CreateRequest.decode(value),
-		responseSerialize: (value: CreateResponse) =>
-			Buffer.from(CreateResponse.encode(value).finish()),
-		responseDeserialize: (value: Buffer) => CreateResponse.decode(value),
-	},
-	login: {
-		path: '/User.User/Login',
-		requestStream: false,
-		responseStream: false,
-		requestSerialize: (value: LoginRequest) => Buffer.from(LoginRequest.encode(value).finish()),
-		requestDeserialize: (value: Buffer) => LoginRequest.decode(value),
-		responseSerialize: (value: LoginResponse) =>
-			Buffer.from(LoginResponse.encode(value).finish()),
-		responseDeserialize: (value: Buffer) => LoginResponse.decode(value),
+		requestSerialize: (value: GenerateNonceRequest) =>
+			Buffer.from(GenerateNonceRequest.encode(value).finish()),
+		requestDeserialize: (value: Buffer) => GenerateNonceRequest.decode(value),
+		responseSerialize: (value: GenerateNonceResponse) =>
+			Buffer.from(GenerateNonceResponse.encode(value).finish()),
+		responseDeserialize: (value: Buffer) => GenerateNonceResponse.decode(value),
 	},
 	logout: {
 		path: '/User.User/Logout',
@@ -765,17 +493,6 @@ export const UserService = {
 		responseSerialize: (value: LogoutResponse) =>
 			Buffer.from(LogoutResponse.encode(value).finish()),
 		responseDeserialize: (value: Buffer) => LogoutResponse.decode(value),
-	},
-	generateNonce: {
-		path: '/User.User/GenerateNonce',
-		requestStream: false,
-		responseStream: false,
-		requestSerialize: (value: GenerateNonceRequest) =>
-			Buffer.from(GenerateNonceRequest.encode(value).finish()),
-		requestDeserialize: (value: Buffer) => GenerateNonceRequest.decode(value),
-		responseSerialize: (value: GenerateNonceResponse) =>
-			Buffer.from(GenerateNonceResponse.encode(value).finish()),
-		responseDeserialize: (value: Buffer) => GenerateNonceResponse.decode(value),
 	},
 	verifySignature: {
 		path: '/User.User/VerifySignature',
@@ -802,44 +519,27 @@ export const UserService = {
 } as const
 
 export interface UserServer extends UntypedServiceImplementation {
-	create: handleUnaryCall<CreateRequest, CreateResponse>
-	login: handleUnaryCall<LoginRequest, LoginResponse>
-	logout: handleUnaryCall<LogoutRequest, LogoutResponse>
 	generateNonce: handleUnaryCall<GenerateNonceRequest, GenerateNonceResponse>
+	logout: handleUnaryCall<LogoutRequest, LogoutResponse>
 	verifySignature: handleUnaryCall<VerifySignatureRequest, VerifySignatureResponse>
 	verifyToken: handleUnaryCall<VerifyTokenRequest, VerifyTokenResponse>
 }
 
 export interface UserClient extends Client {
-	create(
-		request: CreateRequest,
-		callback: (error: ServiceError | null, response: CreateResponse) => void
+	generateNonce(
+		request: GenerateNonceRequest,
+		callback: (error: ServiceError | null, response: GenerateNonceResponse) => void
 	): ClientUnaryCall
-	create(
-		request: CreateRequest,
+	generateNonce(
+		request: GenerateNonceRequest,
 		metadata: Metadata,
-		callback: (error: ServiceError | null, response: CreateResponse) => void
+		callback: (error: ServiceError | null, response: GenerateNonceResponse) => void
 	): ClientUnaryCall
-	create(
-		request: CreateRequest,
-		metadata: Metadata,
-		options: Partial<CallOptions>,
-		callback: (error: ServiceError | null, response: CreateResponse) => void
-	): ClientUnaryCall
-	login(
-		request: LoginRequest,
-		callback: (error: ServiceError | null, response: LoginResponse) => void
-	): ClientUnaryCall
-	login(
-		request: LoginRequest,
-		metadata: Metadata,
-		callback: (error: ServiceError | null, response: LoginResponse) => void
-	): ClientUnaryCall
-	login(
-		request: LoginRequest,
+	generateNonce(
+		request: GenerateNonceRequest,
 		metadata: Metadata,
 		options: Partial<CallOptions>,
-		callback: (error: ServiceError | null, response: LoginResponse) => void
+		callback: (error: ServiceError | null, response: GenerateNonceResponse) => void
 	): ClientUnaryCall
 	logout(
 		request: LogoutRequest,
@@ -855,21 +555,6 @@ export interface UserClient extends Client {
 		metadata: Metadata,
 		options: Partial<CallOptions>,
 		callback: (error: ServiceError | null, response: LogoutResponse) => void
-	): ClientUnaryCall
-	generateNonce(
-		request: GenerateNonceRequest,
-		callback: (error: ServiceError | null, response: GenerateNonceResponse) => void
-	): ClientUnaryCall
-	generateNonce(
-		request: GenerateNonceRequest,
-		metadata: Metadata,
-		callback: (error: ServiceError | null, response: GenerateNonceResponse) => void
-	): ClientUnaryCall
-	generateNonce(
-		request: GenerateNonceRequest,
-		metadata: Metadata,
-		options: Partial<CallOptions>,
-		callback: (error: ServiceError | null, response: GenerateNonceResponse) => void
 	): ClientUnaryCall
 	verifySignature(
 		request: VerifySignatureRequest,

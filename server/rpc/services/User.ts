@@ -1,112 +1,114 @@
 import { utils } from 'ethers'
-import * as grpc from '@grpc/grpc-js'
-import * as protoLoader from '@grpc/proto-loader'
-import type { HandleCall } from '@grpc/grpc-js/build/src/server-call'
-import { MethodDefinition } from '@grpc/proto-loader'
+import { status } from '@grpc/grpc-js'
 
-// Libraries
+import type { sendUnaryData, ServerUnaryCall, UntypedHandleCall } from '@grpc/grpc-js'
+
+import {
+    GenerateNonceRequest,
+    GenerateNonceResponse,
+    VerifySignatureRequest,
+    VerifySignatureResponse,
+    VerifyTokenRequest,
+    VerifyTokenResponse,
+    LogoutRequest,
+    LogoutResponse,
+    UserServer,
+} from '../models/user'
+
 import store from '../../store'
+import { ServiceError, logger } from '../utils'
 import { PearHash } from '../../store/utils'
-import { PROTO_PATH } from '../constants'
 
 // @NOTE: Setup crypto directory to implement fauceting
 // import { faucetFareMatic } from '../../pears/crypto'
 
-class UserRpcService {
-    protoPath = PROTO_PATH
-    proto: grpc.ServiceDefinition<grpc.UntypedServiceImplementation>
-    methods: grpc.UntypedServiceImplementation
+export { UserService } from '../models/user'
 
-    constructor() {
-        const packageDefs = protoLoader.loadSync(this.protoPath, {
-            keepCase: true,
-            longs: String,
-            enums: String,
-            defaults: true,
-            oneofs: true,
-        })
+export class User implements UserServer {
+    [method: string]: UntypedHandleCall
 
-        const { verifyToken, verifySignature, generateNonce, logout, login, create } =
-            UserRpcService
-
-        // @ts-ignore
-        this.proto = grpc.loadPackageDefinition(packageDefs).player.Player.service
-        this.methods = {
-            create,
-            login,
-            logout,
-            generateNonce,
-            verifySignature,
-            verifyToken,
-        }
-    }
-
-    static generateNonce: HandleCall<any, any> = async (
-        call: grpc.ServerReadableStream<any, any>,
-        callback: grpc.sendUnaryData<any>
-    ) => {
+    public async generateNonce(
+        call: ServerUnaryCall<GenerateNonceRequest, GenerateNonceResponse>,
+        callback: sendUnaryData<GenerateNonceResponse>
+    ) {
         try {
+            logger.info('generateNonce requested', Date.now())
+            const res: Partial<GenerateNonceResponse> = {}
             const { publicAddress } = call.request
 
             const { nonce, signingMessage } = await store.service.user.authPublicAddress(
                 publicAddress
             )
 
-            callback(null, { nonce, signingMessage })
+            res.nonce = nonce
+            res.signingMessage = signingMessage
+
+            return callback(null, GenerateNonceResponse.fromJSON(res))
         } catch (err) {
-            callback({
-                code: grpc.status.INTERNAL,
-                status: grpc.status.INTERNAL,
-                message: err.toString(),
-            })
+            logger.info('generateNonce error', err.toString(), Date.now())
+            return callback(new ServiceError(status.INTERNAL, err.toString()), null)
         }
     }
 
-    static async verifyToken(call, callback) {
+    public async verifyToken(
+        call: ServerUnaryCall<VerifyTokenRequest, VerifyTokenResponse>,
+        callback: sendUnaryData<VerifyTokenResponse>
+    ) {
         // @NOTE Need error catching
         try {
+            logger.info('verifyToken requested', Date.now())
             const { token } = call.request
+
+            const res: Partial<VerifyTokenResponse> = {}
 
             const decodedToken = await PearHash.decodeJwt(token)
 
             // @NOTE: Need to check if token is expired here
-
+            // @NOTE: If token is invalid or expired send a message to client to clear out token in localStorage
             if (!decodedToken.publicAddress) {
-                return callback({
-                    code: grpc.status.PERMISSION_DENIED,
-                    status: grpc.status.PERMISSION_DENIED,
-                    message: 'Token is invalid',
-                })
+                return callback(
+                    new ServiceError(status.PERMISSION_DENIED, 'Token is invalid'),
+                    null
+                )
             }
 
-            const playerExists = await store.service.user.playerExists(decodedToken.publicAddress)
+            const doesExist = await store.service.user.exists(decodedToken.publicAddress)
 
-            if (!playerExists) {
-                return callback({
-                    code: grpc.status.PERMISSION_DENIED,
-                    status: grpc.status.PERMISSION_DENIED,
-                    message: 'Token is invalid',
-                })
+            // @NOTE: Need to send message to client to redirect user to connect wallet and reverify
+            if (!doesExist) {
+                return callback(
+                    new ServiceError(status.PERMISSION_DENIED, 'User does not exist'),
+                    null
+                )
             }
 
-            return callback(null, { publicAddress: decodedToken.publicAddress })
+            // @NOTE: we could save a lastVerifiedAt field to update repo everytime token is verified
+
+            res.publicAddress = decodedToken.publicAddress
+
+            return callback(
+                null,
+                VerifyTokenResponse.fromJSON({ publicAddress: decodedToken.publicAddress })
+            )
         } catch (err) {
-            return callback({
-                code: grpc.status.PERMISSION_DENIED,
-                status: grpc.status.PERMISSION_DENIED,
-                message: err.toString(),
-            })
+            logger.info('verifyToken error', err.toString(), Date.now())
+            return callback(new ServiceError(status.INTERNAL, err.toString()), null)
         }
     }
 
-    static async verifySignature(call, callback) {
+    public async verifySignature(
+        call: ServerUnaryCall<VerifySignatureRequest, VerifySignatureResponse>,
+        callback: sendUnaryData<VerifySignatureResponse>
+    ) {
         try {
+            logger.info('verifySignature requested', Date.now())
+
+            const res: Partial<VerifySignatureResponse> = {}
             const { publicAddress, signature } = call.request
 
-            const nonceHex = await store.service.user.getUserNonce(publicAddress)
-            // const msg = SIGNING_MESSAGE_TEXT + nonceHex
+            const { nonce, signingMessage } = await store.service.user.getUserNonce(publicAddress)
 
-            const addressFromSignature = utils.verifyMessage(msg, signature)
+            const addressFromSignature = utils.verifyMessage(signingMessage, signature)
 
             // Signature is valid
             if (addressFromSignature === publicAddress) {
@@ -114,92 +116,65 @@ class UserRpcService {
                 // @NOTES: Need to implement token management process
                 const createdJwt = await PearHash.generateJwt({
                     publicAddress,
-                    nonce: nonceHex,
+                    nonce,
                 })
 
                 // @NOTE: faucetFareMatic HERE~!!!@#@!#!@#!
                 // faucetFareMatic(publicAddress)
-
-                return callback(null, { token: createdJwt })
+                res.token = createdJwt
+                return callback(null, VerifySignatureResponse.fromJSON({ token: createdJwt }))
             }
 
             // Signature is invalid
-            return callback({
-                code: grpc.status.PERMISSION_DENIED,
-                status: grpc.status.PERMISSION_DENIED,
-                message: 'Signature is invalid.',
-            })
+            return callback(
+                new ServiceError(status.PERMISSION_DENIED, 'Signature is invalid'),
+                null
+            )
         } catch (err) {
-            return callback({
-                code: grpc.status.INTERNAL,
-                status: grpc.status.INTERNAL,
-                message: err.toString(),
-            })
+            logger.info('verifySignature error', err.toString(), Date.now())
+            return callback(new ServiceError(status.INTERNAL, err.toString()), null)
         }
     }
 
-    static async create(call, callback) {
+    public async logout(
+        call: ServerUnaryCall<LogoutRequest, LogoutResponse>,
+        callback: sendUnaryData<LogoutResponse>
+    ) {
         try {
-            const { publicAddress, username, password, sessionId } = call.request
+            logger.info('logout requested', Date.now())
+            const { token } = call.request
 
-            const createdUser = await store.service.user.create({
-                publicAddress,
-                username,
-                password,
-                sessionId,
-            })
+            const res: Partial<LogoutResponse> = {}
 
-            callback(null, { token: createdUser._id, sessionId })
-        } catch (err) {
-            callback({
-                code: grpc.status.INTERNAL,
-                status: grpc.status.INTERNAL,
-                message: err.toString(),
-            })
-        }
-    }
-
-    static async login(call, callback) {
-        try {
-            const { username, password } = call.request
-
-            const player = await store.service.user.findByUsername(username)
-
-            if (!player) {
-                return callback({
-                    code: grpc.status.NOT_FOUND,
-                    status: grpc.status.NOT_FOUND,
-                    message: 'Invalid username or password',
-                })
+            const decodedToken = await PearHash.decodeJwt(token)
+            // @NOTE: Need to check if token is expired here
+            // @NOTE: If token is invalid or expired send a message to client to clear out token in localStorage
+            if (!decodedToken.publicAddress) {
+                return callback(
+                    new ServiceError(status.PERMISSION_DENIED, 'Token is invalid'),
+                    null
+                )
             }
 
-            const doesPasswordMatch = await PearHash.compare(password, player.password)
+            const doesExist = await store.service.user.exists(decodedToken.publicAddress)
 
-            if (!doesPasswordMatch) {
-                return callback({
-                    code: grpc.status.NOT_FOUND,
-                    status: grpc.status.NOT_FOUND,
-                    message: 'Invalid username or password',
-                })
+            // @NOTE: Need to send message to client to redirect user to connect wallet and reverify
+            if (!doesExist) {
+                return callback(
+                    new ServiceError(status.PERMISSION_DENIED, 'User does not exist'),
+                    null
+                )
             }
 
-            return callback(null, { token: player._id, sessionId: 'sessionId here' })
+            // @NOTE: Need to add logic to invalidate the previous JWT token
+            await store.service.user.logout(decodedToken.publicAddress)
+
+            res.message = 'User has been successfully logged out'
+
+            return callback(null, LogoutResponse.fromJSON(res))
         } catch (err) {
-            return callback({
-                code: grpc.status.INTERNAL,
-                status: grpc.status.INTERNAL,
-                message: err.toString(),
-            })
+            logger.info('logout error', err.toString(), Date.now())
+            return callback(new ServiceError(status.INTERNAL, err.toString()), null)
         }
-    }
-
-    // @NOTE: Need to add logic to remove token from the PlayerToken collection
-    static logout(call, callback) {
-        // call.request.token
-
-        // Handle the request
-        callback(null, { message: 'You have successfully logged out!' })
     }
 }
-
-export default new UserRpcService()

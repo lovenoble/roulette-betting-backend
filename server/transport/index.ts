@@ -1,17 +1,17 @@
 // import cors from 'cors'
-import type { AppOptions, WebSocketBehavior } from 'uWebSockets.js'
+import type { AppOptions } from 'uWebSockets.js'
 import type { TransportOptions } from '@colyseus/uwebsockets-transport'
 import { DEDICATED_COMPRESSOR_3KB } from 'uWebSockets.js'
 import { uWebSocketsTransport } from '@colyseus/uwebsockets-transport'
 
-import { log, logWS, logHTTP, binaryEncoder, binaryDecoder } from './utils'
+import { logger, binaryEncoder, binaryDecoder } from './utils'
 
-const webSocketOptions: WebSocketBehavior = {
-	/* There are many common helper features */
-	idleTimeout: 32,
-	maxBackpressure: 1024,
-	maxPayloadLength: 512,
-	compression: DEDICATED_COMPRESSOR_3KB,
+const webSocketOptions = {
+    /* There are many common helper features */
+    idleTimeout: 32,
+    maxBackpressure: 1024,
+    maxPayloadLength: 512,
+    compression: DEDICATED_COMPRESSOR_3KB,
 }
 
 // @NOTE: Configure later (options at the bottom)
@@ -23,26 +23,24 @@ const transportOptions: TransportOptions = {}
 const transport = new uWebSocketsTransport(transportOptions, appOptions)
 
 transport.app.get('/health', (res, req) => {
-	logHTTP('HTTP', 'GET HealthCheck requested', req.getUrl())
-	res.writeStatus('200 OK')
-		.writeHeader('HealthCheck', 'Active')
-		.end('[PearServer]: HealthCheck successful')
+    logger.info('HTTP', 'GET HealthCheck requested', req.getUrl())
+    res.writeStatus('200 OK')
+        .writeHeader('HealthCheck', 'Active')
+        .end('[PearServer]: HealthCheck successful')
 })
 
 transport.app.ws('/health', {
-	...webSocketOptions,
-	/* You can do app.publish('sensors/home/temperature', '22C') kind of pub/sub as well */
-	/* For brevity we skip the other events (upgrade, open, ping, pong, close) */
-	message: (ws, message, isBinary) => {
-		// Decode message and echo message back to sender
-		const decodedMsg = binaryDecoder.decode(message)
-		logWS('WebSocket', 'Received HealthCheck message', decodedMsg)
-		const responseMsg = binaryEncoder.encode(`HealthCheck successful! Echo: "${decodedMsg}"`)
-		ws.send(responseMsg, isBinary, true)
-	},
+    ...webSocketOptions,
+    /* You can do app.publish('sensors/home/temperature', '22C') kind of pub/sub as well */
+    /* For brevity we skip the other events (upgrade, open, ping, pong, close) */
+    message: (ws, message, isBinary) => {
+        // Decode message and echo message back to sender
+        const decodedMsg = binaryDecoder.decode(message)
+        logger.info('WebSocket', 'Received HealthCheck message', decodedMsg)
+        const responseMsg = binaryEncoder.encode(`HealthCheck successful! Echo: "${decodedMsg}"`)
+        ws.send(responseMsg, isBinary, true)
+    },
 })
-
-export const server = transport.app
 
 export default transport
 
