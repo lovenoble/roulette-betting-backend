@@ -4,7 +4,7 @@ import type { TransportOptions } from '@colyseus/uwebsockets-transport'
 import { DEDICATED_COMPRESSOR_3KB } from 'uWebSockets.js'
 import { uWebSocketsTransport } from '@colyseus/uwebsockets-transport'
 
-import { log, binaryEncoder, binaryDecoder } from './utils'
+import { log, logWS, logHTTP, binaryEncoder, binaryDecoder } from './utils'
 
 const webSocketOptions: WebSocketBehavior = {
 	/* There are many common helper features */
@@ -23,7 +23,7 @@ const transportOptions: TransportOptions = {}
 const transport = new uWebSocketsTransport(transportOptions, appOptions)
 
 transport.app.get('/health', (res, req) => {
-	log('HTTP', 'GET HealthCheck requested', req.getUrl())
+	logHTTP('HTTP', 'GET HealthCheck requested', req.getUrl())
 	res.writeStatus('200 OK')
 		.writeHeader('HealthCheck', 'Active')
 		.end('[PearServer]: HealthCheck successful')
@@ -36,7 +36,7 @@ transport.app.ws('/health', {
 	message: (ws, message, isBinary) => {
 		// Decode message and echo message back to sender
 		const decodedMsg = binaryDecoder.decode(message)
-		log('WebSocket', 'Received HealthCheck message', decodedMsg)
+		logWS('WebSocket', 'Received HealthCheck message', decodedMsg)
 		const responseMsg = binaryEncoder.encode(`HealthCheck successful! Echo: "${decodedMsg}"`)
 		ws.send(responseMsg, isBinary, true)
 	},

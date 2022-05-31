@@ -1,5 +1,6 @@
 import pearServer from './pear'
 import redisStore from './store'
+import rpcServer from './rpc'
 
 // import postgresStore from './postgresStore'
 // import rpcServer from './rpc'
@@ -18,6 +19,8 @@ async function init() {
 	await redisStore.initSmartContractListeners()
 
 	await pearServer.listen()
+
+	await rpcServer.start()
 
 	// If running multiple processes, ensures only one RPC server instance is created
 	// if (pearServerPort === 3100) {

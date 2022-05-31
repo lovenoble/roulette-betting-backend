@@ -78,7 +78,7 @@ export default class StoreWorker {
 				let attempts = 0
 				while (attempts < maxAttempts) {
 					if (worker.isRunning()) {
-						workerLog(`[RedisStore/Worker]: ${key} waiting for jobs...`)
+						workerLog(`${key} waiting for jobs...`)
 						break
 					}
 

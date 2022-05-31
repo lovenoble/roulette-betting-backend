@@ -1,10 +1,10 @@
-import chalk from 'chalk'
 import { Server } from '@colyseus/core'
 import { RedisPresence } from '@colyseus/redis-presence'
 import { MongooseDriver } from '@colyseus/mongoose-driver'
 
 import type { RedisClientOptions } from 'redis'
 
+import { log } from './utils'
 import { MONGO_ROOT_USERNAME, mongoUri, redisUri, pearServerPort } from '../config'
 import Rooms from './rooms'
 import transport from '../transport'
@@ -30,9 +30,6 @@ const defaultPearOptions: IPearOptions = {
 	redisBaseUri: redisUri,
 	redisDbIdx: 10,
 }
-
-const logColor = chalk.hex('#1de9b6').bold
-const log = (...args: any) => console.log(logColor('[PearServer]:', ...args))
 
 export class PearServer {
 	server!: Server

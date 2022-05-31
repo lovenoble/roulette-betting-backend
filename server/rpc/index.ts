@@ -1,23 +1,41 @@
 import * as grpc from '@grpc/grpc-js'
+import type { Server, ServerCredentials } from '@grpc/grpc-js'
 
+import { rpcUri } from '../config'
+import { log } from './utils'
 import PlayerRpcService from './services/PlayerRpcService'
 
-const { RPC_PORT = 9090 } = process.env
+export class RPCServer {
+	credentials!: ServerCredentials
+	rpcServer!: Server
+	isStarted = false
 
-export default async function initRpcServer() {
-	try {
-		const RPC_URI = `0.0.0.0:${RPC_PORT}`
-		let serverCredentials = grpc.ServerCredentials.createInsecure()
+	constructor() {
+		// @NOTE: Perhaps add options to pass in a key/cert manually.
+		// @NOTE: For now, the Nginx proxy is handling SSL
+		this.credentials = grpc.ServerCredentials.createInsecure()
+		this.rpcServer = new grpc.Server()
+	}
 
-		const rpcServer = new grpc.Server()
+	initServices() {
+		// @NOTE: Include all created services inside of here
+		this.rpcServer.addService(PlayerRpcService.proto, PlayerRpcService.methods)
+	}
 
-		rpcServer.addService(PlayerRpcService.proto, PlayerRpcService.methods)
-		rpcServer.bindAsync(RPC_URI, serverCredentials, () => {
-			rpcServer.start()
-			console.log(`RPC server started on ${RPC_URI}`)
+	async start(): Promise<number> {
+		if (this.isStarted) this.initServices()
+
+		return new Promise((resolve, reject) => {
+			this.rpcServer.bindAsync(rpcUri, this.credentials, (err, port) => {
+				if (err) reject(err)
+
+				this.rpcServer.start()
+				log(`RPC server started on ${rpcUri}`)
+				this.isStarted = true
+				resolve(port)
+			})
 		})
-	} catch (err) {
-		console.error(err)
-		process.exit(1)
 	}
 }
+
+export default new RPCServer()

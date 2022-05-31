@@ -1,12 +1,9 @@
 import { Request, Response } from 'express'
-import path, { dirname } from 'path'
-import { fileURLToPath } from 'url'
+import path from 'path'
 import fs from 'node:fs/promises'
 import nConstants from 'node:constants'
 
 // import { fmtn, fareItems, fareLootBox, fareLootBoxController } from '../pears/crypto/contracts'
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const metadataPath = path.join(__dirname, 'metadata')
 

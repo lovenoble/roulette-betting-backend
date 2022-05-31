@@ -1,28 +1,24 @@
-import path, { dirname } from 'path'
-import { fileURLToPath } from 'url'
 import { utils } from 'ethers'
 import * as grpc from '@grpc/grpc-js'
 import * as protoLoader from '@grpc/proto-loader'
+import type { HandleCall } from '@grpc/grpc-js/build/src/server-call'
+import { MethodDefinition } from '@grpc/proto-loader'
 
 // Libraries
-import PlayerDBService from '../../store/services/Player'
-import PearHash from '../../pears/utils/PearHash'
-import { faucetFareMatic } from '../../pears/crypto'
+import store from '../../store'
+import { PearHash } from '../../store/utils'
+import { PROTO_PATH } from '../constants'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+// @NOTE: Setup crypto directory to implement fauceting
+// import { faucetFareMatic } from '../../pears/crypto'
 
-const PlayerModel = PlayerDBService.model
-
-const SIGNING_MESSAGE_TEXT =
-	'Pear connects would like to authenticate your account. Please sign the following: '
-
-class PlayerRpcService {
-	readonly PROTO_PATH: string = path.join(__dirname, '../protos/player.proto')
-	public proto: grpc.ServiceDefinition<grpc.UntypedServiceImplementation>
-	public methods: grpc.UntypedServiceImplementation
+class UserRpcService {
+	protoPath = PROTO_PATH
+	proto: grpc.ServiceDefinition<grpc.UntypedServiceImplementation>
+	methods: grpc.UntypedServiceImplementation
 
 	constructor() {
-		const packageDefs = protoLoader.loadSync(this.PROTO_PATH, {
+		const packageDefs = protoLoader.loadSync(this.protoPath, {
 			keepCase: true,
 			longs: String,
 			enums: String,
@@ -31,7 +27,7 @@ class PlayerRpcService {
 		})
 
 		const { verifyToken, verifySignature, generateNonce, logout, login, create } =
-			PlayerRpcService
+			UserRpcService
 
 		// @ts-ignore
 		this.proto = grpc.loadPackageDefinition(packageDefs).player.Player.service
@@ -45,15 +41,18 @@ class PlayerRpcService {
 		}
 	}
 
-	static async generateNonce(call, callback) {
+	static generateNonce: HandleCall<any, any> = async (
+		call: grpc.ServerReadableStream<any, any>,
+		callback: grpc.sendUnaryData<any>
+	) => {
 		try {
 			const { publicAddress } = call.request
 
-			console.log('GENERATE NONCE WORKED')
+			const { nonce, signingMessage } = await store.service.user.authPublicAddress(
+				publicAddress
+			)
 
-			const nonceHex = await PlayerDBService.authPublicAddress(publicAddress)
-
-			callback(null, { nonce: nonceHex })
+			callback(null, { nonce, signingMessage })
 		} catch (err) {
 			callback({
 				code: grpc.status.INTERNAL,
@@ -80,7 +79,7 @@ class PlayerRpcService {
 				})
 			}
 
-			const playerExists = await PlayerDBService.playerExists(decodedToken.publicAddress)
+			const playerExists = await store.service.user.playerExists(decodedToken.publicAddress)
 
 			if (!playerExists) {
 				return callback({
@@ -104,8 +103,8 @@ class PlayerRpcService {
 		try {
 			const { publicAddress, signature } = call.request
 
-			const nonceHex = await PlayerDBService.getPlayerNonce(publicAddress)
-			const msg = SIGNING_MESSAGE_TEXT + nonceHex
+			const nonceHex = await store.service.user.getUserNonce(publicAddress)
+			// const msg = SIGNING_MESSAGE_TEXT + nonceHex
 
 			const addressFromSignature = utils.verifyMessage(msg, signature)
 
@@ -118,7 +117,8 @@ class PlayerRpcService {
 					nonce: nonceHex,
 				})
 
-				faucetFareMatic(publicAddress)
+				// @NOTE: faucetFareMatic HERE~!!!@#@!#!@#!
+				// faucetFareMatic(publicAddress)
 
 				return callback(null, { token: createdJwt })
 			}
@@ -140,9 +140,10 @@ class PlayerRpcService {
 
 	static async create(call, callback) {
 		try {
-			const { username, password, sessionId } = call.request
+			const { publicAddress, username, password, sessionId } = call.request
 
-			const createdUser = await PlayerModel.create({
+			const createdUser = await store.service.user.create({
+				publicAddress,
 				username,
 				password,
 				sessionId,
@@ -162,7 +163,8 @@ class PlayerRpcService {
 		try {
 			const { username, password } = call.request
 
-			const player = await PlayerModel.findOne({ username })
+			const player = await store.service.user.findByUsername(username)
+
 			if (!player) {
 				return callback({
 					code: grpc.status.NOT_FOUND,
@@ -200,4 +202,4 @@ class PlayerRpcService {
 	}
 }
 
-export default new PlayerRpcService()
+export default new UserRpcService()

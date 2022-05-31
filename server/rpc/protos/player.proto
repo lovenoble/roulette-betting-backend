@@ -18,6 +18,7 @@ message GenerateNonceRequest {
 
 message GenerateNonceResponse {
     string nonce = 1;
+    string signingMessage = 2;
 }
 
 message VerifySignatureRequest {

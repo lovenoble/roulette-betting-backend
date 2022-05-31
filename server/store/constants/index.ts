@@ -19,3 +19,6 @@ export enum QueueNames {
 	PearState = 'PearState',
 	Latency = 'Latency',
 }
+
+export const SIGNING_MESSAGE_TEXT =
+	'Pear connects would like to authenticate your account. Please sign the following: '

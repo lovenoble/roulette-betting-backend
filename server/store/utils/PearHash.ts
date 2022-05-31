@@ -3,14 +3,15 @@ import jwt from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
 import { utils } from 'ethers'
 
-import { saltRounds, jwtSecret, jwtExpiration } from '../../config/pear.config'
+import { SIGNING_MESSAGE_TEXT } from '../constants'
+import { saltRounds, jwtSecret, jwtExpiration } from '../../config'
 
 export type JWTDecodedData = {
 	publicAddress: string
 	nonce: string
 }
 
-class PearHash {
+export default abstract class PearHash {
 	static async hash(password: string) {
 		const salt = await bcrypt.genSalt(Number(saltRounds))
 
@@ -54,6 +55,13 @@ class PearHash {
 	static generateNonceHex() {
 		return this.fromUtf8ToHex(uuidv4())
 	}
-}
 
-export default PearHash
+	static generateNonceWithSigningMessage() {
+		const nonce = this.generateNonceHex()
+
+		return {
+			nonce,
+			signingMessage: `${SIGNING_MESSAGE_TEXT}${nonce}`,
+		}
+	}
+}
