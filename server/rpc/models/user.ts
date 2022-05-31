@@ -732,10 +732,10 @@ export const LogoutResponse = {
 	},
 }
 
-export type PlayerService = typeof PlayerService
-export const PlayerService = {
+export type UserService = typeof UserService
+export const UserService = {
 	create: {
-		path: '/player.Player/Create',
+		path: '/User.User/Create',
 		requestStream: false,
 		responseStream: false,
 		requestSerialize: (value: CreateRequest) =>
@@ -746,7 +746,7 @@ export const PlayerService = {
 		responseDeserialize: (value: Buffer) => CreateResponse.decode(value),
 	},
 	login: {
-		path: '/player.Player/Login',
+		path: '/User.User/Login',
 		requestStream: false,
 		responseStream: false,
 		requestSerialize: (value: LoginRequest) => Buffer.from(LoginRequest.encode(value).finish()),
@@ -756,7 +756,7 @@ export const PlayerService = {
 		responseDeserialize: (value: Buffer) => LoginResponse.decode(value),
 	},
 	logout: {
-		path: '/player.Player/Logout',
+		path: '/User.User/Logout',
 		requestStream: false,
 		responseStream: false,
 		requestSerialize: (value: LogoutRequest) =>
@@ -767,7 +767,7 @@ export const PlayerService = {
 		responseDeserialize: (value: Buffer) => LogoutResponse.decode(value),
 	},
 	generateNonce: {
-		path: '/player.Player/GenerateNonce',
+		path: '/User.User/GenerateNonce',
 		requestStream: false,
 		responseStream: false,
 		requestSerialize: (value: GenerateNonceRequest) =>
@@ -778,7 +778,7 @@ export const PlayerService = {
 		responseDeserialize: (value: Buffer) => GenerateNonceResponse.decode(value),
 	},
 	verifySignature: {
-		path: '/player.Player/VerifySignature',
+		path: '/User.User/VerifySignature',
 		requestStream: false,
 		responseStream: false,
 		requestSerialize: (value: VerifySignatureRequest) =>
@@ -789,7 +789,7 @@ export const PlayerService = {
 		responseDeserialize: (value: Buffer) => VerifySignatureResponse.decode(value),
 	},
 	verifyToken: {
-		path: '/player.Player/VerifyToken',
+		path: '/User.User/VerifyToken',
 		requestStream: false,
 		responseStream: false,
 		requestSerialize: (value: VerifyTokenRequest) =>
@@ -801,7 +801,7 @@ export const PlayerService = {
 	},
 } as const
 
-export interface PlayerServer extends UntypedServiceImplementation {
+export interface UserServer extends UntypedServiceImplementation {
 	create: handleUnaryCall<CreateRequest, CreateResponse>
 	login: handleUnaryCall<LoginRequest, LoginResponse>
 	logout: handleUnaryCall<LogoutRequest, LogoutResponse>
@@ -810,7 +810,7 @@ export interface PlayerServer extends UntypedServiceImplementation {
 	verifyToken: handleUnaryCall<VerifyTokenRequest, VerifyTokenResponse>
 }
 
-export interface PlayerClient extends Client {
+export interface UserClient extends Client {
 	create(
 		request: CreateRequest,
 		callback: (error: ServiceError | null, response: CreateResponse) => void
@@ -903,16 +903,13 @@ export interface PlayerClient extends Client {
 	): ClientUnaryCall
 }
 
-export const PlayerClient = makeGenericClientConstructor(
-	PlayerService,
-	'player.Player'
-) as unknown as {
+export const UserClient = makeGenericClientConstructor(UserService, 'User.User') as unknown as {
 	new (
 		address: string,
 		credentials: ChannelCredentials,
 		options?: Partial<ChannelOptions>
-	): PlayerClient
-	service: typeof PlayerService
+	): UserClient
+	service: typeof UserService
 }
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined

@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package player;
+package User;
 
-service Player {
+service User {
     rpc Create(CreateRequest) returns (CreateResponse) {}
     rpc Login(LoginRequest) returns (LoginResponse) {}
     rpc Logout(LogoutRequest) returns (LogoutResponse) {}

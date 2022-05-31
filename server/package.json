@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node bin/proto && rimraf dist && tsc -b",
+    "build": "npm run build:protos && rimraf dist && tsc -b",
     "build:protos": "node bin/proto.cjs",
     "build:clean": "tsc --build --clean",
     "start": "nodemon -r dotenv/config --exec 'node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm' index.ts",
