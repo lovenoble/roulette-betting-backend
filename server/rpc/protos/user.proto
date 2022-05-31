@@ -1,13 +1,32 @@
 syntax = "proto3";
 
-package User;
+package user;
 
 service User {
     rpc GenerateNonce(GenerateNonceRequest) returns (GenerateNonceResponse) {}
     rpc Logout(LogoutRequest) returns (LogoutResponse) {}
     rpc VerifySignature(VerifySignatureRequest) returns (VerifySignatureResponse) {}
     rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse) {}
+    rpc SetUserData(SetUserDataRequest) returns (SetUserDataResponse) {}
 }
+
+enum UserColorTheme {
+  BLUE = 0;
+  ORANGE = 1;
+  PINK = 2;
+}
+
+message SetUserDataRequest {
+    string token = 1;
+    optional string username = 2;
+    optional string email = 3;
+    optional UserColorTheme colorTheme = 4;
+}
+
+message SetUserDataResponse {
+  string message = 1;
+}
+
 
 message GenerateNonceRequest {
     string publicAddress = 1;

@@ -147,7 +147,7 @@ export const UserProfileResponse = {
 export type AnalyticsService = typeof AnalyticsService
 export const AnalyticsService = {
 	userProfile: {
-		path: '/Analytics.Analytics/UserProfile',
+		path: '/analytics.Analytics/UserProfile',
 		requestStream: false,
 		responseStream: false,
 		requestSerialize: (value: UserProfileRequest) =>
@@ -183,7 +183,7 @@ export interface AnalyticsClient extends Client {
 
 export const AnalyticsClient = makeGenericClientConstructor(
 	AnalyticsService,
-	'Analytics.Analytics'
+	'analytics.Analytics'
 ) as unknown as {
 	new (
 		address: string,

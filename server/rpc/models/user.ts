@@ -14,6 +14,56 @@ import {
 } from '@grpc/grpc-js'
 import _m0 from 'protobufjs/minimal'
 
+export enum UserColorTheme {
+	BLUE = 0,
+	ORANGE = 1,
+	PINK = 2,
+	UNRECOGNIZED = -1,
+}
+
+export function userColorThemeFromJSON(object: any): UserColorTheme {
+	switch (object) {
+		case 0:
+		case 'BLUE':
+			return UserColorTheme.BLUE
+		case 1:
+		case 'ORANGE':
+			return UserColorTheme.ORANGE
+		case 2:
+		case 'PINK':
+			return UserColorTheme.PINK
+		case -1:
+		case 'UNRECOGNIZED':
+		default:
+			return UserColorTheme.UNRECOGNIZED
+	}
+}
+
+export function userColorThemeToJSON(object: UserColorTheme): string {
+	switch (object) {
+		case UserColorTheme.BLUE:
+			return 'BLUE'
+		case UserColorTheme.ORANGE:
+			return 'ORANGE'
+		case UserColorTheme.PINK:
+			return 'PINK'
+		case UserColorTheme.UNRECOGNIZED:
+		default:
+			return 'UNRECOGNIZED'
+	}
+}
+
+export interface SetUserDataRequest {
+	token: string
+	username?: string | undefined
+	email?: string | undefined
+	colorTheme?: UserColorTheme | undefined
+}
+
+export interface SetUserDataResponse {
+	message: string
+}
+
 export interface GenerateNonceRequest {
 	publicAddress: string
 }
@@ -46,6 +96,141 @@ export interface LogoutRequest {
 
 export interface LogoutResponse {
 	message: string
+}
+
+function createBaseSetUserDataRequest(): SetUserDataRequest {
+	return { token: '', username: undefined, email: undefined, colorTheme: undefined }
+}
+
+export const SetUserDataRequest = {
+	encode(message: SetUserDataRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+		if (message.token !== '') {
+			writer.uint32(10).string(message.token)
+		}
+		if (message.username !== undefined) {
+			writer.uint32(18).string(message.username)
+		}
+		if (message.email !== undefined) {
+			writer.uint32(26).string(message.email)
+		}
+		if (message.colorTheme !== undefined) {
+			writer.uint32(32).int32(message.colorTheme)
+		}
+		return writer
+	},
+
+	decode(input: _m0.Reader | Uint8Array, length?: number): SetUserDataRequest {
+		const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input)
+		let end = length === undefined ? reader.len : reader.pos + length
+		const message = createBaseSetUserDataRequest()
+		while (reader.pos < end) {
+			const tag = reader.uint32()
+			switch (tag >>> 3) {
+				case 1:
+					message.token = reader.string()
+					break
+				case 2:
+					message.username = reader.string()
+					break
+				case 3:
+					message.email = reader.string()
+					break
+				case 4:
+					message.colorTheme = reader.int32() as any
+					break
+				default:
+					reader.skipType(tag & 7)
+					break
+			}
+		}
+		return message
+	},
+
+	fromJSON(object: any): SetUserDataRequest {
+		return {
+			token: isSet(object.token) ? String(object.token) : '',
+			username: isSet(object.username) ? String(object.username) : undefined,
+			email: isSet(object.email) ? String(object.email) : undefined,
+			colorTheme: isSet(object.colorTheme)
+				? userColorThemeFromJSON(object.colorTheme)
+				: undefined,
+		}
+	},
+
+	toJSON(message: SetUserDataRequest): unknown {
+		const obj: any = {}
+		message.token !== undefined && (obj.token = message.token)
+		message.username !== undefined && (obj.username = message.username)
+		message.email !== undefined && (obj.email = message.email)
+		message.colorTheme !== undefined &&
+			(obj.colorTheme =
+				message.colorTheme !== undefined
+					? userColorThemeToJSON(message.colorTheme)
+					: undefined)
+		return obj
+	},
+
+	fromPartial<I extends Exact<DeepPartial<SetUserDataRequest>, I>>(
+		object: I
+	): SetUserDataRequest {
+		const message = createBaseSetUserDataRequest()
+		message.token = object.token ?? ''
+		message.username = object.username ?? undefined
+		message.email = object.email ?? undefined
+		message.colorTheme = object.colorTheme ?? undefined
+		return message
+	},
+}
+
+function createBaseSetUserDataResponse(): SetUserDataResponse {
+	return { message: '' }
+}
+
+export const SetUserDataResponse = {
+	encode(message: SetUserDataResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+		if (message.message !== '') {
+			writer.uint32(10).string(message.message)
+		}
+		return writer
+	},
+
+	decode(input: _m0.Reader | Uint8Array, length?: number): SetUserDataResponse {
+		const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input)
+		let end = length === undefined ? reader.len : reader.pos + length
+		const message = createBaseSetUserDataResponse()
+		while (reader.pos < end) {
+			const tag = reader.uint32()
+			switch (tag >>> 3) {
+				case 1:
+					message.message = reader.string()
+					break
+				default:
+					reader.skipType(tag & 7)
+					break
+			}
+		}
+		return message
+	},
+
+	fromJSON(object: any): SetUserDataResponse {
+		return {
+			message: isSet(object.message) ? String(object.message) : '',
+		}
+	},
+
+	toJSON(message: SetUserDataResponse): unknown {
+		const obj: any = {}
+		message.message !== undefined && (obj.message = message.message)
+		return obj
+	},
+
+	fromPartial<I extends Exact<DeepPartial<SetUserDataResponse>, I>>(
+		object: I
+	): SetUserDataResponse {
+		const message = createBaseSetUserDataResponse()
+		message.message = object.message ?? ''
+		return message
+	},
 }
 
 function createBaseGenerateNonceRequest(): GenerateNonceRequest {
@@ -473,7 +658,7 @@ export const LogoutResponse = {
 export type UserService = typeof UserService
 export const UserService = {
 	generateNonce: {
-		path: '/User.User/GenerateNonce',
+		path: '/user.User/GenerateNonce',
 		requestStream: false,
 		responseStream: false,
 		requestSerialize: (value: GenerateNonceRequest) =>
@@ -484,7 +669,7 @@ export const UserService = {
 		responseDeserialize: (value: Buffer) => GenerateNonceResponse.decode(value),
 	},
 	logout: {
-		path: '/User.User/Logout',
+		path: '/user.User/Logout',
 		requestStream: false,
 		responseStream: false,
 		requestSerialize: (value: LogoutRequest) =>
@@ -495,7 +680,7 @@ export const UserService = {
 		responseDeserialize: (value: Buffer) => LogoutResponse.decode(value),
 	},
 	verifySignature: {
-		path: '/User.User/VerifySignature',
+		path: '/user.User/VerifySignature',
 		requestStream: false,
 		responseStream: false,
 		requestSerialize: (value: VerifySignatureRequest) =>
@@ -506,7 +691,7 @@ export const UserService = {
 		responseDeserialize: (value: Buffer) => VerifySignatureResponse.decode(value),
 	},
 	verifyToken: {
-		path: '/User.User/VerifyToken',
+		path: '/user.User/VerifyToken',
 		requestStream: false,
 		responseStream: false,
 		requestSerialize: (value: VerifyTokenRequest) =>
@@ -516,6 +701,17 @@ export const UserService = {
 			Buffer.from(VerifyTokenResponse.encode(value).finish()),
 		responseDeserialize: (value: Buffer) => VerifyTokenResponse.decode(value),
 	},
+	setUserData: {
+		path: '/user.User/SetUserData',
+		requestStream: false,
+		responseStream: false,
+		requestSerialize: (value: SetUserDataRequest) =>
+			Buffer.from(SetUserDataRequest.encode(value).finish()),
+		requestDeserialize: (value: Buffer) => SetUserDataRequest.decode(value),
+		responseSerialize: (value: SetUserDataResponse) =>
+			Buffer.from(SetUserDataResponse.encode(value).finish()),
+		responseDeserialize: (value: Buffer) => SetUserDataResponse.decode(value),
+	},
 } as const
 
 export interface UserServer extends UntypedServiceImplementation {
@@ -523,6 +719,7 @@ export interface UserServer extends UntypedServiceImplementation {
 	logout: handleUnaryCall<LogoutRequest, LogoutResponse>
 	verifySignature: handleUnaryCall<VerifySignatureRequest, VerifySignatureResponse>
 	verifyToken: handleUnaryCall<VerifyTokenRequest, VerifyTokenResponse>
+	setUserData: handleUnaryCall<SetUserDataRequest, SetUserDataResponse>
 }
 
 export interface UserClient extends Client {
@@ -586,9 +783,24 @@ export interface UserClient extends Client {
 		options: Partial<CallOptions>,
 		callback: (error: ServiceError | null, response: VerifyTokenResponse) => void
 	): ClientUnaryCall
+	setUserData(
+		request: SetUserDataRequest,
+		callback: (error: ServiceError | null, response: SetUserDataResponse) => void
+	): ClientUnaryCall
+	setUserData(
+		request: SetUserDataRequest,
+		metadata: Metadata,
+		callback: (error: ServiceError | null, response: SetUserDataResponse) => void
+	): ClientUnaryCall
+	setUserData(
+		request: SetUserDataRequest,
+		metadata: Metadata,
+		options: Partial<CallOptions>,
+		callback: (error: ServiceError | null, response: SetUserDataResponse) => void
+	): ClientUnaryCall
 }
 
-export const UserClient = makeGenericClientConstructor(UserService, 'User.User') as unknown as {
+export const UserClient = makeGenericClientConstructor(UserService, 'user.User') as unknown as {
 	new (
 		address: string,
 		credentials: ChannelCredentials,

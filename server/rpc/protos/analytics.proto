@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package Analytics;
+package analytics;
 
 service Analytics {
     rpc UserProfile(UserProfileRequest) returns (UserProfileResponse) {}

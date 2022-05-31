@@ -77,7 +77,7 @@ export class PearServer {
 
     async listen(port = this.#port) {
         await this.server.listen(port)
-        logger.info(`Running on WebSocket port ${port}...`)
+        logger.info(`HTTP/WebSocket server started on port ${port}...`)
     }
 
     async stopAll() {

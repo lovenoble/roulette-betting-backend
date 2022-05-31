@@ -1,1 +1,0 @@
-cp -r ./rpc/protos ./dist/rpc

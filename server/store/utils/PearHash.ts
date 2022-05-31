@@ -30,7 +30,7 @@ export default abstract class PearHash {
 		})
 	}
 
-	static async generateJwt(data: JWTDecodedData) {
+	static generateJwt(data: JWTDecodedData) {
 		const authToken = jwt.sign(data, jwtSecret, {
 			expiresIn: jwtExpiration,
 		})
@@ -38,10 +38,16 @@ export default abstract class PearHash {
 		return authToken
 	}
 
-	static async decodeJwt(token: string) {
+	static decodeJwt(token: string) {
 		const decoded = jwt.verify(token, jwtSecret) as JWTDecodedData
 
 		return decoded
+	}
+
+	static getAddressFromToken(token: string) {
+		const decoded = this.decodeJwt(token)
+
+		return decoded.publicAddress
 	}
 
 	static fromUtf8ToHex(str: string) {
