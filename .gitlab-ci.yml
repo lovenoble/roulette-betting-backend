@@ -28,22 +28,26 @@ variables:
   KEY: gitlab-ci-west
 
 cache: &global_cache
-  key: $CI_COMMIT_REF_SLUG
+  key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
   paths:
+    - .pnpm-store
     - server/node_modules/
   policy: pull-push
 
 setup:
   stage: setup
+  before_script:
+  - curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@7
+  - pnpm config set store-dir .pnpm-store
   script:
     - echo 'INSTALLING DEPENDENCIES'
-    - curl -fsSL https://get.pnpm.io/install.sh | sh -
     - cd server/
     - rm -rf node_modules/
     - pnpm i
   cache:
     key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
     paths:
+      - .pnpm-store
       - server/node_modules/
 
 lint:
