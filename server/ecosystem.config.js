@@ -1,7 +1,9 @@
 require('dotenv')
 const os = require('os')
 
-const REDIS_URL = `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/10`
+// @NOTE: Decide on a standard Redis index to use
+const REDIS_PROXY_DB_IDX = 4
+const REDIS_URL = `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/${REDIS_PROXY_DB_IDX}`
 
 module.exports = {
 	apps: [
@@ -19,7 +21,7 @@ module.exports = {
 		{
 			port: 3100,
 			name: 'pear-authority-node',
-			script: 'node bin/www', // your entrypoint file
+			script: 'node bin/www', // @NOTE: NEED TO SETUP CONFIG SCRIPT
 			watch: false, // optional
 			// instances: 4,
 			instances: os.cpus().length / 2,

@@ -3,6 +3,7 @@ import { zeroAddress } from '../utils'
 import type { FareTransfer } from '../schema/types'
 
 interface ICreateOptions {
+	jobId?: string
 	eventLogId?: string
 	from: string
 	to: string
@@ -22,10 +23,11 @@ export default class FareTransferService extends ServiceBase<FareTransfer> {
 		return transferType
 	}
 
-	public async create({ eventLogId, from, to, amount, timestamp }: ICreateOptions) {
+	public async create({ jobId, eventLogId, from, to, amount, timestamp }: ICreateOptions) {
 		const transferType = this.getTransferType(from, to)
 
 		return this.repo.createAndSave({
+			jobId,
 			eventLogId,
 			from,
 			to,

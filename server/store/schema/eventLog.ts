@@ -1,6 +1,7 @@
 import { Entity, Schema } from 'redis-om'
 
 export interface EventLog {
+	jobId: string
 	contractName: string
 	blockNumber: number
 	transactionHash: string
@@ -15,6 +16,7 @@ export class EventLog extends Entity {}
 export default new Schema(
 	EventLog,
 	{
+		jobId: { type: 'string' },
 		contractName: { type: 'string' },
 		blockNumber: { type: 'number' },
 		transactionHash: { type: 'string' },

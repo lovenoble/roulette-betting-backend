@@ -9,7 +9,7 @@ export default abstract class ServiceBase<T extends Entity> {
 
 		this.schema = schema
 		this.repo = client.fetchRepository(schema)
-		this.repo.createIndex()
+		await this.repo.createIndex()
 
 		return this.repo
 	}

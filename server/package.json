@@ -51,7 +51,7 @@
     "express": "^4.17.2",
     "fastify": "^3.29.0",
     "grpc-server-reflection": "^0.1.5",
-    "ioredis": "^5.0.4",
+    "ioredis": "^5.0.6",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.1.4",
     "mongoose-unique-validator": "^3.0.0",

@@ -111,7 +111,7 @@ export class User implements UserServer {
 
 			// Signature is valid
 			if (addressFromSignature === publicAddress) {
-				const createdJwt = await PearHash.generateJwt({
+				const createdJwt = PearHash.generateJwt({
 					publicAddress,
 					nonce,
 				})

@@ -5,7 +5,7 @@ import { MongooseDriver } from '@colyseus/mongoose-driver'
 import type { RedisClientOptions } from 'redis'
 
 import { logger } from './utils'
-import { MONGO_ROOT_USERNAME, mongoUri, redisUri, pearServerPort } from '../config'
+import { MONGO_ROOT_USERNAME, mongoUri, pearServerPort, pearRedisUri } from '../config'
 import Rooms from './rooms'
 import transport from '../transport'
 
@@ -14,12 +14,11 @@ export interface IPearOptions {
 	pearServerPort?: number
 	mongoBaseUri?: string
 	mongoAuthSource?: string
-	redisBaseUri?: string
-	redisDbIdx?: number
+	redisUri?: string
 }
 
 const defaultPresenceOpts: RedisClientOptions = {
-	url: redisUri,
+	url: pearRedisUri,
 }
 
 const defaultPearOptions: IPearOptions = {
@@ -27,13 +26,13 @@ const defaultPearOptions: IPearOptions = {
 	presenceOpts: defaultPresenceOpts,
 	mongoBaseUri: mongoUri,
 	mongoAuthSource: MONGO_ROOT_USERNAME,
-	redisBaseUri: redisUri,
-	redisDbIdx: 10,
+	redisUri: pearRedisUri,
 }
 
 export class PearServer {
 	server!: Server
 	rooms!: Rooms
+	#isStarted = false
 	#port = pearServerPort
 	#mongoUri: string
 	#redisUri: string
@@ -50,11 +49,18 @@ export class PearServer {
 		return this.#redisUri
 	}
 
-	constructor(options = defaultPearOptions) {
-		const { presenceOpts, mongoBaseUri, redisBaseUri, redisDbIdx, mongoAuthSource } =
-			Object.assign(defaultPearOptions, options)
+	public get isStarted() {
+		return this.#isStarted
+	}
 
-		this.#redisUri = `${redisBaseUri}/${redisDbIdx}`
+	constructor(options = defaultPearOptions) {
+		const { presenceOpts, mongoBaseUri, redisUri, mongoAuthSource } = Object.assign(
+			defaultPearOptions,
+			options
+		)
+
+		this.#redisUri = redisUri
+
 		this.#mongoUri = mongoBaseUri
 		if (mongoAuthSource) {
 			this.#mongoUri += `?authSource=${mongoAuthSource}`
@@ -76,11 +82,16 @@ export class PearServer {
 	}
 
 	async listen(port = this.#port) {
+		if (this.#isStarted) return
+
 		await this.server.listen(port)
+		this.#isStarted = false
 		logger.info(`HTTP/WebSocket server started on port ${port}...`)
 	}
 
 	async stopAll() {
+		if (!this.#isStarted) return null
+
 		// @NOTE: Include other servers that need to be stopped here
 		return this.server.gracefullyShutdown()
 	}

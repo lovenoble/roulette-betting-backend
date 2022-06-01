@@ -5,6 +5,7 @@ import { bnify } from '../utils'
 import type { Overwrite } from '../types'
 
 export interface GameMode {
+	jobId: string
 	eventLogId: string
 	id: number
 	cardinality: number
@@ -42,6 +43,7 @@ export class GameMode extends Entity {
 export default new Schema(
 	GameMode,
 	{
+		jobId: { type: 'string' },
 		eventLogId: { type: 'string' },
 		id: { type: 'number' },
 		cardinality: { type: 'number' },

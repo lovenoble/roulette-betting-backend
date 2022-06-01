@@ -1,6 +1,7 @@
 import { Entity, Schema } from 'redis-om'
 
 export interface User {
+	jobId?: string
 	publicAddress: string
 	username?: string
 	email?: string
@@ -44,6 +45,7 @@ export default new Schema(
 		// @NOTE: Need to implement unique constraint for publicAddress, username, email fields
 		// @NOTE: Need to implement min and max length for username field
 		// @NOTE: Need to implement email validation for email field
+		jobId: { type: 'string' },
 		publicAddress: { type: 'string' },
 		username: { type: 'string' },
 		email: { type: 'string' },

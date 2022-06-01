@@ -12,6 +12,10 @@ export default class GameModeService extends ServiceBase<GameMode> {
 		return this.repo.search().where('isActive').equals(true).returnAll()
 	}
 
+	public async getGameModById(id: number) {
+		return this.repo.search().where('id').eq(id).returnFirst()
+	}
+
 	// Ensures that gameModes in the smart contract are update to date in Redis
 	public async ensureGameModes() {
 		const currentGameModeId = (await spin.getCurrentGameModeId()).toNumber()
@@ -27,7 +31,8 @@ export default class GameModeService extends ServiceBase<GameMode> {
 	public async createOrUpdate(
 		gameModeId: BigNumberish,
 		timestamp = Date.now(),
-		eventLogId?: string
+		eventLogId?: string,
+		jobId?: string
 	) {
 		const [
 			id,
@@ -40,7 +45,7 @@ export default class GameModeService extends ServiceBase<GameMode> {
 			isActive,
 		] = await spin.gameModes(gameModeId)
 
-		const gameMode = await this.repo.search().where('id').eq(id.toNumber()).returnFirst()
+		const gameMode = await this.getGameModById(id.toNumber())
 
 		// If gameMode exists ensure values are up to date
 		if (gameMode) {
@@ -53,6 +58,7 @@ export default class GameModeService extends ServiceBase<GameMode> {
 			gameMode.entryLimit = BNToNumber(entryLimit)
 			gameMode.isActive = isActive
 			gameMode.timestamp = timestamp
+			gameMode.jobId = jobId
 
 			if (eventLogId) {
 				gameMode.eventLogId = eventLogId
@@ -73,6 +79,7 @@ export default class GameModeService extends ServiceBase<GameMode> {
 				entryLimit: BNToNumber(entryLimit),
 				timestamp,
 				isActive,
+				jobId,
 			})
 		}
 

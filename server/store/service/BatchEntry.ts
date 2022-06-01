@@ -31,6 +31,7 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 		batchEntryId: number,
 		entryId: number,
 		player: string,
+		jobId?: string,
 		timestamp = Date.now()
 	) {
 		const entries = await this.entryService.populateEntriesFromBatchEntryId(
@@ -38,6 +39,7 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 			entryId,
 			batchEntryId,
 			roundId,
+			jobId,
 			timestamp
 		)
 
@@ -54,6 +56,7 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 			totalEntryAmount: formatETH(_totalEntryAmount),
 			totalWinAmount: formatETH(_totalWinAmount),
 			timestamp,
+			jobId,
 		})
 
 		return {
@@ -62,7 +65,12 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 		}
 	}
 
-	public async settle(roundId: number, batchEntryId: number, settledOn = Date.now()) {
+	public async settle(
+		roundId: number,
+		batchEntryId: number,
+		settledOn = Date.now(),
+		jobId?: string
+	) {
 		const batchEntryEntity = await this.fetch(roundId, batchEntryId)
 
 		// BULLMQ
@@ -76,6 +84,7 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 
 		batchEntryEntity.settled = true
 		batchEntryEntity.settledOn = settledOn
+		batchEntryEntity.jobId = jobId
 
 		const entries = await this.entryService.fetchEntriesByBatchEntryId(roundId, batchEntryId)
 
@@ -83,6 +92,7 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 			return new Promise((resolve, reject) => {
 				entry.settled = true
 				entry.settledOn = settledOn
+				entry.jobId = jobId
 				this.entryService.repo.save(entry).then(resolve).catch(reject)
 			})
 		})

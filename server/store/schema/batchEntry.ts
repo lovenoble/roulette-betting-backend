@@ -5,6 +5,7 @@ import { bnify } from '../utils'
 import type { Overwrite } from '../types'
 
 export interface BatchEntry {
+	jobId: string
 	eventLogId: string
 	roundId: number
 	batchEntryId: number
@@ -39,6 +40,7 @@ export class BatchEntry extends Entity {
 export default new Schema(
 	BatchEntry,
 	{
+		jobId: { type: 'string' },
 		eventLogId: { type: 'string' },
 		roundId: { type: 'number' },
 		batchEntryId: { type: 'number' },

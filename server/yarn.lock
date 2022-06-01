@@ -3252,10 +3252,10 @@
     "redis-parser" "^3.0.0"
     "standard-as-callback" "^2.1.0"
 
-"ioredis@^5.0.4":
-  "integrity" "sha512-H+u9YB/cBckDO5lt5+S34gGN1EuIBjjaXk31LivQWfX3G1cqZPYCiwF9qCOkqK2NsKVk+saoUN+fLBz5tc2gFw=="
-  "resolved" "https://registry.npmjs.org/ioredis/-/ioredis-5.0.5.tgz"
-  "version" "5.0.5"
+"ioredis@^5.0.6":
+  "integrity" "sha512-KUm7wPzIet9QrFMoMm09/4bkfVKBUD9KXwBitP3hrNkZ+A6NBndweXGwYIB/7szHcTZgfo7Kvx88SxljJV4D9A=="
+  "resolved" "https://registry.npmjs.org/ioredis/-/ioredis-5.0.6.tgz"
+  "version" "5.0.6"
   dependencies:
     "@ioredis/commands" "^1.1.1"
     "cluster-key-slot" "^1.1.0"

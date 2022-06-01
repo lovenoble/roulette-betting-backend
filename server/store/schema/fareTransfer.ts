@@ -1,6 +1,7 @@
 import { Entity, Schema } from 'redis-om'
 
 export interface FareTransfer {
+	jobId: string
 	eventLogId: string
 	from: string
 	to: string
@@ -14,6 +15,7 @@ export class FareTransfer extends Entity {}
 export default new Schema(
 	FareTransfer,
 	{
+		jobId: { type: 'string' },
 		eventLogId: { type: 'string' },
 		from: { type: 'string' },
 		to: { type: 'string' },

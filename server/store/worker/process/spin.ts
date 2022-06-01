@@ -11,14 +11,14 @@ import {
 } from '../../types'
 
 const createSpinJobProcesses = (service: IServiceObj) => {
-	async function gameModeUpdated<T>(queueData: IGameModeUpdatedQueue) {
+	async function gameModeUpdated<T>(queueData: IGameModeUpdatedQueue, jobId?: string) {
 		const { event, gameModeId, timestamp } = queueData
 
 		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpinGame)
 		if (!eventLogId) return null
 
 		const data = (
-			await service.gameMode.createOrUpdate(gameModeId, timestamp, eventLogId)
+			await service.gameMode.createOrUpdate(gameModeId, timestamp, eventLogId, jobId)
 		).toJSON()
 
 		return JSON.stringify({
@@ -27,7 +27,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 		} as EventReturnData<T>)
 	}
 
-	async function entrySubmitted(queueData: IEntrySubmittedQueue) {
+	async function entrySubmitted(queueData: IEntrySubmittedQueue, jobId?: string) {
 		const { roundId, batchEntryId, player, entryId, event, timestamp } = queueData
 
 		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpinGame)
@@ -39,6 +39,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 			batchEntryId,
 			entryId,
 			player,
+			jobId,
 			timestamp
 		)
 
@@ -48,7 +49,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 		} as EventReturnData<typeof data>)
 	}
 
-	async function roundConcluded<T>(queueData: IRoundConcludedQueue) {
+	async function roundConcluded<T>(queueData: IRoundConcludedQueue, jobId?: string) {
 		const { roundId, vrfRequestId, randomNum, randomEliminator, event, timestamp } = queueData
 
 		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpinGame)
@@ -64,6 +65,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 				randomEliminator,
 				vrfRequestId,
 				timestamp,
+				jobId,
 			})
 		).toJSON()
 
@@ -73,7 +75,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 		} as EventReturnData<T>)
 	}
 
-	async function entrySettled<T>(queueData: IEntrySettledQueue) {
+	async function entrySettled<T>(queueData: IEntrySettledQueue, jobId?: string) {
 		const {
 			roundId,
 			batchEntryId,
@@ -87,7 +89,12 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpinGame)
 		if (!eventLogId) return null
 
-		const batchEntryEntity = await service.batchEntry.settle(roundId, batchEntryId, timestamp)
+		const batchEntryEntity = await service.batchEntry.settle(
+			roundId,
+			batchEntryId,
+			timestamp,
+			jobId
+		)
 
 		const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
 			await spinAPI.contract.batchEntryMap(roundId, batchEntryId)
