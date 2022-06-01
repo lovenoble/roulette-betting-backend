@@ -2,7 +2,7 @@ import pearServer from './pear'
 import redisStore from './store'
 import rpcServer from './rpc'
 import { pearServerPort } from './config'
-import { logger } from './utils'
+import logger from './utils/logger'
 
 async function init() {
 	try {

@@ -1,5 +1,5 @@
 import { Logger } from '../../utils'
 
-export const logger = new Logger('postiveGreen')
+export const logger = Logger.create({ logType: 'RPC', theme: ['postiveGreen'] })
 
 export * from './error'

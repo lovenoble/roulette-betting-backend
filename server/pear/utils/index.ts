@@ -1,4 +1,3 @@
 import { Logger } from '../../utils'
 
-export const logger = new Logger('neonGreen')
-logger.setTimestamp(true)
+export const logger = Logger.create({ logType: 'Pear', theme: ['neonGreen'] })

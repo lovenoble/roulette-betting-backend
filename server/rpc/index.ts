@@ -76,7 +76,6 @@ export class RPCServer {
 				this.server.start()
 				logger.info(`RPC server started on ${rpcUri}...`)
 				this.#isStarted = true
-				logger.setTimestamp(true)
 				resolve(port)
 			})
 		})

@@ -8,8 +8,8 @@ import { USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH } from '../constants'
 
 export { default as PearHash } from './PearHash'
 
-export const logger = new Logger('brightPink')
-export const workerLogger = new Logger('pink')
+export const logger = Logger.create({ logType: 'RedisStore', theme: ['brightPink'] })
+export const workerLogger = Logger.create({ logType: 'Worker', theme: ['pink'] })
 
 // Definitions
 // @NOTE: A lot of these should move to the crypto directory

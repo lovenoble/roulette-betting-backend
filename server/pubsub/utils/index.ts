@@ -1,7 +1,4 @@
 import { Logger } from '../../utils'
 
-export const pubLogger = new Logger('mexicanBrown')
-export const subLogger = new Logger('gold')
-
-pubLogger.setTimestamp(true)
-subLogger.setTimestamp(true)
+export const pubLogger = Logger.create({ logType: 'PubSub', theme: ['mexicanBrown'] })
+export const subLogger = Logger.create({ logType: 'PubSub', theme: ['gold'] })
