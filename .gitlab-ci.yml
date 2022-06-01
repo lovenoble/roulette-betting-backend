@@ -37,8 +37,8 @@ cache: &global_cache
 setup:
   stage: setup
   before_script:
-  - curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@7
-  - pnpm config set store-dir .pnpm-store
+    - curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@7
+    - pnpm config set store-dir .pnpm-store
   script:
     - echo 'INSTALLING DEPENDENCIES'
     - cd server/
@@ -57,6 +57,9 @@ lint:
     paths:
       - server/node_modules/
     policy: pull
+  before_script:
+    - curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@7
+    - pnpm config set store-dir .pnpm-store
   script:
     - echo 'LINT'
     - cd server/
@@ -72,6 +75,9 @@ build:
     paths:
       - server/node_modules/
     policy: pull
+  before_script:
+    - curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@7
+    - pnpm config set store-dir .pnpm-store
   script:
     - echo 'BUILD'
     - $BIN_DIR/ensure-env-vars.sh
