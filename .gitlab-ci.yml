@@ -37,9 +37,10 @@ setup:
   stage: setup
   script:
     - echo 'INSTALLING DEPENDENCIES'
+    - curl -fsSL https://get.pnpm.io/install.sh | sh -
     - cd server/
     - rm -rf node_modules/
-    - npm install --include=dev
+    - pnpm i
   cache:
     key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
     paths:
@@ -55,7 +56,7 @@ lint:
   script:
     - echo 'LINT'
     - cd server/
-    - npm run lint-ci
+    - pnpm run lint-ci
 
 build:
   stage: build
@@ -75,8 +76,8 @@ build:
     - node $BIN_DIR/generate-eb-options.js > $EB_OPTIONS_FILE
     - apt-get update -y && apt-get install -y zip
     - cd server/
-    - npm run build
-    - npm run postbuild
+    - pnpm run build
+    - pnpm run postbuild
     - mkdir -p $BUILD_DIR
     - cd dist && zip -r $BUILD_FILE * && cd ..
     - ls $BUILD_DIR
