@@ -30,7 +30,6 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 		entryId: BigNumber,
 		event: Event
 	) => {
-		console.log('Received event:', Date.now())
 		const queueData: IEntrySubmittedQueue = {
 			roundId: BNToNumber(roundId),
 			batchEntryId: BNToNumber(batchEntryId),

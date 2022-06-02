@@ -3,6 +3,7 @@ import redisStore from './store'
 import rpcServer from './rpc'
 import { pearServerPort } from './config'
 import logger from './utils/logger'
+import PubSub from './pubsub'
 
 async function init() {
 	try {
@@ -17,6 +18,20 @@ async function init() {
 		// Initializes HTTP/WebSocket server
 		// Configured to run multiple processes and round robin requests
 		await pearServer.listen()
+
+		// setInterval(() => {
+		// 	PubSub.pub<'round-concluded'>('spin-state', 'round-concluded', {
+		// 		roundId: 1,
+		// 		randomNum: 123,
+		// 		randomEliminator: '123123123',
+		// 		vrfRequestId: 'asdlmkqldw',
+		// 		isEliminator: false,
+		// 	})
+		// }, 5000)
+
+		// PubSub.sub('spin-state', 'round-concluded').listen<'round-concluded'>(round => {
+		// 	console.log(round)
+		// })
 
 		// @NOTE: Need to add more exit eventListeners conditions
 		process.once('SIGUSR2', () => {

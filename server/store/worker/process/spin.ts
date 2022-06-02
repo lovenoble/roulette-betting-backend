@@ -9,9 +9,10 @@ import {
 	IRoundConcludedQueue,
 	EventReturnData,
 } from '../../types'
+import PubSub from '../../../pubsub'
 
 const createSpinJobProcesses = (service: IServiceObj) => {
-	async function gameModeUpdated<T>(queueData: IGameModeUpdatedQueue, jobId?: string) {
+	async function gameModeUpdated<T>(queueData: IGameModeUpdatedQueue, jobId: string = null) {
 		const { event, gameModeId, timestamp } = queueData
 
 		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpinGame)
@@ -21,15 +22,17 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 			await service.gameMode.createOrUpdate(gameModeId, timestamp, eventLogId, jobId)
 		).toJSON()
 
+		// @NOTE: May need to publish here
+
 		return JSON.stringify({
 			eventName: EventNames.GameModeUpdated,
 			data,
 		} as EventReturnData<T>)
 	}
 
-	async function entrySubmitted(queueData: IEntrySubmittedQueue, jobId?: string) {
+	async function entrySubmitted(queueData: IEntrySubmittedQueue, jobId: string = null) {
 		const { roundId, batchEntryId, player, entryId, event, timestamp } = queueData
-
+		console.log('HIT')
 		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpinGame)
 		if (!eventLogId) return null
 
@@ -42,6 +45,12 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 			jobId,
 			timestamp
 		)
+		console.log('console.after')
+
+		PubSub.pub<'batch-entry'>('spin-state', 'batch-entry', {
+			batchEntry: data.batchEntry,
+			entries: data.entries,
+		})
 
 		return JSON.stringify({
 			eventName: EventNames.EntrySubmitted,
@@ -49,13 +58,25 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 		} as EventReturnData<typeof data>)
 	}
 
-	async function roundConcluded<T>(queueData: IRoundConcludedQueue, jobId?: string) {
+	async function roundConcluded<T>(queueData: IRoundConcludedQueue, jobId: string = null) {
 		const { roundId, vrfRequestId, randomNum, randomEliminator, event, timestamp } = queueData
 
 		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpinGame)
 		if (!eventLogId) return null
 
-		await service.round.updateRoundBatchEntries(roundId, randomNum, randomEliminator)
+		const settledData = await service.round.updateRoundBatchEntries(
+			roundId,
+			randomNum,
+			randomEliminator
+		)
+
+		PubSub.pub<'round-concluded'>('spin-state', 'round-concluded', {
+			roundId,
+			randomNum,
+			randomEliminator,
+			vrfRequestId,
+			settledData,
+		})
 
 		const data = (
 			await service.round.repo.createAndSave({
@@ -75,7 +96,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 		} as EventReturnData<T>)
 	}
 
-	async function entrySettled<T>(queueData: IEntrySettledQueue, jobId?: string) {
+	async function entrySettled<T>(queueData: IEntrySettledQueue, jobId: string = null) {
 		const {
 			roundId,
 			batchEntryId,

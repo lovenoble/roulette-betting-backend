@@ -8,104 +8,116 @@ import { sleep, workerLogger as logger } from '../utils'
 import { createFareJobProcesses, createSpinJobProcesses } from './process'
 
 export default class StoreWorker {
-    fareWorker!: Worker
-    spinWorker!: Worker
-    process: ReturnType<typeof createFareJobProcesses> & ReturnType<typeof createSpinJobProcesses>
+	fareWorker!: Worker
+	spinWorker!: Worker
+	process: ReturnType<typeof createFareJobProcesses> & ReturnType<typeof createSpinJobProcesses>
 
-    constructor(service: IServiceObj) {
-        // Pass in Redis Store service references and create processes
-        this.process = {
-            ...createFareJobProcesses(service),
-            ...createSpinJobProcesses(service),
-        }
+	constructor(service: IServiceObj) {
+		// Pass in Redis Store service references and create processes
 
-        // Define workers below
-        this.fareWorker = new Worker(
-            QueueNames.FareContractEvent,
-            this.handleFareContractJob,
-            workerDefaultOpts
-        )
+		this.process = {
+			...createFareJobProcesses(service),
+			...createSpinJobProcesses(service),
+		}
 
-        this.spinWorker = new Worker(
-            QueueNames.SpinContractEvent,
-            this.handleSpinContractJob,
-            workerDefaultOpts
-        )
-    }
+		// Define workers below
+		this.fareWorker = new Worker(
+			QueueNames.FareContractEvent,
+			this.handleFareContractJob.bind(this),
+			workerDefaultOpts
+		)
 
-    public get list() {
-        return {
-            fareContractWorker: this.fareWorker,
-            spinContractWorker: this.spinWorker,
-        }
-    }
+		this.spinWorker = new Worker(
+			QueueNames.SpinContractEvent,
+			this.handleSpinContractJob.bind(this),
+			workerDefaultOpts
+		)
+	}
 
-    async handleFareContractJob(job: Job) {
-        switch (job.name) {
-            case EventNames.Transfer:
-                return this.process.fareTransfer(job.data)
-            default:
-                throw new Error(`[Worker]: Invalid eventName ${job.name}`)
-        }
-    }
+	public get list() {
+		return {
+			fareContractWorker: this.fareWorker,
+			spinContractWorker: this.spinWorker,
+		}
+	}
 
-    async handleSpinContractJob(job: Job) {
-        console.log(`Process started: ${job.name} - ${Date.now()}`)
-        switch (job.name) {
-            case EventNames.GameModeUpdated:
-                return this.process.gameModeUpdated(job.data)
-            case EventNames.EntrySubmitted:
-                return this.process.entrySubmitted(job.data)
-            case EventNames.RoundConcluded:
-                return this.process.roundConcluded(job.data)
-            case EventNames.EntrySettled:
-                return this.process.entrySettled(job.data)
-            default:
-                throw new Error(`[Worker]: Invalid eventName ${job.name}`)
-        }
-    }
+	async handleFareContractJob(job: Job) {
+		try {
+			logger.info(`Process started: ${job.name} - ${Date.now()}`)
+			switch (job.name) {
+				case EventNames.Transfer:
+					return await this.process.fareTransfer(job.data, job.id)
+				default:
+					throw new Error(`[Worker]: Invalid eventName ${job.name}`)
+			}
+		} catch (err) {
+			logger.error(err)
+			return err
+		}
+	}
 
-    async start() {
-        const workerKeys = Object.keys(this.list)
+	async handleSpinContractJob(job: Job) {
+		try {
+			logger.info(`Process started: ${job.name} - ${Date.now()}`)
+			switch (job.name) {
+				case EventNames.GameModeUpdated:
+					return await this.process.gameModeUpdated(job.data, job.id)
+				case EventNames.EntrySubmitted:
+					return await this.process.entrySubmitted(job.data, job.id)
+				case EventNames.RoundConcluded:
+					return await this.process.roundConcluded(job.data, job.id)
+				case EventNames.EntrySettled:
+					return await this.process.entrySettled(job.data, job.id)
+				default:
+					throw new Error(`[Worker]: Invalid eventName ${job.name}`)
+			}
+		} catch (err) {
+			logger.error(err)
+			return err
+		}
+	}
 
-        const promiseList = workerKeys.map(async key => {
-            return new Promise((resolve, reject) => {
-                const worker: Worker = this.list[key]
+	async start() {
+		const workerKeys = Object.keys(this.list)
 
-                worker.run()
+		const promiseList = workerKeys.map(async key => {
+			return new Promise((resolve, reject) => {
+				const worker: Worker = this.list[key]
 
-                const maxAttempts = 10
-                let attempts = 0
-                while (attempts < maxAttempts) {
-                    if (worker.isRunning()) {
-                        logger.info(`${key} waiting for jobs...`)
-                        break
-                    }
+				worker.run()
 
-                    attempts += 1
-                    sleep(500)
-                }
+				const maxAttempts = 10
+				let attempts = 0
+				while (attempts < maxAttempts) {
+					if (worker.isRunning()) {
+						logger.info(`${key} waiting for jobs...`)
+						break
+					}
 
-                if (attempts >= maxAttempts) {
-                    logger.error(`[${key}]: Worker failed to start!`)
-                    reject(new Error(`[${key}]: Worker failed to start!`))
-                }
+					attempts += 1
+					sleep(500)
+				}
 
-                resolve(null)
-            })
-        })
+				if (attempts >= maxAttempts) {
+					logger.error(`[${key}]: Worker failed to start!`)
+					reject(new Error(`[${key}]: Worker failed to start!`))
+				}
 
-        await Promise.all(promiseList)
-    }
+				resolve(null)
+			})
+		})
 
-    async stop() {
-        const workerKeys = Object.keys(this.list)
+		await Promise.all(promiseList)
+	}
 
-        const promiseList = workerKeys.map(async key => {
-            const worker: Worker = this.list[key]
-            await worker.close()
-        })
+	async stop() {
+		const workerKeys = Object.keys(this.list)
 
-        return Promise.all(promiseList)
-    }
+		const promiseList = workerKeys.map(async key => {
+			const worker: Worker = this.list[key]
+			await worker.close()
+		})
+
+		return Promise.all(promiseList)
+	}
 }

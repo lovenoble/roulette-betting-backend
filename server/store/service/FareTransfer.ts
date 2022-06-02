@@ -23,7 +23,7 @@ export default class FareTransferService extends ServiceBase<FareTransfer> {
 		return transferType
 	}
 
-	public async create({ jobId, eventLogId, from, to, amount, timestamp }: ICreateOptions) {
+	public async create({ jobId = null, eventLogId, from, to, amount, timestamp }: ICreateOptions) {
 		const transferType = this.getTransferType(from, to)
 
 		return this.repo.createAndSave({

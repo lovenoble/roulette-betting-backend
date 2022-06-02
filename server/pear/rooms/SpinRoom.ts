@@ -19,6 +19,7 @@ import {
 import SpinState from '../state/SpinState'
 import { logger } from '../utils'
 import store from '../../store'
+import PubSub from '../../pubsub'
 
 dayjs.extend(relativeTime)
 
@@ -75,8 +76,6 @@ class SpinGame extends Room<SpinState> {
 
 				const { eventName, data } = JSON.parse(returnvalue)
 
-				console.log(eventName, data)
-
 				switch (eventName) {
 					case EventNames.GameModeUpdated:
 						console.log(eventName)
@@ -128,9 +127,18 @@ class SpinGame extends Room<SpinState> {
 
 			// @NOTE: Define WebSocket message handling here
 			// Define Redis pubsub events
-			this.defineEvents()
+			// this.defineEvents()
 
 			this.startTimer()
+
+			PubSub.sub('fare', 'fare-transfer').listen<'fare-transfer'>(transfer => {})
+
+			PubSub.sub('spin-state', 'batch-entry').listen<'batch-entry'>(data => {
+				console.log('SUBBEDDDD', data)
+				this.dispatcher.dispatch(new OnBatchEntry(), data)
+			})
+
+			PubSub.sub('spin-state', 'round-concluded').listen<'round-concluded'>(data => {})
 		} catch (err) {
 			// @NOTE: Need better error handling here. If this fails the state doesn't get set
 			logger.error(err)
@@ -183,8 +191,8 @@ class SpinGame extends Room<SpinState> {
 				HttpStatusCode.UNAUTHORIZED,
 				'A valid token is required to connect to room.'
 			)
-		} catch (err) {
-			logger.error(err.toString())
+		} catch (err: any) {
+			logger.error(err)
 			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
 		}
 	}
@@ -211,7 +219,7 @@ class SpinGame extends Room<SpinState> {
 				)
 			}
 		} catch (err) {
-			logger.error(err.toString())
+			logger.error(err)
 			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
 		}
 	}

@@ -8,7 +8,8 @@ export type LogType =
 	| 'Transport'
 	| 'Worker'
 	| 'Queue'
-	| 'PubSub'
+	| 'Pub'
+	| 'Sub'
 	| 'Crypto'
 
 export type LogTheme =

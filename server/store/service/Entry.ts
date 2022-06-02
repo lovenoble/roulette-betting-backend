@@ -25,7 +25,7 @@ export default class EntryService extends ServiceBase<Entry> {
 		entryId: number,
 		batchEntryId: number,
 		roundId: number,
-		jobId?: string,
+		jobId: string = null,
 		timestamp = Date.now()
 	): Promise<Entry[]> {
 		const entryCount = (await spinAPI.contract.getEntryCount(entryId)).toNumber()
@@ -50,7 +50,7 @@ export default class EntryService extends ServiceBase<Entry> {
 								timestamp,
 								jobId,
 							}
-							const entryJson = (await this.repo.createAndSave(entry)).toJSON()
+							const entryJson = await this.repo.createAndSave(entry)
 							resolve(entryJson)
 						} catch (err) {
 							reject(err)

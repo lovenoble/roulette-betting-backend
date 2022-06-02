@@ -32,7 +32,7 @@ export default class GameModeService extends ServiceBase<GameMode> {
 		gameModeId: BigNumberish,
 		timestamp = Date.now(),
 		eventLogId?: string,
-		jobId?: string
+		jobId: string = null
 	) {
 		const [
 			id,

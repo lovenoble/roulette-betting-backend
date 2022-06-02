@@ -7,99 +7,101 @@ import type { BatchEntry } from '../schema/types'
 import { spinAPI } from '../../crypto/contracts'
 
 export default class BatchEntryService extends ServiceBase<BatchEntry> {
-	entryService!: EntryService
+    entryService!: EntryService
 
-	constructor(entryService: EntryService) {
-		super()
+    constructor(entryService: EntryService) {
+        super()
 
-		this.entryService = entryService
-	}
+        this.entryService = entryService
+    }
 
-	public fetch(roundId: BigNumber | number, batchEntryId: BigNumber | number) {
-		return this.repo
-			.search()
-			.where('roundId')
-			.equal(ensureNumber(roundId))
-			.where('batchEntryId')
-			.equal(ensureNumber(batchEntryId))
-			.returnFirst()
-	}
+    public fetch(roundId: BigNumber | number, batchEntryId: BigNumber | number) {
+        return this.repo
+            .search()
+            .where('roundId')
+            .equal(ensureNumber(roundId))
+            .where('batchEntryId')
+            .equal(ensureNumber(batchEntryId))
+            .returnFirst()
+    }
 
-	public async create(
-		eventLogId: string,
-		roundId: number,
-		batchEntryId: number,
-		entryId: number,
-		player: string,
-		jobId?: string,
-		timestamp = Date.now()
-	) {
-		const entries = await this.entryService.populateEntriesFromBatchEntryId(
-			eventLogId,
-			entryId,
-			batchEntryId,
-			roundId,
-			jobId,
-			timestamp
-		)
+    public async create(
+        eventLogId: string,
+        roundId: number,
+        batchEntryId: number,
+        entryId: number,
+        player: string,
+        jobId: string = null,
+        timestamp = Date.now()
+    ) {
+        const entries = await this.entryService.populateEntriesFromBatchEntryId(
+            eventLogId,
+            entryId,
+            batchEntryId,
+            roundId,
+            jobId,
+            timestamp
+        )
 
-		const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
-			await spinAPI.contract.batchEntryMap(roundId, batchEntryId)
+        const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
+            await spinAPI.contract.batchEntryMap(roundId, batchEntryId)
 
-		const batchEntry = await this.repo.createAndSave({
-			eventLogId,
-			roundId,
-			batchEntryId,
-			entryId,
-			settled: _settled,
-			player,
-			totalEntryAmount: formatETH(_totalEntryAmount),
-			totalWinAmount: formatETH(_totalWinAmount),
-			timestamp,
-			jobId,
-		})
+        const batchEntry = {
+            eventLogId,
+            roundId,
+            batchEntryId,
+            entryId,
+            settled: _settled,
+            player,
+            totalEntryAmount: formatETH(_totalEntryAmount),
+            totalWinAmount: formatETH(_totalWinAmount),
+            timestamp,
+            jobId,
+        }
 
-		return {
-			batchEntry: batchEntry.toJSON(),
-			entries,
-		}
-	}
+        await this.repo.createAndSave(batchEntry)
 
-	public async settle(
-		roundId: number,
-		batchEntryId: number,
-		settledOn = Date.now(),
-		jobId?: string
-	) {
-		const batchEntryEntity = await this.fetch(roundId, batchEntryId)
+        return {
+            batchEntry,
+            entries,
+        }
+    }
 
-		// BULLMQ
-		if (!batchEntryEntity) {
-			// @NOTE: Push to queue to wait retry again in 10 seconds.
-			// @NOTE: Problem occurs because settleBatchEntry and entrySubmitted even are fired off on connection
-			console.log(
-				'@NOTE: NEED TO RACE CONDITION TO CREATE BATCH ENTRY AND ENTRIES SINCE IT IS NULL!!!'
-			)
-		}
+    public async settle(
+        roundId: number,
+        batchEntryId: number,
+        settledOn = Date.now(),
+        jobId: string = null
+    ) {
+        const batchEntryEntity = await this.fetch(roundId, batchEntryId)
 
-		batchEntryEntity.settled = true
-		batchEntryEntity.settledOn = settledOn
-		batchEntryEntity.jobId = jobId
+        // BULLMQ
+        if (!batchEntryEntity) {
+            // @NOTE: Push to queue to wait retry again in 10 seconds.
+            // @NOTE: Problem occurs because settleBatchEntry and entrySubmitted even are fired off on connection
+            console.log(
+                '@NOTE: NEED TO RACE CONDITION TO CREATE BATCH ENTRY AND ENTRIES SINCE IT IS NULL!!!'
+            )
+        }
 
-		const entries = await this.entryService.fetchEntriesByBatchEntryId(roundId, batchEntryId)
+        batchEntryEntity.settled = true
+        batchEntryEntity.settledOn = settledOn
+        batchEntryEntity.jobId = jobId
 
-		const promiseList = entries.map(entry => {
-			return new Promise((resolve, reject) => {
-				entry.settled = true
-				entry.settledOn = settledOn
-				entry.jobId = jobId
-				this.entryService.repo.save(entry).then(resolve).catch(reject)
-			})
-		})
+        const entries = await this.entryService.fetchEntriesByBatchEntryId(roundId, batchEntryId)
 
-		await Promise.all(promiseList)
-		await this.repo.save(batchEntryEntity)
+        const promiseList = entries.map(entry => {
+            return new Promise((resolve, reject) => {
+                entry.settled = true
+                entry.settledOn = settledOn
+                entry.jobId = jobId
+                this.entryService.repo.save(entry).then(resolve).catch(reject)
+            })
+        })
 
-		return batchEntryEntity
-	}
+        await Promise.all(promiseList)
+        await this.repo.save(batchEntryEntity)
+
+        return batchEntryEntity
+    }
 }

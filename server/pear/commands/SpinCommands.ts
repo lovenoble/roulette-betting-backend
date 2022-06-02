@@ -6,6 +6,8 @@ import type * as types from '../../store/types'
 import SpinState from '../state/SpinState'
 import type { SpinRoom } from '../types'
 import { IEntry, Entry, IBatchEntry, BatchEntry, GuestUser, User, Round } from '../entities'
+import { BatchEntryMsgArgs } from '../../pubsub/types'
+import { logger } from '../utils'
 
 // export class SpinState extends Schema {
 // 	// sessionId -> Player, GuestPlayer
@@ -25,41 +27,45 @@ import { IEntry, Entry, IBatchEntry, BatchEntry, GuestUser, User, Round } from '
 // }
 
 // @NOTE: Define types for options
-export class OnBatchEntry extends Command<SpinRoom, any> {
-	async execute(data) {
-		const { batchEntry, entries }: { batchEntry: any; entries: any[] } = data
+export class OnBatchEntry extends Command<SpinRoom, unknown> {
+	async execute({ batchEntry, entries }: BatchEntryMsgArgs) {
+		try {
+			logger.info('ONBATCHENTRY')
+			const batchEntryState = new BatchEntry()
+			batchEntryState.roundId = batchEntry.roundId
+			batchEntryState.batchEntryId = batchEntry.batchEntryId
+			batchEntryState.entryId = batchEntry.entryId
+			batchEntryState.player = batchEntry.player
+			batchEntryState.settled = batchEntry.settled
+			batchEntryState.totalEntryAmount = batchEntry.totalEntryAmount
+			batchEntryState.totalWinAmount = batchEntry.totalWinAmount
+			batchEntryState.timestamp = batchEntry.timestamp
 
-		const batchEntryState = new BatchEntry()
-		batchEntryState.roundId = batchEntry.roundId
-		batchEntryState.batchEntryId = batchEntry.batchEntryId
-		batchEntryState.entryId = batchEntry.entryId
-		batchEntryState.player = batchEntry.player
-		batchEntryState.settled = batchEntry.settled
-		batchEntryState.totalEntryAmount = batchEntry.totalEntryAmount
-		batchEntryState.totalWinAmount = batchEntry.totalWinAmount
-		batchEntryState.timestamp = batchEntry.timestamp
+			entries.forEach(entry => {
+				const entryState = new Entry()
 
-		entries.forEach(entry => {
-			const entryState = new Entry()
+				entryState.amount = entry.amount
+				entryState.roundId = entry.roundId
+				entryState.gameModeId = entry.gameModeId
+				entryState.pickedNumber = entry.pickedNumber
+				entryState.batchEntryId = entry.batchEntryId
+				entryState.entryId = entry.entryId
+				entryState.winAmount = entry.winAmount
+				entryState.settled = entry.settled
 
-			entryState.amount = entry.amount
-			entryState.roundId = entry.roundId
-			entryState.gameModeId = entry.gameModeId
-			entryState.pickedNumber = entry.pickedNumber
-			entryState.batchEntryId = entry.batchEntryId
-			entryState.entryId = entry.entryId
-			entryState.winAmount = entry.winAmount
-			entryState.settled = entry.settled
+				batchEntryState.entries.add(entryState)
+			})
 
-			batchEntryState.entries.add(entryState)
-		})
-
-		this.state.batchEntries.set(batchEntry.entityId, batchEntryState)
+			this.state.batchEntries.set(batchEntryState.player, batchEntryState)
+		} catch (err) {
+			logger.error(err)
+		}
 	}
 }
 
 export class OnBatchEntrySettled extends Command<SpinRoom, any> {
 	async execute(batchEntry) {
+		console.log('working', batchEntry)
 		const be = this.state.batchEntries.get(batchEntry.entityId)
 
 		be.settled = true

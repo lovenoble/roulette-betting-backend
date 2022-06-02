@@ -9,57 +9,57 @@ export const binaryEncoder = new TextEncoder();
 
 let client = new Client("ws://localhost:3100");
 
-const ws = new WebSocket("ws://localhost:3100/ping");
+// const ws = new WebSocket("ws://localhost:3100/ping");
 
-let clientId = "";
-let latestTimestamp = 0;
+// let clientId = "";
+// let latestTimestamp = 0;
 
-ws.binaryType = "arraybuffer";
+// ws.binaryType = "arraybuffer";
 
-ws.onopen = () => {
-  ws.send(
-    binaryEncoder.encode(
-      JSON.stringify({
-        message: "request uuid",
-      })
-    )
-  );
-};
+// ws.onopen = () => {
+//   ws.send(
+//     binaryEncoder.encode(
+//       JSON.stringify({
+//         message: "request uuid",
+//       })
+//     )
+//   );
+// };
 
-ws.onmessage = (message: any) => {
-  if (message.data) {
-    const decoded = binaryDecoder.decode(message.data);
-    const json = JSON.parse(decoded);
+// ws.onmessage = (message: any) => {
+//   if (message.data) {
+//     const decoded = binaryDecoder.decode(message.data);
+//     const json = JSON.parse(decoded);
 
-    clientId = json.clientId;
-    latestTimestamp = json.timestamp;
-    console.log("Ping received", json);
-    const pingBack = {
-      clientId,
-      latestTimestamp,
-      newTimestamp: new Date().valueOf(),
-      isPingingBack: true,
-    };
+//     clientId = json.clientId;
+//     latestTimestamp = json.timestamp;
+//     console.log("Ping received", json);
+//     const pingBack = {
+//       clientId,
+//       latestTimestamp,
+//       newTimestamp: new Date().valueOf(),
+//       isPingingBack: true,
+//     };
 
-    ws.send(binaryEncoder.encode(JSON.stringify(pingBack)));
-  }
-};
+//     ws.send(binaryEncoder.encode(JSON.stringify(pingBack)));
+//   }
+// };
 
-function requestNewPing() {
-  ws.send(
-    binaryEncoder.encode(
-      JSON.stringify({
-        message: "request uuid",
-        clientId,
-      })
-    )
-  );
-}
+// function requestNewPing() {
+//   ws.send(
+//     binaryEncoder.encode(
+//       JSON.stringify({
+//         message: "request uuid",
+//         clientId,
+//       })
+//     )
+//   );
+// }
 
-setInterval(() => {
-  console.log("Requesting new ping");
-  requestNewPing();
-}, 5000);
+// setInterval(() => {
+//   console.log("Requesting new ping");
+//   requestNewPing();
+// }, 5000);
 
 // setInterval(() => {
 //   const timestamp = new Date().valueOf();
@@ -84,7 +84,7 @@ const connectToRoom = async (
   setTimer: any
 ) => {
   const room = await client.joinOrCreate<any>("Spin", {
-    authToken,
+    // authToken,
     guestId: shortId(),
   });
 
@@ -96,29 +96,30 @@ const connectToRoom = async (
   //   console.log(timer);
   // };
 
-  // room.state.timer.onChange = (changes: any) => {
-  //   const time = changes.filter((st: any) => st.field === "elaspedTime")[0];
-  //   if (time) {
-  //     console.log(time);
-  //   }
-  // };
+  // @ts-ignore
+  room.onStateChange((args) => {
+    console.log(args.batchEntries);
+  });
+
+  console.log(room.state);
+  console.log(room.state.batchEntries);
 
   room.state.timer.onChange = (changes: any) => {
+    //     const time = changes.filter((st: any) => {
+    //         return st.field === "timeDisplay";
+    //     })[0];
+
+    //     if (time) {
+    //         setTimer(time.value);
+    //     }
+
     const time = changes.filter((st: any) => {
-      return st.field === "timeDisplay";
+      return st.field === "elapsedTime";
     })[0];
 
     if (time) {
-      setTimer(time.value);
+      setTimer(time.value.toString());
     }
-
-    // const time = changes.filter((st: any) => {
-    //   return st.field === "elapsedTime";
-    // })[0];
-
-    // if (time) {
-    //   setTimer(time.value.toString());
-    // }
   };
 };
 

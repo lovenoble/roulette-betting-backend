@@ -13,8 +13,10 @@ export default class SpinState extends Schema {
 	@type({ map: GuestUser }) guestUsers = new MapSchema<GuestUser>()
 	@type({ map: User }) users = new MapSchema<User>()
 
-	// roundId -> BatchEntry, Round
+	// publicAddress -> BatchEntry
 	@type({ map: BatchEntry }) batchEntries = new MapSchema<BatchEntry>()
+
+	// roundId -> Round
 	@type({ map: Round }) rounds = new MapSchema<Round>()
 
 	// @NOTE: Ensure that publicAddress can only submit one batchEntry per round (in smart contract)
