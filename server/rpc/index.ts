@@ -1,23 +1,91 @@
-import * as grpc from '@grpc/grpc-js'
+import path, { dirname } from 'path'
+import { fileURLToPath } from 'url'
+import { Server, ServerCredentials } from '@grpc/grpc-js'
+import { addReflection } from 'grpc-server-reflection'
 
-import PlayerRpcService from './services/PlayerRpcService'
+import { rpcUri } from '../config'
+import { logger } from './utils'
+import {
+	User,
+	UserService,
+	Analytics,
+	AnalyticsService,
+	Health,
+	HealthService,
+	healthStatus,
+} from './services'
+import { HealthCheckResponse_ServingStatus } from './models/health'
+import { ServicePathNames } from './types'
 
-const { RPC_PORT = 9090 } = process.env
+const __filename = fileURLToPath(import.meta.url)
 
-export default async function initRpcServer() {
-	try {
-		const RPC_URI = `0.0.0.0:${RPC_PORT}`
-		let serverCredentials = grpc.ServerCredentials.createInsecure()
+export class RPCServer {
+	server!: Server
+	#credentials!: ServerCredentials
+	#isStarted = false
+	#descriptorPath = path.join(dirname(__filename), 'descriptor/proto_descriptor.bin')
 
-		const rpcServer = new grpc.Server()
+	public get isStarted() {
+		return this.#isStarted
+	}
 
-		rpcServer.addService(PlayerRpcService.proto, PlayerRpcService.methods)
-		rpcServer.bindAsync(RPC_URI, serverCredentials, () => {
-			rpcServer.start()
-			console.log(`RPC server started on ${RPC_URI}`)
+	constructor() {
+		// @NOTE: Perhaps add options to pass in a key/cert manually.
+		// @NOTE: For now, the Nginx proxy is handling SSL
+		this.#credentials = ServerCredentials.createInsecure()
+
+		// @NOTE: Need to properly configure server -> https://github.com/grpc/grpc-node/tree/master/packages/grpc-js
+		this.server = new Server({
+			'grpc.max_receive_message_length': -1,
+			'grpc.max_send_message_length': -1,
 		})
-	} catch (err) {
-		console.error(err)
-		process.exit(1)
+
+		// Add descriptor_bin so clients can use reflections to see the supported API schema
+		addReflection(this.server, this.#descriptorPath)
+	}
+
+	initServices() {
+		this.server.addService(HealthService, new Health())
+		this.server.addService(AnalyticsService, new Analytics())
+		this.server.addService(UserService, new User())
+	}
+
+	/*
+        Changes the health status for a given service.
+    */
+	changeHealthServingStatus(
+		servicePathName: ServicePathNames,
+		servingStatus: HealthCheckResponse_ServingStatus
+	) {
+		healthStatus.set(servicePathName, servingStatus)
+		logger.info(`[${servicePathName}]: Health serving staus changed to ${servingStatus}`)
+	}
+
+	async start(): Promise<number> {
+		if (this.#isStarted) this.initServices()
+
+		this.initServices()
+
+		return new Promise((resolve, reject) => {
+			this.server.bindAsync(rpcUri, this.#credentials, (err, port) => {
+				if (err) {
+					logger.error('RPC server failed to start.', err)
+					reject(err)
+				}
+
+				this.server.start()
+				logger.info(`RPC server started on ${rpcUri}...`)
+				this.#isStarted = true
+				resolve(port)
+			})
+		})
+	}
+
+	async stop() {
+		if (!this.#isStarted) return null
+
+		return this.server.forceShutdown()
 	}
 }
+
+export default new RPCServer()

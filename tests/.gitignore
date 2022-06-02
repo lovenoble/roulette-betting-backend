@@ -1,0 +1,10 @@
+#hierophant's personal scripts
+status.sh
+
+.env
+
+node_modules
+
+#test assets
+*Google\ Chrome.app
+*googlechrome.dmg

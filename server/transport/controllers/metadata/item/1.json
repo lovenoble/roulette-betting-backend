@@ -1,0 +1,14 @@
+{
+    "name": "sword",
+    "properties": [
+        {
+            "name": "prop1"
+        },
+        {
+            "name": "prop2"
+        },
+        {
+            "name": "prop3"
+        }
+    ]
+}

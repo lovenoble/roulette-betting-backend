@@ -1,0 +1,20 @@
+[
+    "constructor(address,address,uint256)",
+    "event OwnershipTransferred(address indexed,address indexed)",
+    "function getLatestLootTableId() view returns (uint256)",
+    "function getLootItemCount(uint256) view returns (uint256)",
+    "function itemAddress() view returns (address)",
+    "function lootBoxMap(uint256) view returns (bool, uint8, uint256, uint256)",
+    "function lootTableMap(uint256,uint256) view returns (uint256, uint256)",
+    "function lootTableWeightMap(uint256) view returns (uint256)",
+    "function nftAddress() view returns (address)",
+    "function openLootBox(uint256)",
+    "function owner() view returns (address)",
+    "function renounceOwnership()",
+    "function rewardLootBoxToken(uint8,uint256,address)",
+    "function selectedLootTableId() view returns (uint256)",
+    "function setItemThrehold(uint256)",
+    "function setLootTable(tuple(uint256,uint256)[])",
+    "function setSelectedLootTableId(uint256)",
+    "function transferOwnership(address)"
+]

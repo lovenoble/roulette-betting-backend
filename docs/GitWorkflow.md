@@ -7,8 +7,9 @@
 - Fetch any changes from the server by running `git pull`
 - Branch name format: "feature/<name-of-feature>"
 - Create a new branch by running `git checkout -b feature/<name-of-feature>`
-  - ~~Make sure you use the branch name you copied from Linear!~~ ***(Implement to GitLabs later)***
 - Create the branch on the server by running `git push -u origin feature/<name-of-feature>`
+- For reviewing, create a new branch from the feature branch and name it `review/<name-of-feature>`
+- After reviewing, merge review branch into feature branch and add comments about requested changes (if applicable)
 - Start working!
 
 ## Working on a feature or task
