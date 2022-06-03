@@ -9,7 +9,7 @@ import {
 import { BatchEntry, GuestUser, User, Round, Timer } from '../entities'
 
 export default class SpinState extends Schema {
-	// sessionId -> Player, GuestPlayer
+	// sessionId(probably publicAddress?) -> Player, GuestPlayer
 	@type({ map: GuestUser }) guestUsers = new MapSchema<GuestUser>()
 	@type({ map: User }) users = new MapSchema<User>()
 

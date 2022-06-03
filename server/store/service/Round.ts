@@ -7,7 +7,7 @@ import type GameModeService from './GameMode'
 import type { Round, BNGameMode } from '../schema/types'
 import type { SettledBatchEntryArgs, SettledBatchEntry, SettledEntry } from '../../pubsub/types'
 import ServiceBase from './ServiceBase'
-import { ensureNumber, formatETH, BN, toEth } from '../utils'
+import { ensureNumber, formatETH, BN, toEth, logger } from '../utils'
 
 export default class RoundService extends ServiceBase<Round> {
 	gameModeService!: GameModeService
@@ -78,7 +78,7 @@ export default class RoundService extends ServiceBase<Round> {
 
 					if (BN(gm.gameEdgeFloor).lt(randomEliminator)) {
 						// @NOTE: MINT NFT LOOTBOX (ONLY ONCE PER BATCH ENTRY)
-						console.log('@NOTE: ELIMINATOR ROUND: NFT LOOTBOXES SHOULD BE MINTED')
+						logger.warn('@NOTE: ELIMINATOR ROUND: NFT LOOTBOXES SHOULD BE MINTED')
 					} else {
 						let rng = randomNum
 						if (gm.cardinality.eq('10')) {

@@ -1,6 +1,6 @@
 import { ContractNames, EventNames } from '../../constants'
 import { spinAPI } from '../../../crypto/contracts'
-import { formatETH, toEth } from '../../utils'
+import { formatETH, toEth, workerLogger as logger } from '../../utils'
 import {
 	IServiceObj,
 	IGameModeUpdatedQueue,
@@ -32,7 +32,6 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 
 	async function entrySubmitted(queueData: IEntrySubmittedQueue, jobId: string = null) {
 		const { roundId, batchEntryId, player, entryId, event, timestamp } = queueData
-		console.log('HIT')
 		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpinGame)
 		if (!eventLogId) return null
 
@@ -45,7 +44,6 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 			jobId,
 			timestamp
 		)
-		console.log('console.after')
 
 		PubSub.pub<'batch-entry'>('spin-state', 'batch-entry', {
 			batchEntry: data.batchEntry,
@@ -123,13 +121,13 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 		// @NOTE: Ensure blockchain totalWinAmount and calculated Redis totalWinAmount is correct
 		// @NOTE: We need to log to our analytics if these numbers do not match
 		if (hasWon && !toEth(batchEntryEntity.totalWinAmount).eq(_totalWinAmount)) {
-			console.log('------------------------------------------')
-			console.log(
+			logger.warn('------------------------------------------')
+			logger.warn(
 				'!IMPORTANT - Redis totalWinAmount and smart contract totalWinAmount do not match.'
 			)
-			console.log('If you see this error report steps to reproduce!')
-			console.log('Updating to reflect the amount fetched from the blockchain...')
-			console.log('------------------------------------------')
+			logger.warn('If you see this error report steps to reproduce!')
+			logger.warn('Updating to reflect the amount fetched from the blockchain...')
+			logger.warn('------------------------------------------')
 			batchEntryEntity.totalWinAmount = formatETH(_totalWinAmount)
 			await service.batchEntry.repo.save(batchEntryEntity)
 		}

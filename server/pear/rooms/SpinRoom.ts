@@ -5,9 +5,7 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
 import type { ISpinRoomOptions, ICreateSpinRoomOptions } from '../types'
-import { EventNames } from '../../store/constants'
 import { HttpStatusCode } from '../constants'
-import { SpinEvent, FareEvent } from '../../store/event'
 import {
 	OnBatchEntry,
 	OnBatchEntrySettled,
@@ -23,42 +21,40 @@ import PubSub from '../../pubsub'
 
 dayjs.extend(relativeTime)
 
-// @NOTE: Determine user balancing for room capacity - [spin-room-1: 1800, spin-room-2: 600]
-// @NOTE: VIP room rentals for FARE token (smart contract)
+// @NOTE: Postgres insert should listen to these worker complete events instead
+// const fareEvent = FareEvent()
+// const spinEvent = SpinEvent()
+// defineEvents() {
+//     spinEvent.on('completed', ({ returnvalue }) => {
+//         try {
+//             if (!returnvalue) return
 
-const fareEvent = FareEvent()
-const spinEvent = SpinEvent()
+//             const { eventName, data } = JSON.parse(returnvalue)
 
-// spinEvent.on('completed', ({ jobId, returnvalue, prev }, id) => {
-// spinEvent.on('completed', ({ returnvalue }) => {
-//     try {
-//         if (!returnvalue) return
-
-//         const { eventName, data }: IEventReturnData = JSON.parse(returnvalue)
-
-//         console.log(eventName, data)
-
-//         switch (eventName) {
-//             case EventNames.GameModeUpdated:
-//                 console.log(eventName)
-//                 break
-//             case EventNames.EntrySubmitted:
-//                 console.log(eventName)
-//                 break
-//             case EventNames.RoundConcluded:
-//                 console.log(eventName)
-//                 break
-//             case EventNames.EntrySettled:
-//                 console.log(eventName)
-//                 break
-//             default:
-//                 throw new Error(`[QueueEvent:Spin] Invalid event name ${eventName}`)
+//             switch (eventName) {
+//                 case EventNames.GameModeUpdated:
+//                     console.log(eventName)
+//                     break
+//                 case EventNames.EntrySubmitted:
+//                     this.dispatcher.dispatch(new OnBatchEntry(), data)
+//                     console.log(eventName)
+//                     break
+//                 case EventNames.RoundConcluded:
+//                     console.log(eventName)
+//                     break
+//                 case EventNames.EntrySettled:
+//                     this.dispatcher.dispatch(new OnBatchEntrySettled(), data)
+//                     console.log(eventName)
+//                     break
+//                 default:
+//                     throw new Error(`[QueueEvent:Spin] Invalid event name ${eventName}`)
+//             }
+//         } catch (err) {
+//             // @NOTE: Need error catching here, most likely error is a JSON parsing issue
+//             console.error(err)
 //         }
-//     } catch (err) {
-//         // @NOTE: Need error catching here, most likely error is a JSON parsing issue
-//         console.error(err)
-//     }
-// })
+//     })
+// }
 
 class SpinGame extends Room<SpinState> {
 	maxClients = 2500 // @NOTE: Need to determine the number of clients where performance begins to fall off
@@ -68,38 +64,6 @@ class SpinGame extends Room<SpinState> {
 	#password: string | null = null
 
 	public delayedInterval!: Delayed
-
-	defineEvents() {
-		spinEvent.on('completed', ({ returnvalue }) => {
-			try {
-				if (!returnvalue) return
-
-				const { eventName, data } = JSON.parse(returnvalue)
-
-				switch (eventName) {
-					case EventNames.GameModeUpdated:
-						console.log(eventName)
-						break
-					case EventNames.EntrySubmitted:
-						this.dispatcher.dispatch(new OnBatchEntry(), data)
-						console.log(eventName)
-						break
-					case EventNames.RoundConcluded:
-						console.log(eventName)
-						break
-					case EventNames.EntrySettled:
-						this.dispatcher.dispatch(new OnBatchEntrySettled(), data)
-						console.log(eventName)
-						break
-					default:
-						throw new Error(`[QueueEvent:Spin] Invalid event name ${eventName}`)
-				}
-			} catch (err) {
-				// @NOTE: Need error catching here, most likely error is a JSON parsing issue
-				console.error(err)
-			}
-		})
-	}
 
 	async onCreate(options: ICreateSpinRoomOptions) {
 		try {
@@ -134,7 +98,6 @@ class SpinGame extends Room<SpinState> {
 			PubSub.sub('fare', 'fare-transfer').listen<'fare-transfer'>(transfer => {})
 
 			PubSub.sub('spin-state', 'batch-entry').listen<'batch-entry'>(data => {
-				console.log('SUBBEDDDD', data)
 				this.dispatcher.dispatch(new OnBatchEntry(), data)
 			})
 

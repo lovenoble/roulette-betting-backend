@@ -70,9 +70,11 @@ export interface FareSpinGameInterface extends utils.Interface {
     "setTreasuryAddress(address)": FunctionFragment;
     "setTreasuryMint(uint256)": FunctionFragment;
     "settleBatchEntry(uint256,uint256)": FunctionFragment;
+    "testFulfillRandomness(bytes32,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "treasuryAddress()": FunctionFragment;
     "treasuryMint()": FunctionFragment;
+    "vrfCoordinator()": FunctionFragment;
     "vrfMap(bytes32)": FunctionFragment;
   };
 
@@ -106,9 +108,11 @@ export interface FareSpinGameInterface extends utils.Interface {
       | "setTreasuryAddress"
       | "setTreasuryMint"
       | "settleBatchEntry"
+      | "testFulfillRandomness"
       | "transferOwnership"
       | "treasuryAddress"
       | "treasuryMint"
+      | "vrfCoordinator"
       | "vrfMap"
   ): FunctionFragment;
 
@@ -223,6 +227,10 @@ export interface FareSpinGameInterface extends utils.Interface {
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "testFulfillRandomness",
+    values: [BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [string]
   ): string;
@@ -232,6 +240,10 @@ export interface FareSpinGameInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "treasuryMint",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "vrfCoordinator",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "vrfMap", values: [BytesLike]): string;
@@ -331,6 +343,10 @@ export interface FareSpinGameInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "testFulfillRandomness",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
@@ -342,11 +358,16 @@ export interface FareSpinGameInterface extends utils.Interface {
     functionFragment: "treasuryMint",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "vrfCoordinator",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "vrfMap", data: BytesLike): Result;
 
   events: {
     "EntrySettled(uint256,uint256,address,uint256,bool)": EventFragment;
     "EntrySubmitted(uint256,uint256,address,uint256)": EventFragment;
+    "GameModeUpdated(uint256)": EventFragment;
     "NFTWon(uint256,uint256,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused(address)": EventFragment;
@@ -357,6 +378,7 @@ export interface FareSpinGameInterface extends utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "EntrySettled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "EntrySubmitted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GameModeUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTWon"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
@@ -391,6 +413,16 @@ export type EntrySubmittedEvent = TypedEvent<
 >;
 
 export type EntrySubmittedEventFilter = TypedEventFilter<EntrySubmittedEvent>;
+
+export interface GameModeUpdatedEventObject {
+  gameModeId: BigNumber;
+}
+export type GameModeUpdatedEvent = TypedEvent<
+  [BigNumber],
+  GameModeUpdatedEventObject
+>;
+
+export type GameModeUpdatedEventFilter = TypedEventFilter<GameModeUpdatedEvent>;
 
 export interface NFTWonEventObject {
   roundId: BigNumber;
@@ -667,6 +699,12 @@ export interface FareSpinGame extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    testFulfillRandomness(
+      vrfRequestId: BytesLike,
+      randomness: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -675,6 +713,8 @@ export interface FareSpinGame extends BaseContract {
     treasuryAddress(overrides?: CallOverrides): Promise<[string]>;
 
     treasuryMint(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    vrfCoordinator(overrides?: CallOverrides): Promise<[string]>;
 
     vrfMap(arg0: BytesLike, overrides?: CallOverrides): Promise<[BigNumber]>;
   };
@@ -859,6 +899,12 @@ export interface FareSpinGame extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  testFulfillRandomness(
+    vrfRequestId: BytesLike,
+    randomness: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   transferOwnership(
     newOwner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -867,6 +913,8 @@ export interface FareSpinGame extends BaseContract {
   treasuryAddress(overrides?: CallOverrides): Promise<string>;
 
   treasuryMint(overrides?: CallOverrides): Promise<BigNumber>;
+
+  vrfCoordinator(overrides?: CallOverrides): Promise<string>;
 
   vrfMap(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1047,6 +1095,12 @@ export interface FareSpinGame extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    testFulfillRandomness(
+      vrfRequestId: BytesLike,
+      randomness: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     transferOwnership(
       newOwner: string,
       overrides?: CallOverrides
@@ -1055,6 +1109,8 @@ export interface FareSpinGame extends BaseContract {
     treasuryAddress(overrides?: CallOverrides): Promise<string>;
 
     treasuryMint(overrides?: CallOverrides): Promise<BigNumber>;
+
+    vrfCoordinator(overrides?: CallOverrides): Promise<string>;
 
     vrfMap(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
   };
@@ -1087,6 +1143,13 @@ export interface FareSpinGame extends BaseContract {
       player?: string | null,
       entryId?: null
     ): EntrySubmittedEventFilter;
+
+    "GameModeUpdated(uint256)"(
+      gameModeId?: BigNumberish | null
+    ): GameModeUpdatedEventFilter;
+    GameModeUpdated(
+      gameModeId?: BigNumberish | null
+    ): GameModeUpdatedEventFilter;
 
     "NFTWon(uint256,uint256,address)"(
       roundId?: BigNumberish | null,
@@ -1266,6 +1329,12 @@ export interface FareSpinGame extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    testFulfillRandomness(
+      vrfRequestId: BytesLike,
+      randomness: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1274,6 +1343,8 @@ export interface FareSpinGame extends BaseContract {
     treasuryAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
     treasuryMint(overrides?: CallOverrides): Promise<BigNumber>;
+
+    vrfCoordinator(overrides?: CallOverrides): Promise<BigNumber>;
 
     vrfMap(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
   };
@@ -1414,6 +1485,12 @@ export interface FareSpinGame extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    testFulfillRandomness(
+      vrfRequestId: BytesLike,
+      randomness: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1422,6 +1499,8 @@ export interface FareSpinGame extends BaseContract {
     treasuryAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     treasuryMint(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    vrfCoordinator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     vrfMap(
       arg0: BytesLike,

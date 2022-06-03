@@ -1,30 +1,13 @@
 import { Command } from '@colyseus/command'
-import { Room } from 'colyseus'
-import { utils } from 'ethers'
 
-import type * as types from '../../store/types'
-import SpinState from '../state/SpinState'
 import type { SpinRoom } from '../types'
-import { IEntry, Entry, IBatchEntry, BatchEntry, GuestUser, User, Round } from '../entities'
-import { BatchEntryMsgArgs } from '../../pubsub/types'
+import { Entry, BatchEntry, Round as _Round } from '../entities'
+import { BatchEntryMsgArgs, SettledRound, SettledBatchEntryArgs } from '../../pubsub/types'
 import { logger } from '../utils'
 
-// export class SpinState extends Schema {
-// 	// sessionId -> Player, GuestPlayer
-// 	@type({ map: GuestPlayer }) guestPlayer = new MapSchema<GuestPlayer>()
-// 	@type({ map: Player }) players = new MapSchema<Player>()
-
-// 	// roundId -> BatchEntry, Round
-// 	@type({ map: BatchEntry }) batchEntries = new MapSchema<BatchEntry>()
-// 	@type({ map: Round }) rounds = new MapSchema<Round>()
-
-// 	@type('string') fareTotalSupply: number
-// 	@type('number') currentRoundId: number
-
-// 	// @NOTE: Ensure that publicAddress can only submit one batchEntry per round (in smart contract)
-// 	// @NOTE: Determine if we should start wheel at 2-5 mins or once 300 players are reached
-// 	@type('number') countdownTimer: number
-// }
+// @NOTE: Needed commands
+// OnFetchFareSupply
+// OnFetchRoundAnalytics
 
 // @NOTE: Define types for options
 export class OnBatchEntry extends Command<SpinRoom, unknown> {
@@ -63,42 +46,22 @@ export class OnBatchEntry extends Command<SpinRoom, unknown> {
 	}
 }
 
+// @NOTE: Probably don't need this since OnRoundConcluded can handle updating state for specific user
 export class OnBatchEntrySettled extends Command<SpinRoom, any> {
-	async execute(batchEntry) {
-		console.log('working', batchEntry)
-		const be = this.state.batchEntries.get(batchEntry.entityId)
+	async execute({ batchEntry, entries }: SettledBatchEntryArgs) {
+		// const be = this.state.batchEntries.get(batchEntry.entityId)
 
-		be.settled = true
-		be.totalWinAmount = batchEntry.totalWinAmount
+		// be.settled = true
+		// be.totalWinAmount = batchEntry.totalWinAmount
+		logger.info('OnBatchEntry', batchEntry, entries)
 	}
 }
 
-// export class OnSetupUser extends Command<
-// 	SpinGame,
-// 	{
-// 		publicAddress: string
-// 	}
-// > {
-// 	async execute({ publicAddress }) {
-// 		try {
-// 			const avaxBalanace = await tokenAPI.getAvaxBalance(publicAddress)
-// 			const fareBalance = await tokenAPI.getFareBalance(publicAddress)
-
-// 			const newGamePlayer = new GamePlayer(
-// 				publicAddress,
-// 				avaxBalanace,
-// 				fareBalance,
-// 				'0',
-// 				'0',
-// 				false
-// 			)
-
-// 			this.state.gamePlayers.set(publicAddress, newGamePlayer)
-// 		} catch (err) {
-// 			console.error(err)
-// 		}
-// 	}
-// }
+export class OnRoundConcluded extends Command<SpinRoom, any> {
+	async execute(roundData: SettledRound) {
+		logger.info('OnRoundConcluded', roundData)
+	}
+}
 
 // Fetch initial user balance
 // Add player/guestPlayer to spinState
