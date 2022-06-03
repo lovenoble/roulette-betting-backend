@@ -18,7 +18,9 @@ export interface IRound {
 	// hundoNum: (0 - 99)
 	randomEliminator: string
 	vrfRequestId: string
-	isEliminator: boolean
+	isTwoXElim: boolean
+	isTenXElim: boolean
+	isHundoXElim: boolean
 	// @NOTE: Add analytics below
 	// fareTotalStartingSupply: string
 	// fareTotalEndingSupply: string
@@ -32,5 +34,7 @@ export class Round extends Schema implements IRound {
 	@type('string') randomNum: number
 	@type('string') randomEliminator: string
 	@type('string') vrfRequestId: string
-	@type('boolean') isEliminator: boolean
+	@type('boolean') isTwoXElim: boolean
+	@type('boolean') isTenXElim: boolean
+	@type('boolean') isHundoXElim: boolean
 }

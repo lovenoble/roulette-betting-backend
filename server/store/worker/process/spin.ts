@@ -8,6 +8,7 @@ import type {
 } from '../../types'
 
 import PubSub from '../../../pubsub'
+import type { IRoundEliminators } from '../../../pubsub/types'
 import { ContractNames, EventNames } from '../../constants'
 import { spinAPI } from '../../../crypto'
 import { formatETH, toEth, workerLogger as logger } from '../../utils'
@@ -69,12 +70,40 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 			randomEliminator
 		)
 
+		// Get and set eliminator data from blockchain
+		const roundEliminators = await spinAPI.getAllEliminatorsByRound(roundId)
+
+		const eliminators: IRoundEliminators = {
+			isTwoXElim: false,
+			isTenXElim: false,
+			isHundoXElim: false,
+		}
+
+		roundEliminators.forEach(({ gameModeId, isEliminator }) => {
+			switch (gameModeId) {
+				case 1:
+					eliminators.isTwoXElim = isEliminator
+					break
+				case 2:
+					eliminators.isTenXElim = isEliminator
+					break
+				case 3:
+					eliminators.isHundoXElim = isEliminator
+					break
+
+				default:
+					break
+			}
+			eliminators[gameModeId] = isEliminator
+		})
+
 		PubSub.pub<'round-concluded'>('spin-state', 'round-concluded', {
 			roundId,
 			randomNum,
 			randomEliminator,
 			vrfRequestId,
 			settledData,
+			...eliminators,
 		})
 
 		const data = (

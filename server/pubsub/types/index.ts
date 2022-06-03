@@ -35,9 +35,15 @@ export type FareTransferArgs = {
 	timestamp: number
 }
 
+export interface IRoundEliminators {
+	isTwoXElim: boolean
+	isTenXElim: boolean
+	isHundoXElim: boolean
+}
+
 export type SettledRound = {
 	settledData: SettledBatchEntryArgs[]
-} & Omit<IRound, 'isEliminator'>
+} & Omit<IRound, 'isEliminator'> & IRoundEliminators
 
 export type GameModeArgs = Omit<GameMode, 'jobId' | 'eventLogId' | 'timestamp'>
 

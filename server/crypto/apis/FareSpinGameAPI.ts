@@ -83,6 +83,16 @@ class FareSpinGameAPI {
 		}
 	}
 
+	public async getAllEliminatorsByRound(roundId: number) {
+		const gameModeIds = this._gameModes.map(({ id }) => BNToNumber(id))
+
+		const promiseList = gameModeIds.map(async gameModeId => {
+			return this.getEliminator(roundId, gameModeId)
+		})
+
+		return Promise.all(promiseList)
+	}
+
 	public async getAllEliminators(roundIds?: number[]): Promise<IEliminator[][]> {
 		const gameModeIds = this._gameModes.map(({ id }) => BNToNumber(id))
 		let rIds = roundIds

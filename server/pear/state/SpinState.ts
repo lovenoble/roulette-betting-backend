@@ -17,7 +17,7 @@ export default class SpinState extends Schema {
 	@type({ map: BatchEntry }) batchEntries = new MapSchema<BatchEntry>()
 
 	// roundId -> Round
-	@type({ map: Round }) rounds = new MapSchema<Round>()
+	@type(Round) round = new Round()
 
 	// @NOTE: Ensure that publicAddress can only submit one batchEntry per round (in smart contract)
 	// @NOTE: Determine if we should start wheel at 2-5 mins or once 300 players are reached

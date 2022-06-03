@@ -60,7 +60,8 @@ export default class RoundService extends ServiceBase<Round> {
 					.where('batchEntryId')
 					.eq(batchEntry.batchEntryId)
 					.where('roundId')
-					.eq(batchEntry.batchEntryId)
+					.eq(batchEntry.roundId)
+					.sortAsc('entryId')
 					.returnAll(),
 			}
 

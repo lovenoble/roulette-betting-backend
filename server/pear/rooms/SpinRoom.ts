@@ -89,10 +89,6 @@ class SpinGame extends Room<SpinState> {
 
 			this.setState(new SpinState())
 
-			// @NOTE: Define WebSocket message handling here
-			// Define Redis pubsub events
-			// this.defineEvents()
-
 			this.startTimer()
 
 			PubSub.sub('fare', 'fare-transfer').listen<'fare-transfer'>(_transfer => {})

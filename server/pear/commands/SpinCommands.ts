@@ -12,7 +12,7 @@ import { logger } from '../utils'
 
 // @NOTE: Define types for options
 export class OnBatchEntry extends Command<SpinRoom, unknown> {
-	async execute({ batchEntry, entries }: BatchEntryMsgArgs) {
+	execute({ batchEntry, entries }: BatchEntryMsgArgs) {
 		try {
 			logger.info('ONBATCHENTRY')
 			const batchEntryState = new BatchEntry()
@@ -48,8 +48,8 @@ export class OnBatchEntry extends Command<SpinRoom, unknown> {
 }
 
 // @NOTE: Probably don't need this since OnRoundConcluded can handle updating state for specific user
-export class OnBatchEntrySettled extends Command<SpinRoom, any> {
-	async execute({ batchEntry, entries }: SettledBatchEntryArgs) {
+export class OnBatchEntrySettled extends Command<SpinRoom, SettledBatchEntryArgs> {
+	execute({ batchEntry, entries }: SettledBatchEntryArgs) {
 		// const be = this.state.batchEntries.get(batchEntry.entityId)
 
 		// be.settled = true
@@ -58,15 +58,28 @@ export class OnBatchEntrySettled extends Command<SpinRoom, any> {
 	}
 }
 
-export class OnRoundConcluded extends Command<SpinRoom, any> {
-	async execute(roundData: SettledRound) {
+export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
+	execute(roundData: SettledRound) {
 		logger.info('OnRoundConcluded', roundData)
+
+		// Set round info
+		this.state.round.roundId = roundData.roundId
+		this.state.round.vrfRequestId = roundData.vrfRequestId
+		this.state.round.randomNum = roundData.randomNum
+		this.state.round.randomEliminator = roundData.randomEliminator
+
+		// Set eliminator results
+		this.state.round.isTwoXElim = roundData.isTwoXElim
+		this.state.round.isTenXElim = roundData.isTenXElim
+		this.state.round.isHundoXElim = roundData.isHundoXElim
+
+		// Set winAmounts for call batchEntries/entries
+		roundData.settledData.forEach(({ batchEntry, entries }) => {
+			const be = this.state.batchEntries.get(batchEntry.player)
+			be.totalWinAmount = batchEntry.totalWinAmount
+			be.entries.forEach((e, idx) => {
+				e.winAmount = entries[idx].winAmount
+			})
+		})
 	}
 }
-
-// Fetch initial user balance
-// Add player/guestPlayer to spinState
-// new batchEntry
-// round concluded
-// entry settled
-// mint/burn/transfer
