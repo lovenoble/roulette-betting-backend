@@ -1,4 +1,6 @@
 require('dotenv')
+
+/* eslint-disable */
 const os = require('os')
 
 // @NOTE: Decide on a standard Redis index to use

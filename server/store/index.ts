@@ -95,9 +95,18 @@ export class RedisStore {
 	}
 
 	async initSmartContractListeners() {
-		this.listener = new SmartContractListener(this.service, this.queue)
-		await this.listener.start()
-		logger.info(`Smart contract listeners started! (${this.listener.listenerCount} listeners)`)
+		try {
+			this.listener = new SmartContractListener(this.service, this.queue)
+			await this.listener.start()
+			logger.info(
+				`Smart contract listeners started! (${this.listener.listenerCount} listeners)`
+			)
+		} catch (err) {
+			logger.error(
+				new Error('Smart contract listeners failed to connnect RPC blockchain node.')
+			)
+			logger.error(err)
+		}
 	}
 
 	async disconnectAll() {

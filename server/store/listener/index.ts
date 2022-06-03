@@ -1,8 +1,9 @@
 import { fareAPI, spinAPI } from '../../crypto'
 
-import { EventNames } from '../constants'
 import type { IServiceObj } from '../types'
+import { EventNames } from '../constants'
 import { StoreQueue } from '../queue'
+import { logger } from '../utils'
 
 import createFareTokenListener from './fareToken'
 import createSpinGameListener from './spinGame'
@@ -31,17 +32,21 @@ export default class SmartContractListener {
 	async start() {
 		await this.beforeStart()
 
-		// Fare
-		fareAPI.contract.on(EventNames.Transfer, this.listeners.fareTransfer)
+		try {
+			// Fare
+			fareAPI.contract.on(EventNames.Transfer, this.listeners.fareTransfer)
 
-		// Spin
-		spinAPI.contract.on(EventNames.GameModeUpdated, this.listeners.gameModeUpdated)
-		spinAPI.contract.on(EventNames.EntrySubmitted, this.listeners.entrySubmitted)
-		spinAPI.contract.on(EventNames.RoundConcluded, this.listeners.roundConcluded)
-		spinAPI.contract.on(EventNames.EntrySettled, this.listeners.entrySettled)
+			// Spin
+			spinAPI.contract.on(EventNames.GameModeUpdated, this.listeners.gameModeUpdated)
+			spinAPI.contract.on(EventNames.EntrySubmitted, this.listeners.entrySubmitted)
+			spinAPI.contract.on(EventNames.RoundConcluded, this.listeners.roundConcluded)
+			spinAPI.contract.on(EventNames.EntrySettled, this.listeners.entrySettled)
 
-		// @NOTE: Perhaps this event won't be needed since we already get the random number from roundConcluded
-		// spinAPI.contract.on(EventNames.RandomNumberRequested, (...args) => console.log(args))
+			// @NOTE: Perhaps this event won't be needed since we already get the random number from roundConcluded
+			// spinAPI.contract.on(EventNames.RandomNumberRequested, (...args) => console.log(args))
+		} catch (err) {
+			logger.error(err)
+		}
 	}
 
 	async stop() {
