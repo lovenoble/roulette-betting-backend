@@ -1,7 +1,8 @@
 import { Command } from '@colyseus/command'
 
 import type { SpinRoom } from '../types'
-import { getUserBalances } from '../../crypto/utils'
+
+import crypto from '../../crypto'
 import { logger } from '../utils'
 import { User, IUserOptions, GuestUser, IGuestUser } from '../entities'
 import store from '../../store'
@@ -21,7 +22,7 @@ export class OnUserJoined extends Command<SpinRoom, IUserOptions> {
 	async execute({ publicAddress, sessionId }: { publicAddress: string; sessionId: string }) {
 		try {
 			// @NOTE: Move this to UserService
-			const balance = await getUserBalances(publicAddress)
+			const balance = await crypto.getBalances(publicAddress)
 
 			const userEntity = await store.service.user.getUserByAddress(publicAddress)
 
@@ -54,7 +55,7 @@ export class OnBalanceUpdate extends Command<
 > {
 	async execute({ playerAddress }) {
 		try {
-			const { eth, fare } = await getUserBalances(playerAddress)
+			const { eth, fare } = await crypto.getBalances(playerAddress)
 
 			const user = this.state.users.get(playerAddress)
 

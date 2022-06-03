@@ -73,7 +73,7 @@ export default abstract class PubSub {
 	Channels = PubSubChannel
 
 	// Create only one pub instance. If already created return the created instance.
-	static pub<T extends keyof MessageListener>(
+	static async pub<T extends keyof MessageListener>(
 		channel: ChannelName,
 		messageName: keyof MessageListener,
 		data: FirstArgument<MessageListener[T]>
@@ -84,7 +84,7 @@ export default abstract class PubSub {
 		}
 		const patternName = `${channel}.${messageName}`
 
-		this.#pub.publish(patternName, JSON.stringify(data))
+		await this.#pub.publish(patternName, JSON.stringify(data))
 
 		return this.#pub
 	}

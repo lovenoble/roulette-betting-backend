@@ -1,13 +1,10 @@
 import { Request, Response } from 'express'
-import { ethers } from 'ethers'
 
 // import { fmtn } from '../pears/crypto/contracts'
 
 export default class NFTController {
-	public static async getFareBalance(req: Request, res: Response) {
+	public static async getFareBalance(_req: Request, res: Response) {
 		try {
-			const { address } = req.params
-
 			// if (!address || !ethers.utils.isAddress(address)) {
 			// 	return res.status(500).json({ message: 'Invalid address' })
 			// }

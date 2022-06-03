@@ -1,12 +1,13 @@
 import { utils } from 'ethers'
 import validator from 'validator'
 
+import type { User } from '../types'
 import type { SetUserDataRequest } from '../../rpc/models/user'
+
+import ServiceBase from './ServiceBase'
 import { userColorThemeToJSON } from '../../rpc/models/user'
 import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from '../constants'
 import { Omit } from '../types'
-import ServiceBase from './ServiceBase'
-import type { User } from '../types'
 import { PearHash, logger, isValidUsername } from '../utils'
 
 const { isEmail, isEmpty } = validator

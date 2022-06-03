@@ -1,6 +1,7 @@
+import type { FareTransfer } from '../schema/types'
+
 import ServiceBase from './ServiceBase'
 import { zeroAddress } from '../utils'
-import type { FareTransfer } from '../schema/types'
 
 interface ICreateOptions {
 	jobId?: string

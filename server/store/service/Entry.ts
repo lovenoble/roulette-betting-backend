@@ -1,9 +1,10 @@
 import type { BigNumber } from 'ethers'
 
-import ServiceBase from './ServiceBase'
-import { spinAPI } from '../../crypto/contracts'
-import { ensureNumber, formatETH, BNToNumber } from '../utils'
 import type { Entry } from '../schema/types'
+
+import ServiceBase from './ServiceBase'
+import { spinAPI } from '../../crypto'
+import { ensureNumber, formatETH, BNToNumber } from '../utils'
 
 export default class EntryService extends ServiceBase<Entry> {
 	public async fetchEntriesByBatchEntryId(

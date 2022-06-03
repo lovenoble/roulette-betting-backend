@@ -1,5 +1,2 @@
-import _spinApi from './FareSpinGameAPI'
-import _tokenApi from './FareTokenAPI'
-
-export const tokenAPI = new _tokenApi()
-export const spinAPI = new _spinApi()
+export { default as FareTokenAPI } from './FareTokenAPI'
+export { default as FareSpinGameAPI } from './FareSpinGameAPI'

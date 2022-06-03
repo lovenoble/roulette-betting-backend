@@ -2,8 +2,7 @@ import { status } from '@grpc/grpc-js'
 
 import type { sendUnaryData, ServerUnaryCall, UntypedHandleCall } from '@grpc/grpc-js'
 
-import { AnalyticsServer } from 'rpc/models/analytics'
-import { UserProfileRequest, UserProfileResponse } from '../models/analytics'
+import { AnalyticsServer , UserProfileRequest, UserProfileResponse } from 'rpc/models/analytics'
 
 import { ServiceError, logger } from '../utils'
 

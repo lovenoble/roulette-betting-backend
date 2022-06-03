@@ -3,9 +3,9 @@ import type { BigNumber } from 'ethers'
 import type EntryService from './Entry'
 import type BatchEntryService from './BatchEntry'
 import type GameModeService from './GameMode'
-
 import type { Round, BNGameMode } from '../schema/types'
 import type { SettledBatchEntryArgs, SettledBatchEntry, SettledEntry } from '../../pubsub/types'
+
 import ServiceBase from './ServiceBase'
 import { ensureNumber, formatETH, BN, toEth, logger } from '../utils'
 

@@ -1,8 +1,9 @@
 import type { BigNumberish } from 'ethers'
 
 import type { GameMode } from '../schema/types'
+
 import ServiceBase from './ServiceBase'
-import { spinAPI } from '../../crypto/contracts'
+import { spinAPI } from '../../crypto'
 import { formatBN, formatETH, BNToNumber } from '../utils'
 
 const spin = spinAPI.contract

@@ -1,9 +1,10 @@
 import type { Event } from 'ethers'
 
-import ServiceBase from './ServiceBase'
-import { EventLog } from '../schema/eventLog'
 import type { ContractNames } from '../constants'
 import type { IEventLogQueue } from '../types'
+
+import ServiceBase from './ServiceBase'
+import { EventLog } from '../schema/eventLog'
 
 export default class EventLogService extends ServiceBase<EventLog> {
 	public parseForQueue(event: Event, contractName: ContractNames): IEventLogQueue {

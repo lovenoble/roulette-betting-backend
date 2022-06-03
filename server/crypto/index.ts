@@ -1,4 +1,5 @@
 import { Contract, Wallet, providers, utils as ethUtils } from 'ethers'
+
 import {
 	FareToken,
 	FareSpinGame,
@@ -9,6 +10,7 @@ import {
 import config from '../config/crypto.config'
 import * as abis from './abis'
 import * as utils from './utils'
+import { FareSpinGameAPI, FareTokenAPI } from './apis'
 
 const {
 	fareTokenAddress,
@@ -93,4 +95,10 @@ export class Crypto {
 	}
 }
 
-export default new Crypto()
+const crypto = new Crypto()
+
+// API Instances
+export const fareAPI = new FareTokenAPI(crypto.fare)
+export const spinAPI = new FareSpinGameAPI(crypto.fare, crypto.spin)
+
+export default crypto

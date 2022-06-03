@@ -1,18 +1,24 @@
 import { utils } from 'ethers'
 
-import { fareTokenContract, fareSpinGameContract, BNToNumber } from '../utils'
+import { BNToNumber } from '../utils'
 
-import { IEntry, IBatchEntry, IRound, IEliminator, GameModeParams } from '../types/spin.types'
-
-import { TREASURY_ADDRESS, GameModes } from '../constants'
+import type { IEntry, IBatchEntry, IRound, IEliminator, GameModeParams } from '../types/spin.types'
+import type { FareToken, FareSpinGame } from '../types'
+import { GameModes } from '../constants'
+import config from '../../config/crypto.config'
 
 const { formatUnits } = utils
 
 class FareSpinGameAPI {
-	public token = fareTokenContract
-	public contract = fareSpinGameContract
-	private _treasuryAddress = TREASURY_ADDRESS
+	public token!: FareToken
+	public contract!: FareSpinGame
+	private _treasuryAddress = config.treasuryAddress
 	private _gameModes = GameModes
+
+	constructor(fareTokenContract: FareToken, fareSpinGameContract: FareSpinGame) {
+		this.token = fareTokenContract
+		this.contract = fareSpinGameContract
+	}
 
 	public get treasuryAddress() {
 		return this._treasuryAddress

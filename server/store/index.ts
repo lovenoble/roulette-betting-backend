@@ -1,5 +1,7 @@
 import { Client } from 'redis-om'
 
+import StoreWorker from './worker'
+import SmartContractListener from './listener'
 import { logger } from './utils'
 import storeQueue, { StoreQueue } from './queue'
 import {
@@ -11,8 +13,6 @@ import {
 	RoundService,
 	UserService,
 } from './service'
-import StoreWorker from './worker'
-import SmartContractListener from './listener'
 import { IRepoObj, IServiceObj } from './types'
 
 // Schemas

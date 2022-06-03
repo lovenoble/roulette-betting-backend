@@ -8,11 +8,11 @@ import type { ISpinRoomOptions, ICreateSpinRoomOptions } from '../types'
 import { HttpStatusCode } from '../constants'
 import {
 	OnBatchEntry,
-	OnBatchEntrySettled,
 	OnUserJoined,
 	OnGuestUserJoined,
-	OnBalanceUpdate,
 	OnUserLeave,
+	// OnBalanceUpdate,
+	// OnBatchEntrySettled,
 } from '../commands'
 import SpinState from '../state/SpinState'
 import { logger } from '../utils'
@@ -59,7 +59,7 @@ dayjs.extend(relativeTime)
 class SpinGame extends Room<SpinState> {
 	maxClients = 2500 // @NOTE: Need to determine the number of clients where performance begins to fall off
 	dispatcher = new Dispatcher(this)
-	#name: string
+	#name: string // eslint-disable-line
 	#desc: string
 	#password: string | null = null
 
@@ -95,13 +95,13 @@ class SpinGame extends Room<SpinState> {
 
 			this.startTimer()
 
-			PubSub.sub('fare', 'fare-transfer').listen<'fare-transfer'>(transfer => {})
+			PubSub.sub('fare', 'fare-transfer').listen<'fare-transfer'>(_transfer => {})
 
 			PubSub.sub('spin-state', 'batch-entry').listen<'batch-entry'>(data => {
 				this.dispatcher.dispatch(new OnBatchEntry(), data)
 			})
 
-			PubSub.sub('spin-state', 'round-concluded').listen<'round-concluded'>(data => {})
+			PubSub.sub('spin-state', 'round-concluded').listen<'round-concluded'>(_data => {})
 		} catch (err) {
 			// @NOTE: Need better error handling here. If this fails the state doesn't get set
 			logger.error(err)

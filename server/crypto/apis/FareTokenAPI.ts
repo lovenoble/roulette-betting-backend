@@ -1,13 +1,17 @@
 import ethers from 'ethers'
 
-import { fareTokenContract } from '../utils'
+import { FareToken } from '../types'
 
 const {
 	utils: { formatEther },
 } = ethers
 
 class FareTokenAPI {
-	public contract = fareTokenContract
+	public contract!: FareToken
+
+	constructor(contract: FareToken) {
+		this.contract = contract
+	}
 
 	public getAddress(): string {
 		return this.contract.address

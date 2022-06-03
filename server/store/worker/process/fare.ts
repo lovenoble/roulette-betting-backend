@@ -1,6 +1,7 @@
-import { ContractNames, EventNames } from '../../constants'
 import type { EventReturnData, IFareTransferQueue, IServiceObj } from '../../types'
+
 import PubSub from '../../../pubsub'
+import { ContractNames, EventNames } from '../../constants'
 
 const createFareJobProcesses = (service: IServiceObj) => {
 	async function fareTransfer<T>(queueData: IFareTransferQueue, jobId: string = null) {

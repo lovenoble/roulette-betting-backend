@@ -1,4 +1,5 @@
-import { tokenAPI, spinAPI } from '../../crypto/contracts'
+import { fareAPI, spinAPI } from '../../crypto'
+
 import { EventNames } from '../constants'
 import type { IServiceObj } from '../types'
 import { StoreQueue } from '../queue'
@@ -31,7 +32,7 @@ export default class SmartContractListener {
 		await this.beforeStart()
 
 		// Fare
-		tokenAPI.contract.on(EventNames.Transfer, this.listeners.fareTransfer)
+		fareAPI.contract.on(EventNames.Transfer, this.listeners.fareTransfer)
 
 		// Spin
 		spinAPI.contract.on(EventNames.GameModeUpdated, this.listeners.gameModeUpdated)
@@ -44,7 +45,7 @@ export default class SmartContractListener {
 	}
 
 	async stop() {
-		tokenAPI.contract.removeAllListeners()
+		fareAPI.contract.removeAllListeners()
 		spinAPI.contract.removeAllListeners()
 	}
 }

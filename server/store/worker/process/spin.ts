@@ -1,7 +1,4 @@
-import { ContractNames, EventNames } from '../../constants'
-import { spinAPI } from '../../../crypto/contracts'
-import { formatETH, toEth, workerLogger as logger } from '../../utils'
-import {
+import type {
 	IServiceObj,
 	IGameModeUpdatedQueue,
 	IEntrySubmittedQueue,
@@ -9,7 +6,11 @@ import {
 	IRoundConcludedQueue,
 	EventReturnData,
 } from '../../types'
+
 import PubSub from '../../../pubsub'
+import { ContractNames, EventNames } from '../../constants'
+import { spinAPI } from '../../../crypto'
+import { formatETH, toEth, workerLogger as logger } from '../../utils'
 
 const createSpinJobProcesses = (service: IServiceObj) => {
 	async function gameModeUpdated<T>(queueData: IGameModeUpdatedQueue, jobId: string = null) {

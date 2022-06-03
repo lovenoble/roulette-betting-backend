@@ -1,10 +1,11 @@
 import type { BigNumber } from 'ethers'
 
-import ServiceBase from './ServiceBase'
-import { ensureNumber, formatETH, logger } from '../utils'
 import type EntryService from './Entry'
 import type { BatchEntry } from '../schema/types'
-import { spinAPI } from '../../crypto/contracts'
+
+import ServiceBase from './ServiceBase'
+import { ensureNumber, formatETH, logger } from '../utils'
+import { spinAPI } from '../../crypto'
 
 export default class BatchEntryService extends ServiceBase<BatchEntry> {
 	entryService!: EntryService

@@ -1,8 +1,9 @@
 import { Command } from '@colyseus/command'
 
 import type { SpinRoom } from '../types'
+import type { BatchEntryMsgArgs, SettledRound, SettledBatchEntryArgs } from '../../pubsub/types'
+
 import { Entry, BatchEntry, Round as _Round } from '../entities'
-import { BatchEntryMsgArgs, SettledRound, SettledBatchEntryArgs } from '../../pubsub/types'
 import { logger } from '../utils'
 
 // @NOTE: Needed commands
