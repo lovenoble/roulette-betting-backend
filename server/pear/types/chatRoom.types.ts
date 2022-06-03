@@ -1,4 +1,14 @@
+import { Room } from 'colyseus'
 import { Schema, MapSchema } from '@colyseus/schema'
+
+import type ChatState from '../state/ChatState'
+
+export class ChatRoom extends Room<ChatState> {}
+
+export type OnMessageOptions = {
+	publicAddress: string
+	text: string
+}
 
 export interface IPlayerOptions {
 	publicAddress: string
@@ -18,7 +28,7 @@ export interface IChatRoomState extends Schema {
 	messages: MapSchema<IChatMessageOptions>
 }
 
-export interface ISpinRoomOptions {
+export interface IDefaultRoomOptions {
 	authToken?: string
 	guestId?: string
 }

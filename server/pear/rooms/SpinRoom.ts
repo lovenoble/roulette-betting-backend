@@ -4,7 +4,7 @@ import { Dispatcher } from '@colyseus/command'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
-import type { ISpinRoomOptions, ICreateSpinRoomOptions } from '../types'
+import type { IDefaultRoomOptions, ICreateSpinRoomOptions } from '../types'
 import { HttpStatusCode } from '../constants'
 import {
 	OnBatchEntry,
@@ -131,7 +131,7 @@ class SpinGame extends Room<SpinState> {
 		}, this.state.timer.runTimeMs)
 	}
 
-	async onAuth(_client: Client, options: ISpinRoomOptions = {}) {
+	async onAuth(_client: Client, options: IDefaultRoomOptions = {}) {
 		try {
 			const { authToken, guestId } = options
 
@@ -160,7 +160,7 @@ class SpinGame extends Room<SpinState> {
 		}
 	}
 
-	async onJoin(client: Client, _options: ISpinRoomOptions = {}, auth?: string) {
+	async onJoin(client: Client, _options: IDefaultRoomOptions = {}, auth?: string) {
 		try {
 			/* @ts-ignore */
 			const { sessionId } = client

@@ -18,4 +18,11 @@ export class Message extends Schema implements IMessage {
 	@type('string') text: string
 	@type('string') createdBy: string
 	@type('number') timestamp = Date.now()
+	constructor({ id, text, createdBy, timestamp }: IMessage) {
+		super()
+		this.id = id
+		this.text = text
+		this.createdBy = createdBy
+		this.timestamp = timestamp
+	}
 }

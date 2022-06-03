@@ -1,8 +1,9 @@
-import { Schema, MapSchema, type } from '@colyseus/schema'
+import { Schema, ArraySchema, MapSchema, type } from '@colyseus/schema'
 
-import { Player, Message } from '../entities'
+import { GuestUser, ChatUser, Message } from '../entities'
 
-export class ChatRoomState extends Schema {
-	@type({ map: Player }) players = new MapSchema<Player>()
-	@type({ map: Message }) messages = new MapSchema<Message>()
+export default class ChatRoomState extends Schema {
+	@type({ map: ChatUser }) users = new MapSchema<ChatUser>()
+	@type({ map: GuestUser }) guestUsers = new MapSchema<GuestUser>()
+	@type([Message]) messages = new ArraySchema<Message>()
 }

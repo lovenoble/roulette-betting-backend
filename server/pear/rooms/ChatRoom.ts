@@ -1,139 +1,131 @@
-// @NOTE: Need to implement later
+import { Room, ServerError, Client } from '@colyseus/core'
+import { Dispatcher } from '@colyseus/command'
 
-// import { Room, ServerError } from '@colyseus/core'
-// import { Dispatcher } from '@colyseus/command'
-// import shortId from 'shortid'
+// Libraries
+import type { IDefaultRoomOptions, IRoomOptions } from '../types'
+import store from '../../store'
+import { HttpStatusCode, ChatMessage } from '../constants'
+import ChatState from '../state/ChatState'
+import { logger } from '../utils'
+import {
+	OnChatUserJoined,
+	OnUserLeave,
+	OnNewMessage,
+	OnGuestChatUserJoined,
+} from '../commands/ChatCommands'
 
-// // Libraries
-// import ChatService from '../../store/services/Chat'
-// import PlayerService from '../../store/services/Player'
-// import PearHash from '../utils/PearHash'
-// import PearMessages from '../types/message.types'
-// import { ChatRoomState } from '../state/ChatState'
-// import { Player, Message } from '../entities'
-// import { IRoomOptions } from '../types/rooms.types'
-// import createLog from '../utils'
+// @NOTE: Need to create store service that handles updating analytics
 
-// const LOG_PATH = '[pears/defs/ChatRoom]:'
+class ChatRoom extends Room<ChatState> {
+	maxClients = 100
+	private name: string
+	private desc: string
+	private password: string | null = null
+	private dispatcher = new Dispatcher(this)
 
-// const [logInfo, logError] = createLog(LOG_PATH)
+	async onCreate(options: IRoomOptions) {
+		try {
+			const { name, desc, password } = options
+			this.name = name
+			this.desc = desc
+			this.password = password
 
-// class ChatRoom extends Room<ChatRoomState> {
-// 	maxClients = 100
-// 	private name: string
-// 	private desc: string
-// 	private password: string | null = null
-// 	private dispatcher = new Dispatcher(this)
+			let hasPassword = false
+			if (password) {
+				// @NOTE: Handle hashing password before setting the metadata
+				logger.info('Password was set', password)
+				hasPassword = true
+			}
+			this.setMetadata({
+				name,
+				desc,
+				hasPassword,
+			})
 
-// 	async onCreate(options: IRoomOptions) {
-// 		try {
-// 			const { name, desc, password } = options
-// 			this.name = name
-// 			this.desc = desc
-// 			this.password = password
+			this.setState(new ChatState())
 
-// 			let hasPassword = false
-// 			if (password) {
-// 				// @NOTE: Handle hashing password before setting the metadata
-// 				logInfo('Password was set', password)
-// 				hasPassword = true
-// 			}
-// 			this.setMetadata({
-// 				name,
-// 				desc,
-// 				hasPassword,
-// 			})
+			this.onMessage(ChatMessage.NewChatMessage, (client: Client, text: string) => {
+				this.dispatcher.dispatch(new OnNewMessage(), {
+					publicAddress: client.auth,
+					text,
+				})
+			})
+		} catch (err) {
+			logger.error(err)
+			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
+		}
+	}
 
-// 			const messages = await ChatService.getChatRoomMessages()
-// 			this.setState(new ChatRoomState())
+	async onAuth(_client: Client, options: IDefaultRoomOptions = {}) {
+		try {
+			const { authToken, guestId } = options
 
-// 			// Iterate over existing messages and add them to the ChatRoomState
-// 			// Potentially created a new map here and pass it into state at once
-// 			messages.forEach(message => {
-// 				console.log(message.player)
-// 				const existingMessage = new Message({
-// 					id: message._id.toString(),
-// 					text: message.text,
-// 					createdBy: message.player.publicAddress,
-// 					createdAt: new Date(message.createdAt).getTime(),
-// 					isInStore: true,
-// 				})
-// 				this.state.messages.set(message._id.toString(), existingMessage)
-// 			})
+			if (authToken) {
+				const user = await store.service.user.getUserFromToken(authToken)
 
-// 			this.onMessage(PearMessages.NEW_CHAT_MESSAGE, (client, message) => {
-// 				const { token } = message
-// 				console.log(client.auth)
-// 				if (token) {
-// 					logInfo('Players token should be here:', token)
-// 				}
+				if (!user) {
+					logger.error('Invalid user authToken.')
+					throw new ServerError(HttpStatusCode.UNAUTHORIZED, 'Invalid user authToken.')
+				}
 
-// 				const chatMessageId: string = shortId()
+				return user.publicAddress
+			}
+			if (guestId) {
+				logger.info('User logging in as guest with username:', guestId)
+				return `guest:${guestId}`
+			}
 
-// 				const newMessage = new Message({
-// 					id: chatMessageId,
-// 					text: message.text,
-// 					createdBy: client.auth,
-// 					isInStore: false,
-// 				})
+			throw new ServerError(
+				HttpStatusCode.UNAUTHORIZED,
+				'A valid token is required to connect to room.'
+			)
+		} catch (err: any) {
+			logger.error(err)
+			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
+		}
+	}
 
-// 				// @NOTE: Add a better way to handle creating the messageId
-// 				this.state.messages.set(shortId(), newMessage)
-// 			})
-// 		} catch (err) {
-// 			console.log('this got hit')
-// 			// @NOTE: Need better error handling here. If this fails the state doesn't get set
-// 			logError(err)
-// 		}
-// 	}
+	async onJoin(client: Client, _options: IDefaultRoomOptions = {}, auth?: string) {
+		try {
+			/* @ts-ignore */
+			const { sessionId } = client
+			const [publicAddress, guestId] = auth.split(':')
+			logger.info(publicAddress, guestId)
 
-// 	async onAuth(client: any, options) {
-// 		// Validate token and get publicAddress for hashmap reference
-// 		const { publicAddress } = await PearHash.decodeJwt(options.authToken)
+			if (guestId) {
+				this.dispatcher.dispatch(new OnGuestChatUserJoined(), { sessionId, guestId })
+			} else if (publicAddress) {
+				logger.info('Updated users sessionId:', publicAddress, sessionId)
+				this.dispatcher.dispatch(new OnChatUserJoined(), {
+					publicAddress,
+					sessionId,
+				})
+			} else {
+				throw new ServerError(
+					HttpStatusCode.INTERNAL_SERVER_ERROR,
+					'Auth token does not exist.'
+				)
+			}
+		} catch (err) {
+			logger.error(err)
+			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
+		}
+	}
 
-// 		if (!publicAddress) {
-// 			throw new ServerError(400, 'Invalid access token.')
-// 		}
+	onLeave(client: Client) {
+		const { sessionId } = client
 
-// 		const playerStore = await PlayerService.model.findOne(
-// 			{
-// 				publicAddress,
-// 			},
-// 			'_id username publicAddress'
-// 		) // @NOTE: Need to assign and return session token here
+		this.dispatcher.dispatch(new OnUserLeave(), {
+			sessionId,
+		})
+	}
 
-// 		if (!playerStore) {
-// 			throw new ServerError(400, 'Invalid access token.')
-// 		}
+	onDispose() {
+		// @NOTE: Need to clear garbage here
 
-// 		const joinedPlayer = new Player({
-// 			username: playerStore.username,
-// 			publicAddress: playerStore.publicAddress,
-// 		})
-// 		this.state.players.set(client.sessionId, joinedPlayer)
-// 		return playerStore.publicAddress
-// 	}
+		this.dispatcher.stop()
+		logger.info('Disposing of SpinGame room...')
+	}
+}
 
-// 	// async onJoin(client: any, options, auth) {
-// 	//     try {
-// 	//     } catch (err) {
-// 	//         // @NOTE: Need better error handling here. If this fails the state doesn't get set
-// 	//         logError(err)
-// 	//     }
-// 	// }
-
-// 	onLeave(client: any) {
-// 		// Remove player from state
-// 		if (this.state.players.has(client.sessionId)) {
-// 			this.state.players.delete(client.sessionId)
-// 		}
-// 	}
-
-// 	// onDispose() {
-// 	//     // @NOTE: Need to clear garbage here
-// 	//     logInfo('Saving ChatRoom state and disposing ChatRoom')
-// 	//     // ChatService.saveState(this.state)
-// 	// }
-// }
-
-// export default ChatRoom
+export default ChatRoom
