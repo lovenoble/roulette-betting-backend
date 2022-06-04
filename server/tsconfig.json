@@ -26,6 +26,7 @@
     "./**/*.ts"
   ],
   "exclude": [
+    "./bin/*",
     "dist",
     "node_modules"
   ]
