@@ -83,55 +83,42 @@ const connectToRoom = async (
   timer: any,
   setTimer: any
 ) => {
-  try {
-    const room = await client.joinOrCreate<any>("Spin", {
-      authToken,
-      guestId: shortId(),
-    });
+  const room = await client.joinOrCreate<any>("Spin", {
+    authToken,
+    guestId: shortId(),
+  });
 
-    console.log(room);
+  // room.state.listen("timer", (curr: any, prev: any) => {
+  //   console.log(curr, prev);
+  // });
 
-    room.onError((code, message) => {
-      console.log(code, message);
-    });
+  // room.state.timer.onAdd = (timer: any) => {
+  //   console.log(timer);
+  // };
 
-    room.onLeave((code) => {
-      console.log(code);
-    });
+  // @ts-ignore
+  room.onStateChange((state) => {
+    console.log(state.batchEntries);
+    console.log(state.round);
+  });
 
-    // room.state.listen("timer", (curr: any, prev: any) => {
-    //   console.log(curr, prev);
-    // });
+  room.state.timer.onChange = (changes: any) => {
+    //     const time = changes.filter((st: any) => {
+    //         return st.field === "timeDisplay";
+    //     })[0];
 
-    // room.state.timer.onAdd = (timer: any) => {
-    //   console.log(timer);
-    // };
+    //     if (time) {
+    //         setTimer(time.value);
+    //     }
 
-    room.onStateChange((state) => {
-      console.log(state.batchEntries);
-      console.log(state.round);
-    });
+    const time = changes.filter((st: any) => {
+      return st.field === "elapsedTime";
+    })[0];
 
-    room.state.timer.onChange = (changes: any) => {
-      //     const time = changes.filter((st: any) => {
-      //         return st.field === "timeDisplay";
-      //     })[0];
-
-      //     if (time) {
-      //         setTimer(time.value);
-      //     }
-
-      const time = changes.filter((st: any) => {
-        return st.field === "elapsedTime";
-      })[0];
-
-      if (time) {
-        setTimer(time.value.toString());
-      }
-    };
-  } catch (e: any) {
-    console.log(e);
-  }
+    if (time) {
+      setTimer(time.value.toString());
+    }
+  };
 };
 
 const userState = atom({

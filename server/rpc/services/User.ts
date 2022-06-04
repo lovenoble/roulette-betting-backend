@@ -148,7 +148,7 @@ export class User implements UserServer {
 
 			const res: Partial<LogoutResponse> = {}
 
-			const decodedToken = await PearHash.decodeJwt(token)
+			const decodedToken = PearHash.decodeJwt(token)
 			// @NOTE: Need to check if token is expired here
 			// @NOTE: If token is invalid or expired send a message to client to clear out token in localStorage
 			if (!decodedToken.publicAddress) {

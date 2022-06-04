@@ -21,4 +21,5 @@ export enum MediaStreamMessage {
 }
 
 // Import/Exports
-export * from './httpStatusCodes'
+export * from './HttpStatusCodes'
+export * from './WebSocketStatusCodes'

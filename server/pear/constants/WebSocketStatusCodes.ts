@@ -1,0 +1,74 @@
+/**
+ * WebSocket (WS) Close Codes
+ * @see {@link https://github.com/Luka967/websocket-close-codes}
+ */
+
+export enum WebSocketCloseCode {
+	/**
+	 *   Successful operation / regular socket shutdown
+	 */
+	CLOSE_NORMAL = 1000,
+	/**
+	 *   Client is leaving (browser tab closing)
+	 */
+	CLOSE_GOING_AWAY = 1001,
+	/**
+	 *   Endpoint received a malformed frame
+	 */
+	CLOSE_PROTOCOL_ERROR = 1002,
+	/**
+	 *   Endpoint received an unsupported frame (e.g. binary-only endpoint received text frame)
+	 */
+	CLOSE_UNSUPPORTED = 1003,
+	/**
+	 *   Expected close status, received none
+	 */
+	CLOSE_NO_STATUS = 1005,
+	/**
+	 *   No close code frame has been received
+	 */
+	CLOSE_ABNORMAL = 1006,
+	/**
+	 *   Endpoint received inconsistent message (e.g. malformed UTF-8)
+	 */
+	UNSUPPORTED_PAYLOAD = 1007,
+	/**
+	 *   Generic code used for situations other than 1003 and 1009
+	 */
+	POLICY_VIOLATION = 1008,
+	/**
+	 *   Endpoint won't process large frame
+	 */
+	CLOSE_TOO_LARGE = 1009,
+	/**
+	 *   Client wanted an extension which server did not negotiate
+	 */
+	MANDATORY_EXTENSION = 1010,
+	/**
+	 *   Internal server error while operating
+	 */
+	SERVER_ERROR = 1011,
+	/**
+	 *   Server/service is restarting
+	 */
+	SERVICE_RESTART = 1012,
+	/**
+	 *   Temporary server condition forced blocking client's request
+	 */
+	TRY_AGAIN_LATER = 1013,
+	/**
+	 *   Server acting as gateway received an invalid response
+	 */
+	BAD_GATEWAY = 1014,
+	/**
+	 *   Transport Layer Security handshake failure
+	 */
+	TLS_HANDSHAKE_FAILED = 1015,
+
+	// 4000-4999 Available for applications (custom close codes)
+	/**
+	 *   When an user sessionId exists and the same user connects with a new client
+	 *   close the existing session and clear sessionId in RedisStore
+	 */
+	NEW_CONNECTION_SESSION = 4000,
+}

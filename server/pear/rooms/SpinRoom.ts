@@ -142,7 +142,7 @@ class SpinGame extends Room<SpinState> {
 				return user.publicAddress
 			}
 			if (guestId) {
-				logger.info('User logging in as guest with username:', guestId)
+				logger.info(`User logging in as guest with username: ${guestId}`)
 				return `guest:${guestId}`
 			}
 
@@ -161,12 +161,10 @@ class SpinGame extends Room<SpinState> {
 			/* @ts-ignore */
 			const { sessionId } = client
 			const [publicAddress, guestId] = auth.split(':')
-			logger.info(publicAddress, guestId)
 
 			if (guestId) {
 				this.dispatcher.dispatch(new OnGuestUserJoined(), { sessionId, guestId })
 			} else if (publicAddress) {
-				logger.info('Updated users sessionId:', publicAddress, sessionId)
 				this.dispatcher.dispatch(new OnUserJoined(), {
 					publicAddress,
 					sessionId,

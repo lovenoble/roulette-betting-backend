@@ -1,7 +1,12 @@
 import { Command } from '@colyseus/command'
 
 import type { SpinRoom } from '../types'
-import type { BatchEntryMsgArgs, SettledRound, SettledBatchEntryArgs } from '../../pubsub/types'
+import type {
+	FareTransferArgs as _FareTransferArgs,
+	BatchEntryMsgArgs,
+	SettledRound,
+	SettledBatchEntryArgs,
+} from '../../pubsub/types'
 
 import { Entry, BatchEntry, Round as _Round } from '../entities'
 import { logger } from '../utils'
@@ -11,10 +16,20 @@ import { logger } from '../utils'
 // OnFetchRoundAnalytics
 
 // @NOTE: Define types for options
-export class OnBatchEntry extends Command<SpinRoom, unknown> {
+// export class OnFareTransfer extends Command<SpinRoom, FareTransferArgs> {
+// 	execute({ to, from, amount, timestamp }: FareTransferArgs) {
+//             // const toUser =
+// 		try {
+// 		} catch (err) {
+// 			logger.error(err)
+// 		}
+// 	}
+// }
+
+export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
 	execute({ batchEntry, entries }: BatchEntryMsgArgs) {
 		try {
-			logger.info('ONBATCHENTRY')
+			logger.info('OnBatchEntry')
 			const batchEntryState = new BatchEntry()
 			batchEntryState.roundId = batchEntry.roundId
 			batchEntryState.batchEntryId = batchEntry.batchEntryId

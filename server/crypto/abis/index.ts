@@ -1,5 +1,0 @@
-export { default as FareItemsABI } from './FareItems.json'
-export { default as FareTokenABI } from './FareToken.json'
-export { default as FareNFTLootBoxControllerABI } from './FareNFTLootBoxController.json'
-export { default as FareSpinGameABI } from './FareSpinGame.json'
-export { default as FareNFTLootBoxABI } from './FareNFTLootBox.json'

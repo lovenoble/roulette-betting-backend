@@ -1,14 +1,18 @@
-import { Contract, Wallet, providers, utils as ethUtils } from 'ethers'
+import { Wallet, providers, utils as ethUtils } from 'ethers'
 
 import {
-	FareToken,
-	FareSpinGame,
 	FareItems,
+	FareItems__factory,
 	FareNFTLootBox,
 	FareNFTLootBoxController,
+	FareNFTLootBoxController__factory,
+	FareNFTLootBox__factory,
+	FareSpinGame,
+	FareSpinGame__factory,
+	FareToken,
+	FareToken__factory,
 } from './types'
 import config from '../config/crypto.config'
-import * as abis from './abis'
 import * as utils from './utils'
 import { FareSpinGameAPI, FareTokenAPI } from './apis'
 
@@ -38,23 +42,15 @@ export class Crypto {
 	constructor() {
 		this.provider = new providers.JsonRpcProvider(blockchainRpcUrl)
 		this.signer = new Wallet(privateKey, this.provider)
-		this.fare = new Contract(fareTokenAddress, abis.FareTokenABI, this.signer) as FareToken
-		this.spin = new Contract(
-			fareSpinGameAddress,
-			abis.FareSpinGameABI,
-			this.signer
-		) as FareSpinGame
-		this.items = new Contract(fareItemsAddress, abis.FareItemsABI, this.signer) as FareItems
-		this.lootbox = new Contract(
-			fareNftLootboxAddress,
-			abis.FareNFTLootBoxABI,
-			this.signer
-		) as FareNFTLootBox
-		this.lootboxCtrl = new Contract(
+
+		this.fare = FareToken__factory.connect(fareTokenAddress, this.signer)
+		this.spin = FareSpinGame__factory.connect(fareSpinGameAddress, this.signer)
+		this.items = FareItems__factory.connect(fareItemsAddress, this.signer)
+		this.lootbox = FareNFTLootBox__factory.connect(fareNftLootboxAddress, this.signer)
+		this.lootboxCtrl = FareNFTLootBoxController__factory.connect(
 			fareNftLootboxControllerAddress,
-			abis.FareNFTLootBoxControllerABI,
 			this.signer
-		) as FareNFTLootBoxController
+		)
 	}
 
 	public removeAllContractListeners = () => {
@@ -93,9 +89,17 @@ export class Crypto {
 
 		return totalSupply
 	}
+
+	public async signMessage(message: string) {
+		return this.signer.signMessage(message)
+	}
 }
 
 const crypto = new Crypto()
+
+// const testSigningMessage =
+// 	'Pear connects would like to authenticate your account. Please sign the following: 0x66383466396332322d396530312d346233642d386163642d643132613636613631656264'
+// console.log(await crypto.signMessage(testSigningMessage))
 
 // API Instances
 export const fareAPI = new FareTokenAPI(crypto.fare)

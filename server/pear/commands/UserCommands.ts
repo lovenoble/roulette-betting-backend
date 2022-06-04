@@ -1,9 +1,10 @@
 import { Command } from '@colyseus/command'
 
 import type { SpinRoom } from '../types'
+import { WebSocketCloseCode } from '../constants'
 
 import crypto from '../../crypto'
-import { logger } from '../utils'
+import { logger, findClientBySessionId } from '../utils'
 import { User, IUserOptions, GuestUser, IGuestUser } from '../entities'
 import store from '../../store'
 
@@ -24,15 +25,39 @@ export class OnUserJoined extends Command<SpinRoom, IUserOptions> {
 			// @NOTE: Move this to UserService
 			const balance = await crypto.getBalances(publicAddress)
 
-			const userEntity = await store.service.user.getUserByAddress(publicAddress)
+			const {
+				username,
+				colorTheme,
+				sessionId: previousSessionId,
+			} = await store.service.user.getUserByAddress(publicAddress)
+
+			// If user sessionId still exists disconnect previous session from Room
+			if (previousSessionId) {
+				const client = findClientBySessionId(previousSessionId, this.room.clients)
+				if (client) {
+					logger.info(
+						`User already in room. Disconnecting previous client: sessionId(${sessionId}) publicAddress(${publicAddress})`
+					)
+
+					// Throw error to client so frontend app can handle redirection and popup message
+					client.error(
+						WebSocketCloseCode.NEW_CONNECTION_SESSION,
+						'Client with same publicAddress connected. Only one client can connect per publicAddress.'
+					)
+
+					// Disconnect client from room session
+					client.leave(WebSocketCloseCode.NEW_CONNECTION_SESSION)
+				}
+			}
 
 			await store.service.user.updateUserSessionId(publicAddress, sessionId)
+			logger.info(`Updated user(${publicAddress}) sessionId in RedisStore: ${sessionId}`)
 
 			const userOptions: IUserOptions = {
 				sessionId,
 				publicAddress,
-				username: userEntity.username,
-				colorTheme: userEntity.colorTheme,
+				username,
+				colorTheme,
 				balance,
 			}
 
