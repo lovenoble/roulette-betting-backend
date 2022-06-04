@@ -124,5 +124,4 @@ deploy-test:
   dependencies:
     - build
   only:
-    - feature/gitlab-ci
-    - test
+    - environment/test
