@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url'
 import { Server, ServerCredentials } from '@grpc/grpc-js'
 import { addReflection } from 'grpc-server-reflection'
 
-import { rpcUri } from '../config'
+import { rpcUri, RPC_PORT } from '../config'
 import { logger } from './utils'
 import {
 	User,
@@ -24,6 +24,16 @@ export class RPCServer {
 	#credentials!: ServerCredentials
 	#isStarted = false
 	#descriptorPath = path.join(dirname(__filename), 'descriptor/proto_descriptor.bin')
+	#rpcPort = RPC_PORT
+	#rpcUri = rpcUri
+
+	public get rpcPort() {
+		return this.#rpcPort
+	}
+
+	public get rpcUri() {
+		return this.#rpcUri
+	}
 
 	public get isStarted() {
 		return this.#isStarted
@@ -74,7 +84,7 @@ export class RPCServer {
 				}
 
 				this.server.start()
-				logger.info(`RPC server started on ${rpcUri}...`)
+				logger.info(`RPC server started on port ${this.rpcPort}...`)
 				this.#isStarted = true
 				resolve(port)
 			})

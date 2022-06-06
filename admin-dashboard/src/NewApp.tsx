@@ -85,7 +85,7 @@ const connectToRoom = async (
 ) => {
   try {
     const room = await client.joinOrCreate<any>("Spin", {
-      authToken,
+      // authToken,
       guestId: shortId(),
     });
 

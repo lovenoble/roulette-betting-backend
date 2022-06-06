@@ -1,15 +1,16 @@
-// import { Router } from 'express'
+import type { TemplatedApp } from 'uWebSockets.js'
 
-// import NFTController from './controllers/NFTController'
-// import TokenController from './controllers/TokenController'
+import { HealthController, PingController } from './controllers'
 
-// const router = Router()
+// @NOTE: We may need to set up cors if this setup causes problems with the frontend
+// @REFERENCE: https://github.com/uNetworking/uWebSockets.js/discussions/316#discussioncomment-2027652
+const createRoutes = (app: TemplatedApp) => {
+	// Health HTTP/WS routes
+	app.get('/health', HealthController.http.health)
+	app.ws('/health', HealthController.ws.health)
 
-// // Token routes
-// router.get('/api/fare/balance/:address', TokenController.getFareBalance)
+	// Ping WS routes
+	app.ws('/latency', PingController.ws.latency)
+}
 
-// // NFT routes
-// router.get('/api/item/:id', NFTController.getItemMetadata)
-// router.get('/api/nft/breakdown', NFTController.getNftBreakdown)
-
-// export default router
+export default createRoutes
