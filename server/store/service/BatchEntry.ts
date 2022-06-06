@@ -2,10 +2,16 @@ import type { BigNumber } from 'ethers'
 
 import type EntryService from './Entry'
 import type { BatchEntry } from '../schema/types'
+import type { IBatchEntry, IEntry } from '../../pear/entities'
 
 import ServiceBase from './ServiceBase'
 import { ensureNumber, formatETH, logger } from '../utils'
 import { spinAPI } from '../../crypto'
+
+interface ICurrentBatchEntries {
+	batchEntry: IBatchEntry
+	entries: IEntry[]
+}
 
 export default class BatchEntryService extends ServiceBase<BatchEntry> {
 	entryService!: EntryService
@@ -24,6 +30,36 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 			.where('batchEntryId')
 			.equal(ensureNumber(batchEntryId))
 			.returnFirst()
+	}
+
+	public fetchBatchEntriesByRoundId(roundId: number) {
+		return this.repo
+			.search()
+			.where('roundId')
+			.equal(roundId)
+			.sortAsc('batchEntryId')
+			.returnAll()
+	}
+
+	public async getCurrentRoundBatchEntries(): Promise<ICurrentBatchEntries[]> {
+		const currentRoundId = await spinAPI.getCurrentRoundId()
+		const batchEntries = await this.fetchBatchEntriesByRoundId(currentRoundId)
+
+		const promiseList: Promise<ICurrentBatchEntries>[] = batchEntries.map(be => {
+			return new Promise((resolve, reject) => {
+				this.entryService
+					.fetchEntriesByBatchEntryId(be.roundId, be.batchEntryId)
+					.then(entries => {
+						resolve({
+							batchEntry: be.toRedisJson() as IBatchEntry,
+							entries: entries.map(entry => entry.toRedisJson()) as IEntry[],
+						})
+					})
+					.catch(reject)
+			})
+		})
+
+		return Promise.all(promiseList)
 	}
 
 	public async create(

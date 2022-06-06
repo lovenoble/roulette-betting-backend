@@ -1,4 +1,4 @@
-import { Schema, SetSchema, type } from '@colyseus/schema'
+import { Schema, ArraySchema, type } from '@colyseus/schema'
 
 import { Entry } from './Entry'
 
@@ -12,7 +12,8 @@ export interface IBatchEntry {
 	totalEntryAmount: string // Amount(sum of all entries) won when round is over
 	totalWinAmount?: string // Amount(sum of all winning entries) won when round is over
 	timestamp: number
-	entries: SetSchema<Entry>
+	entries: ArraySchema<Entry>
+	isLoss: boolean // Defaults to false
 }
 
 // @NOTE: This data should probably be fetched whenever someone clicks on a batchEntry
@@ -26,5 +27,6 @@ export class BatchEntry extends Schema implements IBatchEntry {
 	@type('string') totalEntryAmount: string
 	@type('string') totalWinAmount?: string // Updated when round is over
 	@type('number') timestamp: number
-	@type({ set: Entry }) entries = new SetSchema<Entry>()
+	@type([Entry]) entries = new ArraySchema<Entry>()
+	@type('boolean') isLoss: boolean // Defaults to false
 }

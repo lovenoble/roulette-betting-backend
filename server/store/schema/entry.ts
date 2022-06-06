@@ -14,6 +14,7 @@ export interface Entry {
 	pickedNumber: number
 	batchEntryId: number
 	entryId: number
+	entryIdx: number
 	winAmount: string
 	settled: boolean
 	timestamp: number
@@ -49,6 +50,7 @@ export default new Schema(
 		pickedNumber: { type: 'number' },
 		batchEntryId: { type: 'number', sortable: true },
 		entryId: { type: 'number', sortable: true },
+		entryIdx: { type: 'number', sortable: true },
 		winAmount: { type: 'string' },
 		settled: { type: 'boolean' },
 		timestamp: { type: 'date' },

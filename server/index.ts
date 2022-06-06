@@ -5,8 +5,9 @@ import transport from './transport'
 import logger from './utils/logger'
 import { pearServerPort, isDev } from './config'
 
-// Handle safely stopping processes on exit, error, or shutdown
+// Handle stopping processes on exit, error, or shutdown
 function stopAllProcesses() {
+	logger.info('Stopping all processes...')
 	redisStore.disconnectAll()
 	pearServer.stopAll()
 	rpcServer.stop()

@@ -1,3 +1,4 @@
+import { createClient } from 'redis'
 import { Client } from 'redis-om'
 
 import StoreWorker from './worker'
@@ -31,6 +32,7 @@ import { redisUri, redisStoreUri } from '../config'
 export class RedisStore {
 	redisBaseUri = redisUri
 	omUrl = redisStoreUri
+	redis = createClient({ url: redisStoreUri })
 	om!: Client
 	repo: IRepoObj = {}
 	service: IServiceObj = {}
@@ -41,8 +43,11 @@ export class RedisStore {
 	async initialize() {
 		if (this.om?.isOpen) return this.om
 
-		this.om = await new Client().open(this.omUrl)
+		await this.redis.connect()
 		logger.info('Connection to RedisStore established!')
+
+		this.om = await new Client().use(this.redis)
+		logger.info('Attached RedisClient instance to RedisOM instance')
 
 		await this.initServices()
 		logger.info('Services have been constructed!')
@@ -53,7 +58,16 @@ export class RedisStore {
 
 		logger.info(`RedisStore initialization finished!`)
 
+		// Method ran after RedisClient connection is established
+		await this.afterConnect()
+
 		return this.om
+	}
+
+	private async afterConnect() {
+		await this.service.gameMode.ensureGameModes()
+		await this.service.fareTransfer.updateTotalSupply()
+		await this.service.round.updateCurrentRoundId()
 	}
 
 	private async initRepos(om: Client) {

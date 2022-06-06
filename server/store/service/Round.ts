@@ -8,6 +8,8 @@ import type { SettledBatchEntryArgs, SettledBatchEntry, SettledEntry } from '../
 
 import ServiceBase from './ServiceBase'
 import { ensureNumber, formatETH, BN, toEth, logger } from '../utils'
+import { spinAPI } from '../../crypto'
+import { GlobalRedisKey } from '../constants'
 
 export default class RoundService extends ServiceBase<Round> {
 	gameModeService!: GameModeService
@@ -28,6 +30,20 @@ export default class RoundService extends ServiceBase<Round> {
 
 	public fetch(roundId: BigNumber | number) {
 		return this.repo.search().where('roundId').equal(ensureNumber(roundId)).returnFirst()
+	}
+
+	public async updateCurrentRoundId(_currentRoundId?: string) {
+		let currentRoundId = _currentRoundId
+		if (!currentRoundId) {
+			currentRoundId = (await spinAPI.getCurrentRoundId()).toString()
+		}
+		await this.client.set(`Global:${GlobalRedisKey.CurrentRoundId}`, currentRoundId)
+
+		return currentRoundId
+	}
+
+	public async getCachedCurrentRoundId() {
+		return this.client.get(`Global:${GlobalRedisKey.CurrentRoundId}`)
 	}
 
 	// Calculates winners and losers from randomNum/randomEliminator by round
@@ -61,7 +77,7 @@ export default class RoundService extends ServiceBase<Round> {
 					.eq(batchEntry.batchEntryId)
 					.where('roundId')
 					.eq(batchEntry.roundId)
-					.sortAsc('entryId')
+					.sortAsc('entryIdx')
 					.returnAll(),
 			}
 
@@ -92,8 +108,8 @@ export default class RoundService extends ServiceBase<Round> {
 						}
 					}
 					await this.entryService.repo.save(entry)
-					const { entryId, batchEntryId, winAmount } = entry
-					return { entryId, batchEntryId, roundId, winAmount } as SettledEntry
+					const { entryId, batchEntryId, winAmount, entryIdx } = entry
+					return { entryId, batchEntryId, roundId, winAmount, entryIdx } as SettledEntry
 				})
 
 				const updatedEntries = await Promise.all(entryPromise)

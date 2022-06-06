@@ -43,7 +43,7 @@ export default new Schema(
 		jobId: { type: 'string' },
 		eventLogId: { type: 'string' },
 		roundId: { type: 'number' },
-		batchEntryId: { type: 'number' },
+		batchEntryId: { type: 'number', sortable: true },
 		entryId: { type: 'number' },
 		player: { type: 'string' },
 		settled: { type: 'boolean' },

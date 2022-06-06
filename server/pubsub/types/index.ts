@@ -5,8 +5,8 @@ import { GameMode } from '../../store/schema/types'
 export type ChannelName = 'fare' | 'spin-state' | 'analytics' | 'user-update'
 
 export type BatchEntryMsgArgs = {
-	batchEntry: Omit<IBatchEntry, 'entries'>
-	entries: IEntry[]
+	batchEntry: Omit<IBatchEntry, 'entries' | 'isLoss'>
+	entries: Omit<IEntry, 'isLoss'>[]
 }
 
 export type SettledEntry = {
@@ -43,12 +43,14 @@ export interface IRoundEliminators {
 
 export type SettledRound = {
 	settledData: SettledBatchEntryArgs[]
-} & Omit<IRound, 'isEliminator'> & IRoundEliminators
+} & Omit<IRound, 'isEliminator'> &
+	IRoundEliminators
 
 export type GameModeArgs = Omit<GameMode, 'jobId' | 'eventLogId' | 'timestamp'>
 
 export interface MessageListener {
-	'fare-transfer': (transfer: FareTransferArgs) => void
+	'fare-total-supply-updated': ({ totalSupply: string }, ...args: any[]) => void
+	'fare-transfer': (transfer: FareTransferArgs, ...args: any[]) => void
 	'game-mode-updated': (gameModes: GameModeArgs[], ...args: any[]) => void
 	'batch-entry': (opts: BatchEntryMsgArgs, ...args: any[]) => void
 	'round-concluded': (round: SettledRound, ...args: any[]) => void

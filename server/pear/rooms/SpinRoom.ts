@@ -11,6 +11,9 @@ import {
 	OnUserJoined,
 	OnGuestUserJoined,
 	OnUserLeave,
+	OnFareTotalSupplyUpdated,
+	OnInitSpinRoom,
+	OnRoundConcluded,
 	// OnBalanceUpdate,
 	// OnBatchEntrySettled,
 } from '../commands'
@@ -91,13 +94,28 @@ class SpinGame extends Room<SpinState> {
 
 			this.startTimer()
 
+			// Initialize SpinRoom state
+			this.dispatcher.dispatch(new OnInitSpinRoom())
+
+			// FareTransfer event (update player balances that apply)
 			PubSub.sub('fare', 'fare-transfer').listen<'fare-transfer'>(_transfer => {})
 
+			// FareTotalSupply updated
+			PubSub.sub('fare', 'fare-total-supply-updated').listen<'fare-total-supply-updated'>(
+				({ totalSupply }) => {
+					this.dispatcher.dispatch(new OnFareTotalSupplyUpdated(), totalSupply)
+				}
+			)
+
+			// New BatchEntry + Entry[]
 			PubSub.sub('spin-state', 'batch-entry').listen<'batch-entry'>(data => {
 				this.dispatcher.dispatch(new OnBatchEntry(), data)
 			})
 
-			PubSub.sub('spin-state', 'round-concluded').listen<'round-concluded'>(_data => {})
+			// Spin Round has concluded (increment round)
+			PubSub.sub('spin-state', 'round-concluded').listen<'round-concluded'>(data => {
+				this.dispatcher.dispatch(new OnRoundConcluded(), data)
+			})
 		} catch (err) {
 			// @NOTE: Need better error handling here. If this fails the state doesn't get set
 			logger.error(err)

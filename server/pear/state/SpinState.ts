@@ -23,6 +23,6 @@ export default class SpinState extends Schema {
 	// @NOTE: Determine if we should start wheel at 2-5 mins or once 300 players are reached
 	@type(Timer) timer = new Timer()
 
-	@type('string') fareTotalSupply: number
+	@type('string') fareTotalSupply: string
 	@type('number') currentRoundId: number
 }
