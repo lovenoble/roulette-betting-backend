@@ -165,25 +165,29 @@ class SpinGame extends Room<SpinState> {
 
 
     startCountdown() {
-        if (this.clock.running || this.delayedInterval?.active) this.resetCountdown()
-        this.#currentCountdown = INITIAL_COUNTDOWN_SECS // Set initial countdown value
+        try {
+            if (this.clock.running || this.delayedInterval?.active) this.resetCountdown()
+            this.#currentCountdown = INITIAL_COUNTDOWN_SECS // Set initial countdown value
 
-        this.clock.start()
+            this.clock.start()
 
-        this.delayedInterval = this.clock.setInterval(() => {
-            if (this.currentCountdown <= 0) return // If countdown has already hit 0 interval should be existed
+            this.delayedInterval = this.clock.setInterval(() => {
+                logger.info(`countdown(${this.currentCountdown} secs), deltaTime(${this.clock.deltaTime} ms), elaspedTime(${this.clock.elapsedTime / 1000} secs)`)
+                this.#currentCountdown -= 1
 
-            this.#currentCountdown -= 1
-            this.clock.tick() // @NOTE: could use clock solely to keep track of timed events
+                // If countdown has already hit 0 interval should be existed
+                if (this.currentCountdown < 0) {
+                    this.delayedInterval.clear()
+                    this.clock.clear()
+                    logger.info('Clock has finished ticking')
+                    return
+                }
 
-            console.log(this.currentCountdown, this.clock.currentTime, this.clock.deltaTime, this.clock.elapsedTime)
-            this.broadcast(SpinEvent.TimerUpdated, this.currentCountdown)
-        }, 1000)
-
-        this.clock.setTimeout(() => {
-            this.delayedInterval.clear()
-            this.clock.clear()
-        }, INITIAL_COUNTDOWN_SECS)
+                this.broadcast(SpinEvent.TimerUpdated, this.currentCountdown)
+            }, 1000)
+        } catch (err) {
+            logger.error(err)
+        }
     }
 
     pauseCountdown() {
@@ -199,6 +203,7 @@ class SpinGame extends Room<SpinState> {
     resetCountdown() {
         this.stopCountdown()
         this.#currentCountdown = INITIAL_COUNTDOWN_SECS
+        console.log('reset')
     }
 
     stopCountdown() {
@@ -207,10 +212,9 @@ class SpinGame extends Room<SpinState> {
         this.clock.stop()
     }
 
-    async onAuth(client: Client, options: IDefaultRoomOptions = {}) {
+    async onAuth(_client: Client, options: IDefaultRoomOptions = {}) {
         try {
             const { authToken } = options
-
             // Handle authenticated user
             if (authToken) {
                 const user = await store.service.user.getUserFromToken(authToken)
@@ -225,8 +229,10 @@ class SpinGame extends Room<SpinState> {
 
             // Handle guest user
             const guestId = shortId() // Generate guestId
-            logger.info(`User logging in as guest with username: ${guestId}`)
-            client.send(SpinEvent.GuestUserJoined, guestId)
+
+            // @NOTE: Moved this to onGuestJoined dispatch
+            // logger.info(`User logging in as guest with username: ${guestId}`)
+            // client.send(SpinEvent.GuestUserJoined, guestId)
 
             return `guest:${guestId}`
         } catch (err: any) {
@@ -237,15 +243,14 @@ class SpinGame extends Room<SpinState> {
 
     onJoin(client: Client, _options: IDefaultRoomOptions = {}, auth?: string) {
         try {
-            const { sessionId } = client
             const [publicAddress, guestId] = auth.split(':')
 
             if (guestId) {
-                this.dispatcher.dispatch(new OnGuestUserJoined(), { sessionId, guestId })
+                this.dispatcher.dispatch(new OnGuestUserJoined(), { client, guestId })
             } else if (publicAddress) {
                 this.dispatcher.dispatch(new OnUserJoined(), {
+                    client,
                     publicAddress,
-                    sessionId,
                 })
             } else {
                 throw new ServerError(

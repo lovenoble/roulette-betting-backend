@@ -5,6 +5,8 @@ export enum SpinEvent {
     NewChatMessage = 'NewChatMessage',
     /** Only sent to a single guest client on connect (passes guestId) */
     GuestUserJoined = 'GuestUserJoined',
+    /** Initial spin room data */
+    SendRoomData = 'SendRoomData'
 }
 
 export enum ChatMessage {
