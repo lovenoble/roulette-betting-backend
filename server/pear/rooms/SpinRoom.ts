@@ -1,28 +1,26 @@
-import { Room, ServerError, Delayed } from '@colyseus/core'
 import type { Client } from '@colyseus/core'
+import { Room, ServerError, Delayed } from '@colyseus/core'
 import { Dispatcher } from '@colyseus/command'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
+import shortId from 'shortid'
 
 import type { IDefaultRoomOptions, ICreateSpinRoomOptions } from '../types'
-import { HttpStatusCode } from '../constants'
+import { HttpStatusCode, SpinEvent, INITIAL_COUNTDOWN_SECS, MAX_SPIN_CLIENTS } from '../constants'
 import {
-	OnBatchEntry,
-	OnUserJoined,
-	OnGuestUserJoined,
-	OnUserLeave,
-	OnFareTotalSupplyUpdated,
-	OnInitSpinRoom,
-	OnRoundConcluded,
-	// OnBalanceUpdate,
-	// OnBatchEntrySettled,
+    OnBatchEntry,
+    OnUserJoined,
+    OnGuestUserJoined,
+    OnUserLeave,
+    OnFareTotalSupplyUpdated,
+    OnInitSpinRoom,
+    OnRoundConcluded,
+    OnNewChatMessage,
+    // OnBalanceUpdate,
+    // OnBatchEntrySettled,
 } from '../commands'
 import SpinState from '../state/SpinState'
 import { logger } from '../utils'
 import store from '../../store'
 import PubSub from '../../pubsub'
-
-dayjs.extend(relativeTime)
 
 // @NOTE: Postgres insert should listen to these worker complete events instead
 // const fareEvent = FareEvent()
@@ -60,165 +58,226 @@ dayjs.extend(relativeTime)
 // }
 
 class SpinGame extends Room<SpinState> {
-	maxClients = 2500 // @NOTE: Need to determine the number of clients where performance begins to fall off
-	dispatcher = new Dispatcher(this)
-	#name: string // eslint-disable-line
-	#desc: string
-	#password: string | null = null
+    #name: string
+    #desc: string
+    #password: string | null = null
+    #currentCountdown = INITIAL_COUNTDOWN_SECS
 
-	public delayedInterval!: Delayed
+    maxClients = MAX_SPIN_CLIENTS // @NOTE: Need to determine the number of clients where performance begins to fall off
+    dispatcher = new Dispatcher(this)
+    /**
+    * Using @gamestdio/timer (this.clock, Delayed)
+    * Once built-in setTimeout and setInterval relies on CPU load, functions may delay an unexpected amount of time to execute.
+    * Having it tied to a clock's time is guaranteed to execute in a precise way.
+    */
+    delayedInterval?: Delayed
 
-	async onCreate(options: ICreateSpinRoomOptions) {
-		try {
-			const { name, desc, password } = options
-			logger.info('Creating new SpinRoom', name, desc)
 
-			this.#name = name
-			this.#desc = desc
-			this.#password = password
+    get name() {
+        return this.#name
+    }
 
-			let hasPassword = false
-			if (password) {
-				// @NOTE: Handle hashing password before setting the metadata
-				logger.info('Password was set', password)
-				hasPassword = true
-			}
+    get desc() {
+        return this.#desc
+    }
 
-			this.setMetadata({
-				name,
-				desc,
-				hasPassword,
-			})
+    get password() {
+        // @NOTE: Ensure password, if set, is hashed
+        return this.#password
+    }
 
-			this.setState(new SpinState())
+    get currentCountdown() {
+        return this.#currentCountdown
+    }
 
-			this.startTimer()
+    async onCreate(options: ICreateSpinRoomOptions) {
+        try {
+            const { name, desc, password } = options
+            logger.info('Creating new SpinRoom', name, desc)
 
-			// Initialize SpinRoom state
-			this.dispatcher.dispatch(new OnInitSpinRoom())
+            this.#name = name
+            this.#desc = desc
+            this.#password = password
 
-			// FareTransfer event (update player balances that apply)
-			PubSub.sub('fare', 'fare-transfer').listen<'fare-transfer'>(_transfer => {})
+            let hasPassword = false
+            if (password) {
+                // @NOTE: Handle hashing password before setting the metadata
+                logger.info('Password was set', password)
+                hasPassword = true
+            }
 
-			// FareTotalSupply updated
-			PubSub.sub('fare', 'fare-total-supply-updated').listen<'fare-total-supply-updated'>(
-				({ totalSupply }) => {
-					this.dispatcher.dispatch(new OnFareTotalSupplyUpdated(), totalSupply)
-				}
-			)
+            this.setMetadata({
+                name,
+                desc,
+                hasPassword,
+            })
 
-			// New BatchEntry + Entry[]
-			PubSub.sub('spin-state', 'batch-entry').listen<'batch-entry'>(data => {
-				this.dispatcher.dispatch(new OnBatchEntry(), data)
-			})
+            this.setState(new SpinState())
 
-			// Spin Round has concluded (increment round)
-			PubSub.sub('spin-state', 'round-concluded').listen<'round-concluded'>(data => {
-				this.dispatcher.dispatch(new OnRoundConcluded(), data)
-			})
-		} catch (err) {
-			// @NOTE: Need better error handling here. If this fails the state doesn't get set
-			logger.error(err)
-			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
-		}
-	}
+            // @NOTE: This should be initialized by smart contract events
+            this.startCountdown()
 
-	// @NOTE: Create dispatch command
-	// @NOTE: Consider sending the elapsedTime initially and just verfying with the client the countdown time
-	// @NOTE: Rather to constantly updating the clients with the new time
-	startTimer() {
-		// @NOTE: Define timer here
-		this.clock.start()
-		const endTime = dayjs().add(300, 'seconds')
-		this.state.timer.runTimeMs = dayjs().add(300, 'seconds').unix()
+            // Initialize SpinRoom state
+            this.dispatcher.dispatch(new OnInitSpinRoom())
 
-		this.delayedInterval = this.clock.setInterval(() => {
-			const startTime = dayjs()
-			const diff = endTime.diff(startTime, 'seconds')
-			const display = startTime.to(endTime)
-			this.state.timer.timeDisplay = display
-			this.state.timer.elapsedTime = diff
-		}, 1000)
+            // #region Client action events
 
-		this.clock.setTimeout(() => {
-			this.delayedInterval.clear()
-		}, this.state.timer.runTimeMs)
-	}
+            this.onMessage('*', (client, type, message) => {
+                logger.info(`New client action from ${client.sessionId} - ${type} - ${message}`)
+            })
 
-	async onAuth(_client: Client, options: IDefaultRoomOptions = {}) {
-		try {
-			const { authToken, guestId } = options
+            this.onMessage(SpinEvent.NewChatMessage, (client, text: string) => {
+                this.dispatcher.dispatch(new OnNewChatMessage(), { text, client })
+            })
 
-			if (authToken) {
-				const user = await store.service.user.getUserFromToken(authToken)
+            // #endregion
 
-				if (!user) {
-					logger.error('Invalid user authToken.')
-					throw new ServerError(HttpStatusCode.UNAUTHORIZED, 'Invalid user authToken.')
-				}
+            // #region PubSub 
 
-				return user.publicAddress
-			}
-			if (guestId) {
-				logger.info(`User logging in as guest with username: ${guestId}`)
-				return `guest:${guestId}`
-			}
+            // FareTransfer event (update player balances that apply)
+            PubSub.sub('fare', 'fare-transfer').listen<'fare-transfer'>(_transfer => { })
 
-			throw new ServerError(
-				HttpStatusCode.UNAUTHORIZED,
-				'A valid token is required to connect to room.'
-			)
-		} catch (err: any) {
-			logger.error(err)
-			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
-		}
-	}
+            // FareTotalSupply updated
+            PubSub.sub('fare', 'fare-total-supply-updated').listen<'fare-total-supply-updated'>(
+                ({ totalSupply }) => {
+                    this.dispatcher.dispatch(new OnFareTotalSupplyUpdated(), totalSupply)
+                }
+            )
 
-	async onJoin(client: Client, _options: IDefaultRoomOptions = {}, auth?: string) {
-		try {
-			/* @ts-ignore */
-			const { sessionId } = client
-			const [publicAddress, guestId] = auth.split(':')
+            // New BatchEntry + Entry[]
+            PubSub.sub('spin-state', 'batch-entry').listen<'batch-entry'>(data => {
+                this.dispatcher.dispatch(new OnBatchEntry(), data)
+            })
 
-			if (guestId) {
-				this.dispatcher.dispatch(new OnGuestUserJoined(), { sessionId, guestId })
-			} else if (publicAddress) {
-				this.dispatcher.dispatch(new OnUserJoined(), {
-					publicAddress,
-					sessionId,
-				})
-			} else {
-				throw new ServerError(
-					HttpStatusCode.INTERNAL_SERVER_ERROR,
-					'Auth token does not exist.'
-				)
-			}
-		} catch (err) {
-			logger.error(err)
-			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
-		}
-	}
+            // Spin Round has concluded (increment round)
+            PubSub.sub('spin-state', 'round-concluded').listen<'round-concluded'>(data => {
+                this.dispatcher.dispatch(new OnRoundConcluded(), data)
+            })
 
-	onLeave(client: Client) {
-		const { sessionId } = client
 
-		this.dispatcher.dispatch(new OnUserLeave(), {
-			sessionId,
-		})
-	}
+            // #endregion
+        } catch (err) {
+            // @NOTE: Need better error handling here. If this fails the state doesn't get set
+            logger.error(err)
+            throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
+        }
+    }
 
-	onDispose() {
-		// @NOTE: Need to clear garbage here
 
-		// if (this.pear.pearTokenContract && this.pear.pearGameContract) {
-		// 	this.pear.pearTokenContract.removeAllListeners()
-		// 	this.pear.pearGameContract.removeAllListeners()
-		// }
-		this.delayedInterval.clear()
-		this.clock.clear()
-		this.dispatcher.stop()
-		logger.info('Disposing of SpinGame room...')
-	}
+    startCountdown() {
+        if (this.clock.running || this.delayedInterval?.active) this.resetCountdown()
+        this.#currentCountdown = INITIAL_COUNTDOWN_SECS // Set initial countdown value
+
+        this.clock.start()
+
+        this.delayedInterval = this.clock.setInterval(() => {
+            if (this.currentCountdown <= 0) return // If countdown has already hit 0 interval should be existed
+
+            this.#currentCountdown -= 1
+            this.clock.tick() // @NOTE: could use clock solely to keep track of timed events
+
+            console.log(this.currentCountdown, this.clock.currentTime, this.clock.deltaTime, this.clock.elapsedTime)
+            this.broadcast(SpinEvent.TimerUpdated, this.currentCountdown)
+        }, 1000)
+
+        this.clock.setTimeout(() => {
+            this.delayedInterval.clear()
+            this.clock.clear()
+        }, INITIAL_COUNTDOWN_SECS)
+    }
+
+    pauseCountdown() {
+        if (this.delayedInterval) this.delayedInterval.pause()
+        this.clock.stop()
+    }
+
+    resumeCountdown() {
+        if (this.delayedInterval && this.delayedInterval.paused) this.delayedInterval.resume()
+        this.clock.start()
+    }
+
+    resetCountdown() {
+        this.stopCountdown()
+        this.#currentCountdown = INITIAL_COUNTDOWN_SECS
+    }
+
+    stopCountdown() {
+        if (this.delayedInterval) this.delayedInterval.clear()
+        this.clock.clear()
+        this.clock.stop()
+    }
+
+    async onAuth(client: Client, options: IDefaultRoomOptions = {}) {
+        try {
+            const { authToken } = options
+
+            // Handle authenticated user
+            if (authToken) {
+                const user = await store.service.user.getUserFromToken(authToken)
+
+                if (!user) {
+                    logger.error('Invalid user authToken.')
+                    throw new ServerError(HttpStatusCode.UNAUTHORIZED, 'Invalid user authToken.')
+                }
+
+                return user.publicAddress
+            }
+
+            // Handle guest user
+            const guestId = shortId() // Generate guestId
+            logger.info(`User logging in as guest with username: ${guestId}`)
+            client.send(SpinEvent.GuestUserJoined, guestId)
+
+            return `guest:${guestId}`
+        } catch (err: any) {
+            logger.error(err)
+            throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
+        }
+    }
+
+    onJoin(client: Client, _options: IDefaultRoomOptions = {}, auth?: string) {
+        try {
+            const { sessionId } = client
+            const [publicAddress, guestId] = auth.split(':')
+
+            if (guestId) {
+                this.dispatcher.dispatch(new OnGuestUserJoined(), { sessionId, guestId })
+            } else if (publicAddress) {
+                this.dispatcher.dispatch(new OnUserJoined(), {
+                    publicAddress,
+                    sessionId,
+                })
+            } else {
+                throw new ServerError(
+                    HttpStatusCode.INTERNAL_SERVER_ERROR,
+                    'Auth token does not exist.'
+                )
+            }
+        } catch (err) {
+            logger.error(err)
+            throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
+        }
+    }
+
+    onLeave(client: Client) {
+        const { sessionId } = client
+
+        this.dispatcher.dispatch(new OnUserLeave(), {
+            sessionId,
+        })
+    }
+
+    onDispose() {
+        // @NOTE: Need to clear garbage here
+
+        // if (this.pear.pearTokenContract && this.pear.pearGameContract) {
+        // 	this.pear.pearTokenContract.removeAllListeners()
+        // 	this.pear.pearGameContract.removeAllListeners()
+        // }
+        this.stopCountdown()
+        this.dispatcher.stop()
+        logger.info('Disposing of SpinGame room...')
+    }
 }
 
 export default SpinGame

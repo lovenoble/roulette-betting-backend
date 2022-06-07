@@ -1,5 +1,5 @@
+import type { Client } from '@colyseus/core'
 import { Command } from '@colyseus/command'
-import dayjs from 'dayjs'
 
 import type { SpinRoom } from '../types'
 import type {
@@ -10,7 +10,8 @@ import type {
 } from '../../pubsub/types'
 
 import store from '../../store'
-import { Entry, BatchEntry, Round as _Round } from '../entities'
+import { SpinEvent, MAX_CHAT_MESSAGE_LENGTH, WebSocketCustomCodes } from '../constants'
+import { Entry, BatchEntry, Round as _Round, Message } from '../entities'
 import { logger } from '../utils'
 
 // @NOTE: Needed commands
@@ -27,6 +28,42 @@ import { logger } from '../utils'
 // 		}
 // 	}
 // }
+
+type OnNewChatMessageOpts = { text: string, client: Client }
+export class OnNewChatMessage extends Command<SpinRoom, OnNewChatMessageOpts> {
+    async execute({ text: _text, client }: OnNewChatMessageOpts) {
+        const text = (_text || '').trim()
+        const user = this.state.users.get(client.sessionId)
+        console.log('USER SENT MESSAGE', user)
+
+        if (!client.auth) {
+            client.error(WebSocketCustomCodes.RESTRICTED_USER_ACTION, 'Guests cannot send chat messages.')
+            return
+        }
+
+        if (text.length === 0) {
+            client.error(WebSocketCustomCodes.MESSAGE_VALIDATION_ERROR, 'Cannnot send empty chat message.')
+            return
+        }
+
+
+        if (text.length > MAX_CHAT_MESSAGE_LENGTH) {
+            client.error(WebSocketCustomCodes.MESSAGE_VALIDATION_ERROR, `Message too long (max length: ${MAX_CHAT_MESSAGE_LENGTH})`)
+            return
+        }
+
+        logger.info(`New chat message from ${user.publicAddress} - ${text}`)
+
+        const msg = new Message({
+            text,
+            username: user.username,
+            createdBy: user.publicAddress,
+            colorTheme: user.colorTheme,
+        })
+
+        this.room.broadcast(SpinEvent.NewChatMessage, msg, { except: client })
+    }
+}
 
 export class OnInitSpinRoom extends Command<SpinRoom, void> {
     async execute() {

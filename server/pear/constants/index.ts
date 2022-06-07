@@ -1,25 +1,16 @@
+// General
 export enum RoomName {
-	Lobby = 'Lobby',
-	Spin = 'Spin',
-	ChatRoom = 'ChatRoom',
-	MediaStream = 'MediaStream',
+    Lobby = 'Lobby',
+    Spin = 'Spin',
+    ChatRoom = 'ChatRoom',
+    MediaStream = 'MediaStream',
 }
 
-// @NOTE: Extract spin room messages here
-export enum SpinMessage {
-	Test = 'Test',
-}
-
-export enum ChatMessage {
-	NewChatMessage = 'NewChatMessage',
-}
-
-export enum MediaStreamMessage {
-	NEW_SCREEN_SHARE = 'NewScreenShare',
-	TOGGLE_SCREEN_SHARE = 'ToggleScreenShare',
-	STOP_SCREEN_SHARE = 'StopScreenShare',
-}
+export const MAX_CHAT_MESSAGE_LENGTH = 140
+export const MAX_SPIN_CLIENTS = 2500
+export const INITIAL_COUNTDOWN_SECS = 300 // 5 minutes
 
 // Import/Exports
 export * from './HttpStatusCodes'
 export * from './WebSocketStatusCodes'
+export * from './SpinRoom'
