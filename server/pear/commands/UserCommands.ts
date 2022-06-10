@@ -18,7 +18,11 @@ export class OnGuestUserJoined extends Command<SpinRoom, IGuestUser & { client: 
 
         client.send(SpinEvent.SendRoomData, {
             guestId,
-            countdown: this.room.currentCountdown
+            countdown: this.room.currentCountdown,
+            roomStatus: this.state.roomStatus,
+            fareTotalSupply: this.state.fareTotalSupply,
+            currentRoundId: this.state.currentRoundId,
+
         })
 
         this.state.guestUsers.set(client.sessionId, guestUser)
@@ -73,7 +77,10 @@ export class OnUserJoined extends Command<SpinRoom, IUserOptions & { client: Cli
             this.state.users.set(sessionId, user)
 
             client.send(SpinEvent.SendRoomData, {
-                countdown: this.room.currentCountdown
+                countdown: this.room.currentCountdown,
+                roomStatus: this.state.roomStatus,
+                fareTotalSupply: this.state.fareTotalSupply,
+                currentRoundId: this.state.currentRoundId,
             })
         } catch (err) {
             // @NOTE: NEED TO ADD ERROR QUEUE WHEN THIS IS HIT

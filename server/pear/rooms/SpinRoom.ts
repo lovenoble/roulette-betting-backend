@@ -118,7 +118,7 @@ class SpinGame extends Room<SpinState> {
             this.startCountdown()
 
             // Initialize SpinRoom state
-            this.dispatcher.dispatch(new OnInitSpinRoom())
+            await this.dispatcher.dispatch(new OnInitSpinRoom())
 
             // #region Client action events
 
@@ -146,6 +146,7 @@ class SpinGame extends Room<SpinState> {
 
             // New BatchEntry + Entry[]
             PubSub.sub('spin-state', 'batch-entry').listen<'batch-entry'>(data => {
+                console.log('NEW BATCH ENTRY', data)
                 this.dispatcher.dispatch(new OnBatchEntry(), data)
             })
 
@@ -212,7 +213,7 @@ class SpinGame extends Room<SpinState> {
         this.clock.stop()
     }
 
-    async onAuth(_client: Client, options: IDefaultRoomOptions = {}) {
+    async onAuth(client: Client, options: IDefaultRoomOptions = {}) {
         try {
             const { authToken } = options
             // Handle authenticated user
@@ -224,6 +225,8 @@ class SpinGame extends Room<SpinState> {
                     throw new ServerError(HttpStatusCode.UNAUTHORIZED, 'Invalid user authToken.')
                 }
 
+                // @NOTE: Implement setting user data here
+                client.userData = { authToken, publicAddress: user.publicAddress }
                 return user.publicAddress
             }
 
@@ -233,6 +236,9 @@ class SpinGame extends Room<SpinState> {
             // @NOTE: Moved this to onGuestJoined dispatch
             // logger.info(`User logging in as guest with username: ${guestId}`)
             // client.send(SpinEvent.GuestUserJoined, guestId)
+
+            // @NOTE: Implement setting user data here
+            client.userData = { authToken, guestId }
 
             return `guest:${guestId}`
         } catch (err: any) {
