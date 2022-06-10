@@ -30,8 +30,8 @@ export interface IRound {
 }
 
 export class Round extends Schema implements IRound {
-	@type('string') roundId: number
-	@type('string') randomNum: number
+	@type('number') roundId: number
+	@type('number') randomNum: number
 	@type('string') randomEliminator: string
 	@type('string') vrfRequestId: string
 	@type('boolean') isTwoXElim: boolean

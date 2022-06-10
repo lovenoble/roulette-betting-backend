@@ -17,6 +17,7 @@ export default class EntryService extends ServiceBase<Entry> {
 			.equal(ensureNumber(batchEntryId))
 			.where('roundId')
 			.equal(ensureNumber(roundId))
+			.sortAsc('entryIdx')
 			.returnAll()
 	}
 
@@ -46,6 +47,7 @@ export default class EntryService extends ServiceBase<Entry> {
 								pickedNumber: BNToNumber(pickedNumber),
 								batchEntryId,
 								entryId,
+								entryIdx,
 								winAmount: null,
 								settled: false,
 								timestamp,

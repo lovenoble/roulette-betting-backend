@@ -20,6 +20,11 @@ export enum QueueNames {
 	Latency = 'Latency',
 }
 
+export enum GlobalRedisKey {
+	FareTotalSupply = 'FareTotalSupply',
+	CurrentRoundId = 'CurrentRoundId',
+}
+
 export const SIGNING_MESSAGE_TEXT =
 	'Pear connects would like to authenticate your account. Please sign the following: '
 

@@ -1,9 +1,9 @@
 import Redis, { ClientContext } from 'ioredis'
 import type { RedisOptions, Callback, Result } from 'ioredis'
 
+import type { ChannelName, MessageListener, FirstArgument } from './types'
 import { pubLogger, subLogger } from './utils'
 import { ioRedisOptions } from '../config'
-import type { ChannelName, MessageListener, FirstArgument } from './types'
 import { PubSubChannel } from './constants'
 
 declare module 'ioredis' {
@@ -51,7 +51,7 @@ function RedisSub(
 		return subInstance.unsubscribe(subInstance.patternName, cb)
 	}
 	subInstance.listen = <L extends typeof messageName>(listener: MessageListener[L]) => {
-		return subInstance.on('message', (_channel, data, ...args) => {
+		return subInstance.on('message', (_channel, data: string, ...args) => {
 			listener(JSON.parse(data), ...args)
 		})
 	}

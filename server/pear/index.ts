@@ -67,7 +67,7 @@ export class PearServer {
 		}
 
 		this.server = new Server({
-			transport,
+			transport: transport.instance,
 			presence: new RedisPresence(presenceOpts),
 			driver: new MongooseDriver(this.#mongoUri),
 		})

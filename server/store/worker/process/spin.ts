@@ -22,7 +22,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 
 		const data = (
 			await service.gameMode.createOrUpdate(gameModeId, timestamp, eventLogId, jobId)
-		).toJSON()
+		).toRedisJson()
 
 		// @NOTE: May need to publish here
 
@@ -106,6 +106,8 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 			...eliminators,
 		})
 
+		await service.round.updateCurrentRoundId((roundId + 1).toString())
+
 		const data = (
 			await service.round.repo.createAndSave({
 				eventLogId,
@@ -116,7 +118,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 				timestamp,
 				jobId,
 			})
-		).toJSON()
+		).toRedisJson()
 
 		return JSON.stringify({
 			eventName: EventNames.RoundConcluded,
@@ -165,7 +167,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 		// @NOTE: Need to include updated entry values as well
 		return JSON.stringify({
 			eventName: EventNames.EntrySettled,
-			data: batchEntryEntity.toJSON(),
+			data: batchEntryEntity.toRedisJson(),
 		} as EventReturnData<T>)
 	}
 

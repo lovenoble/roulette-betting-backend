@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import shortId from "shortid";
 import { RecoilRoot, atom, useRecoilState } from "recoil";
 import dayjs from "dayjs";
+import numeral from "numeral";
 
 export const binaryDecoder = new TextDecoder("utf-8");
 export const binaryEncoder = new TextEncoder();
@@ -73,7 +74,7 @@ let client = new Client("ws://localhost:3100");
 // }, 5000);
 
 const authToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwdWJsaWNBZGRyZXNzIjoiMHhmMzlGZDZlNTFhYWQ4OEY2RjRjZTZhQjg4MjcyNzljZmZGYjkyMjY2Iiwibm9uY2UiOiIweDY2MzgzNDY2Mzk2MzMyMzIyZDM5NjUzMDMxMmQzNDYyMzM2NDJkMzg2MTYzNjQyZDY0MzEzMjYxMzYzNjYxMzYzMTY1NjI2NCIsImlhdCI6MTY1NDI5MDY2NSwiZXhwIjoxNjU2ODgyNjY1fQ.uoV0Za4i5mL2vgW19fu3u-qBBsvEtVGKz9Bpd6imszE";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwdWJsaWNBZGRyZXNzIjoiMHhmMzlGZDZlNTFhYWQ4OEY2RjRjZTZhQjg4MjcyNzljZmZGYjkyMjY2Iiwibm9uY2UiOiIweDMyNjIzMzMxMzc2MjY1MzUyZDM3MzM2MTMxMmQzNDYxMzM2MzJkNjEzOTY1MzMyZDM2Mzk2MjM4NjE2MjM0NjE2NTMzMzQzMiIsImlhdCI6MTY1NDQ4OTQ3OSwiZXhwIjoxNjU3MDgxNDc5fQ.8hQEPrd1x8lNYfQ5OFQHFsBHusZFZpTnU4oMdcCU_kw";
 
 const connectToRoom = async (
   users: any,
@@ -81,7 +82,9 @@ const connectToRoom = async (
   guestUsers: any,
   setGuestUsers: any,
   timer: any,
-  setTimer: any
+  setTimer: any,
+  setTotalSupply: any,
+  setCurrentRoundId: any
 ) => {
   try {
     const room = await client.joinOrCreate<any>("Spin", {
@@ -108,8 +111,8 @@ const connectToRoom = async (
     // };
 
     room.onStateChange((state) => {
-      console.log(state.batchEntries);
-      console.log(state.round);
+      setTotalSupply(numeral(state.fareTotalSupply).format("0,0.00"));
+      setCurrentRoundId(state.currentRoundId);
     });
 
     room.state.timer.onChange = (changes: any) => {
@@ -144,6 +147,16 @@ const guestUserState = atom({
   default: {},
 });
 
+const totalFareSupply = atom({
+  key: "totalFareSupply",
+  default: "loading total fare supply...",
+});
+
+const currentRoundId = atom({
+  key: "currentRoundId",
+  default: 0,
+});
+
 const timerState = atom({
   key: "timer",
   default: "loading...",
@@ -153,6 +166,8 @@ function Room() {
   const [users, setUsers] = useRecoilState(userState);
   const [guestUsers, setGuestUsers] = useRecoilState(guestUserState);
   const [timer, setTimer] = useRecoilState(timerState);
+  const [totalSupply, setTotalSupply] = useRecoilState(totalFareSupply);
+  const [rid, setCurrentRoundId] = useRecoilState(currentRoundId);
 
   useEffect(() => {
     (async () => {
@@ -162,7 +177,9 @@ function Room() {
         guestUsers,
         setGuestUsers,
         timer,
-        setTimer
+        setTimer,
+        setTotalSupply,
+        setCurrentRoundId
       );
     })();
   }, []);
@@ -171,7 +188,9 @@ function Room() {
 
   return (
     <>
-      <h2>SpinRoom - {timer}</h2>
+      <h1>SpinRoom - {timer}</h1>
+      <h2>Total FARE Supply - {totalSupply}</h2>
+      <h2>CurrentRoundId - {rid}</h2>
     </>
   );
 }
