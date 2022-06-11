@@ -27,7 +27,7 @@
         "lint-ci": "eslint --max-warnings=0 . --ext .ts,.tsx,.js,.jsx",
         "lint:fix": "npx eslint . --ext .ts --fix",
         "postbuild": "npm run copy-dockerfile && npm run copy-deps",
-        "production": "npm run build && node bin/www",
+        "production": "npm run build && node -r dotenv/config --experimental-specifier-resolution=node dist/index.js",
         "start": "nodemon -r dotenv/config --exec 'node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm' index.ts",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
