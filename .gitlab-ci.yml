@@ -89,7 +89,7 @@ build:
     - pnpm run build
     - pnpm run postbuild
     - mkdir -p $BUILD_DIR
-    - cd dist && zip -r $BUILD_FILE * && cd ..
+    - cd dist && zip -qdgds 10m -r $BUILD_FILE * && cd ..
     - ls $BUILD_DIR
   artifacts:
     paths:
