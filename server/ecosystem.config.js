@@ -15,7 +15,7 @@ const {
 const redisUri = NODE_ENV === 'development' ?
     `redis://${REDIS_HOST}:${REDIS_PORT}` :
     `redis://${REDIS_USERNAME}:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}`
-
+console.log({redisUri})
 module.exports = {
 	apps: [
 		{
