@@ -80,7 +80,7 @@ build:
     - pnpm config set store-dir .pnpm-store
   script:
     - echo 'BUILD'
-    - $BIN_DIR/ensure-env-vars.sh
+    # - $BIN_DIR/ensure-env-vars.sh
     - mkdir -p $TMP_DIR
     - touch $EB_OPTIONS_FILE
     - node $BIN_DIR/generate-eb-options.js > $EB_OPTIONS_FILE
