@@ -125,10 +125,10 @@ export class OnUserLeave extends Command<
                 // Clear sessionId on user model for Redis
                 await store.service.user.clearOutSessionId(sessionId)
                 this.state.users.delete(sessionId)
-                logger.info('User has left SpinRoom:', sessionId)
+                logger.info(`User has left SpinRoom: ${sessionId}`)
             } else if (this.state.guestUsers.has(sessionId)) {
                 this.state.guestUsers.delete(sessionId)
-                logger.info('GuestUser has left SpinRoom:', sessionId)
+                logger.info(`GuestUser has left SpinRoom: ${sessionId}`)
             } else {
                 logger.warn(
                     "User left room but their sessionId wasn't in state. Look into why that is."

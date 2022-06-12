@@ -171,15 +171,35 @@ class SpinGame extends Room<SpinState> {
             this.#currentCountdown = INITIAL_COUNTDOWN_SECS // Set initial countdown value
 
             this.clock.start()
+            this.state.roomStatus = 'countdown'
 
+            // export type SpinRoomStatus = 'paused' | 'countdown' | 'wheel-spinning' | 'round-finished'
             this.delayedInterval = this.clock.setInterval(() => {
                 logger.info(`countdown(${this.currentCountdown} secs), deltaTime(${this.clock.deltaTime} ms), elaspedTime(${this.clock.elapsedTime / 1000} secs)`)
                 this.#currentCountdown -= 1
 
                 // If countdown has already hit 0 interval should be existed
                 if (this.currentCountdown < 0) {
+                    this.state.roomStatus = 'wheel-spinning'
                     this.delayedInterval.clear()
                     this.clock.clear()
+
+                    this.#currentCountdown = 30
+                    this.broadcast(SpinEvent.TimerUpdated, this.currentCountdown)
+                    this.delayedInterval = this.clock.setInterval(() => {
+                        this.#currentCountdown -= 1
+
+                        if (this.currentCountdown < 0) {
+                            this.delayedInterval.clear()
+                            this.clock.clear()
+                            this.state.roomStatus = 'round-finished'
+                            this.#currentCountdown = 0
+                        } else {
+                            this.broadcast(SpinEvent.TimerUpdated, this.currentCountdown)
+                        }
+
+                    }, 1000)
+
                     logger.info('Clock has finished ticking')
                     return
                 }
