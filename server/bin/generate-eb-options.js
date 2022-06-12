@@ -19,7 +19,6 @@ const lineInterface = readline.createInterface({
 const outputMap = []
 
 lineInterface.on('line', (line) => {
-    console.log(line)
     if (
         line[0] != '#' &&
 	process.env[line] !== undefined &&
