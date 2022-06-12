@@ -1,7 +1,13 @@
 import type { WorkerOptions, QueueOptions, ConnectionOptions, QueueEventsOptions } from 'bullmq'
 import type { RedisOptions } from 'ioredis'
 
-export const { REDIS_HOST, REDIS_PORT, REDIS_USERNAME, REDIS_PASSWORD, NODE_ENV } = process.env
+export const {
+    REDIS_HOST,
+    REDIS_PORT,
+    REDIS_USERNAME,
+    REDIS_PASSWORD,
+    NODE_ENV,
+} = process.env
 
 export enum RedisDBIndex {
     Store = 0,
@@ -14,7 +20,9 @@ export enum RedisDBIndex {
 // General config
 export const redisHost = REDIS_HOST || 'localhost'
 export const redisPort = Number(REDIS_PORT) || 6379
-export const redisUri = NODE_ENV === 'development' ? `redis://${REDIS_HOST}:${REDIS_PORT}` : `redis://${REDIS_USERNAME}@${REDIS_PASSWORD}${REDIS_HOST}:${REDIS_PORT}`
+export const redisUri = NODE_ENV === 'development' ?
+    `redis://${REDIS_HOST}:${REDIS_PORT}` :
+    `redis://${REDIS_USERNAME}:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}`
 
 // RedisStore config
 export const redisStoreUri = `${redisUri}/${RedisDBIndex.Store}`
