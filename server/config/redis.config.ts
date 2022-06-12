@@ -11,10 +11,10 @@ export const {
 
 export enum RedisDBIndex {
     Store = 0,
-    PubSub = 1,
-    StateSync = 2,
-    BullQueue = 3,
-    Proxy = 4,
+    PubSub = 0,
+    StateSync = 0,
+    BullQueue = 0,
+    Proxy = 0,
 }
 
 // General config
