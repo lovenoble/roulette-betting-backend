@@ -3,4 +3,4 @@ WORKDIR /usr/src/app
 COPY . ./
 RUN npm install --only=production
 EXPOSE 3100 9090
-CMD ls -la & node --experimental-modules --experimental-specifier-resolution=node --loader ts-node/esm index.js
+CMD ls -la & node --experimental-modules --experimental-specifier-resolution=node  index.js
