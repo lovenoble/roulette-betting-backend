@@ -45,17 +45,17 @@ export interface FareSpinGameInterface extends utils.Interface {
 
   functions: {
     "GAME_EDGE_CEILING()": FunctionFragment;
-    "batchEntryMap(uint256,uint256)": FunctionFragment;
-    "eliminators(uint256,uint256)": FunctionFragment;
-    "entryMap(uint256,uint256)": FunctionFragment;
-    "fareToken()": FunctionFragment;
+    "batchEntryMap(uint256,address)": FunctionFragment;
     "gameModes(uint256)": FunctionFragment;
     "getBatchEntryCount(uint256)": FunctionFragment;
-    "getCurrentEntryId()": FunctionFragment;
     "getCurrentGameModeId()": FunctionFragment;
     "getCurrentRoundId()": FunctionFragment;
-    "getEntryCount(uint256)": FunctionFragment;
+    "getEntriesByRoundPlayer(uint256,address)": FunctionFragment;
+    "getEntryByIndex(uint256,address,uint256)": FunctionFragment;
+    "getEntryCount(uint256,address)": FunctionFragment;
+    "getFareTokenAddress()": FunctionFragment;
     "getIsEliminator(uint256,uint256)": FunctionFragment;
+    "isRoundPaused()": FunctionFragment;
     "owner()": FunctionFragment;
     "paused()": FunctionFragment;
     "placeBatchEntry((uint256,uint256,uint256)[])": FunctionFragment;
@@ -71,29 +71,29 @@ export interface FareSpinGameInterface extends utils.Interface {
     "setGameModeMinMax(uint256,uint256,uint256)": FunctionFragment;
     "setTreasuryAddress(address)": FunctionFragment;
     "setTreasuryMint(uint256)": FunctionFragment;
-    "settleBatchEntry(uint256,uint256)": FunctionFragment;
+    "settleBatchEntry(uint256,address)": FunctionFragment;
+    "testConcludeRound(bytes32)": FunctionFragment;
     "testFulfillRandomness(bytes32,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "treasuryAddress()": FunctionFragment;
     "treasuryMint()": FunctionFragment;
     "vrfCoordinator()": FunctionFragment;
-    "vrfMap(bytes32)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "GAME_EDGE_CEILING"
       | "batchEntryMap"
-      | "eliminators"
-      | "entryMap"
-      | "fareToken"
       | "gameModes"
       | "getBatchEntryCount"
-      | "getCurrentEntryId"
       | "getCurrentGameModeId"
       | "getCurrentRoundId"
+      | "getEntriesByRoundPlayer"
+      | "getEntryByIndex"
       | "getEntryCount"
+      | "getFareTokenAddress"
       | "getIsEliminator"
+      | "isRoundPaused"
       | "owner"
       | "paused"
       | "placeBatchEntry"
@@ -110,12 +110,12 @@ export interface FareSpinGameInterface extends utils.Interface {
       | "setTreasuryAddress"
       | "setTreasuryMint"
       | "settleBatchEntry"
+      | "testConcludeRound"
       | "testFulfillRandomness"
       | "transferOwnership"
       | "treasuryAddress"
       | "treasuryMint"
       | "vrfCoordinator"
-      | "vrfMap"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -124,17 +124,8 @@ export interface FareSpinGameInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "batchEntryMap",
-    values: [BigNumberish, BigNumberish]
+    values: [BigNumberish, string]
   ): string;
-  encodeFunctionData(
-    functionFragment: "eliminators",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "entryMap",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "fareToken", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "gameModes",
     values: [BigNumberish]
@@ -142,10 +133,6 @@ export interface FareSpinGameInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getBatchEntryCount",
     values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getCurrentEntryId",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getCurrentGameModeId",
@@ -156,12 +143,28 @@ export interface FareSpinGameInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getEntriesByRoundPlayer",
+    values: [BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getEntryByIndex",
+    values: [BigNumberish, string, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getEntryCount",
-    values: [BigNumberish]
+    values: [BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getFareTokenAddress",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getIsEliminator",
     values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isRoundPaused",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "paused", values?: undefined): string;
@@ -226,7 +229,11 @@ export interface FareSpinGameInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "settleBatchEntry",
-    values: [BigNumberish, BigNumberish]
+    values: [BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "testConcludeRound",
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "testFulfillRandomness",
@@ -248,7 +255,6 @@ export interface FareSpinGameInterface extends utils.Interface {
     functionFragment: "vrfCoordinator",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "vrfMap", values: [BytesLike]): string;
 
   decodeFunctionResult(
     functionFragment: "GAME_EDGE_CEILING",
@@ -258,19 +264,9 @@ export interface FareSpinGameInterface extends utils.Interface {
     functionFragment: "batchEntryMap",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "eliminators",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "entryMap", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "fareToken", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "gameModes", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getBatchEntryCount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getCurrentEntryId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -282,11 +278,27 @@ export interface FareSpinGameInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getEntriesByRoundPlayer",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getEntryByIndex",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getEntryCount",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getFareTokenAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getIsEliminator",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isRoundPaused",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -345,6 +357,10 @@ export interface FareSpinGameInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "testConcludeRound",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "testFulfillRandomness",
     data: BytesLike
   ): Result;
@@ -364,13 +380,12 @@ export interface FareSpinGameInterface extends utils.Interface {
     functionFragment: "vrfCoordinator",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "vrfMap", data: BytesLike): Result;
 
   events: {
-    "EntrySettled(uint256,uint256,address,uint256,bool)": EventFragment;
-    "EntrySubmitted(uint256,uint256,address,uint256)": EventFragment;
+    "EntrySettled(uint256,address,bool)": EventFragment;
+    "EntrySubmitted(uint256,uint256,address)": EventFragment;
     "GameModeUpdated(uint256)": EventFragment;
-    "NFTWon(uint256,uint256,address)": EventFragment;
+    "NFTWon(uint256,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "Paused(address)": EventFragment;
     "RandomNumberRequested(bytes32)": EventFragment;
@@ -391,13 +406,11 @@ export interface FareSpinGameInterface extends utils.Interface {
 
 export interface EntrySettledEventObject {
   roundId: BigNumber;
-  batchId: BigNumber;
   player: string;
-  entryId: BigNumber;
   hasWon: boolean;
 }
 export type EntrySettledEvent = TypedEvent<
-  [BigNumber, BigNumber, string, BigNumber, boolean],
+  [BigNumber, string, boolean],
   EntrySettledEventObject
 >;
 
@@ -407,10 +420,9 @@ export interface EntrySubmittedEventObject {
   roundId: BigNumber;
   batchId: BigNumber;
   player: string;
-  entryId: BigNumber;
 }
 export type EntrySubmittedEvent = TypedEvent<
-  [BigNumber, BigNumber, string, BigNumber],
+  [BigNumber, BigNumber, string],
   EntrySubmittedEventObject
 >;
 
@@ -428,13 +440,9 @@ export type GameModeUpdatedEventFilter = TypedEventFilter<GameModeUpdatedEvent>;
 
 export interface NFTWonEventObject {
   roundId: BigNumber;
-  batchId: BigNumber;
   player: string;
 }
-export type NFTWonEvent = TypedEvent<
-  [BigNumber, BigNumber, string],
-  NFTWonEventObject
->;
+export type NFTWonEvent = TypedEvent<[BigNumber, string], NFTWonEventObject>;
 
 export type NFTWonEventFilter = TypedEventFilter<NFTWonEvent>;
 
@@ -521,43 +529,17 @@ export interface FareSpinGame extends BaseContract {
 
     batchEntryMap(
       arg0: BigNumberish,
-      arg1: BigNumberish,
+      arg1: string,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, string, boolean, BigNumber, BigNumber] & {
-        entryId: BigNumber;
+        batchEntryId: BigNumber;
         player: string;
         settled: boolean;
         totalEntryAmount: BigNumber;
         totalWinAmount: BigNumber;
       }
     >;
-
-    eliminators(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, boolean] & {
-        gameModeId: BigNumber;
-        recordedEdgeFloor: BigNumber;
-        isEliminator: boolean;
-      }
-    >;
-
-    entryMap(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
-        amount: BigNumber;
-        gameModeId: BigNumber;
-        pickedNumber: BigNumber;
-      }
-    >;
-
-    fareToken(overrides?: CallOverrides): Promise<[string]>;
 
     gameModes(
       arg0: BigNumberish,
@@ -589,10 +571,6 @@ export interface FareSpinGame extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { count: BigNumber }>;
 
-    getCurrentEntryId(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber] & { id: BigNumber }>;
-
     getCurrentGameModeId(
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { id: BigNumber }>;
@@ -601,16 +579,36 @@ export interface FareSpinGame extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { id: BigNumber }>;
 
+    getEntriesByRoundPlayer(
+      roundId: BigNumberish,
+      player: string,
+      overrides?: CallOverrides
+    ): Promise<[FareSpinGame.EntryStructOutput[]]>;
+
+    getEntryByIndex(
+      roundId: BigNumberish,
+      player: string,
+      entryIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[FareSpinGame.EntryStructOutput]>;
+
     getEntryCount(
-      entryId: BigNumberish,
+      roundId: BigNumberish,
+      player: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { count: BigNumber }>;
+
+    getFareTokenAddress(
+      overrides?: CallOverrides
+    ): Promise<[string] & { fareAddress: string }>;
 
     getIsEliminator(
       roundId: BigNumberish,
       gameModeId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[boolean] & { isEliminator: boolean }>;
+
+    isRoundPaused(overrides?: CallOverrides): Promise<[boolean]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -639,11 +637,12 @@ export interface FareSpinGame extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber, string] & {
+      [BigNumber, BigNumber, BigNumber, string, BigNumber] & {
         id: BigNumber;
         randomNum: BigNumber;
         randomEliminator: BigNumber;
         vrfRequestId: string;
+        vrfNum: BigNumber;
       }
     >;
 
@@ -699,7 +698,12 @@ export interface FareSpinGame extends BaseContract {
 
     settleBatchEntry(
       roundId: BigNumberish,
-      batchId: BigNumberish,
+      player: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    testConcludeRound(
+      vrfRequestId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -719,51 +723,23 @@ export interface FareSpinGame extends BaseContract {
     treasuryMint(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     vrfCoordinator(overrides?: CallOverrides): Promise<[string]>;
-
-    vrfMap(arg0: BytesLike, overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
   GAME_EDGE_CEILING(overrides?: CallOverrides): Promise<BigNumber>;
 
   batchEntryMap(
     arg0: BigNumberish,
-    arg1: BigNumberish,
+    arg1: string,
     overrides?: CallOverrides
   ): Promise<
     [BigNumber, string, boolean, BigNumber, BigNumber] & {
-      entryId: BigNumber;
+      batchEntryId: BigNumber;
       player: string;
       settled: boolean;
       totalEntryAmount: BigNumber;
       totalWinAmount: BigNumber;
     }
   >;
-
-  eliminators(
-    arg0: BigNumberish,
-    arg1: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, boolean] & {
-      gameModeId: BigNumber;
-      recordedEdgeFloor: BigNumber;
-      isEliminator: boolean;
-    }
-  >;
-
-  entryMap(
-    arg0: BigNumberish,
-    arg1: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber] & {
-      amount: BigNumber;
-      gameModeId: BigNumber;
-      pickedNumber: BigNumber;
-    }
-  >;
-
-  fareToken(overrides?: CallOverrides): Promise<string>;
 
   gameModes(
     arg0: BigNumberish,
@@ -795,22 +771,38 @@ export interface FareSpinGame extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  getCurrentEntryId(overrides?: CallOverrides): Promise<BigNumber>;
-
   getCurrentGameModeId(overrides?: CallOverrides): Promise<BigNumber>;
 
   getCurrentRoundId(overrides?: CallOverrides): Promise<BigNumber>;
 
+  getEntriesByRoundPlayer(
+    roundId: BigNumberish,
+    player: string,
+    overrides?: CallOverrides
+  ): Promise<FareSpinGame.EntryStructOutput[]>;
+
+  getEntryByIndex(
+    roundId: BigNumberish,
+    player: string,
+    entryIdx: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<FareSpinGame.EntryStructOutput>;
+
   getEntryCount(
-    entryId: BigNumberish,
+    roundId: BigNumberish,
+    player: string,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  getFareTokenAddress(overrides?: CallOverrides): Promise<string>;
 
   getIsEliminator(
     roundId: BigNumberish,
     gameModeId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  isRoundPaused(overrides?: CallOverrides): Promise<boolean>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -839,11 +831,12 @@ export interface FareSpinGame extends BaseContract {
     arg0: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber, BigNumber, string] & {
+    [BigNumber, BigNumber, BigNumber, string, BigNumber] & {
       id: BigNumber;
       randomNum: BigNumber;
       randomEliminator: BigNumber;
       vrfRequestId: string;
+      vrfNum: BigNumber;
     }
   >;
 
@@ -899,7 +892,12 @@ export interface FareSpinGame extends BaseContract {
 
   settleBatchEntry(
     roundId: BigNumberish,
-    batchId: BigNumberish,
+    player: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  testConcludeRound(
+    vrfRequestId: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -920,50 +918,22 @@ export interface FareSpinGame extends BaseContract {
 
   vrfCoordinator(overrides?: CallOverrides): Promise<string>;
 
-  vrfMap(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
-
   callStatic: {
     GAME_EDGE_CEILING(overrides?: CallOverrides): Promise<BigNumber>;
 
     batchEntryMap(
       arg0: BigNumberish,
-      arg1: BigNumberish,
+      arg1: string,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, string, boolean, BigNumber, BigNumber] & {
-        entryId: BigNumber;
+        batchEntryId: BigNumber;
         player: string;
         settled: boolean;
         totalEntryAmount: BigNumber;
         totalWinAmount: BigNumber;
       }
     >;
-
-    eliminators(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, boolean] & {
-        gameModeId: BigNumber;
-        recordedEdgeFloor: BigNumber;
-        isEliminator: boolean;
-      }
-    >;
-
-    entryMap(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
-        amount: BigNumber;
-        gameModeId: BigNumber;
-        pickedNumber: BigNumber;
-      }
-    >;
-
-    fareToken(overrides?: CallOverrides): Promise<string>;
 
     gameModes(
       arg0: BigNumberish,
@@ -995,22 +965,38 @@ export interface FareSpinGame extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getCurrentEntryId(overrides?: CallOverrides): Promise<BigNumber>;
-
     getCurrentGameModeId(overrides?: CallOverrides): Promise<BigNumber>;
 
     getCurrentRoundId(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getEntriesByRoundPlayer(
+      roundId: BigNumberish,
+      player: string,
+      overrides?: CallOverrides
+    ): Promise<FareSpinGame.EntryStructOutput[]>;
+
+    getEntryByIndex(
+      roundId: BigNumberish,
+      player: string,
+      entryIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<FareSpinGame.EntryStructOutput>;
+
     getEntryCount(
-      entryId: BigNumberish,
+      roundId: BigNumberish,
+      player: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    getFareTokenAddress(overrides?: CallOverrides): Promise<string>;
 
     getIsEliminator(
       roundId: BigNumberish,
       gameModeId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    isRoundPaused(overrides?: CallOverrides): Promise<boolean>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -1035,11 +1021,12 @@ export interface FareSpinGame extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber, string] & {
+      [BigNumber, BigNumber, BigNumber, string, BigNumber] & {
         id: BigNumber;
         randomNum: BigNumber;
         randomEliminator: BigNumber;
         vrfRequestId: string;
+        vrfNum: BigNumber;
       }
     >;
 
@@ -1095,7 +1082,12 @@ export interface FareSpinGame extends BaseContract {
 
     settleBatchEntry(
       roundId: BigNumberish,
-      batchId: BigNumberish,
+      player: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    testConcludeRound(
+      vrfRequestId: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1115,37 +1107,29 @@ export interface FareSpinGame extends BaseContract {
     treasuryMint(overrides?: CallOverrides): Promise<BigNumber>;
 
     vrfCoordinator(overrides?: CallOverrides): Promise<string>;
-
-    vrfMap(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {
-    "EntrySettled(uint256,uint256,address,uint256,bool)"(
+    "EntrySettled(uint256,address,bool)"(
       roundId?: BigNumberish | null,
-      batchId?: BigNumberish | null,
       player?: string | null,
-      entryId?: null,
       hasWon?: null
     ): EntrySettledEventFilter;
     EntrySettled(
       roundId?: BigNumberish | null,
-      batchId?: BigNumberish | null,
       player?: string | null,
-      entryId?: null,
       hasWon?: null
     ): EntrySettledEventFilter;
 
-    "EntrySubmitted(uint256,uint256,address,uint256)"(
+    "EntrySubmitted(uint256,uint256,address)"(
       roundId?: BigNumberish | null,
       batchId?: BigNumberish | null,
-      player?: string | null,
-      entryId?: null
+      player?: string | null
     ): EntrySubmittedEventFilter;
     EntrySubmitted(
       roundId?: BigNumberish | null,
       batchId?: BigNumberish | null,
-      player?: string | null,
-      entryId?: null
+      player?: string | null
     ): EntrySubmittedEventFilter;
 
     "GameModeUpdated(uint256)"(
@@ -1155,14 +1139,12 @@ export interface FareSpinGame extends BaseContract {
       gameModeId?: BigNumberish | null
     ): GameModeUpdatedEventFilter;
 
-    "NFTWon(uint256,uint256,address)"(
+    "NFTWon(uint256,address)"(
       roundId?: BigNumberish | null,
-      batchId?: BigNumberish | null,
       player?: string | null
     ): NFTWonEventFilter;
     NFTWon(
       roundId?: BigNumberish | null,
-      batchId?: BigNumberish | null,
       player?: string | null
     ): NFTWonEventFilter;
 
@@ -1207,23 +1189,9 @@ export interface FareSpinGame extends BaseContract {
 
     batchEntryMap(
       arg0: BigNumberish,
-      arg1: BigNumberish,
+      arg1: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    eliminators(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    entryMap(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    fareToken(overrides?: CallOverrides): Promise<BigNumber>;
 
     gameModes(
       arg0: BigNumberish,
@@ -1235,22 +1203,38 @@ export interface FareSpinGame extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getCurrentEntryId(overrides?: CallOverrides): Promise<BigNumber>;
-
     getCurrentGameModeId(overrides?: CallOverrides): Promise<BigNumber>;
 
     getCurrentRoundId(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getEntryCount(
-      entryId: BigNumberish,
+    getEntriesByRoundPlayer(
+      roundId: BigNumberish,
+      player: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    getEntryByIndex(
+      roundId: BigNumberish,
+      player: string,
+      entryIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getEntryCount(
+      roundId: BigNumberish,
+      player: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getFareTokenAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
     getIsEliminator(
       roundId: BigNumberish,
       gameModeId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    isRoundPaused(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1329,7 +1313,12 @@ export interface FareSpinGame extends BaseContract {
 
     settleBatchEntry(
       roundId: BigNumberish,
-      batchId: BigNumberish,
+      player: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    testConcludeRound(
+      vrfRequestId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1349,8 +1338,6 @@ export interface FareSpinGame extends BaseContract {
     treasuryMint(overrides?: CallOverrides): Promise<BigNumber>;
 
     vrfCoordinator(overrides?: CallOverrides): Promise<BigNumber>;
-
-    vrfMap(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1358,23 +1345,9 @@ export interface FareSpinGame extends BaseContract {
 
     batchEntryMap(
       arg0: BigNumberish,
-      arg1: BigNumberish,
+      arg1: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    eliminators(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    entryMap(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    fareToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     gameModes(
       arg0: BigNumberish,
@@ -1386,16 +1359,32 @@ export interface FareSpinGame extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getCurrentEntryId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     getCurrentGameModeId(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getCurrentRoundId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    getEntriesByRoundPlayer(
+      roundId: BigNumberish,
+      player: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getEntryByIndex(
+      roundId: BigNumberish,
+      player: string,
+      entryIdx: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getEntryCount(
-      entryId: BigNumberish,
+      roundId: BigNumberish,
+      player: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getFareTokenAddress(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1404,6 +1393,8 @@ export interface FareSpinGame extends BaseContract {
       gameModeId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    isRoundPaused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1485,7 +1476,12 @@ export interface FareSpinGame extends BaseContract {
 
     settleBatchEntry(
       roundId: BigNumberish,
-      batchId: BigNumberish,
+      player: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    testConcludeRound(
+      vrfRequestId: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1505,10 +1501,5 @@ export interface FareSpinGame extends BaseContract {
     treasuryMint(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     vrfCoordinator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    vrfMap(
-      arg0: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
   };
 }

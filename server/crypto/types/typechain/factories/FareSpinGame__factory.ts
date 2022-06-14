@@ -54,21 +54,9 @@ const _abi = [
       },
       {
         indexed: true,
-        internalType: "uint256",
-        name: "batchId",
-        type: "uint256",
-      },
-      {
-        indexed: true,
         internalType: "address",
         name: "player",
         type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "entryId",
-        type: "uint256",
       },
       {
         indexed: false,
@@ -101,12 +89,6 @@ const _abi = [
         name: "player",
         type: "address",
       },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "entryId",
-        type: "uint256",
-      },
     ],
     name: "EntrySubmitted",
     type: "event",
@@ -131,12 +113,6 @@ const _abi = [
         indexed: true,
         internalType: "uint256",
         name: "roundId",
-        type: "uint256",
-      },
-      {
-        indexed: true,
-        internalType: "uint256",
-        name: "batchId",
         type: "uint256",
       },
       {
@@ -259,16 +235,16 @@ const _abi = [
         type: "uint256",
       },
       {
-        internalType: "uint256",
+        internalType: "address",
         name: "",
-        type: "uint256",
+        type: "address",
       },
     ],
     name: "batchEntryMap",
     outputs: [
       {
         internalType: "uint256",
-        name: "entryId",
+        name: "batchEntryId",
         type: "uint256",
       },
       {
@@ -290,87 +266,6 @@ const _abi = [
         internalType: "uint256",
         name: "totalWinAmount",
         type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    name: "eliminators",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "gameModeId",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "recordedEdgeFloor",
-        type: "uint256",
-      },
-      {
-        internalType: "bool",
-        name: "isEliminator",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    name: "entryMap",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "gameModeId",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "pickedNumber",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "fareToken",
-    outputs: [
-      {
-        internalType: "contract IFareToken",
-        name: "",
-        type: "address",
       },
     ],
     stateMutability: "view",
@@ -451,19 +346,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getCurrentEntryId",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "id",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "getCurrentGameModeId",
     outputs: [
       {
@@ -492,8 +374,100 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "entryId",
+        name: "roundId",
         type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "player",
+        type: "address",
+      },
+    ],
+    name: "getEntriesByRoundPlayer",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "gameModeId",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "pickedNumber",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct FareSpinGame.Entry[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "roundId",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "player",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "entryIdx",
+        type: "uint256",
+      },
+    ],
+    name: "getEntryByIndex",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "gameModeId",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "pickedNumber",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct FareSpinGame.Entry",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "roundId",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "player",
+        type: "address",
       },
     ],
     name: "getEntryCount",
@@ -502,6 +476,19 @@ const _abi = [
         internalType: "uint256",
         name: "count",
         type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getFareTokenAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "fareAddress",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -525,6 +512,19 @@ const _abi = [
       {
         internalType: "bool",
         name: "isEliminator",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "isRoundPaused",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
         type: "bool",
       },
     ],
@@ -654,6 +654,11 @@ const _abi = [
         internalType: "bytes32",
         name: "vrfRequestId",
         type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "vrfNum",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -821,12 +826,25 @@ const _abi = [
         type: "uint256",
       },
       {
-        internalType: "uint256",
-        name: "batchId",
-        type: "uint256",
+        internalType: "address",
+        name: "player",
+        type: "address",
       },
     ],
     name: "settleBatchEntry",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "vrfRequestId",
+        type: "bytes32",
+      },
+    ],
+    name: "testConcludeRound",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -896,25 +914,6 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    name: "vrfMap",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
