@@ -53,7 +53,6 @@ export interface IEntry {
 }
 
 export interface IBatchEntry {
-	// entryId: number // TBR
 	player: string
 	settled: boolean
 	totalEntryAmount: number

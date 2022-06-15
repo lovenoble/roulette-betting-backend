@@ -72,16 +72,6 @@ class FareSpinGameAPI {
 		return Promise.all(promiseList)
 	}
 
-	// public async getEliminator(roundId: number, gameModeId: number): Promise<IEliminator> { // TBR
-	// 	const eliminator = await this.contract.eliminators(roundId, gameModeId)
-
-	// 	return {
-	// 		gameModeId: BNToNumber(eliminator.gameModeId),
-	// 		recordedEdgeFloor: BNToNumber(eliminator.recordedEdgeFloor),
-	// 		isEliminator: eliminator.isEliminator,
-	// 	}
-	// }
-
 	public parseEliminator(eliminator: EliminatorStructOutput): IEliminator {
 		return {
 			gameModeId: BNToNumber(eliminator.gameModeId),
@@ -96,27 +86,8 @@ class FareSpinGameAPI {
 		return eliminators.map(elim => this.parseEliminator(elim))
 	}
 
-	// public async getAllEliminators(roundIds?: number[]): Promise<IEliminator[][]> { // TBR
-	// 	const gameModeIds = this._gameModes.map(({ id }) => BNToNumber(id))
-	// 	let rIds = roundIds
-	// 	if (!rIds) {
-	// 		rIds = [...Array(await this.getCurrentRoundId()).keys()]
-	// 	}
-
-	// 	const promiseList = roundIds.map(async rId => {
-	// 		const _internalPromiseList = gameModeIds.map(async gId => {
-	// 			return this.getEliminator(rId, gId)
-	// 		})
-
-	// 		return Promise.all(_internalPromiseList)
-	// 	})
-
-	// 	return Promise.all(promiseList)
-	// }
-
 	public async getVRF(roundId: BigNumber | number): Promise<string> {
 		const round = await this.contract.rounds(roundId)
-		console.log('FETCHED ROUND', round)
 		const vrfNum = utils.formatUnits(round.vrfNum, 0)
 		return vrfNum
 	}
@@ -194,53 +165,6 @@ class FareSpinGameAPI {
 			totalRoundWinAmount,
 		}
 	}
-
-	// public async getAllBatchEntries(
-	// 	roundId: number,
-	// 	includeEntries = true
-	// ): Promise<{
-	// 	batchEntries: IBatchEntry[]
-	// 	totalRoundEntryAmount: number
-	// 	totalRoundWinAmount: number
-	// }> {
-	// 	let totalRoundEntryAmount = 0
-	// 	let totalRoundWinAmount = 0
-	// 	const batchEntryCount = Number(
-	// 		utils.formatUnits(await this.contract.getBatchEntryCount(roundId), 0)
-	// 	)
-	// 	const batchIds = [...Array(batchEntryCount).keys()]
-
-	// 	const promiseList = batchIds.map((batchId): Promise<IBatchEntry> => {
-	// 		return new Promise((resolve, reject) => {
-	// 			this.getBatchEntry(roundId, batchId)
-	// 				.then(batchEntry => {
-	// 					totalRoundEntryAmount += batchEntry.totalEntryAmount
-	// 					totalRoundWinAmount += batchEntry.totalWinAmount
-	// 					if (includeEntries) {
-	// 						this.getAllEntries(batchEntry.entryId)
-	// 							.then(entries => {
-	// 								const BEWithEntries: IBatchEntry = Object.assign(batchEntry, {
-	// 									entries,
-	// 								})
-	// 								resolve(BEWithEntries)
-	// 							})
-	// 							.catch(reject)
-	// 					} else {
-	// 						resolve(batchEntry)
-	// 					}
-	// 				})
-	// 				.catch(reject)
-	// 		})
-	// 	})
-
-	// 	const batchEntries = await Promise.all(promiseList)
-
-	// 	return {
-	// 		batchEntries,
-	// 		totalRoundEntryAmount,
-	// 		totalRoundWinAmount,
-	// 	}
-	// }
 }
 
 export default FareSpinGameAPI

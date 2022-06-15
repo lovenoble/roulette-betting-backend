@@ -33,7 +33,6 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 			roundId: BNToNumber(roundId),
 			batchEntryId: BNToNumber(batchEntryId),
 			player,
-			// entryId: BNToNumber(entryId), // TBR
 			event: eventLog.parseForQueue(event, ContractNames.FareSpinGame),
 			timestamp: Date.now(),
 		}
@@ -69,9 +68,7 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 	) => {
 		const queueData: IEntrySettledQueue = {
 			roundId: BNToNumber(roundId),
-			// batchEntryId: BNToNumber(batchEntryId), // TBR
 			player,
-			// entryId: BNToNumber(_NUentryId), // TBR
 			hasWon,
 			event: eventLog.parseForQueue(event, ContractNames.FareSpinGame),
 			timestamp: Date.now(),

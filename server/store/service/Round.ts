@@ -120,7 +120,6 @@ export default class RoundService extends ServiceBase<Round> {
 					batchEntry: {
 						totalWinAmount: batchEntry.totalWinAmount,
 						roundId: batchEntry.roundId,
-						// entryId: batchEntry.entryId, // TBR
 						player: batchEntry.player,
 						batchEntryId: batchEntry.batchEntryId,
 					} as SettledBatchEntry,

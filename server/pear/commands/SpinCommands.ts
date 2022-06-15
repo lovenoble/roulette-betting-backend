@@ -83,7 +83,6 @@ export class OnInitSpinRoom extends Command<SpinRoom, void> {
 			const batchEntryState = new BatchEntry()
 			batchEntryState.roundId = batchEntry.roundId
 			batchEntryState.batchEntryId = batchEntry.batchEntryId
-			// batchEntryState.entryId = batchEntry.entryId // TBR
 			batchEntryState.player = batchEntry.player
 			batchEntryState.settled = batchEntry.settled
 			batchEntryState.totalEntryAmount = batchEntry.totalEntryAmount
@@ -98,8 +97,6 @@ export class OnInitSpinRoom extends Command<SpinRoom, void> {
 				entryState.roundId = entry.roundId
 				entryState.gameModeId = entry.gameModeId
 				entryState.pickedNumber = entry.pickedNumber
-				// entryState.batchEntryId = entry.batchEntryId // TBR
-				// entryState.entryId = entry.entryId // TBR
 				entryState.entryIdx = entry.entryIdx
 				entryState.winAmount = entry.winAmount
 				entryState.settled = entry.settled
@@ -127,7 +124,6 @@ export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
 			const batchEntryState = new BatchEntry()
 			batchEntryState.roundId = batchEntry.roundId
 			batchEntryState.batchEntryId = batchEntry.batchEntryId
-			// batchEntryState.entryId = batchEntry.entryId // TBR
 			batchEntryState.player = batchEntry.player
 			batchEntryState.settled = batchEntry.settled
 			batchEntryState.totalEntryAmount = batchEntry.totalEntryAmount
@@ -142,8 +138,6 @@ export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
 				entryState.roundId = entry.roundId
 				entryState.gameModeId = entry.gameModeId
 				entryState.pickedNumber = entry.pickedNumber
-				// entryState.batchEntryId = entry.batchEntryId // TBR
-				// entryState.entryId = entry.entryId // TBR
 				entryState.entryIdx = entry.entryIdx
 				entryState.winAmount = entry.winAmount
 				entryState.settled = entry.settled

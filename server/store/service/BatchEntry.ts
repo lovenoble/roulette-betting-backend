@@ -66,7 +66,6 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 		eventLogId: string,
 		roundId: number,
 		batchEntryId: number,
-		// entryId: number,
 		player: string,
 		jobId: string = null,
 		timestamp = Date.now()
@@ -86,7 +85,6 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 			eventLogId,
 			roundId,
 			batchEntryId,
-			// entryId, // TBR
 			settled,
 			player,
 			totalEntryAmount: formatETH(totalEntryAmount),
@@ -94,20 +92,6 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 			timestamp,
 			jobId,
 		}
-
-		// export interface IBatchEntry {
-		// 	// entityId: string // Redis hashId to reference in Redis store (emitted from pubsub event)
-		// 	roundId: number // Round when batchEntry was submitted
-		// 	batchEntryId: number // References the position of batchEntry array in smart contract
-		// 	// entryId: number // References entry array index in smart contract // TBR
-		// 	player: string // Public address of player
-		// 	settled: boolean // Determines if a player has submitted an batchEntrySettled transaction to claim token
-		// 	totalEntryAmount: string // Amount(sum of all entries) won when round is over
-		// 	totalWinAmount?: string // Amount(sum of all winning entries) won when round is over
-		// 	timestamp: number
-		// 	entries: ArraySchema<Entry>
-		// 	isLoss: boolean // Defaults to false
-		// }
 
 		await this.repo.createAndSave(batchEntry)
 

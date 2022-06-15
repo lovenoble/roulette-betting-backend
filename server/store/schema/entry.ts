@@ -13,8 +13,6 @@ export interface Entry {
 	gameModeId: number
 	pickedNumber: number
 	player: string // Player's public address
-	// batchEntryId: number // TBR
-	// entryId: number // TBR
 	entryIdx: number
 	winAmount: string
 	settled: boolean
@@ -50,8 +48,6 @@ export default new Schema(
 		gameModeId: { type: 'number' },
 		pickedNumber: { type: 'number' },
 		player: { type: 'string' },
-		// batchEntryId: { type: 'number', sortable: true }, // TBR
-		// entryId: { type: 'number', sortable: true }, // TBR
 		entryIdx: { type: 'number', sortable: true },
 		winAmount: { type: 'string' },
 		settled: { type: 'boolean' },
