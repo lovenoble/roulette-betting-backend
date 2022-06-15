@@ -53,7 +53,7 @@ export interface IEntry {
 }
 
 export interface IBatchEntry {
-	entryId: number
+	// entryId: number // TBR
 	player: string
 	settled: boolean
 	totalEntryAmount: number
@@ -117,4 +117,16 @@ export interface Entry {
 	winAmount: string
 	settled: boolean
 	result: string
+}
+
+export type EntryStructOutput = [BigNumber, BigNumber, BigNumber] & {
+	amount: BigNumber
+	gameModeId: BigNumber
+	pickedNumber: BigNumber
+}
+
+export type EliminatorStructOutput = [BigNumber, BigNumber, boolean] & {
+	gameModeId: BigNumber
+	recordedEdgeFloor: BigNumber
+	isEliminator: boolean
 }

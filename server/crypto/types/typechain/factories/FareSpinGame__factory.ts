@@ -333,6 +333,25 @@ const _abi = [
         type: "uint256",
       },
     ],
+    name: "getAllPlayersByRoundId",
+    outputs: [
+      {
+        internalType: "address[]",
+        name: "players",
+        type: "address[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "roundId",
+        type: "uint256",
+      },
+    ],
     name: "getBatchEntryCount",
     outputs: [
       {
@@ -365,6 +384,42 @@ const _abi = [
         internalType: "uint256",
         name: "id",
         type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "roundId",
+        type: "uint256",
+      },
+    ],
+    name: "getEliminatorsByRoundId",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "gameModeId",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "recordedEdgeFloor",
+            type: "uint256",
+          },
+          {
+            internalType: "bool",
+            name: "isEliminator",
+            type: "bool",
+          },
+        ],
+        internalType: "struct FareSpinGame.Eliminator[]",
+        name: "eliminators",
+        type: "tuple[]",
       },
     ],
     stateMutability: "view",

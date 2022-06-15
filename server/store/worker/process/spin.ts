@@ -33,7 +33,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 	}
 
 	async function entrySubmitted(queueData: IEntrySubmittedQueue, jobId: string = null) {
-		const { roundId, batchEntryId, player, entryId, event, timestamp } = queueData
+		const { roundId, batchEntryId, player, event, timestamp } = queueData
 		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpinGame)
 		if (!eventLogId) return null
 
@@ -41,7 +41,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 			eventLogId,
 			roundId,
 			batchEntryId,
-			entryId,
+			// entryId, // TBR
 			player,
 			jobId,
 			timestamp
@@ -97,6 +97,8 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 			eliminators[gameModeId] = isEliminator
 		})
 
+		const vrfNum = await spinAPI.getVRF(roundId)
+
 		PubSub.pub<'round-concluded'>('spin-state', 'round-concluded', {
 			roundId,
 			randomNum,
@@ -114,6 +116,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 				roundId,
 				randomNum,
 				randomEliminator,
+				vrfNum,
 				vrfRequestId,
 				timestamp,
 				jobId,
@@ -129,9 +132,9 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 	async function entrySettled<T>(queueData: IEntrySettledQueue, jobId: string = null) {
 		const {
 			roundId,
-			batchEntryId,
-			player, // eslint-disable-line
-			entryId, // eslint-disable-line
+			// batchEntryId, // TBR
+            player, // eslint-disable-line
+			// entryId, // eslint-disable-line // TBR
 			hasWon,
 			event,
 			timestamp,
@@ -142,13 +145,14 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 
 		const batchEntryEntity = await service.batchEntry.settle(
 			roundId,
-			batchEntryId,
+			player,
+			// batchEntryId, // TBR,
 			timestamp,
 			jobId
 		)
 
 		const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
-			await spinAPI.contract.batchEntryMap(roundId, batchEntryId)
+			await spinAPI.contract.batchEntryMap(roundId, player)
 
 		// @NOTE: Ensure blockchain totalWinAmount and calculated Redis totalWinAmount is correct
 		// @NOTE: We need to log to our analytics if these numbers do not match

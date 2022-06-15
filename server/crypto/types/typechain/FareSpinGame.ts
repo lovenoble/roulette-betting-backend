@@ -27,6 +27,18 @@ import type {
 } from "./common";
 
 export declare namespace FareSpinGame {
+  export type EliminatorStruct = {
+    gameModeId: BigNumberish;
+    recordedEdgeFloor: BigNumberish;
+    isEliminator: boolean;
+  };
+
+  export type EliminatorStructOutput = [BigNumber, BigNumber, boolean] & {
+    gameModeId: BigNumber;
+    recordedEdgeFloor: BigNumber;
+    isEliminator: boolean;
+  };
+
   export type EntryStruct = {
     amount: BigNumberish;
     gameModeId: BigNumberish;
@@ -47,9 +59,11 @@ export interface FareSpinGameInterface extends utils.Interface {
     "GAME_EDGE_CEILING()": FunctionFragment;
     "batchEntryMap(uint256,address)": FunctionFragment;
     "gameModes(uint256)": FunctionFragment;
+    "getAllPlayersByRoundId(uint256)": FunctionFragment;
     "getBatchEntryCount(uint256)": FunctionFragment;
     "getCurrentGameModeId()": FunctionFragment;
     "getCurrentRoundId()": FunctionFragment;
+    "getEliminatorsByRoundId(uint256)": FunctionFragment;
     "getEntriesByRoundPlayer(uint256,address)": FunctionFragment;
     "getEntryByIndex(uint256,address,uint256)": FunctionFragment;
     "getEntryCount(uint256,address)": FunctionFragment;
@@ -85,9 +99,11 @@ export interface FareSpinGameInterface extends utils.Interface {
       | "GAME_EDGE_CEILING"
       | "batchEntryMap"
       | "gameModes"
+      | "getAllPlayersByRoundId"
       | "getBatchEntryCount"
       | "getCurrentGameModeId"
       | "getCurrentRoundId"
+      | "getEliminatorsByRoundId"
       | "getEntriesByRoundPlayer"
       | "getEntryByIndex"
       | "getEntryCount"
@@ -131,6 +147,10 @@ export interface FareSpinGameInterface extends utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "getAllPlayersByRoundId",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getBatchEntryCount",
     values: [BigNumberish]
   ): string;
@@ -141,6 +161,10 @@ export interface FareSpinGameInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getCurrentRoundId",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getEliminatorsByRoundId",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getEntriesByRoundPlayer",
@@ -266,6 +290,10 @@ export interface FareSpinGameInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "gameModes", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "getAllPlayersByRoundId",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getBatchEntryCount",
     data: BytesLike
   ): Result;
@@ -275,6 +303,10 @@ export interface FareSpinGameInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getCurrentRoundId",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getEliminatorsByRoundId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -566,6 +598,11 @@ export interface FareSpinGame extends BaseContract {
       }
     >;
 
+    getAllPlayersByRoundId(
+      roundId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string[]] & { players: string[] }>;
+
     getBatchEntryCount(
       roundId: BigNumberish,
       overrides?: CallOverrides
@@ -578,6 +615,15 @@ export interface FareSpinGame extends BaseContract {
     getCurrentRoundId(
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { id: BigNumber }>;
+
+    getEliminatorsByRoundId(
+      roundId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<
+      [FareSpinGame.EliminatorStructOutput[]] & {
+        eliminators: FareSpinGame.EliminatorStructOutput[];
+      }
+    >;
 
     getEntriesByRoundPlayer(
       roundId: BigNumberish,
@@ -766,6 +812,11 @@ export interface FareSpinGame extends BaseContract {
     }
   >;
 
+  getAllPlayersByRoundId(
+    roundId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string[]>;
+
   getBatchEntryCount(
     roundId: BigNumberish,
     overrides?: CallOverrides
@@ -774,6 +825,11 @@ export interface FareSpinGame extends BaseContract {
   getCurrentGameModeId(overrides?: CallOverrides): Promise<BigNumber>;
 
   getCurrentRoundId(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getEliminatorsByRoundId(
+    roundId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<FareSpinGame.EliminatorStructOutput[]>;
 
   getEntriesByRoundPlayer(
     roundId: BigNumberish,
@@ -960,6 +1016,11 @@ export interface FareSpinGame extends BaseContract {
       }
     >;
 
+    getAllPlayersByRoundId(
+      roundId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string[]>;
+
     getBatchEntryCount(
       roundId: BigNumberish,
       overrides?: CallOverrides
@@ -968,6 +1029,11 @@ export interface FareSpinGame extends BaseContract {
     getCurrentGameModeId(overrides?: CallOverrides): Promise<BigNumber>;
 
     getCurrentRoundId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getEliminatorsByRoundId(
+      roundId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<FareSpinGame.EliminatorStructOutput[]>;
 
     getEntriesByRoundPlayer(
       roundId: BigNumberish,
@@ -1198,6 +1264,11 @@ export interface FareSpinGame extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getAllPlayersByRoundId(
+      roundId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getBatchEntryCount(
       roundId: BigNumberish,
       overrides?: CallOverrides
@@ -1206,6 +1277,11 @@ export interface FareSpinGame extends BaseContract {
     getCurrentGameModeId(overrides?: CallOverrides): Promise<BigNumber>;
 
     getCurrentRoundId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getEliminatorsByRoundId(
+      roundId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getEntriesByRoundPlayer(
       roundId: BigNumberish,
@@ -1354,6 +1430,11 @@ export interface FareSpinGame extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getAllPlayersByRoundId(
+      roundId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getBatchEntryCount(
       roundId: BigNumberish,
       overrides?: CallOverrides
@@ -1364,6 +1445,11 @@ export interface FareSpinGame extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getCurrentRoundId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getEliminatorsByRoundId(
+      roundId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     getEntriesByRoundPlayer(
       roundId: BigNumberish,

@@ -73,10 +73,10 @@ export default class RoundService extends ServiceBase<Round> {
 				batchEntry,
 				entries: await this.entryService.repo
 					.search()
-					.where('batchEntryId')
-					.eq(batchEntry.batchEntryId)
 					.where('roundId')
 					.eq(batchEntry.roundId)
+					.where('player')
+					.eq(batchEntry.player)
 					.sortAsc('entryIdx')
 					.returnAll(),
 			}
@@ -108,8 +108,8 @@ export default class RoundService extends ServiceBase<Round> {
 						}
 					}
 					await this.entryService.repo.save(entry)
-					const { entryId, batchEntryId, winAmount, entryIdx } = entry
-					return { entryId, batchEntryId, roundId, winAmount, entryIdx } as SettledEntry
+					const { player, winAmount, entryIdx } = entry
+					return { player, roundId, winAmount, entryIdx } as SettledEntry
 				})
 
 				const updatedEntries = await Promise.all(entryPromise)
@@ -120,7 +120,7 @@ export default class RoundService extends ServiceBase<Round> {
 					batchEntry: {
 						totalWinAmount: batchEntry.totalWinAmount,
 						roundId: batchEntry.roundId,
-						entryId: batchEntry.entryId,
+						// entryId: batchEntry.entryId, // TBR
 						player: batchEntry.player,
 						batchEntryId: batchEntry.batchEntryId,
 					} as SettledBatchEntry,

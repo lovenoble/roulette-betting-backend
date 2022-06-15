@@ -12,13 +12,12 @@ export type BatchEntryMsgArgs = {
 export type SettledEntry = {
 	winAmount?: string
 	roundId: number
-	entryId: number
-	batchEntryId: number
+	player: string
 }
 
 export type SettledBatchEntry = {
 	batchEntryId: number
-	entryId: number
+	// entryId: number // TBR
 	player: string // Public address of player
 	totalWinAmount?: string // Amount(sum of all winning entries) won when round is over
 }

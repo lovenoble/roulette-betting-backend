@@ -13,3 +13,6 @@ export const prettyNumber = (num: number | string | BigNumber, decimals = 18) =>
 }
 
 export const BN = BigNumber.from
+
+export const ensureNumber = (val: BigNumber | number): number =>
+	val instanceof BN ? BNToNumber(val as BigNumber) : (val as number)

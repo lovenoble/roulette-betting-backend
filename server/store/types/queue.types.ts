@@ -28,7 +28,7 @@ export interface IEntrySubmittedQueue {
 	roundId: number
 	batchEntryId: number
 	player: string
-	entryId: number
+	// entryId: number // TBR
 	timestamp: number
 	event: IEventLogQueue
 }
@@ -44,9 +44,9 @@ export interface IRoundConcludedQueue {
 
 export interface IEntrySettledQueue {
 	roundId: number
-	batchEntryId: number
+	// batchEntryId: number // TBR
 	player: string
-	entryId: number
+	// entryId: number // TBR
 	hasWon: boolean
 	timestamp: number
 	event: IEventLogQueue

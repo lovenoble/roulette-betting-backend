@@ -6,8 +6,9 @@ export interface IEntry {
 	roundId: number // Round when this entry was submitted
 	gameModeId: number // References the GameMode mapping in the smart contract (0 = 2X, 1 = 10X, 2 = 100X)
 	pickedNumber: number // Number picked for the specific gameMode
-	batchEntryId: number // References parent batchEntry
-	entryId: number // References position in entry array in smart contract
+	player: string // Players public address
+	// batchEntryId: number // References parent batchEntry // TBR
+	// entryId: number // References position in entry array in smart contract // TBR
 	entryIdx: number // References position in entry array in smart contract
 	winAmount?: string // Amount won when round is over
 	settled: boolean // Determines if a player has submitted an batchEntrySettled transaction to claim token
@@ -21,8 +22,9 @@ export class Entry extends Schema implements IEntry {
 	@type('number') roundId: number
 	@type('number') gameModeId: number
 	@type('number') pickedNumber: number
-	@type('number') batchEntryId: number
-	@type('number') entryId: number
+	@type('string') player: string
+	// @type('number') batchEntryId: number // TBR
+	// @type('number') entryId: number // TBR
 	@type('number') entryIdx: number
 	@type('string') winAmount?: string // Updates when round is over
 	@type('boolean') settled = false // Defaults to false

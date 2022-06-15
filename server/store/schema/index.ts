@@ -1,4 +1,5 @@
 export { default as batchEntrySchema } from './batchEntry'
+export { default as eliminatorSchema } from './eliminator'
 export { default as entrySchema } from './entry'
 export { default as eventLogSchema } from './eventLog'
 export { default as fareTransferSchema } from './fareTransfer'

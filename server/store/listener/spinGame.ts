@@ -27,14 +27,13 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 		roundId: BigNumber,
 		batchEntryId: BigNumber,
 		player: string,
-		entryId: BigNumber,
 		event: Event
 	) => {
 		const queueData: IEntrySubmittedQueue = {
 			roundId: BNToNumber(roundId),
 			batchEntryId: BNToNumber(batchEntryId),
 			player,
-			entryId: BNToNumber(entryId),
+			// entryId: BNToNumber(entryId), // TBR
 			event: eventLog.parseForQueue(event, ContractNames.FareSpinGame),
 			timestamp: Date.now(),
 		}
@@ -42,6 +41,7 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 		await storeQueue.spinContract.add(EventNames.EntrySubmitted, queueData)
 	}
 
+	// @NOTE: Need to pull in vrfNum, eliminators, and players array
 	const roundConcluded = async (
 		roundId: BigNumber,
 		vrfRequestId: string,
@@ -63,17 +63,15 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 
 	const entrySettled = async (
 		roundId: BigNumber,
-		batchEntryId: BigNumber,
-		_NUplayer: string,
-		_NUentryId: BigNumber,
+		player: string,
 		hasWon: boolean,
 		event: Event
 	) => {
 		const queueData: IEntrySettledQueue = {
 			roundId: BNToNumber(roundId),
-			batchEntryId: BNToNumber(batchEntryId),
-			player: _NUplayer,
-			entryId: BNToNumber(_NUentryId),
+			// batchEntryId: BNToNumber(batchEntryId), // TBR
+			player,
+			// entryId: BNToNumber(_NUentryId), // TBR
 			hasWon,
 			event: eventLog.parseForQueue(event, ContractNames.FareSpinGame),
 			timestamp: Date.now(),
