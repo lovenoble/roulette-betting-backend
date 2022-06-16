@@ -206,6 +206,19 @@ const _abi = [
     inputs: [
       {
         indexed: false,
+        internalType: "bool",
+        name: "isPaused",
+        type: "bool",
+      },
+    ],
+    name: "RoundPausedChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
         internalType: "address",
         name: "account",
         type: "address",
@@ -843,6 +856,19 @@ const _abi = [
       },
     ],
     name: "setGameModeMinMax",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bool",
+        name: "paused",
+        type: "bool",
+      },
+    ],
+    name: "setRoundPaused",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

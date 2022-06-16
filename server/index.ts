@@ -5,6 +5,8 @@ import transport from './transport'
 import logger from './utils/logger'
 import { pearServerPort, isDev } from './config'
 
+import cryptoAdmin from './crypto/admin'
+
 // Handle stopping processes on exit, error, or shutdown
 function stopAllProcesses() {
 	logger.info('Stopping all processes...')
@@ -23,8 +25,16 @@ async function init() {
 			await redisStore.initQueue()
 			await redisStore.initSmartContractListeners()
 
+			// FOR TESTNET AND LOCAL DEV: Create seed test accounts and init admin methods
+			await cryptoAdmin.init()
+
 			// Initializes gRPC server with reflection enabled (default port: 9090)
 			await rpcServer.start()
+
+			// setTimeout(async () => {
+			// logger.info('SUBMITTING ENTRY')
+			// console.log(await cryptoAdmin.createBatchEntry(0, 0))
+			// }, 10000)
 		}
 
 		// Initializes HTTP/WebSocket server (default port: 3100)

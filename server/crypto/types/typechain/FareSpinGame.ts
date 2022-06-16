@@ -83,6 +83,7 @@ export interface FareSpinGameInterface extends utils.Interface {
     "setGameModeEntryLimit(uint256,uint256)": FunctionFragment;
     "setGameModeIsActive(uint256,bool)": FunctionFragment;
     "setGameModeMinMax(uint256,uint256,uint256)": FunctionFragment;
+    "setRoundPaused(bool)": FunctionFragment;
     "setTreasuryAddress(address)": FunctionFragment;
     "setTreasuryMint(uint256)": FunctionFragment;
     "settleBatchEntry(uint256,address)": FunctionFragment;
@@ -123,6 +124,7 @@ export interface FareSpinGameInterface extends utils.Interface {
       | "setGameModeEntryLimit"
       | "setGameModeIsActive"
       | "setGameModeMinMax"
+      | "setRoundPaused"
       | "setTreasuryAddress"
       | "setTreasuryMint"
       | "settleBatchEntry"
@@ -242,6 +244,10 @@ export interface FareSpinGameInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setGameModeMinMax",
     values: [BigNumberish, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRoundPaused",
+    values: [boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "setTreasuryAddress",
@@ -377,6 +383,10 @@ export interface FareSpinGameInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setRoundPaused",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setTreasuryAddress",
     data: BytesLike
   ): Result;
@@ -422,6 +432,7 @@ export interface FareSpinGameInterface extends utils.Interface {
     "Paused(address)": EventFragment;
     "RandomNumberRequested(bytes32)": EventFragment;
     "RoundConcluded(uint256,bytes32,uint256,uint256)": EventFragment;
+    "RoundPausedChanged(bool)": EventFragment;
     "Unpaused(address)": EventFragment;
   };
 
@@ -433,6 +444,7 @@ export interface FareSpinGameInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RandomNumberRequested"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoundConcluded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoundPausedChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
 }
 
@@ -520,6 +532,17 @@ export type RoundConcludedEvent = TypedEvent<
 >;
 
 export type RoundConcludedEventFilter = TypedEventFilter<RoundConcludedEvent>;
+
+export interface RoundPausedChangedEventObject {
+  isPaused: boolean;
+}
+export type RoundPausedChangedEvent = TypedEvent<
+  [boolean],
+  RoundPausedChangedEventObject
+>;
+
+export type RoundPausedChangedEventFilter =
+  TypedEventFilter<RoundPausedChangedEvent>;
 
 export interface UnpausedEventObject {
   account: string;
@@ -732,6 +755,11 @@ export interface FareSpinGame extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    setRoundPaused(
+      paused: boolean,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setTreasuryAddress(
       _treasuryAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -936,6 +964,11 @@ export interface FareSpinGame extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setRoundPaused(
+    paused: boolean,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setTreasuryAddress(
     _treasuryAddress: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -1136,6 +1169,8 @@ export interface FareSpinGame extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setRoundPaused(paused: boolean, overrides?: CallOverrides): Promise<void>;
+
     setTreasuryAddress(
       _treasuryAddress: string,
       overrides?: CallOverrides
@@ -1245,6 +1280,9 @@ export interface FareSpinGame extends BaseContract {
       randomNum?: null,
       randomEliminator?: null
     ): RoundConcludedEventFilter;
+
+    "RoundPausedChanged(bool)"(isPaused?: null): RoundPausedChangedEventFilter;
+    RoundPausedChanged(isPaused?: null): RoundPausedChangedEventFilter;
 
     "Unpaused(address)"(account?: null): UnpausedEventFilter;
     Unpaused(account?: null): UnpausedEventFilter;
@@ -1374,6 +1412,11 @@ export interface FareSpinGame extends BaseContract {
       gameModeId: BigNumberish,
       minAmount: BigNumberish,
       maxAmount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setRoundPaused(
+      paused: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1547,6 +1590,11 @@ export interface FareSpinGame extends BaseContract {
       gameModeId: BigNumberish,
       minAmount: BigNumberish,
       maxAmount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setRoundPaused(
+      paused: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
