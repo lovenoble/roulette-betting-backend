@@ -30,25 +30,71 @@ export default class SmartContractListener {
 	}
 
 	private async reconnect() {
-		logger.warn('Attempting to reconenct...')
+		let fareApiListeners = fareAPI.contract.listenerCount()
+		let spinApiListeners = spinAPI.contract.listenerCount()
+		let reconnectAttempts = 5
+
 		await this.stop()
 
-		fareAPI.contract.on(EventNames.Transfer, this.listeners.fareTransfer)
-		spinAPI.contract.on(EventNames.GameModeUpdated, this.listeners.gameModeUpdated)
-		spinAPI.contract.on(EventNames.EntrySubmitted, this.listeners.entrySubmitted)
-		spinAPI.contract.on(EventNames.RoundConcluded, this.listeners.roundConcluded)
-		spinAPI.contract.on(EventNames.EntrySettled, this.listeners.entrySettled)
+		while (reconnectAttempts > 0 && fareApiListeners + spinApiListeners < 5) {
+			if (fareApiListeners + spinApiListeners === 2) {
+				fareAPI.contract.removeAllListeners()
+				spinAPI.contract.removeAllListeners()
 
-		const fareApiListeners = fareAPI.contract.listenerCount()
-		const spinApiListeners = spinAPI.contract.listenerCount()
-		logger.info(`fareAPI.contract.listeners(): ${fareApiListeners}`)
-		logger.info(`spinAPI.contract.listeners(): ${spinApiListeners}`)
+				logger.warn('Attempting to reconenct...')
+
+				fareAPI.contract.on(EventNames.Transfer, this.listeners.fareTransfer)
+				spinAPI.contract.on(EventNames.GameModeUpdated, this.listeners.gameModeUpdated)
+				spinAPI.contract.on(EventNames.EntrySubmitted, this.listeners.entrySubmitted)
+				// spinAPI.contract.on(EventNames.RoundConcluded, this.listeners.roundConcluded)
+				// spinAPI.contract.on(EventNames.EntrySettled, this.listeners.entrySettled)
+
+				fareApiListeners = fareAPI.contract.listenerCount()
+				spinApiListeners = spinAPI.contract.listenerCount()
+
+				logger.info(`fareAPI.contract.listeners(): ${fareApiListeners}`)
+				logger.info(`spinAPI.contract.listeners(): ${spinApiListeners}`)
+			} else if (fareApiListeners + spinApiListeners === 3) {
+				fareAPI.contract.removeAllListeners()
+				spinAPI.contract.removeAllListeners()
+
+				logger.warn('Attempting to reconenct...')
+
+				fareAPI.contract.on(EventNames.Transfer, this.listeners.fareTransfer)
+				spinAPI.contract.on(EventNames.GameModeUpdated, this.listeners.gameModeUpdated)
+				spinAPI.contract.on(EventNames.EntrySubmitted, this.listeners.entrySubmitted)
+				spinAPI.contract.on(EventNames.RoundConcluded, this.listeners.roundConcluded)
+				// spinAPI.contract.on(EventNames.EntrySettled, this.listeners.entrySettled)
+
+				fareApiListeners = fareAPI.contract.listenerCount()
+				spinApiListeners = spinAPI.contract.listenerCount()
+
+				logger.info(`fareAPI.contract.listeners(): ${fareApiListeners}`)
+				logger.info(`spinAPI.contract.listeners(): ${spinApiListeners}`)
+			} else if (fareApiListeners + spinApiListeners === 4) {
+				fareAPI.contract.removeAllListeners()
+				spinAPI.contract.removeAllListeners()
+
+				logger.warn('Attempting to reconenct...')
+
+				fareAPI.contract.on(EventNames.Transfer, this.listeners.fareTransfer)
+				spinAPI.contract.on(EventNames.GameModeUpdated, this.listeners.gameModeUpdated)
+				spinAPI.contract.on(EventNames.EntrySubmitted, this.listeners.entrySubmitted)
+				spinAPI.contract.on(EventNames.RoundConcluded, this.listeners.roundConcluded)
+				spinAPI.contract.on(EventNames.EntrySettled, this.listeners.entrySettled)
+
+				fareApiListeners = fareAPI.contract.listenerCount()
+				spinApiListeners = spinAPI.contract.listenerCount()
+
+				logger.info(`fareAPI.contract.listeners(): ${fareApiListeners}`)
+				logger.info(`spinAPI.contract.listeners(): ${spinApiListeners}`)
+			}
+
+			reconnectAttempts -= 1
+		}
 	}
 
-	// look up connect and disconnect logic and abstract into function
-	// smart contracts get mounted here, if connection is lost, will not attempt to reconnect
 	async start() {
-		// should only occur on start, do not call again if reconnect needed
 		await this.beforeStart()
 
 		try {
@@ -73,27 +119,11 @@ export default class SmartContractListener {
 			logger.info(`spinAPI.contract.listeners(): ${spinApiListeners}`)
 
 			if (fareApiListeners + spinApiListeners < 5) {
-				this.reconnect()
+				await this.reconnect()
 			}
 		} catch (err) {
 			logger.error(err)
-
-			/*
-			let isDisconnected = await service0.isDisconnected() || await service1.isDisconnected() || await service2.isDisconnected() || await service3.isDisconnected()
-			let reconnectAttempts = 10
-			
-			if(isDisconnected){
-				while(reconnectAttempts > 0 && isDisconnected){
-					await setTimeout(10000){
-						await reconnect()
-					}
-				}
-				
-				reconnectAttempts -= 1
-
-				isDisconnected = await service0.isDisconnected() || await service1.isDisconnected() || await service2.isDisconnected() || await service3.isDisconnected()
-			}
-			*/
+			await this.reconnect()
 		}
 	}
 
