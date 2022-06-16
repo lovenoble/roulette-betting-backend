@@ -53,6 +53,10 @@ export default class SmartContractListener {
 
 			reconnectAttempts -= 1
 		}
+
+		if (reconnectAttempts === 0) {
+			logger.warn('Reconnection attempts exceeded. Something is wrong!')
+		}
 	}
 
 	async start() {
