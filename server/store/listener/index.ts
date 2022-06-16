@@ -29,12 +29,21 @@ export default class SmartContractListener {
 		await this.service.gameMode.ensureGameModes()
 	}
 
-	/*  
+	private async reconnect() {
+		logger.warn('Attempting to reconenct...')
+		await this.stop()
 
-	async function reconnect(){
-  // connect w/ services 
+		fareAPI.contract.on(EventNames.Transfer, this.listeners.fareTransfer)
+		spinAPI.contract.on(EventNames.GameModeUpdated, this.listeners.gameModeUpdated)
+		spinAPI.contract.on(EventNames.EntrySubmitted, this.listeners.entrySubmitted)
+		spinAPI.contract.on(EventNames.RoundConcluded, this.listeners.roundConcluded)
+		spinAPI.contract.on(EventNames.EntrySettled, this.listeners.entrySettled)
+
+		const fareApiListeners = fareAPI.contract.listenerCount()
+		const spinApiListeners = spinAPI.contract.listenerCount()
+		logger.info(`fareAPI.contract.listeners(): ${fareApiListeners}`)
+		logger.info(`spinAPI.contract.listeners(): ${spinApiListeners}`)
 	}
-	*/
 
 	// look up connect and disconnect logic and abstract into function
 	// smart contracts get mounted here, if connection is lost, will not attempt to reconnect
@@ -48,15 +57,24 @@ export default class SmartContractListener {
 
 			// Spin
 			spinAPI.contract.on(EventNames.GameModeUpdated, this.listeners.gameModeUpdated)
-			spinAPI.contract.on(EventNames.EntrySubmitted, this.listeners.entrySubmitted)
-			spinAPI.contract.on(EventNames.RoundConcluded, this.listeners.roundConcluded)
-			spinAPI.contract.on(EventNames.EntrySettled, this.listeners.entrySettled)
+			// spinAPI.contract.on(EventNames.EntrySubmitted, this.listeners.entrySubmitted)
+			// spinAPI.contract.on(EventNames.RoundConcluded, this.listeners.roundConcluded)
+			// spinAPI.contract.on(EventNames.EntrySettled, this.listeners.entrySettled)
 
 			// @NOTE: Need to implement NFTWon event
 			// spinAPI.contract.on(EventNames.NFTWon, this.listeners.nftWon)
 
 			// @NOTE: Perhaps this event won't be needed since we already get the random number from roundConcluded
 			// spinAPI.contract.on(EventNames.RandomNumberRequested, (...args) => console.log(args))
+
+			const fareApiListeners = fareAPI.contract.listenerCount()
+			const spinApiListeners = spinAPI.contract.listenerCount()
+			logger.info(`fareAPI.contract.listeners(): ${fareApiListeners}`)
+			logger.info(`spinAPI.contract.listeners(): ${spinApiListeners}`)
+
+			if (fareApiListeners + spinApiListeners < 5) {
+				this.reconnect()
+			}
 		} catch (err) {
 			logger.error(err)
 
