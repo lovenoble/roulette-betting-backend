@@ -8,6 +8,8 @@ import { logger } from './utils'
 import {
 	User,
 	UserService,
+	Admin,
+	AdminService,
 	Analytics,
 	AnalyticsService,
 	Health,
@@ -58,6 +60,7 @@ export class RPCServer {
 		this.server.addService(HealthService, new Health())
 		this.server.addService(AnalyticsService, new Analytics())
 		this.server.addService(UserService, new User())
+		this.server.addService(AdminService, new Admin())
 	}
 
 	/*

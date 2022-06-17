@@ -40,7 +40,6 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 		await storeQueue.spinContract.add(EventNames.EntrySubmitted, queueData)
 	}
 
-	// @NOTE: Need to pull in vrfNum, eliminators, and players array
 	const roundConcluded = async (
 		roundId: BigNumber,
 		vrfRequestId: string,
@@ -77,11 +76,17 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 		await storeQueue.spinContract.add(EventNames.EntrySettled, queueData)
 	}
 
+	// @NOTE: Probably don't need to send this to a worker since it's less frequently called
+	const roundPausedChanged = async (isPaused: boolean) => {
+		await service.round.setSpinRoundPaused(isPaused)
+	}
+
 	return {
 		gameModeUpdated,
 		entrySubmitted,
 		roundConcluded,
 		entrySettled,
+		roundPausedChanged,
 	}
 }
 

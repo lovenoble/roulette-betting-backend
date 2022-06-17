@@ -46,4 +46,5 @@ export default class SpinState extends Schema {
 
 	@type('string') fareTotalSupply: string
 	@type('number') currentRoundId: number
+	@type('boolean') isRoundPaused = false
 }

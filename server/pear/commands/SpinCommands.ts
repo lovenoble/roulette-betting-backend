@@ -77,6 +77,7 @@ export class OnInitSpinRoom extends Command<SpinRoom, void> {
 	async execute() {
 		this.state.fareTotalSupply = await store.service.fareTransfer.getCachedTotalSupply()
 		this.state.currentRoundId = Number(await store.service.round.getCachedCurrentRoundId())
+		this.state.isRoundPaused = await store.service.round.getCachedSpinRoundPaused()
 		const roundData = await store.service.batchEntry.getCurrentRoundBatchEntries()
 
 		roundData.forEach(({ batchEntry, entries }) => {

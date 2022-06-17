@@ -1,11 +1,20 @@
 import fs from 'fs'
-import { Wallet, providers, BigNumber, utils } from 'ethers'
+import chalk from 'chalk'
+import numeral from 'numeral'
+import { Wallet, providers, BigNumber, utils, ContractTransaction, ContractReceipt } from 'ethers'
 import { exec } from 'node:child_process'
+import { Clock, Delayed } from '@colyseus/core'
 
-import { FareSpinGame, FareSpinGame__factory, FareToken, FareToken__factory } from '../types'
-import { fareAPI, spinAPI } from '..'
+import {
+	FareSpinGame,
+	FareSpinGame__factory,
+	FareToken,
+	FareToken__factory,
+	FlatEntry,
+} from '../types'
 import cryptoConfig from '../../config/crypto.config'
 import { logger, createBatchEntry, BN, randomHexString } from '../utils'
+import store from '../../store'
 
 const { blockchainRpcUrl, privateKey, fareTokenAddress, fareSpinGameAddress } = cryptoConfig
 
@@ -130,6 +139,8 @@ const AVAX_FAUCET_AMOUNT = utils.parseEther('1')
 const FARE_FLOOR = utils.parseEther('10000')
 const FARE_FAUCET_AMOUNT = utils.parseEther('500000')
 
+const INITIAL_COUNTDOWN_SECS = 300 // 5 minutes
+
 /** Used to run admin level smart contract functions */
 class CryptoAdmin {
 	adminSigner = new Wallet(privateKey, provider)
@@ -147,65 +158,56 @@ class CryptoAdmin {
 
 		await this.seed.init()
 
-		// let baseNonce = provider.getTransactionCount(this.adminSigner.address);
-		// let nonceOffset = 0;
-		// function getNonce() {
-		//   return baseNonce.then((nonce) => (nonce + (nonceOffset++)));
-		// }
-
 		await this.ensureSeedAccountBalances()
 
 		logger.info('CryptoAdmin has been initialized')
 	}
 
+	async ensureBalance(address: string) {
+		const transferType = await this.checkShouldTransfer(address)
+
+		if (transferType !== 'none') {
+			logger.info(
+				`Player balance low on funds. Transfering transferType(${transferType}) to ${address}`
+			)
+		}
+
+		switch (transferType) {
+			case 'avax':
+				await this.transferAvaxTo(address, AVAX_FAUCET_AMOUNT)
+				break
+			case 'fare':
+				await this.transferFareTo(address, FARE_FAUCET_AMOUNT)
+				break
+			case 'both':
+				await this.transferFareTo(address, FARE_FAUCET_AMOUNT)
+				await this.transferAvaxTo(address, AVAX_FAUCET_AMOUNT)
+				break
+			case 'none':
+				break
+			default:
+				throw new Error('No condition met')
+		}
+	}
+
 	async ensureSeedAccountBalances() {
 		const promiseList = this.seed.signers.map(signer => {
 			const { address } = signer
-			return new Promise((resolve, reject) => {
-				this.checkShouldTransfer(address)
-					.then(transferType => {
-						if (transferType !== 'none') {
-							logger.info(
-								`Player balance low on funds. Transfering transferType(${transferType}) to ${address}`
-							)
-						}
-						switch (transferType) {
-							case 'avax':
-								this.transferAvaxTo(address, AVAX_FAUCET_AMOUNT)
-									.then(resolve)
-									.catch(reject)
-								break
-							case 'fare':
-								this.transferFareTo(address, FARE_FAUCET_AMOUNT)
-									.then(resolve)
-									.catch(reject)
-								break
-							case 'both':
-								this.transferFareTo(address, FARE_FAUCET_AMOUNT)
-									.then(() => {
-										resolve('something')
-										// this.transferAvaxTo(address, AVAX_FAUCET_AMOUNT)
-										// 	.then(resolve)
-										// 	.catch(reject)
-									})
-									.catch(reject)
-								break
-							case 'none':
-								break
-							default:
-								reject(new Error('No condition met'))
-								break
-						}
-					})
-					.catch(reject)
-			})
+
+			return async () => {
+				return this.ensureBalance(address)
+			}
 		})
 
 		/* eslint-disable */
-		for await (const prom of promiseList) {
-			console.log(prom)
+		for (const prom of promiseList) {
+			await prom()
 		}
 		/* eslint-enable */
+	}
+
+	prettyBN(bn: BigNumber) {
+		return numeral(utils.formatEther(bn)).format('0,0.00')
 	}
 
 	async checkShouldTransfer(address: string): Promise<'fare' | 'avax' | 'none' | 'both'> {
@@ -216,6 +218,12 @@ class CryptoAdmin {
 
 		if (fareBalance.lt(FARE_FLOOR)) shouldTransferFare = true
 		if (avaxBalance.lt(AVAX_FLOOR)) shouldTransferAvax = true
+
+		logger.info(
+			`Seed Player(${address.substring(0, 11)}) balances: AVAX(${this.prettyBN(
+				avaxBalance
+			)}) -- FARE(${this.prettyBN(fareBalance)})`
+		)
 
 		if (shouldTransferAvax && shouldTransferFare) {
 			return 'both'
@@ -244,14 +252,22 @@ class CryptoAdmin {
 		return receipt
 	}
 
-	async createBatchEntry(userIdx: number, gameModeId: 0 | 1 | 2) {
-		const params = createBatchEntry([[1000, BN(gameModeId), 0]])
-		const signer = this.seed.signers[userIdx]
-		if (!signer) throw new Error("Signer account doesn't exist")
+	async createBatchEntry(userIdx: number, entries: FlatEntry[]) {
+		try {
+			let tx: ContractTransaction
+			let receipt: ContractReceipt
+			const params = createBatchEntry(entries)
+			const signer = this.seed.signers[userIdx]
+			if (!signer) throw new Error("Signer account doesn't exist")
 
-		const tx = await this.spin.connect(signer).placeBatchEntry(params)
-		const receipt = await tx.wait()
-		return receipt
+			tx = await this.spin.connect(signer).placeBatchEntry(params)
+			receipt = await tx.wait()
+			logger.info(`Submitted batch entry for Player(${signer.address.substring(0, 11)})`)
+			return receipt
+		} catch (err: any) {
+			console.error(chalk.bold.red(err.error.reason))
+			throw new Error(err.error.reason)
+		}
 	}
 
 	async settleBatchEntry(userIdx: number, roundId: number) {
@@ -270,10 +286,27 @@ class CryptoAdmin {
 	}
 
 	async concludeRound() {
-		const vrfRequestId = `0x${randomHexString(256)}`
+		const vrfRequestId = randomHexString(256)
 		const tx = await this.spin.testConcludeRound(vrfRequestId)
 		const receipt = await tx.wait()
 		return receipt
+	}
+
+	async setCountdown(time: number) {
+		return store.service.round.setSpinCountdownTimer(time)
+	}
+
+	async initPearKeeper(shouldResetCountdown = true) {
+		let countdown = await store.service.round.getSpinCountdownTimer()
+		if (shouldResetCountdown) {
+			await this.setCountdown(INITIAL_COUNTDOWN_SECS)
+			countdown = INITIAL_COUNTDOWN_SECS
+		}
+		let delayedInterval: Delayed
+		let delayedTimeout: Delayed
+
+		const clock = new Clock()
+		delayedInterval = clock.setInterval(() => {}, 1000)
 	}
 }
 

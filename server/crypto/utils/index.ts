@@ -22,10 +22,10 @@ export const BN = BigNumber.from
 export const ensureNumber = (val: BigNumber | number): number =>
 	val instanceof BN ? BNToNumber(val as BigNumber) : (val as number)
 
-export function createEntry(amount: number, gameModeId: BigNumber, pickedNumber: number) {
+export function createEntry(amount: number, gameModeId: 0 | 1 | 2, pickedNumber: number) {
 	return {
 		amount: utils.parseEther(amount.toString()),
-		gameModeId,
+		gameModeId: BN(gameModeId),
 		pickedNumber: BN(pickedNumber),
 	}
 }

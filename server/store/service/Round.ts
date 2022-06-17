@@ -46,6 +46,33 @@ export default class RoundService extends ServiceBase<Round> {
 		return this.client.get(`Global:${GlobalRedisKey.CurrentRoundId}`)
 	}
 
+	public async ensureSpinRoundPaused() {
+		const isPaused = await spinAPI.contract.isRoundPaused()
+		this.client.set(`Global:${GlobalRedisKey.IsSpinRoundPaused}`, String(isPaused))
+		return isPaused
+	}
+
+	public async setSpinRoundPaused(isPaused: boolean) {
+		return this.client.set(`Global:${GlobalRedisKey.IsSpinRoundPaused}`, String(isPaused))
+	}
+
+	public async getCachedSpinRoundPaused() {
+		const isPaused = await this.client.get(`Global:${GlobalRedisKey.IsSpinRoundPaused}`)
+
+		return Boolean(isPaused)
+	}
+
+	public async setSpinCountdownTimer(time: number) {
+		return this.client.set(`Global:${GlobalRedisKey.SpinCountdownTimer}`, String(time))
+	}
+
+	public async getSpinCountdownTimer() {
+		const countdown = Number(
+			await this.client.get(`Global:${GlobalRedisKey.SpinCountdownTimer}`)
+		)
+		return countdown
+	}
+
 	// Calculates winners and losers from randomNum/randomEliminator by round
 	public async updateRoundBatchEntries(
 		roundId: number,

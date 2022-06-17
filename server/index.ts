@@ -30,11 +30,6 @@ async function init() {
 
 			// Initializes gRPC server with reflection enabled (default port: 9090)
 			await rpcServer.start()
-
-			// setTimeout(async () => {
-			// logger.info('SUBMITTING ENTRY')
-			// console.log(await cryptoAdmin.createBatchEntry(0, 0))
-			// }, 10000)
 		}
 
 		// Initializes HTTP/WebSocket server (default port: 3100)
