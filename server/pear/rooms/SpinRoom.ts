@@ -4,7 +4,8 @@ import { Dispatcher } from '@colyseus/command'
 import shortId from 'shortid'
 
 import type { IDefaultRoomOptions, ICreateSpinRoomOptions } from '../types'
-import { HttpStatusCode, SpinEvent, INITIAL_COUNTDOWN_SECS, MAX_SPIN_CLIENTS } from '../constants'
+import { HttpStatusCode, SpinEvent, MAX_SPIN_CLIENTS } from '../constants'
+import { INITIAL_COUNTDOWN_SECS } from '../../crypto/constants'
 import {
 	OnBatchEntry,
 	OnUserJoined,

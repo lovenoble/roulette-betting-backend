@@ -15,6 +15,7 @@ import {
 import cryptoConfig from '../../config/crypto.config'
 import { logger, createBatchEntry, randomHexString } from '../utils'
 import store from '../../store'
+import { INITIAL_COUNTDOWN_SECS } from '../constants'
 
 const { blockchainRpcUrl, privateKey, fareTokenAddress, fareSpinGameAddress } = cryptoConfig
 
@@ -138,8 +139,6 @@ const AVAX_FLOOR = utils.parseEther('0.25')
 const AVAX_FAUCET_AMOUNT = utils.parseEther('1')
 const FARE_FLOOR = utils.parseEther('10000')
 const FARE_FAUCET_AMOUNT = utils.parseEther('500000')
-
-const INITIAL_COUNTDOWN_SECS = 300 // 5 minutes
 
 /** Used to run admin level smart contract functions */
 class CryptoAdmin {
