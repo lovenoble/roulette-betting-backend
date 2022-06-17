@@ -73,6 +73,12 @@ export default class RoundService extends ServiceBase<Round> {
 		return countdown
 	}
 
+	public async getPlayerCountByRound(_roundId?: number) {
+		let roundId = _roundId || (await this.getCachedCurrentRoundId())
+
+		return this.batchEntryService.repo.search().where('roundId').eq(roundId).returnCount()
+	}
+
 	// Calculates winners and losers from randomNum/randomEliminator by round
 	public async updateRoundBatchEntries(
 		roundId: number,

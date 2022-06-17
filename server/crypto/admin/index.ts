@@ -147,6 +147,10 @@ class CryptoAdmin {
 	seed = new CryptoAccount()
 	fare!: FareToken
 	spin!: FareSpinGame
+	clock!: Clock
+	delayedInterval!: Delayed
+	delayedTimeout!: Delayed
+	countdown!: number
 
 	async init() {
 		logger.warn(
@@ -296,17 +300,108 @@ class CryptoAdmin {
 		return store.service.round.setSpinCountdownTimer(time)
 	}
 
+	logCountdown(title: string) {
+		logger.info(
+			`[${title}]: countdown(${this.countdown} secs), deltaTime(${
+				this.clock.deltaTime
+			} ms), elaspedTime(${this.clock.elapsedTime / 1000} secs)`
+		)
+	}
+
+	async startCountdown(_countdown: number) {
+		this.clock.start()
+		this.countdown = _countdown
+
+		// Every 15 seconds check if player threshold has been met
+		this.delayedInterval = this.clock.setInterval(() => {
+			if (this.countdown < 0) {
+				// Emit countdown hit 0 pubsub event
+				this.startSpin()
+				this.delayedInterval.clear()
+				return
+			}
+
+			this.logCountdown('COUNTDOWN')
+
+			this.countdown -= 1
+			this.setCountdown(this.countdown)
+		}, 1000)
+	}
+
+	async startSpin() {
+		// Stop all batch entries
+		await this.pauseSpinRound(true)
+		// Change spinRoom state to 'about to spin'
+		this.delayedInterval = this.clock.setInterval(() => {
+			if (this.countdown < 0) {
+				this.endRound()
+				this.delayedInterval.clear()
+				return
+			}
+
+			this.logCountdown('ABOUT TO SPIN')
+
+			this.countdown -= 1
+			this.setCountdown(this.countdown)
+		}, 30_000) // 30 second countdown
+	}
+
+	endRound() {
+		// Start spinning wheel
+		this.delayedTimeout = this.clock.setTimeout(async () => {
+			await this.concludeRound()
+
+			// Win/Lose screens event
+			this.delayedTimeout = this.clock.setTimeout(async () => {
+				// Pubsub new round started
+				// Allow batchEntries
+				// Reset countdown timer
+				this.resetRound()
+			}, 10_000)
+		}, 15_000)
+	}
+
+	async resetRound() {
+		this.countdown = 30
+		// pubsub countdown update
+		await this.setCountdown(this.countdown)
+
+		this.delayedInterval = this.clock.setInterval(() => {
+			if (this.countdown < 0) {
+				this.pauseSpinRound(false)
+				this.clock.clear()
+				this.delayedInterval.clear()
+				this.delayedTimeout.clear()
+				this.startCountdown(INITIAL_COUNTDOWN_SECS)
+				return
+			}
+
+			this.logCountdown('RESETTING ROUND')
+
+			this.countdown -= 1
+			this.setCountdown(this.countdown)
+		}, 1000)
+	}
+
 	async initPearKeeper(shouldResetCountdown = true) {
-		let countdown = await store.service.round.getSpinCountdownTimer()
+		this.countdown = await store.service.round.getSpinCountdownTimer()
 		if (shouldResetCountdown) {
 			await this.setCountdown(INITIAL_COUNTDOWN_SECS)
-			countdown = INITIAL_COUNTDOWN_SECS
+			this.countdown = INITIAL_COUNTDOWN_SECS
 		}
-		let delayedInterval: Delayed
-		let delayedTimeout: Delayed
 
-		const clock = new Clock()
-		delayedInterval = clock.setInterval(() => {}, 1000)
+		this.clock = new Clock()
+
+		// Ensure batch entries can be submitted
+		await this.pauseSpinRound(false)
+
+		/* Start spin event loop
+		 * 1. startCountdown - Start countdown from existing countdown number in Redis
+		 * 2. startSpin - Pauses batchEntries, starts 30 second timer for about to spin
+		 * 3. endRound - Runs concludeRound (fetches random number), slows down wheel, lands on a color
+		 * 4. resetRound - Reset countdown timer and starts back at event #1
+		 */
+		this.startCountdown(this.countdown)
 	}
 }
 
