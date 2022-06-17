@@ -11,6 +11,6 @@ export const MAX_SPIN_CLIENTS = 2500
 export const INITIAL_COUNTDOWN_SECS = 300 // 5 minutes
 
 // Import/Exports
-export * from './HttpStatusCodes'
+export * from './httpStatusCodes'
 export * from './WebSocketStatusCodes'
 export * from './SpinRoom'

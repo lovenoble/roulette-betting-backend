@@ -10,6 +10,8 @@ import ServiceBase from './ServiceBase'
 import { ensureNumber, formatETH, BN, toEth, logger } from '../utils'
 import { spinAPI } from '../../crypto'
 import { GlobalRedisKey } from '../constants'
+import { SpinRoomStatus } from '../types'
+import PubSub from '../../pubsub'
 
 export default class RoundService extends ServiceBase<Round> {
 	gameModeService!: GameModeService
@@ -63,6 +65,7 @@ export default class RoundService extends ServiceBase<Round> {
 	}
 
 	public async setSpinCountdownTimer(time: number) {
+		PubSub.pub('spin-state', 'countdown-updated', time)
 		return this.client.set(`Global:${GlobalRedisKey.SpinCountdownTimer}`, String(time))
 	}
 
@@ -71,6 +74,15 @@ export default class RoundService extends ServiceBase<Round> {
 			await this.client.get(`Global:${GlobalRedisKey.SpinCountdownTimer}`)
 		)
 		return countdown
+	}
+
+	public async setSpinRoomStatus(status: SpinRoomStatus) {
+		PubSub.pub<'spin-room-status'>('spin-state', 'spin-room-status', { status })
+		return this.client.set(`Global:${GlobalRedisKey.SpinCountdownTimer}`, status)
+	}
+
+	public async getSpinRoomStatus() {
+		return this.client.get(`Global:${GlobalRedisKey.SpinRoomStatus}`)
 	}
 
 	public async getPlayerCountByRound(_roundId?: number) {

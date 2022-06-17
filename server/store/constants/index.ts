@@ -26,6 +26,7 @@ export enum GlobalRedisKey {
 	CurrentRoundId = 'CurrentRoundId',
 	IsSpinRoundPaused = 'IsSpinRoundPaused',
 	SpinCountdownTimer = 'SpinCountdownTimer',
+	SpinRoomStatus = 'SpinRoomStatus',
 }
 
 export const SIGNING_MESSAGE_TEXT =

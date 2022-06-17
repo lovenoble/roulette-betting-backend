@@ -17,7 +17,7 @@ import {
 	IUser,
 } from '../entities'
 
-export type SpinRoomStatus = 'paused' | 'countdown' | 'wheel-spinning' | 'round-finished'
+import { SpinRoomStatus } from '../../store/types'
 
 export interface ISpinState extends Schema {
 	guestUsers: MapSchema<IGuestUser>
@@ -42,7 +42,7 @@ export default class SpinState extends Schema {
 
 	// @NOTE: Ensure that publicAddress can only submit one batchEntry per round (in smart contract)
 	// @NOTE: Determine if we should start wheel at 2-5 mins or once 300 players are reached
-	@type('string') roomStatus = 'paused'
+	@type('string') roomStatus = 'countdown'
 
 	@type('string') fareTotalSupply: string
 	@type('number') currentRoundId: number

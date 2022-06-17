@@ -10,6 +10,7 @@ import {
 } from '../types'
 import type { StoreQueue } from '../queue'
 import type { IServiceObj } from '../types'
+import PubSub from '../../pubsub'
 
 const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) => {
 	const { eventLog } = service
@@ -78,6 +79,10 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 
 	// @NOTE: Probably don't need to send this to a worker since it's less frequently called
 	const roundPausedChanged = async (isPaused: boolean) => {
+		await PubSub.pub<'spin-round-pause'>('spin-state', 'spin-round-pause', {
+			isPaused,
+			countdown: await service.round.getSpinCountdownTimer(),
+		})
 		await service.round.setSpinRoundPaused(isPaused)
 	}
 

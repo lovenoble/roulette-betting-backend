@@ -1,9 +1,10 @@
 import type { Client } from '@colyseus/core'
 import { Command } from '@colyseus/command'
+import { utils } from 'ethers'
 
 import type { SpinRoom } from '../types'
 import type {
-	FareTransferArgs as _FareTransferArgs,
+	FareTransferArgs,
 	BatchEntryMsgArgs,
 	SettledRound,
 	SettledBatchEntryArgs,
@@ -19,15 +20,27 @@ import { logger } from '../utils'
 // OnFetchRoundAnalytics
 
 // @NOTE: Define types for options
-// export class OnFareTransfer extends Command<SpinRoom, FareTransferArgs> {
-// 	execute({ to, from, amount, timestamp }: FareTransferArgs) {
-//             // const toUser =
-// 		try {
-// 		} catch (err) {
-// 			logger.error(err)
-// 		}
-// 	}
-// }
+export class OnFareTransfer extends Command<SpinRoom, FareTransferArgs> {
+	execute({ to, from, amount, timestamp: _timestamp }: FareTransferArgs) {
+		try {
+			const toUser = this.state.users.get(to)
+			const fromUser = this.state.users.get(from)
+			// @NOTE: Need to add transfer listener for avax amount
+			if (toUser) {
+				const bnBalance = utils.parseEther(toUser.balance.fare)
+				const bnAmount = utils.parseEther(amount)
+				toUser.balance.fare = utils.formatEther(bnBalance.add(bnAmount))
+			}
+			if (fromUser) {
+				const bnBalance = utils.parseEther(fromUser.balance.fare)
+				const bnAmount = utils.parseEther(amount)
+				fromUser.balance.fare = utils.formatEther(bnBalance.sub(bnAmount))
+			}
+		} catch (err) {
+			logger.error(err)
+		}
+	}
+}
 
 type OnNewChatMessageOpts = { text: string; client: Client }
 export class OnNewChatMessage extends Command<SpinRoom, OnNewChatMessageOpts> {

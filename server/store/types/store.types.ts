@@ -42,3 +42,5 @@ export interface IServiceObj {
 	round?: RoundService
 	user?: UserService
 }
+
+export type SpinRoomStatus = 'countdown' | 'starting' | 'spinning' | 'finished'

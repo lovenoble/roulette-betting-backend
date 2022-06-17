@@ -14,6 +14,7 @@ import {
 	OnInitSpinRoom,
 	OnRoundConcluded,
 	OnNewChatMessage,
+	OnFareTransfer,
 	// OnBalanceUpdate,
 	// OnBatchEntrySettled,
 } from '../commands'
@@ -21,41 +22,6 @@ import SpinState from '../state/SpinState'
 import { logger } from '../utils'
 import store from '../../store'
 import PubSub from '../../pubsub'
-
-// @NOTE: Postgres insert should listen to these worker complete events instead
-// const fareEvent = FareEvent()
-// const spinEvent = SpinEvent()
-// defineEvents() {
-//     spinEvent.on('completed', ({ returnvalue }) => {
-//         try {
-//             if (!returnvalue) return
-
-//             const { eventName, data } = JSON.parse(returnvalue)
-
-//             switch (eventName) {
-//                 case EventNames.GameModeUpdated:
-//                     console.log(eventName)
-//                     break
-//                 case EventNames.EntrySubmitted:
-//                     this.dispatcher.dispatch(new OnBatchEntry(), data)
-//                     console.log(eventName)
-//                     break
-//                 case EventNames.RoundConcluded:
-//                     console.log(eventName)
-//                     break
-//                 case EventNames.EntrySettled:
-//                     this.dispatcher.dispatch(new OnBatchEntrySettled(), data)
-//                     console.log(eventName)
-//                     break
-//                 default:
-//                     throw new Error(`[QueueEvent:Spin] Invalid event name ${eventName}`)
-//             }
-//         } catch (err) {
-//             // @NOTE: Need error catching here, most likely error is a JSON parsing issue
-//             console.error(err)
-//         }
-//     })
-// }
 
 class SpinGame extends Room<SpinState> {
 	#name: string
@@ -114,7 +80,7 @@ class SpinGame extends Room<SpinState> {
 			this.setState(new SpinState())
 
 			// @NOTE: This should be initialized by smart contract events
-			this.startCountdown()
+			// this.startCountdown()
 
 			// Initialize SpinRoom state
 			await this.dispatcher.dispatch(new OnInitSpinRoom())
@@ -134,7 +100,9 @@ class SpinGame extends Room<SpinState> {
 			// #region PubSub
 
 			// FareTransfer event (update player balances that apply)
-			PubSub.sub('fare', 'fare-transfer').listen<'fare-transfer'>(_transfer => {})
+			PubSub.sub('fare', 'fare-transfer').listen<'fare-transfer'>(transfer => {
+				this.dispatcher.dispatch(new OnFareTransfer(), transfer)
+			})
 
 			// FareTotalSupply updated
 			PubSub.sub('fare', 'fare-total-supply-updated').listen<'fare-total-supply-updated'>(
@@ -145,13 +113,25 @@ class SpinGame extends Room<SpinState> {
 
 			// New BatchEntry + Entry[]
 			PubSub.sub('spin-state', 'batch-entry').listen<'batch-entry'>(data => {
-				console.log('NEW BATCH ENTRY', data)
 				this.dispatcher.dispatch(new OnBatchEntry(), data)
 			})
 
 			// Spin Round has concluded (increment round)
 			PubSub.sub('spin-state', 'round-concluded').listen<'round-concluded'>(data => {
 				this.dispatcher.dispatch(new OnRoundConcluded(), data)
+			})
+
+			PubSub.sub('spin-state', 'spin-round-pause').listen<'spin-round-pause'>(opt => {
+				this.state.isRoundPaused = opt.isPaused
+				this.broadcast(SpinEvent.TimerUpdated, opt.countdown)
+			})
+
+			PubSub.sub('spin-state', 'spin-room-status').listen<'spin-room-status'>(opt => {
+				this.state.roomStatus = opt.status
+			})
+
+			PubSub.sub('spin-state', 'countdown-updated').listen<'countdown-updated'>(time => {
+				this.broadcast(SpinEvent.TimerUpdated, time)
 			})
 
 			// #endregion
@@ -162,7 +142,8 @@ class SpinGame extends Room<SpinState> {
 		}
 	}
 
-	startCountdown() {
+	startCountdownOld() {
+		// OLD
 		try {
 			if (this.clock.running || this.delayedInterval?.active) this.resetCountdown()
 			this.#currentCountdown = INITIAL_COUNTDOWN_SECS // Set initial countdown value

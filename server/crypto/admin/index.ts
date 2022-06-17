@@ -13,7 +13,7 @@ import {
 	FlatEntry,
 } from '../types'
 import cryptoConfig from '../../config/crypto.config'
-import { logger, createBatchEntry, BN, randomHexString } from '../utils'
+import { logger, createBatchEntry, randomHexString } from '../utils'
 import store from '../../store'
 
 const { blockchainRpcUrl, privateKey, fareTokenAddress, fareSpinGameAddress } = cryptoConfig
@@ -313,6 +313,7 @@ class CryptoAdmin {
 		this.countdown = _countdown
 
 		// Every 15 seconds check if player threshold has been met
+		store.service.round.setSpinRoomStatus('countdown')
 		this.delayedInterval = this.clock.setInterval(() => {
 			if (this.countdown < 0) {
 				// Emit countdown hit 0 pubsub event
@@ -320,6 +321,8 @@ class CryptoAdmin {
 				this.delayedInterval.clear()
 				return
 			}
+
+			// @NOTE: Probably do this every 15 seconds
 
 			this.logCountdown('COUNTDOWN')
 
@@ -332,6 +335,7 @@ class CryptoAdmin {
 		// Stop all batch entries
 		await this.pauseSpinRound(true)
 		// Change spinRoom state to 'about to spin'
+		store.service.round.setSpinRoomStatus('starting')
 		this.delayedInterval = this.clock.setInterval(() => {
 			if (this.countdown < 0) {
 				this.endRound()
@@ -348,6 +352,7 @@ class CryptoAdmin {
 
 	endRound() {
 		// Start spinning wheel
+		store.service.round.setSpinRoomStatus('spinning')
 		this.delayedTimeout = this.clock.setTimeout(async () => {
 			await this.concludeRound()
 
@@ -356,6 +361,7 @@ class CryptoAdmin {
 				// Pubsub new round started
 				// Allow batchEntries
 				// Reset countdown timer
+				store.service.round.setSpinRoomStatus('finished')
 				this.resetRound()
 			}, 10_000)
 		}, 15_000)
@@ -368,6 +374,7 @@ class CryptoAdmin {
 
 		this.delayedInterval = this.clock.setInterval(() => {
 			if (this.countdown < 0) {
+				// @NOTE: Need to wait for pauseSpinRound here
 				this.pauseSpinRound(false)
 				this.clock.clear()
 				this.delayedInterval.clear()
