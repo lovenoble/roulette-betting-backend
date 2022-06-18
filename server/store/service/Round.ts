@@ -10,6 +10,8 @@ import ServiceBase from './ServiceBase'
 import { ensureNumber, formatETH, BN, toEth, logger } from '../utils'
 import { spinAPI } from '../../crypto'
 import { GlobalRedisKey } from '../constants'
+import { SpinRoomStatus } from '../types'
+import PubSub from '../../pubsub'
 
 export default class RoundService extends ServiceBase<Round> {
 	gameModeService!: GameModeService
@@ -46,6 +48,49 @@ export default class RoundService extends ServiceBase<Round> {
 		return this.client.get(`Global:${GlobalRedisKey.CurrentRoundId}`)
 	}
 
+	public async ensureSpinRoundPaused() {
+		const isPaused = await spinAPI.contract.isRoundPaused()
+		this.client.set(`Global:${GlobalRedisKey.IsSpinRoundPaused}`, String(isPaused))
+		return isPaused
+	}
+
+	public async setSpinRoundPaused(isPaused: boolean) {
+		return this.client.set(`Global:${GlobalRedisKey.IsSpinRoundPaused}`, String(isPaused))
+	}
+
+	public async getCachedSpinRoundPaused() {
+		const isPaused = await this.client.get(`Global:${GlobalRedisKey.IsSpinRoundPaused}`)
+
+		return Boolean(isPaused)
+	}
+
+	public async setSpinCountdownTimer(time: number) {
+		PubSub.pub('spin-state', 'countdown-updated', time)
+		return this.client.set(`Global:${GlobalRedisKey.SpinCountdownTimer}`, String(time))
+	}
+
+	public async getSpinCountdownTimer() {
+		const countdown = Number(
+			await this.client.get(`Global:${GlobalRedisKey.SpinCountdownTimer}`)
+		)
+		return countdown
+	}
+
+	public async setSpinRoomStatus(status: SpinRoomStatus) {
+		PubSub.pub<'spin-room-status'>('spin-state', 'spin-room-status', { status })
+		return this.client.set(`Global:${GlobalRedisKey.SpinCountdownTimer}`, status)
+	}
+
+	public async getSpinRoomStatus() {
+		return this.client.get(`Global:${GlobalRedisKey.SpinRoomStatus}`)
+	}
+
+	public async getPlayerCountByRound(_roundId?: number) {
+		let roundId = _roundId || (await this.getCachedCurrentRoundId())
+
+		return this.batchEntryService.repo.search().where('roundId').eq(roundId).returnCount()
+	}
+
 	// Calculates winners and losers from randomNum/randomEliminator by round
 	public async updateRoundBatchEntries(
 		roundId: number,
@@ -73,10 +118,10 @@ export default class RoundService extends ServiceBase<Round> {
 				batchEntry,
 				entries: await this.entryService.repo
 					.search()
-					.where('batchEntryId')
-					.eq(batchEntry.batchEntryId)
 					.where('roundId')
 					.eq(batchEntry.roundId)
+					.where('player')
+					.eq(batchEntry.player)
 					.sortAsc('entryIdx')
 					.returnAll(),
 			}
@@ -108,8 +153,8 @@ export default class RoundService extends ServiceBase<Round> {
 						}
 					}
 					await this.entryService.repo.save(entry)
-					const { entryId, batchEntryId, winAmount, entryIdx } = entry
-					return { entryId, batchEntryId, roundId, winAmount, entryIdx } as SettledEntry
+					const { player, winAmount, entryIdx } = entry
+					return { player, roundId, winAmount, entryIdx } as SettledEntry
 				})
 
 				const updatedEntries = await Promise.all(entryPromise)
@@ -120,7 +165,6 @@ export default class RoundService extends ServiceBase<Round> {
 					batchEntry: {
 						totalWinAmount: batchEntry.totalWinAmount,
 						roundId: batchEntry.roundId,
-						entryId: batchEntry.entryId,
 						player: batchEntry.player,
 						batchEntryId: batchEntry.batchEntryId,
 					} as SettledBatchEntry,

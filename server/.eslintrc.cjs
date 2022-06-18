@@ -24,6 +24,7 @@ module.exports = {
 		'@typescript-eslint/ban-types': 'off',
 		'new-cap': 'off',
 		'no-param-reassign': 'off',
+                'import/extensions': ['warn', 'never'],
 		'import/prefer-default-export': 'off',
 		'no-promise-executor-return': 'off',
 		'node/no-missing-import': 'off',

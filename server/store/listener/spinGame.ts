@@ -10,6 +10,7 @@ import {
 } from '../types'
 import type { StoreQueue } from '../queue'
 import type { IServiceObj } from '../types'
+import PubSub from '../../pubsub'
 
 const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) => {
 	const { eventLog } = service
@@ -27,14 +28,12 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 		roundId: BigNumber,
 		batchEntryId: BigNumber,
 		player: string,
-		entryId: BigNumber,
 		event: Event
 	) => {
 		const queueData: IEntrySubmittedQueue = {
 			roundId: BNToNumber(roundId),
 			batchEntryId: BNToNumber(batchEntryId),
 			player,
-			entryId: BNToNumber(entryId),
 			event: eventLog.parseForQueue(event, ContractNames.FareSpinGame),
 			timestamp: Date.now(),
 		}
@@ -63,17 +62,13 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 
 	const entrySettled = async (
 		roundId: BigNumber,
-		batchEntryId: BigNumber,
-		_NUplayer: string,
-		_NUentryId: BigNumber,
+		player: string,
 		hasWon: boolean,
 		event: Event
 	) => {
 		const queueData: IEntrySettledQueue = {
 			roundId: BNToNumber(roundId),
-			batchEntryId: BNToNumber(batchEntryId),
-			player: _NUplayer,
-			entryId: BNToNumber(_NUentryId),
+			player,
 			hasWon,
 			event: eventLog.parseForQueue(event, ContractNames.FareSpinGame),
 			timestamp: Date.now(),
@@ -82,11 +77,21 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 		await storeQueue.spinContract.add(EventNames.EntrySettled, queueData)
 	}
 
+	// @NOTE: Probably don't need to send this to a worker since it's less frequently called
+	const roundPausedChanged = async (isPaused: boolean) => {
+		await PubSub.pub<'spin-round-pause'>('spin-state', 'spin-round-pause', {
+			isPaused,
+			countdown: await service.round.getSpinCountdownTimer(),
+		})
+		await service.round.setSpinRoundPaused(isPaused)
+	}
+
 	return {
 		gameModeUpdated,
 		entrySubmitted,
 		roundConcluded,
 		entrySettled,
+		roundPausedChanged,
 	}
 }
 

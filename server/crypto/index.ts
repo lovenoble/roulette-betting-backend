@@ -97,10 +97,6 @@ export class Crypto {
 
 const crypto = new Crypto()
 
-// const testSigningMessage =
-// 	'Pear connects would like to authenticate your account. Please sign the following: 0x66383466396332322d396530312d346233642d386163642d643132613636613631656264'
-// console.log(await crypto.signMessage(testSigningMessage))
-
 // API Instances
 export const fareAPI = new FareTokenAPI(crypto.fare)
 export const spinAPI = new FareSpinGameAPI(crypto.fare, crypto.spin)

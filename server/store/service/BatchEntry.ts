@@ -22,13 +22,13 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 		this.entryService = entryService
 	}
 
-	public fetch(roundId: BigNumber | number, batchEntryId: BigNumber | number) {
+	public fetch(roundId: BigNumber | number, player: string) {
 		return this.repo
 			.search()
 			.where('roundId')
 			.equal(ensureNumber(roundId))
-			.where('batchEntryId')
-			.equal(ensureNumber(batchEntryId))
+			.where('player')
+			.equal(player)
 			.returnFirst()
 	}
 
@@ -48,7 +48,7 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 		const promiseList: Promise<ICurrentBatchEntries>[] = batchEntries.map(be => {
 			return new Promise((resolve, reject) => {
 				this.entryService
-					.fetchEntriesByBatchEntryId(be.roundId, be.batchEntryId)
+					.fetchEntriesByRoundPlayer(be.roundId, be.player)
 					.then(entries => {
 						resolve({
 							batchEntry: be.toRedisJson() as IBatchEntry,
@@ -66,32 +66,29 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 		eventLogId: string,
 		roundId: number,
 		batchEntryId: number,
-		entryId: number,
 		player: string,
 		jobId: string = null,
 		timestamp = Date.now()
 	) {
 		const entries = await this.entryService.populateEntriesFromBatchEntryId(
 			eventLogId,
-			entryId,
-			batchEntryId,
 			roundId,
+			player,
 			jobId,
 			timestamp
 		)
 
-		const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
-			await spinAPI.contract.batchEntryMap(roundId, batchEntryId)
+		const be = await spinAPI.contract.batchEntryMap(roundId, player)
+		const { settled, totalEntryAmount, totalWinAmount } = be
 
 		const batchEntry = {
 			eventLogId,
 			roundId,
 			batchEntryId,
-			entryId,
-			settled: _settled,
+			settled,
 			player,
-			totalEntryAmount: formatETH(_totalEntryAmount),
-			totalWinAmount: formatETH(_totalWinAmount),
+			totalEntryAmount: formatETH(totalEntryAmount),
+			totalWinAmount: formatETH(totalWinAmount),
 			timestamp,
 			jobId,
 		}
@@ -106,11 +103,11 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 
 	public async settle(
 		roundId: number,
-		batchEntryId: number,
+		player: string,
 		settledOn = Date.now(),
 		jobId: string = null
 	) {
-		const batchEntryEntity = await this.fetch(roundId, batchEntryId)
+		const batchEntryEntity = await this.fetch(roundId, player)
 
 		// @NOTE: BULLMQ
 		if (!batchEntryEntity) {
@@ -125,7 +122,7 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 		batchEntryEntity.settledOn = settledOn
 		batchEntryEntity.jobId = jobId
 
-		const entries = await this.entryService.fetchEntriesByBatchEntryId(roundId, batchEntryId)
+		const entries = await this.entryService.fetchEntriesByRoundPlayer(roundId, player)
 
 		const promiseList = entries.map(entry => {
 			return new Promise((resolve, reject) => {

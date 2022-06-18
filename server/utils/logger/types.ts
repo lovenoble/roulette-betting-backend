@@ -1,16 +1,17 @@
 import { LoggerOptions as WinstonLoggerOptions } from 'winston'
 
 export type LogType =
+	| 'Crypto'
 	| 'Global'
 	| 'Pear'
+	| 'Pub'
+	| 'Queue'
 	| 'RPC'
 	| 'RedisStore'
+	| 'Sub'
 	| 'Transport'
 	| 'Worker'
-	| 'Queue'
-	| 'Pub'
-	| 'Sub'
-	| 'Crypto'
+	| 'CryptoAdmin'
 
 export type LogTheme =
 	| 'blue'
