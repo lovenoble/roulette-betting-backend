@@ -2,7 +2,9 @@ import { MapSchema, ArraySchema } from '@colyseus/schema'
 import { Room } from '@colyseus/core'
 import SpinState from '../state/SpinState'
 
-export class SpinRoom extends Room<SpinState> {}
+export class SpinRoom extends Room<SpinState> {
+	currentCountdown: number
+}
 
 export interface IGuestPlayer {
 	guestUsername: string

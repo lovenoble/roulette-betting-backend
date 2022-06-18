@@ -1,10 +1,11 @@
 import { Room, ServerError, Client } from '@colyseus/core'
 import { Dispatcher } from '@colyseus/command'
+import shortId from 'shortid'
 
 // Libraries
 import type { IDefaultRoomOptions, IRoomOptions } from '../types'
 import store from '../../store'
-import { HttpStatusCode, ChatMessage } from '../constants'
+import { HttpStatusCode, ChatMessage, SpinEvent } from '../constants'
 import ChatState from '../state/ChatState'
 import { logger } from '../utils'
 import {
@@ -56,10 +57,11 @@ class ChatRoom extends Room<ChatState> {
 		}
 	}
 
-	async onAuth(_client: Client, options: IDefaultRoomOptions = {}) {
+	async onAuth(client: Client, options: IDefaultRoomOptions = {}) {
 		try {
-			const { authToken, guestId } = options
+			const { authToken } = options
 
+			// Handle authenticated user
 			if (authToken) {
 				const user = await store.service.user.getUserFromToken(authToken)
 
@@ -70,15 +72,13 @@ class ChatRoom extends Room<ChatState> {
 
 				return user.publicAddress
 			}
-			if (guestId) {
-				logger.info('User logging in as guest with username:', guestId)
-				return `guest:${guestId}`
-			}
 
-			throw new ServerError(
-				HttpStatusCode.UNAUTHORIZED,
-				'A valid token is required to connect to room.'
-			)
+			// Handle guest user
+			const guestId = shortId() // Generate guestId
+			logger.info(`User logging in as guest with username: ${guestId}`)
+			client.send(SpinEvent.GuestUserJoined, guestId)
+
+			return `guest:${guestId}`
 		} catch (err: any) {
 			logger.error(err)
 			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())

@@ -12,8 +12,8 @@ export interface Entry {
 	roundId: number
 	gameModeId: number
 	pickedNumber: number
-	batchEntryId: number
-	entryId: number
+	player: string // Player's public address
+	entryIdx: number
 	winAmount: string
 	settled: boolean
 	timestamp: number
@@ -44,11 +44,11 @@ export default new Schema(
 		jobId: { type: 'string' },
 		eventLogId: { type: 'string' },
 		amount: { type: 'string' },
-		roundId: { type: 'number' },
+		roundId: { type: 'number', sortable: true },
 		gameModeId: { type: 'number' },
 		pickedNumber: { type: 'number' },
-		batchEntryId: { type: 'number' },
-		entryId: { type: 'number' },
+		player: { type: 'string' },
+		entryIdx: { type: 'number', sortable: true },
 		winAmount: { type: 'string' },
 		settled: { type: 'boolean' },
 		timestamp: { type: 'date' },

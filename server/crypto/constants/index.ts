@@ -1,6 +1,8 @@
 import { BN } from '../utils'
 import type { GameModeParams } from '../types/spin.types'
 
+export const INITIAL_COUNTDOWN_SECS = 300 // 5 minutes
+
 // @NOTE: This object should only be used for testing
 // @NOTE: If actually using GameMode, fetch all active GameModes from smart contract
 export const GameModes: GameModeParams[] = [

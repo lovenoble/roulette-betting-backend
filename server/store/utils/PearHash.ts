@@ -31,6 +31,7 @@ export default abstract class PearHash {
 	}
 
 	static generateJwt(data: JWTDecodedData) {
+		// @NOTE: Generate PEM RSA public/private key for generating JWT
 		const authToken = jwt.sign(data, jwtSecret, {
 			expiresIn: jwtExpiration,
 		})
@@ -39,6 +40,7 @@ export default abstract class PearHash {
 	}
 
 	static decodeJwt(token: string) {
+		// @NOTE: Generate PEM RSA public/private key for verifying
 		const decoded = jwt.verify(token, jwtSecret) as JWTDecodedData
 
 		return decoded

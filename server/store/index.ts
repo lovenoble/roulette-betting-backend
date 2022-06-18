@@ -1,3 +1,4 @@
+import { createClient } from 'redis'
 import { Client } from 'redis-om'
 
 import StoreWorker from './worker'
@@ -12,25 +13,28 @@ import {
 	GameModeService,
 	RoundService,
 	UserService,
+	EliminatorService,
 } from './service'
 import { IRepoObj, IServiceObj } from './types'
 
 // Schemas
 import {
-	userSchema,
-	eventLogSchema,
-	gameModeSchema,
-	fareTransferSchema,
-	entrySchema,
 	batchEntrySchema,
+	entrySchema,
+	eventLogSchema,
+	fareTransferSchema,
+	gameModeSchema,
 	roundSchema,
+	userSchema,
+	eliminatorSchema,
 } from './schema'
 
-import { redisUri, redisStoreUri } from '../config'
+import { redisUri, RedisDBIndex } from '../config'
 
 export class RedisStore {
-	redisBaseUri = redisUri
-	omUrl = redisStoreUri
+	redisBaseUri: string
+	omUrl: string
+	redis!: ReturnType<typeof createClient>
 	om!: Client
 	repo: IRepoObj = {}
 	service: IServiceObj = {}
@@ -38,11 +42,20 @@ export class RedisStore {
 	worker!: StoreWorker
 	listener!: SmartContractListener
 
+	constructor(_redisUri = redisUri) {
+		this.redisBaseUri = _redisUri
+		this.omUrl = `${this.redisBaseUri}/${RedisDBIndex.Default}`
+		this.redis = createClient({ url: this.omUrl })
+	}
+
 	async initialize() {
 		if (this.om?.isOpen) return this.om
 
-		this.om = await new Client().open(this.omUrl)
+		await this.redis.connect()
 		logger.info('Connection to RedisStore established!')
+
+		this.om = await new Client().use(this.redis)
+		logger.info('Attached RedisClient instance to RedisOM instance')
 
 		await this.initServices()
 		logger.info('Services have been constructed!')
@@ -53,10 +66,20 @@ export class RedisStore {
 
 		logger.info(`RedisStore initialization finished!`)
 
+		// Method ran after RedisClient connection is established
+		await this.afterConnect()
+
 		return this.om
 	}
 
+	private async afterConnect() {
+		await this.service.gameMode.ensureGameModes()
+		await this.service.fareTransfer.updateTotalSupply()
+		await this.service.round.updateCurrentRoundId()
+	}
+
 	private async initRepos(om: Client) {
+		this.repo.eliminator = await this.service.eliminator.init(om, eliminatorSchema)
 		this.repo.eventLog = await this.service.eventLog.init(om, eventLogSchema)
 		this.repo.gameMode = await this.service.gameMode.init(om, gameModeSchema)
 		this.repo.fareTransfer = await this.service.fareTransfer.init(om, fareTransferSchema)
@@ -67,6 +90,7 @@ export class RedisStore {
 	}
 
 	private async initServices() {
+		this.service.eliminator = new EliminatorService()
 		this.service.eventLog = new EventLogService()
 		this.service.gameMode = new GameModeService()
 		this.service.fareTransfer = new FareTransferService()

@@ -21,8 +21,8 @@ class FareTokenAPI {
 		return this.contract.provider.getCode(this.getAddress())
 	}
 
-	public async getTotalSupply(): Promise<number> {
-		const balance = Number(formatEther(await this.contract.totalSupply()))
+	public async getTotalSupply(): Promise<string> {
+		const balance = formatEther(await this.contract.totalSupply())
 		return balance
 	}
 

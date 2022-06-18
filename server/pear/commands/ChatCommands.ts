@@ -1,5 +1,4 @@
 import { Command } from '@colyseus/command'
-import shortId from 'shortid'
 
 import { Message, ChatUser, IChatUser, IGuestUser, GuestUser, IUserOptions } from '../entities'
 import { ChatRoom, OnMessageOptions } from '../types'
@@ -21,14 +20,11 @@ export class OnNewMessage extends Command<ChatRoom, OnMessageOptions> {
 				return
 			}
 
-			const chatMessageId: string = shortId()
 			logger.info('New message created by', publicAddress)
 
 			const newMsg = new Message({
-				id: chatMessageId,
 				text,
 				createdBy: publicAddress,
-				timestamp: Date.now(),
 			})
 
 			this.room.broadcast(ChatMessage.NewChatMessage, newMsg)

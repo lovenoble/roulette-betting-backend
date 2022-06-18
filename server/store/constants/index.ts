@@ -8,6 +8,7 @@ export enum EventNames {
 	GameModeUpdated = 'GameModeUpdated',
 	EntrySubmitted = 'EntrySubmitted',
 	EntrySettled = 'EntrySettled',
+	RoundPausedChanged = 'RoundPausedChanged',
 	RoundConcluded = 'RoundConcluded',
 	RandomNumberRequested = 'RandomNumberRequested',
 	NFTWon = 'NFTWon',
@@ -18,6 +19,14 @@ export enum QueueNames {
 	SpinContractEvent = 'SpinContractEvent',
 	PearState = 'PearState',
 	Latency = 'Latency',
+}
+
+export enum GlobalRedisKey {
+	FareTotalSupply = 'FareTotalSupply',
+	CurrentRoundId = 'CurrentRoundId',
+	IsSpinRoundPaused = 'IsSpinRoundPaused',
+	SpinCountdownTimer = 'SpinCountdownTimer',
+	SpinRoomStatus = 'SpinRoomStatus',
 }
 
 export const SIGNING_MESSAGE_TEXT =

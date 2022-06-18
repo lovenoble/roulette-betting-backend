@@ -6,7 +6,28 @@ import {
 	type,
 } from '@colyseus/schema'
 
-import { BatchEntry, GuestUser, User, Round, Timer } from '../entities'
+import {
+	BatchEntry,
+	GuestUser,
+	User,
+	Round,
+	IGuestUser,
+	IRound,
+	IBatchEntry,
+	IUser,
+} from '../entities'
+
+import { SpinRoomStatus } from '../../store/types'
+
+export interface ISpinState extends Schema {
+	guestUsers: MapSchema<IGuestUser>
+	users: MapSchema<IUser>
+	batchEntries: MapSchema<IBatchEntry>
+	round: IRound
+	roomStatus: SpinRoomStatus
+	fareTotalSupply: string
+	currentRoundId: number
+}
 
 export default class SpinState extends Schema {
 	// sessionId(probably publicAddress?) -> Player, GuestPlayer
@@ -21,8 +42,9 @@ export default class SpinState extends Schema {
 
 	// @NOTE: Ensure that publicAddress can only submit one batchEntry per round (in smart contract)
 	// @NOTE: Determine if we should start wheel at 2-5 mins or once 300 players are reached
-	@type(Timer) timer = new Timer()
+	@type('string') roomStatus = 'countdown'
 
-	@type('string') fareTotalSupply: number
+	@type('string') fareTotalSupply: string
 	@type('number') currentRoundId: number
+	@type('boolean') isRoundPaused = false
 }

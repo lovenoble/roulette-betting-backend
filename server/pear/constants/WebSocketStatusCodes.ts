@@ -2,7 +2,6 @@
  * WebSocket (WS) Close Codes
  * @see {@link https://github.com/Luka967/websocket-close-codes}
  */
-
 export enum WebSocketCloseCode {
 	/**
 	 *   Successful operation / regular socket shutdown
@@ -33,13 +32,15 @@ export enum WebSocketCloseCode {
 	 */
 	UNSUPPORTED_PAYLOAD = 1007,
 	/**
-	 *   Generic code used for situations other than 1003 and 1009
+	 *   The endpoint is terminating the connection because it received a message that violates its policy.
+	 *   This is a generic status code, used when codes 1003 and 1009 are not suitable.
 	 */
 	POLICY_VIOLATION = 1008,
 	/**
-	 *   Endpoint won't process large frame
+	 *   Endpoint won't process large frameThe endpoint is terminating the connection
+	 *   because a data frame was received that is too large.
 	 */
-	CLOSE_TOO_LARGE = 1009,
+	MESSAGE_TOO_BIG = 1009,
 	/**
 	 *   Client wanted an extension which server did not negotiate
 	 */
@@ -65,10 +66,26 @@ export enum WebSocketCloseCode {
 	 */
 	TLS_HANDSHAKE_FAILED = 1015,
 
-	// 4000-4999 Available for applications (custom close codes)
 	/**
 	 *   When an user sessionId exists and the same user connects with a new client
 	 *   close the existing session and clear sessionId in RedisStore
 	 */
 	NEW_CONNECTION_SESSION = 4000,
+}
+
+/**
+ *   Web Socket Custom Message Codes
+ *   Defined codes for our specific application
+ *   Codes 3000-3999 for use by libaries, frameworks, and applications.
+ *   @see {@link https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code}
+ */
+export enum WebSocketCustomCodes {
+	/**
+	 * Indicates a user doesn't have access to perform this action
+	 */
+	RESTRICTED_USER_ACTION = 3000,
+	/**
+	 * Message parameter validation error
+	 */
+	MESSAGE_VALIDATION_ERROR = 3001,
 }

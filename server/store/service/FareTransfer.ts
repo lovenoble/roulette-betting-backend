@@ -1,7 +1,9 @@
 import type { FareTransfer } from '../schema/types'
 
+import { fareAPI } from '../../crypto'
 import ServiceBase from './ServiceBase'
 import { zeroAddress } from '../utils'
+import { GlobalRedisKey } from '../constants'
 
 interface ICreateOptions {
 	jobId?: string
@@ -36,5 +38,21 @@ export default class FareTransferService extends ServiceBase<FareTransfer> {
 			transferType,
 			timestamp,
 		})
+	}
+
+	public async updateTotalSupply(_totalFareSupply?: string) {
+		let totalFareSuppply = _totalFareSupply
+
+		if (!totalFareSuppply) {
+			totalFareSuppply = await fareAPI.getTotalSupply()
+		}
+
+		await this.client.set(`Global:${GlobalRedisKey.FareTotalSupply}`, totalFareSuppply)
+
+		return totalFareSuppply
+	}
+
+	public async getCachedTotalSupply() {
+		return this.client.get(`Global:${GlobalRedisKey.FareTotalSupply}`)
 	}
 }

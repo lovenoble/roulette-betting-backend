@@ -90,7 +90,10 @@ export class User implements UserServer {
 
 			return callback(null, VerifyTokenResponse.fromJSON({ publicAddress }))
 		} catch (err) {
-			logger.error('verifyToken error', err.toString())
+			logger.error(`verifyToken error: ${err.toString()}`, err)
+			if (err instanceof Error) {
+				return callback(new ServiceError(status.PERMISSION_DENIED, err.message), null)
+			}
 			return callback(new ServiceError(status.INTERNAL, err.toString()), null)
 		}
 	}

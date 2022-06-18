@@ -9,7 +9,6 @@ export interface BatchEntry {
 	eventLogId: string
 	roundId: number
 	batchEntryId: number
-	entryId: number
 	player: string
 	settled: boolean
 	totalEntryAmount: string
@@ -43,8 +42,7 @@ export default new Schema(
 		jobId: { type: 'string' },
 		eventLogId: { type: 'string' },
 		roundId: { type: 'number' },
-		batchEntryId: { type: 'number' },
-		entryId: { type: 'number' },
+		batchEntryId: { type: 'number', sortable: true },
 		player: { type: 'string' },
 		settled: { type: 'boolean' },
 		totalEntryAmount: { type: 'string' },

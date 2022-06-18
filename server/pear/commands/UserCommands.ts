@@ -1,28 +1,38 @@
+import type { Client } from '@colyseus/core'
 import { Command } from '@colyseus/command'
 
 import type { SpinRoom } from '../types'
-import { WebSocketCloseCode } from '../constants'
+import { WebSocketCloseCode, SpinEvent } from '../constants'
 
 import crypto from '../../crypto'
 import { logger, findClientBySessionId } from '../utils'
 import { User, IUserOptions, GuestUser, IGuestUser } from '../entities'
 import store from '../../store'
 
-export class OnGuestUserJoined extends Command<SpinRoom, IGuestUser> {
-	async execute({ guestId, sessionId }: IGuestUser) {
+export class OnGuestUserJoined extends Command<SpinRoom, IGuestUser & { client: Client }> {
+	async execute({ guestId, client }: IGuestUser & { client: Client }) {
 		const guestUser = new GuestUser({
 			guestId,
-			sessionId,
+			sessionId: client.sessionId,
 		})
 
-		this.state.guestUsers.set(sessionId, guestUser)
+		client.send(SpinEvent.SendRoomData, {
+			guestId,
+			countdown: this.room.currentCountdown,
+			roomStatus: this.state.roomStatus,
+			fareTotalSupply: this.state.fareTotalSupply,
+			currentRoundId: this.state.currentRoundId,
+		})
+
+		this.state.guestUsers.set(client.sessionId, guestUser)
 	}
 }
 
-export class OnUserJoined extends Command<SpinRoom, IUserOptions> {
-	async execute({ publicAddress, sessionId }: { publicAddress: string; sessionId: string }) {
+export class OnUserJoined extends Command<SpinRoom, IUserOptions & { client: Client }> {
+	async execute({ publicAddress, client }: { publicAddress: string; client: Client }) {
 		try {
-			// @NOTE: Move this to UserService
+			const { sessionId } = client
+
 			const balance = await crypto.getBalances(publicAddress)
 
 			const {
@@ -33,20 +43,20 @@ export class OnUserJoined extends Command<SpinRoom, IUserOptions> {
 
 			// If user sessionId still exists disconnect previous session from Room
 			if (previousSessionId) {
-				const client = findClientBySessionId(previousSessionId, this.room.clients)
-				if (client) {
+				const prevClient = findClientBySessionId(previousSessionId, this.room.clients)
+				if (prevClient) {
 					logger.info(
-						`User already in room. Disconnecting previous client: sessionId(${sessionId}) publicAddress(${publicAddress})`
+						`User already in room. Disconnecting previous client: sessionId(${previousSessionId}) publicAddress(${publicAddress})`
 					)
 
 					// Throw error to client so frontend app can handle redirection and popup message
-					client.error(
+					prevClient.error(
 						WebSocketCloseCode.NEW_CONNECTION_SESSION,
 						'Client with same publicAddress connected. Only one client can connect per publicAddress.'
 					)
 
 					// Disconnect client from room session
-					client.leave(WebSocketCloseCode.NEW_CONNECTION_SESSION)
+					prevClient.leave(WebSocketCloseCode.NEW_CONNECTION_SESSION)
 				}
 			}
 
@@ -64,6 +74,13 @@ export class OnUserJoined extends Command<SpinRoom, IUserOptions> {
 			const user = new User(userOptions)
 
 			this.state.users.set(sessionId, user)
+
+			client.send(SpinEvent.SendRoomData, {
+				countdown: this.room.currentCountdown,
+				roomStatus: this.state.roomStatus,
+				fareTotalSupply: this.state.fareTotalSupply,
+				currentRoundId: this.state.currentRoundId,
+			})
 		} catch (err) {
 			// @NOTE: NEED TO ADD ERROR QUEUE WHEN THIS IS HIT
 			logger.error(err)
@@ -107,10 +124,10 @@ export class OnUserLeave extends Command<
 				// Clear sessionId on user model for Redis
 				await store.service.user.clearOutSessionId(sessionId)
 				this.state.users.delete(sessionId)
-				logger.info('User has left SpinRoom:', sessionId)
+				logger.info(`User has left SpinRoom: ${sessionId}`)
 			} else if (this.state.guestUsers.has(sessionId)) {
 				this.state.guestUsers.delete(sessionId)
-				logger.info('GuestUser has left SpinRoom:', sessionId)
+				logger.info(`GuestUser has left SpinRoom: ${sessionId}`)
 			} else {
 				logger.warn(
 					"User left room but their sessionId wasn't in state. Look into why that is."

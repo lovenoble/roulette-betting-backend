@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package admin;
+
+service Admin {
+    rpc CreateBatchEntry(CreateBatchEntryRequest) returns (CreateBatchEntryResponse) {}
+    rpc SettleBatchEntry(SettleBatchEntryRequest) returns (SettleBatchEntryResponse) {}
+    rpc PauseRound(PauseRoundRequest) returns (PauseRoundResponse) {}
+    rpc ConcludeRound(ConcludeRoundRequest) returns (ConcludeRoundResponse) {}
+}
+
+message CreateBatchEntryRequest {
+    string authToken = 1;
+    int32 seedIdx = 2;
+}
+
+message CreateBatchEntryResponse {
+    string status = 1;
+}
+
+message SettleBatchEntryRequest {
+    string authToken = 1;
+    int32 roundId = 2;
+    int32 seedIdx = 3;
+}
+
+message SettleBatchEntryResponse {
+    string status = 1;
+}
+
+message PauseRoundRequest {
+    string authToken = 1;
+    bool isPaused = 2;
+}
+
+message PauseRoundResponse {
+    string status = 1;
+}
+
+message ConcludeRoundRequest {
+    string authToken = 1;
+}
+
+message ConcludeRoundResponse {
+    string status = 1;
+}

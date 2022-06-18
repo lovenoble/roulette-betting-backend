@@ -22,7 +22,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 
 		const data = (
 			await service.gameMode.createOrUpdate(gameModeId, timestamp, eventLogId, jobId)
-		).toJSON()
+		).toRedisJson()
 
 		// @NOTE: May need to publish here
 
@@ -33,7 +33,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 	}
 
 	async function entrySubmitted(queueData: IEntrySubmittedQueue, jobId: string = null) {
-		const { roundId, batchEntryId, player, entryId, event, timestamp } = queueData
+		const { roundId, batchEntryId, player, event, timestamp } = queueData
 		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpinGame)
 		if (!eventLogId) return null
 
@@ -41,7 +41,6 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 			eventLogId,
 			roundId,
 			batchEntryId,
-			entryId,
 			player,
 			jobId,
 			timestamp
@@ -71,7 +70,12 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 		)
 
 		// Get and set eliminator data from blockchain
-		const roundEliminators = await spinAPI.getAllEliminatorsByRound(roundId)
+		const roundEliminators = await service.eliminator.createEliminatorsByRoundId(
+			jobId,
+			eventLogId,
+			roundId,
+			timestamp
+		)
 
 		const eliminators: IRoundEliminators = {
 			isTwoXElim: false,
@@ -81,13 +85,13 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 
 		roundEliminators.forEach(({ gameModeId, isEliminator }) => {
 			switch (gameModeId) {
-				case 1:
+				case 0:
 					eliminators.isTwoXElim = isEliminator
 					break
-				case 2:
+				case 1:
 					eliminators.isTenXElim = isEliminator
 					break
-				case 3:
+				case 2:
 					eliminators.isHundoXElim = isEliminator
 					break
 
@@ -106,17 +110,23 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 			...eliminators,
 		})
 
+		// Increment cached roundId in Redis
+		await service.round.updateCurrentRoundId((roundId + 1).toString())
+
+		const vrfNum = await spinAPI.getVRF(roundId)
+
 		const data = (
 			await service.round.repo.createAndSave({
 				eventLogId,
 				roundId,
 				randomNum,
 				randomEliminator,
+				vrfNum,
 				vrfRequestId,
 				timestamp,
 				jobId,
 			})
-		).toJSON()
+		).toRedisJson()
 
 		return JSON.stringify({
 			eventName: EventNames.RoundConcluded,
@@ -125,28 +135,15 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 	}
 
 	async function entrySettled<T>(queueData: IEntrySettledQueue, jobId: string = null) {
-		const {
-			roundId,
-			batchEntryId,
-			player, // eslint-disable-line
-			entryId, // eslint-disable-line
-			hasWon,
-			event,
-			timestamp,
-		} = queueData
+		const { roundId, player, hasWon, event, timestamp } = queueData
 
 		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpinGame)
 		if (!eventLogId) return null
 
-		const batchEntryEntity = await service.batchEntry.settle(
-			roundId,
-			batchEntryId,
-			timestamp,
-			jobId
-		)
+		const batchEntryEntity = await service.batchEntry.settle(roundId, player, timestamp, jobId)
 
 		const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
-			await spinAPI.contract.batchEntryMap(roundId, batchEntryId)
+			await spinAPI.contract.batchEntryMap(roundId, player)
 
 		// @NOTE: Ensure blockchain totalWinAmount and calculated Redis totalWinAmount is correct
 		// @NOTE: We need to log to our analytics if these numbers do not match
@@ -165,7 +162,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 		// @NOTE: Need to include updated entry values as well
 		return JSON.stringify({
 			eventName: EventNames.EntrySettled,
-			data: batchEntryEntity.toJSON(),
+			data: batchEntryEntity.toRedisJson(),
 		} as EventReturnData<T>)
 	}
 
