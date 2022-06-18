@@ -3,7 +3,7 @@ import { BN } from '../utils'
 import type { GameModeParams } from '../types/spin.types'
 
 // export const INITIAL_COUNTDOWN_SECS = 300 // 5 minutes
-export const INITIAL_COUNTDOWN_SECS = 90 // 90 secs
+export const INITIAL_COUNTDOWN_SECS = 45 // 45 secs
 
 // @NOTE: Need to discuss about these values
 export const AVAX_FLOOR = utils.parseEther('0.25')

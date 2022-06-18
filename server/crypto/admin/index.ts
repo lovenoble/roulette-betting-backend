@@ -41,19 +41,23 @@ class CryptoAdmin {
 			'CryptoAdmin should only be used in a development or test environment. Do not use in production.'
 		)
 
-		this.fare = FareToken__factory.connect(fareTokenAddress, this.adminSigner)
-		this.spin = FareSpinGame__factory.connect(fareSpinGameAddress, this.adminSigner)
-		this.fund = new CryptoToken({
-			fundSigner: this.adminSigner,
-			fare: this.fare,
-			spin: this.spin,
-		})
+		try {
+			this.fare = FareToken__factory.connect(fareTokenAddress, this.adminSigner)
+			this.spin = FareSpinGame__factory.connect(fareSpinGameAddress, this.adminSigner)
+			this.fund = new CryptoToken({
+				fundSigner: this.adminSigner,
+				fare: this.fare,
+				spin: this.spin,
+			})
 
-		await this.seed.init()
+			await this.seed.init()
 
-		await this.fund.ensureSeedAccountBalances(this.seed.signers)
+			await this.fund.ensureSeedAccountBalances(this.seed.signers)
 
-		logger.info('CryptoAdmin has been initialized')
+			logger.info('CryptoAdmin has been initialized')
+		} catch (err) {
+			logger.warn('Failed to initialize CryptoAdmin. Did not seed/transfer to accounts')
+		}
 	}
 
 	async createBatchEntry(userIdx: number, entries: FlatEntry[]) {

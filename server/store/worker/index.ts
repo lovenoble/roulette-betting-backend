@@ -17,7 +17,6 @@ export default class StoreWorker {
 
 	constructor(service: IServiceObj) {
 		// Pass in Redis Store service references and create processes
-
 		this.process = {
 			...createFareJobProcesses(service),
 			...createSpinJobProcesses(service),
@@ -79,7 +78,7 @@ export default class StoreWorker {
 			}
 		} catch (err) {
 			logger.error(err)
-			return err
+			throw new Error(err.toString())
 		}
 	}
 
@@ -100,7 +99,7 @@ export default class StoreWorker {
 			}
 		} catch (err) {
 			logger.error(err)
-			return err
+			throw new Error(err.toString())
 		}
 	}
 	// #endregion Job Handlers
