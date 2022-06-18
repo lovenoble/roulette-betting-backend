@@ -1,6 +1,6 @@
 FROM node:lts
 WORKDIR /usr/src/app
-COPY /usr/src/app/dist .
+COPY . .
 # COPY .env.prod ./.env
 RUN npm install --only=production
 EXPOSE 3100 9090
