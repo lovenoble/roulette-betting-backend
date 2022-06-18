@@ -28,6 +28,7 @@ export default class SmartContractListener {
 	private async beforeStart() {
 		await this.service.round.ensureSpinRoundPaused()
 		await this.service.gameMode.ensureGameModes()
+		await this.service.fareTransfer.updateTotalSupply()
 	}
 
 	async start() {

@@ -1,26 +1,11 @@
 import { utils, BigNumber } from 'ethers'
-import numeral from 'numeral'
 
-import type { FlatEntry } from '../types'
-import { Logger } from '../../utils'
+import { Logger } from '../../../utils'
+import type { FlatEntry } from '../../types'
 
-export const logger = Logger.create({ logType: 'Crypto', theme: ['gold'] })
-
-export const BNToNumber = (bn: BigNumber, decimals = 0) => Number(utils.formatUnits(bn, decimals))
-
-export const prettyNumber = (num: number | string | BigNumber, decimals = 18) => {
-	if (num instanceof BigNumber) {
-		const _num = utils.formatUnits(num, decimals)
-		return numeral(_num).format('(0,0)')
-	}
-
-	return numeral(num).format('(0,0)')
-}
+export const logger = Logger.create({ logType: 'CryptoAdmin', theme: ['palePink'] })
 
 export const BN = BigNumber.from
-
-export const ensureNumber = (val: BigNumber | number): number =>
-	val instanceof BN ? BNToNumber(val as BigNumber) : (val as number)
 
 export function createEntry(amount: number, gameModeId: 0 | 1 | 2, pickedNumber: number) {
 	return {

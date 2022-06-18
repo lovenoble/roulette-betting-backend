@@ -78,7 +78,11 @@ export default class RoundService extends ServiceBase<Round> {
 
 	public async setSpinRoomStatus(status: SpinRoomStatus) {
 		PubSub.pub<'spin-room-status'>('spin-state', 'spin-room-status', { status })
-		return this.client.set(`Global:${GlobalRedisKey.SpinCountdownTimer}`, status)
+		return this.client.set(`Global:${GlobalRedisKey.SpinRoomStatus}`, status)
+	}
+
+	public async resetPearStateRound(message = 'Resetting round') {
+		await PubSub.pub<'reset-spin-round'>('spin-state', 'reset-spin-round', { message })
 	}
 
 	public async getSpinRoomStatus() {

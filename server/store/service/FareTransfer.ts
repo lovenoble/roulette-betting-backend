@@ -2,8 +2,9 @@ import type { FareTransfer } from '../schema/types'
 
 import { fareAPI } from '../../crypto'
 import ServiceBase from './ServiceBase'
-import { zeroAddress } from '../utils'
+import { zeroAddress, toEth, formatETH, logger, prettyNum } from '../utils'
 import { GlobalRedisKey } from '../constants'
+import PubSub from '../../pubsub'
 
 interface ICreateOptions {
 	jobId?: string
@@ -15,6 +16,12 @@ interface ICreateOptions {
 }
 
 export default class FareTransferService extends ServiceBase<FareTransfer> {
+	#totalFareSupply: string
+
+	public get totalFareSupply() {
+		return this.#totalFareSupply
+	}
+
 	public getTransferType(from: string, to: string): string {
 		let transferType = 'transfer'
 		if (from === zeroAddress) {
@@ -47,9 +54,32 @@ export default class FareTransferService extends ServiceBase<FareTransfer> {
 			totalFareSuppply = await fareAPI.getTotalSupply()
 		}
 
+		this.#totalFareSupply = totalFareSuppply
+
 		await this.client.set(`Global:${GlobalRedisKey.FareTotalSupply}`, totalFareSuppply)
+		await PubSub.pub<'fare-total-supply-updated'>('fare', 'fare-total-supply-updated', {
+			totalSupply: totalFareSuppply,
+		})
 
 		return totalFareSuppply
+	}
+
+	public async adjustCachedTotalSupply(transferType: 'mint' | 'burn', amount: string) {
+		if (transferType !== 'mint' && transferType !== 'burn')
+			throw new Error('Invalid transferType in adjustCachedTotalSupply')
+
+		const previousSupplyBN = toEth(this.#totalFareSupply || (await fareAPI.getTotalSupply()))
+
+		const bnAmount = toEth(amount)
+		let mathKey = transferType === 'mint' ? 'add' : 'sub'
+
+		const newTotalSupply = formatETH(previousSupplyBN[mathKey](bnAmount))
+		logger.info(
+			`transferType: ${transferType} --- previousSupply: ${prettyNum(
+				formatETH(previousSupplyBN)
+			)} --- newSupply: ${prettyNum(newTotalSupply)}`
+		)
+		await this.updateTotalSupply(newTotalSupply)
 	}
 
 	public async getCachedTotalSupply() {

@@ -5,12 +5,15 @@ import type { IServiceObj } from 'store/types'
 import { QueueNames, EventNames } from '../constants'
 import { workerDefaultOpts } from '../../config/redis.config'
 import { sleep, workerLogger as logger } from '../utils'
-import { createFareJobProcesses, createSpinJobProcesses } from './process'
+import { createFareJobProcesses, createSpinJobProcesses, createUserJobProcess } from './process'
 
 export default class StoreWorker {
 	fareWorker!: Worker
 	spinWorker!: Worker
-	process: ReturnType<typeof createFareJobProcesses> & ReturnType<typeof createSpinJobProcesses>
+	userWorker!: Worker
+	process: ReturnType<typeof createFareJobProcesses> &
+		ReturnType<typeof createSpinJobProcesses> &
+		ReturnType<typeof createUserJobProcess>
 
 	constructor(service: IServiceObj) {
 		// Pass in Redis Store service references and create processes
@@ -18,6 +21,7 @@ export default class StoreWorker {
 		this.process = {
 			...createFareJobProcesses(service),
 			...createSpinJobProcesses(service),
+			...createUserJobProcess(service),
 		}
 
 		// Define workers below
@@ -32,12 +36,35 @@ export default class StoreWorker {
 			this.handleSpinContractJob.bind(this),
 			workerDefaultOpts
 		)
+
+		this.userWorker = new Worker(
+			QueueNames.User,
+			this.handleUserJob.bind(this),
+			workerDefaultOpts
+		)
 	}
 
 	public get list() {
 		return {
 			fareContractWorker: this.fareWorker,
 			spinContractWorker: this.spinWorker,
+			userWorker: this.userWorker,
+		}
+	}
+
+	// #region Job Handlers
+	async handleUserJob(job: Job) {
+		try {
+			logger.info(`Process started: ${job.name} - ${Date.now()}`)
+			switch (job.name) {
+				case EventNames.EnsureBalance:
+					return await this.process.ensureUserHasAvaxFare(job.data)
+				default:
+					throw new Error(`[Worker]: Invalid eventName ${job.name}`)
+			}
+		} catch (err) {
+			logger.error(err)
+			return err
 		}
 	}
 
@@ -76,6 +103,7 @@ export default class StoreWorker {
 			return err
 		}
 	}
+	// #endregion Job Handlers
 
 	async start() {
 		const workerKeys = Object.keys(this.list)

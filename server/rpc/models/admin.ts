@@ -14,6 +14,26 @@ import {
 } from '@grpc/grpc-js'
 import _m0 from 'protobufjs/minimal'
 
+export interface CreateSeedAccountsRequest {
+	authToken: string
+	count: number
+}
+
+export interface CreateSeedAccountsResponse {
+	status: string
+	accounts: string[]
+	createdAccounts: string[]
+}
+
+export interface GetSeedAccountsRequest {
+	authToken: string
+}
+
+export interface GetSeedAccountsResponse {
+	status: string
+	accounts: string[]
+}
+
 export interface CreateBatchEntryRequest {
 	authToken: string
 	seedIdx: number
@@ -48,6 +68,270 @@ export interface ConcludeRoundRequest {
 
 export interface ConcludeRoundResponse {
 	status: string
+}
+
+function createBaseCreateSeedAccountsRequest(): CreateSeedAccountsRequest {
+	return { authToken: '', count: 0 }
+}
+
+export const CreateSeedAccountsRequest = {
+	encode(
+		message: CreateSeedAccountsRequest,
+		writer: _m0.Writer = _m0.Writer.create()
+	): _m0.Writer {
+		if (message.authToken !== '') {
+			writer.uint32(10).string(message.authToken)
+		}
+		if (message.count !== 0) {
+			writer.uint32(16).uint32(message.count)
+		}
+		return writer
+	},
+
+	decode(input: _m0.Reader | Uint8Array, length?: number): CreateSeedAccountsRequest {
+		const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input)
+		let end = length === undefined ? reader.len : reader.pos + length
+		const message = createBaseCreateSeedAccountsRequest()
+		while (reader.pos < end) {
+			const tag = reader.uint32()
+			switch (tag >>> 3) {
+				case 1:
+					message.authToken = reader.string()
+					break
+				case 2:
+					message.count = reader.uint32()
+					break
+				default:
+					reader.skipType(tag & 7)
+					break
+			}
+		}
+		return message
+	},
+
+	fromJSON(object: any): CreateSeedAccountsRequest {
+		return {
+			authToken: isSet(object.authToken) ? String(object.authToken) : '',
+			count: isSet(object.count) ? Number(object.count) : 0,
+		}
+	},
+
+	toJSON(message: CreateSeedAccountsRequest): unknown {
+		const obj: any = {}
+		message.authToken !== undefined && (obj.authToken = message.authToken)
+		message.count !== undefined && (obj.count = Math.round(message.count))
+		return obj
+	},
+
+	fromPartial<I extends Exact<DeepPartial<CreateSeedAccountsRequest>, I>>(
+		object: I
+	): CreateSeedAccountsRequest {
+		const message = createBaseCreateSeedAccountsRequest()
+		message.authToken = object.authToken ?? ''
+		message.count = object.count ?? 0
+		return message
+	},
+}
+
+function createBaseCreateSeedAccountsResponse(): CreateSeedAccountsResponse {
+	return { status: '', accounts: [], createdAccounts: [] }
+}
+
+export const CreateSeedAccountsResponse = {
+	encode(
+		message: CreateSeedAccountsResponse,
+		writer: _m0.Writer = _m0.Writer.create()
+	): _m0.Writer {
+		if (message.status !== '') {
+			writer.uint32(10).string(message.status)
+		}
+		for (const v of message.accounts) {
+			writer.uint32(18).string(v!)
+		}
+		for (const v of message.createdAccounts) {
+			writer.uint32(26).string(v!)
+		}
+		return writer
+	},
+
+	decode(input: _m0.Reader | Uint8Array, length?: number): CreateSeedAccountsResponse {
+		const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input)
+		let end = length === undefined ? reader.len : reader.pos + length
+		const message = createBaseCreateSeedAccountsResponse()
+		while (reader.pos < end) {
+			const tag = reader.uint32()
+			switch (tag >>> 3) {
+				case 1:
+					message.status = reader.string()
+					break
+				case 2:
+					message.accounts.push(reader.string())
+					break
+				case 3:
+					message.createdAccounts.push(reader.string())
+					break
+				default:
+					reader.skipType(tag & 7)
+					break
+			}
+		}
+		return message
+	},
+
+	fromJSON(object: any): CreateSeedAccountsResponse {
+		return {
+			status: isSet(object.status) ? String(object.status) : '',
+			accounts: Array.isArray(object?.accounts)
+				? object.accounts.map((e: any) => String(e))
+				: [],
+			createdAccounts: Array.isArray(object?.createdAccounts)
+				? object.createdAccounts.map((e: any) => String(e))
+				: [],
+		}
+	},
+
+	toJSON(message: CreateSeedAccountsResponse): unknown {
+		const obj: any = {}
+		message.status !== undefined && (obj.status = message.status)
+		if (message.accounts) {
+			obj.accounts = message.accounts.map(e => e)
+		} else {
+			obj.accounts = []
+		}
+		if (message.createdAccounts) {
+			obj.createdAccounts = message.createdAccounts.map(e => e)
+		} else {
+			obj.createdAccounts = []
+		}
+		return obj
+	},
+
+	fromPartial<I extends Exact<DeepPartial<CreateSeedAccountsResponse>, I>>(
+		object: I
+	): CreateSeedAccountsResponse {
+		const message = createBaseCreateSeedAccountsResponse()
+		message.status = object.status ?? ''
+		message.accounts = object.accounts?.map(e => e) || []
+		message.createdAccounts = object.createdAccounts?.map(e => e) || []
+		return message
+	},
+}
+
+function createBaseGetSeedAccountsRequest(): GetSeedAccountsRequest {
+	return { authToken: '' }
+}
+
+export const GetSeedAccountsRequest = {
+	encode(message: GetSeedAccountsRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+		if (message.authToken !== '') {
+			writer.uint32(10).string(message.authToken)
+		}
+		return writer
+	},
+
+	decode(input: _m0.Reader | Uint8Array, length?: number): GetSeedAccountsRequest {
+		const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input)
+		let end = length === undefined ? reader.len : reader.pos + length
+		const message = createBaseGetSeedAccountsRequest()
+		while (reader.pos < end) {
+			const tag = reader.uint32()
+			switch (tag >>> 3) {
+				case 1:
+					message.authToken = reader.string()
+					break
+				default:
+					reader.skipType(tag & 7)
+					break
+			}
+		}
+		return message
+	},
+
+	fromJSON(object: any): GetSeedAccountsRequest {
+		return {
+			authToken: isSet(object.authToken) ? String(object.authToken) : '',
+		}
+	},
+
+	toJSON(message: GetSeedAccountsRequest): unknown {
+		const obj: any = {}
+		message.authToken !== undefined && (obj.authToken = message.authToken)
+		return obj
+	},
+
+	fromPartial<I extends Exact<DeepPartial<GetSeedAccountsRequest>, I>>(
+		object: I
+	): GetSeedAccountsRequest {
+		const message = createBaseGetSeedAccountsRequest()
+		message.authToken = object.authToken ?? ''
+		return message
+	},
+}
+
+function createBaseGetSeedAccountsResponse(): GetSeedAccountsResponse {
+	return { status: '', accounts: [] }
+}
+
+export const GetSeedAccountsResponse = {
+	encode(message: GetSeedAccountsResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+		if (message.status !== '') {
+			writer.uint32(10).string(message.status)
+		}
+		for (const v of message.accounts) {
+			writer.uint32(18).string(v!)
+		}
+		return writer
+	},
+
+	decode(input: _m0.Reader | Uint8Array, length?: number): GetSeedAccountsResponse {
+		const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input)
+		let end = length === undefined ? reader.len : reader.pos + length
+		const message = createBaseGetSeedAccountsResponse()
+		while (reader.pos < end) {
+			const tag = reader.uint32()
+			switch (tag >>> 3) {
+				case 1:
+					message.status = reader.string()
+					break
+				case 2:
+					message.accounts.push(reader.string())
+					break
+				default:
+					reader.skipType(tag & 7)
+					break
+			}
+		}
+		return message
+	},
+
+	fromJSON(object: any): GetSeedAccountsResponse {
+		return {
+			status: isSet(object.status) ? String(object.status) : '',
+			accounts: Array.isArray(object?.accounts)
+				? object.accounts.map((e: any) => String(e))
+				: [],
+		}
+	},
+
+	toJSON(message: GetSeedAccountsResponse): unknown {
+		const obj: any = {}
+		message.status !== undefined && (obj.status = message.status)
+		if (message.accounts) {
+			obj.accounts = message.accounts.map(e => e)
+		} else {
+			obj.accounts = []
+		}
+		return obj
+	},
+
+	fromPartial<I extends Exact<DeepPartial<GetSeedAccountsResponse>, I>>(
+		object: I
+	): GetSeedAccountsResponse {
+		const message = createBaseGetSeedAccountsResponse()
+		message.status = object.status ?? ''
+		message.accounts = object.accounts?.map(e => e) || []
+		return message
+	},
 }
 
 function createBaseCreateBatchEntryRequest(): CreateBatchEntryRequest {
@@ -500,6 +784,28 @@ export const ConcludeRoundResponse = {
 
 export type AdminService = typeof AdminService
 export const AdminService = {
+	getSeedAccounts: {
+		path: '/admin.Admin/GetSeedAccounts',
+		requestStream: false,
+		responseStream: false,
+		requestSerialize: (value: GetSeedAccountsRequest) =>
+			Buffer.from(GetSeedAccountsRequest.encode(value).finish()),
+		requestDeserialize: (value: Buffer) => GetSeedAccountsRequest.decode(value),
+		responseSerialize: (value: GetSeedAccountsResponse) =>
+			Buffer.from(GetSeedAccountsResponse.encode(value).finish()),
+		responseDeserialize: (value: Buffer) => GetSeedAccountsResponse.decode(value),
+	},
+	createSeedAccounts: {
+		path: '/admin.Admin/CreateSeedAccounts',
+		requestStream: false,
+		responseStream: false,
+		requestSerialize: (value: CreateSeedAccountsRequest) =>
+			Buffer.from(CreateSeedAccountsRequest.encode(value).finish()),
+		requestDeserialize: (value: Buffer) => CreateSeedAccountsRequest.decode(value),
+		responseSerialize: (value: CreateSeedAccountsResponse) =>
+			Buffer.from(CreateSeedAccountsResponse.encode(value).finish()),
+		responseDeserialize: (value: Buffer) => CreateSeedAccountsResponse.decode(value),
+	},
 	createBatchEntry: {
 		path: '/admin.Admin/CreateBatchEntry',
 		requestStream: false,
@@ -547,6 +853,8 @@ export const AdminService = {
 } as const
 
 export interface AdminServer extends UntypedServiceImplementation {
+	getSeedAccounts: handleUnaryCall<GetSeedAccountsRequest, GetSeedAccountsResponse>
+	createSeedAccounts: handleUnaryCall<CreateSeedAccountsRequest, CreateSeedAccountsResponse>
 	createBatchEntry: handleUnaryCall<CreateBatchEntryRequest, CreateBatchEntryResponse>
 	settleBatchEntry: handleUnaryCall<SettleBatchEntryRequest, SettleBatchEntryResponse>
 	pauseRound: handleUnaryCall<PauseRoundRequest, PauseRoundResponse>
@@ -554,6 +862,36 @@ export interface AdminServer extends UntypedServiceImplementation {
 }
 
 export interface AdminClient extends Client {
+	getSeedAccounts(
+		request: GetSeedAccountsRequest,
+		callback: (error: ServiceError | null, response: GetSeedAccountsResponse) => void
+	): ClientUnaryCall
+	getSeedAccounts(
+		request: GetSeedAccountsRequest,
+		metadata: Metadata,
+		callback: (error: ServiceError | null, response: GetSeedAccountsResponse) => void
+	): ClientUnaryCall
+	getSeedAccounts(
+		request: GetSeedAccountsRequest,
+		metadata: Metadata,
+		options: Partial<CallOptions>,
+		callback: (error: ServiceError | null, response: GetSeedAccountsResponse) => void
+	): ClientUnaryCall
+	createSeedAccounts(
+		request: CreateSeedAccountsRequest,
+		callback: (error: ServiceError | null, response: CreateSeedAccountsResponse) => void
+	): ClientUnaryCall
+	createSeedAccounts(
+		request: CreateSeedAccountsRequest,
+		metadata: Metadata,
+		callback: (error: ServiceError | null, response: CreateSeedAccountsResponse) => void
+	): ClientUnaryCall
+	createSeedAccounts(
+		request: CreateSeedAccountsRequest,
+		metadata: Metadata,
+		options: Partial<CallOptions>,
+		callback: (error: ServiceError | null, response: CreateSeedAccountsResponse) => void
+	): ClientUnaryCall
 	createBatchEntry(
 		request: CreateBatchEntryRequest,
 		callback: (error: ServiceError | null, response: CreateBatchEntryResponse) => void

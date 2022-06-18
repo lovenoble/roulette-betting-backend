@@ -57,6 +57,7 @@ export interface MessageListener {
 	'countdown-updated': (countdown: number, ...args: any[]) => void
 	'spin-round-pause': (opts: { isPaused: boolean; countdown: number }, ...args: any[]) => void
 	'spin-room-status': (opts: { status: SpinRoomStatus }, ...args: any[]) => void
+	'reset-spin-round': (opts: { message: string }, ...args: any[]) => void
 }
 
 export type FirstArgument<T> = T extends (arg1: infer U, ...args: any[]) => any ? U : any

@@ -4,7 +4,6 @@ import rpcServer from './rpc'
 import transport from './transport'
 import logger from './utils/logger'
 import { pearServerPort, isDev } from './config'
-
 import cryptoAdmin from './crypto/admin'
 
 // Handle stopping processes on exit, error, or shutdown

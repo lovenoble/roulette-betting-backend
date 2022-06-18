@@ -4,6 +4,7 @@ import type { EventReturnData, IFareTransferQueue, IServiceObj } from '../../typ
 
 import PubSub from '../../../pubsub'
 import { ContractNames, EventNames } from '../../constants'
+import { workerLogger as logger } from '../../utils'
 
 const createFareJobProcesses = (service: IServiceObj) => {
 	async function fareTransfer<T>(queueData: IFareTransferQueue, jobId: string = null) {
@@ -25,21 +26,7 @@ const createFareJobProcesses = (service: IServiceObj) => {
 
 		// If transferType is a mint or a burn, update cachedFareTotalSupply and publish new number
 		if (transferType === 'mint' || transferType === 'burn') {
-			const currentTotalSupply = await service.fareTransfer.getCachedTotalSupply()
-			const bnTotalSupply = utils.parseEther(currentTotalSupply)
-			const bnAmount = utils.parseEther(amount)
-			let newTotalSupply = bnTotalSupply
-			if (transferType === 'mint') {
-				newTotalSupply = newTotalSupply.add(bnAmount)
-			} else {
-				newTotalSupply = newTotalSupply.sub(bnAmount)
-			}
-			const supply = utils.formatEther(newTotalSupply)
-
-			PubSub.pub<'fare-total-supply-updated'>('fare', 'fare-total-supply-updated', {
-				totalSupply: supply,
-			})
-			await service.fareTransfer.updateTotalSupply(supply)
+			await service.fareTransfer.adjustCachedTotalSupply(transferType, amount)
 		}
 
 		// Publish to 'fare.fare-transfer' if TransferType is not mint or burn

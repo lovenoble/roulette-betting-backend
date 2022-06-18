@@ -44,14 +44,14 @@ export default class UserService extends ServiceBase<User> {
 				createdAt: Date.now(),
 			})
 
-			logger.info('Generated new player record for:', publicAddress)
+			logger.info(`Generated new player record for: ${publicAddress}`)
 
 			// else update nonce for current user
 		} else {
 			userEntity.nonce = nonce
 			await this.repo.save(userEntity)
 
-			logger.info('Updated nonce for player:', publicAddress)
+			logger.info(`Updated nonce for player: ${publicAddress}`)
 		}
 
 		return { nonce, signingMessage }

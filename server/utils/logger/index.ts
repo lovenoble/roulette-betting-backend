@@ -15,6 +15,7 @@ const logColors = {
 	blue: '#0277BD',
 	pink: '#F8873A',
 	brightPink: '#CE49BF',
+	palePink: '#FF7396',
 	purple: '#764AF1',
 	lightGreen: '#B4FF9F',
 	neonGreen: '#17D7A0',

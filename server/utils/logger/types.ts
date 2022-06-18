@@ -11,11 +11,13 @@ export type LogType =
 	| 'Sub'
 	| 'Transport'
 	| 'Worker'
+	| 'Crypto'
 	| 'CryptoAdmin'
 
 export type LogTheme =
 	| 'blue'
 	| 'pink'
+	| 'palePink'
 	| 'purple'
 	| 'lightGreen'
 	| 'neonGreen'

@@ -5,6 +5,7 @@ export enum ContractNames {
 
 export enum EventNames {
 	Transfer = 'Transfer',
+	EnsureBalance = 'EnsureBalance',
 	GameModeUpdated = 'GameModeUpdated',
 	EntrySubmitted = 'EntrySubmitted',
 	EntrySettled = 'EntrySettled',
@@ -17,8 +18,7 @@ export enum EventNames {
 export enum QueueNames {
 	FareContractEvent = 'FareContractEvent',
 	SpinContractEvent = 'SpinContractEvent',
-	PearState = 'PearState',
-	Latency = 'Latency',
+	User = 'User',
 }
 
 export enum GlobalRedisKey {

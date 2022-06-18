@@ -1,6 +1,7 @@
 import type { Client } from '@colyseus/core'
 import { Command } from '@colyseus/command'
 import { utils } from 'ethers'
+import numeral from 'numeral'
 
 import type { SpinRoom } from '../types'
 import type {
@@ -12,7 +13,7 @@ import type {
 
 import store from '../../store'
 import { SpinEvent, MAX_CHAT_MESSAGE_LENGTH, WebSocketCustomCodes } from '../constants'
-import { Entry, BatchEntry, Round as _Round, Message } from '../entities'
+import { Entry, BatchEntry, Round, Message } from '../entities'
 import { logger } from '../utils'
 
 // @NOTE: Needed commands
@@ -134,7 +135,11 @@ export class OnFareTotalSupplyUpdated extends Command<SpinRoom, string> {
 export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
 	execute({ batchEntry, entries }: BatchEntryMsgArgs) {
 		try {
-			logger.info('OnBatchEntry')
+			logger.info(
+				`OnBatchEntry -> ${batchEntry.player.substring(0, 11)} - Amount: ${numeral(
+					batchEntry.totalEntryAmount
+				).format('0,0.00')} - Entry count: ${entries.length}`
+			)
 			const batchEntryState = new BatchEntry()
 			batchEntryState.roundId = batchEntry.roundId
 			batchEntryState.batchEntryId = batchEntry.batchEntryId
@@ -175,6 +180,17 @@ export class OnBatchEntrySettled extends Command<SpinRoom, SettledBatchEntryArgs
 		// be.settled = true
 		// be.totalWinAmount = batchEntry.totalWinAmount
 		logger.info('OnBatchEntry', batchEntry, entries)
+	}
+}
+
+export class OnResetRound extends Command<SpinRoom, void> {
+	execute() {
+		const keys = this.state.batchEntries.keys()
+		for (let key of keys) {
+			this.state.batchEntries.delete(key)
+		}
+		this.state.round = new Round()
+		logger.info(`Round has been reset`)
 	}
 }
 
