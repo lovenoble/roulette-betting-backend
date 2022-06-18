@@ -120,7 +120,7 @@ deploy-test:
       aws elasticbeanstalk update-environment \
       --environment-name $ENV_NAME \
       --version-label v_$CI_COMMIT_SHORT_SHA \
-      --option-settings file://$EB_OPTIONS_FILE
+      # --option-settings file://$EB_OPTIONS_FILE
   dependencies:
     - build
   only:
