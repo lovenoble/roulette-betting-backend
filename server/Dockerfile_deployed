@@ -1,9 +1,8 @@
 FROM node:lts
 WORKDIR /usr/src/app
 # COPY .env.prod ./.env
-COPY . /usr/src/app/
+COPY . .
 RUN ls .
 RUN ls /usr/src/app/
 EXPOSE 3100 9090
-CMD npm run production
-# CMD ls -la & node --experimental-modules --experimental-specifier-resolution=node  index.js
+CMD ls -la & node --experimental-modules --experimental-specifier-resolution=node index.js
