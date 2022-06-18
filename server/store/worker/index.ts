@@ -14,7 +14,6 @@ export default class StoreWorker {
 
 	constructor(service: IServiceObj) {
 		// Pass in Redis Store service references and create processes
-
 		this.process = {
 			...createFareJobProcesses(service),
 			...createSpinJobProcesses(service),
@@ -51,8 +50,9 @@ export default class StoreWorker {
 					throw new Error(`[Worker]: Invalid eventName ${job.name}`)
 			}
 		} catch (err) {
+			console.log('FAILED HERE')
 			logger.error(err)
-			return err
+			throw new Error(err.toString())
 		}
 	}
 
@@ -72,8 +72,9 @@ export default class StoreWorker {
 					throw new Error(`[Worker]: Invalid eventName ${job.name}`)
 			}
 		} catch (err) {
+			console.log('FAILED OVER HERE')
 			logger.error(err)
-			return err
+			throw new Error(err.toString())
 		}
 	}
 

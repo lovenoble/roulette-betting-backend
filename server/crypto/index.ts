@@ -42,7 +42,6 @@ export class Crypto {
 	constructor() {
 		this.provider = new providers.JsonRpcProvider(blockchainRpcUrl)
 		this.signer = new Wallet(privateKey, this.provider)
-
 		this.fare = FareToken__factory.connect(fareTokenAddress, this.signer)
 		this.spin = FareSpinGame__factory.connect(fareSpinGameAddress, this.signer)
 		this.items = FareItems__factory.connect(fareItemsAddress, this.signer)

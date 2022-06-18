@@ -67,16 +67,13 @@ export class RedisStore {
 		logger.info(`RedisStore initialization finished!`)
 
 		// Method ran after RedisClient connection is established
-		await this.afterConnect()
+		// await this.afterConnect()
 
 		return this.om
 	}
 
-	private async afterConnect() {
-		await this.service.gameMode.ensureGameModes()
-		await this.service.fareTransfer.updateTotalSupply()
-		await this.service.round.updateCurrentRoundId()
-	}
+	// private async afterConnect() {
+	// }
 
 	private async initRepos(om: Client) {
 		this.repo.eliminator = await this.service.eliminator.init(om, eliminatorSchema)
