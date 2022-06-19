@@ -53,11 +53,17 @@ export class PearServer {
 			this.#mongoUri += `?authSource=${mongoAuthSource}`
 		}
 
-		this.server = new Server({
-			transport: transport.instance,
-			presence: new RedisPresence(presenceOpts),
-			driver: new MongooseDriver(this.#mongoUri),
-		})
+		try {
+			this.server = new Server({
+				transport: transport.instance,
+				presence: new RedisPresence(presenceOpts),
+				driver: new MongooseDriver(this.#mongoUri),
+			})
+		} catch (error) {
+			console.error(error)
+			// prettier-ignore
+			throw (error)
+		}
 		logger.info(`Created Server instance!`)
 		logger.info(`Created WebSocketTransport instance!`)
 		logger.info(`Created RedisPresence instance!`)

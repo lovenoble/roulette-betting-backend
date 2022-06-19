@@ -1,10 +1,10 @@
-import { utils } from 'ethers'
+// import { utils } from 'ethers'
 
 import type { EventReturnData, IFareTransferQueue, IServiceObj } from '../../types'
 
 import PubSub from '../../../pubsub'
 import { ContractNames, EventNames } from '../../constants'
-import { workerLogger as logger } from '../../utils'
+// import { workerLogger as logger } from '../../utils'
 
 const createFareJobProcesses = (service: IServiceObj) => {
 	async function fareTransfer<T>(queueData: IFareTransferQueue, jobId: string = null) {
