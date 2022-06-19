@@ -124,9 +124,10 @@ export class RedisStore {
 			)
 		} catch (err) {
 			logger.error(
-				new Error('Smart contract listeners failed to connnect RPC blockchain node.')
+				new Error(
+					`Smart contract listeners failed to connnect RPC blockchain node: ${err.toString}`
+				)
 			)
-			logger.error(err)
 		}
 	}
 

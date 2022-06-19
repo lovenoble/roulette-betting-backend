@@ -29,7 +29,7 @@ export class OnNewMessage extends Command<ChatRoom, OnMessageOptions> {
 
 			this.room.broadcast(ChatMessage.NewChatMessage, newMsg)
 		} catch (err) {
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 		}
 	}
 }
@@ -64,7 +64,7 @@ export class OnChatUserJoined extends Command<ChatRoom, IUserOptions> {
 			this.state.users.set(sessionId, user)
 		} catch (err) {
 			// @NOTE: NEED TO ADD ERROR QUEUE WHEN THIS IS HIT
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 			throw new Error(err.toString())
 		}
 	}
@@ -92,7 +92,7 @@ export class OnUserLeave extends Command<
 			}
 		} catch (err) {
 			// @NOTE: NEED TO ADD ERROR QUEUE WHEN THIS IS HIT
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 			throw new Error(err.toString())
 		}
 	}

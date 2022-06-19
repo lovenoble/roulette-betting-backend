@@ -62,8 +62,8 @@ export default class StoreWorker {
 					throw new Error(`[Worker]: Invalid eventName ${job.name}`)
 			}
 		} catch (err) {
-			logger.error(err)
-			return err
+			logger.error(new Error(err.toString()))
+			throw new Error(err.toString())
 		}
 	}
 
@@ -77,7 +77,7 @@ export default class StoreWorker {
 					throw new Error(`[Worker]: Invalid eventName ${job.name}`)
 			}
 		} catch (err) {
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 			throw new Error(err.toString())
 		}
 	}
@@ -98,7 +98,7 @@ export default class StoreWorker {
 					throw new Error(`[Worker]: Invalid eventName ${job.name}`)
 			}
 		} catch (err) {
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 			throw new Error(err.toString())
 		}
 	}
@@ -126,7 +126,7 @@ export default class StoreWorker {
 				}
 
 				if (attempts >= maxAttempts) {
-					logger.error(`[${key}]: Worker failed to start!`)
+					logger.error(new Error(`[${key}]: Worker failed to start!`))
 					reject(new Error(`[${key}]: Worker failed to start!`))
 				}
 

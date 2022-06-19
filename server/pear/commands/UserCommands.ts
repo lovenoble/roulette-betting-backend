@@ -83,7 +83,7 @@ export class OnUserJoined extends Command<SpinRoom, IUserOptions & { client: Cli
 			})
 		} catch (err) {
 			// @NOTE: NEED TO ADD ERROR QUEUE WHEN THIS IS HIT
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 			throw new Error(err.toString())
 		}
 	}
@@ -105,7 +105,7 @@ export class OnBalanceUpdate extends Command<
 			user.balance.fare = fare
 		} catch (err) {
 			// @NOTE: NEED TO ADD ERROR QUEUE WHEN THIS IS HIT
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 			throw new Error(err.toString())
 		}
 	}
@@ -135,7 +135,7 @@ export class OnUserLeave extends Command<
 			}
 		} catch (err) {
 			// @NOTE: NEED TO ADD ERROR QUEUE WHEN THIS IS HIT
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 			throw new Error(err.toString())
 		}
 	}
