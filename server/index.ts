@@ -25,7 +25,7 @@ async function init() {
 			await redisStore.initSmartContractListeners()
 
 			// FOR TESTNET AND LOCAL DEV: Create seed test accounts and init admin methods
-			await cryptoAdmin.init()
+			// await cryptoAdmin.init()
 
 			// Initializes gRPC server with reflection enabled (default port: 9090)
 			await rpcServer.start()
