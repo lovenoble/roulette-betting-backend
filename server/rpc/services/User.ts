@@ -16,8 +16,10 @@ import {
 	SetUserDataResponse,
 	UserServer,
 } from '../models/user'
+import { EventNames } from '../../store/constants'
 
 import store from '../../store'
+
 import { ServiceError, logger } from '../utils'
 import { PearHash } from '../../store/utils'
 
@@ -86,6 +88,10 @@ export class User implements UserServer {
 
 			// @NOTE: we could save a lastVerifiedAt field to update repo everytime token is verified
 
+			// @NOTE: Ensure user has AVAX (and/or) FARE balances
+			// @NOTE: Need to create a faucet function that checks users balances and ensures tokens
+			// await store.queue.user.add(EventNames.EnsureBalance, publicAddress)
+
 			res.publicAddress = publicAddress
 
 			return callback(null, VerifyTokenResponse.fromJSON({ publicAddress }))
@@ -124,8 +130,9 @@ export class User implements UserServer {
 
 				// @NOTE: Generate unique sessionId and update userEntity here
 
-				// @NOTE: faucetFareMatic HERE~!!!@#@!#!@#!
-				// faucetFareMatic(publicAddress)
+				// @NOTE: Ensure user has AVAX (and/or) FARE balances
+				await store.queue.user.add(EventNames.EnsureBalance, addressFromSignature)
+
 				res.token = createdJwt
 				return callback(null, VerifySignatureResponse.fromJSON({ token: createdJwt }))
 			}

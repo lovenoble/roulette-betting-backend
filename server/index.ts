@@ -4,7 +4,6 @@ import rpcServer from './rpc'
 import transport from './transport'
 import logger from './utils/logger'
 import { pearServerPort, isDev } from './config'
-
 import cryptoAdmin from './crypto/admin'
 
 // Handle stopping processes on exit, error, or shutdown
@@ -26,7 +25,7 @@ async function init() {
 			await redisStore.initSmartContractListeners()
 
 			// FOR TESTNET AND LOCAL DEV: Create seed test accounts and init admin methods
-			await cryptoAdmin.init()
+			// await cryptoAdmin.init()
 
 			// Initializes gRPC server with reflection enabled (default port: 9090)
 			await rpcServer.start()

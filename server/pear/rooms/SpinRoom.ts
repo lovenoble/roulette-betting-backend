@@ -16,6 +16,7 @@ import {
 	OnRoundConcluded,
 	OnNewChatMessage,
 	OnFareTransfer,
+	OnResetRound,
 	// OnBalanceUpdate,
 	// OnBatchEntrySettled,
 } from '../commands'
@@ -133,6 +134,10 @@ class SpinGame extends Room<SpinState> {
 
 			PubSub.sub('spin-state', 'countdown-updated').listen<'countdown-updated'>(time => {
 				this.broadcast(SpinEvent.TimerUpdated, time)
+			})
+
+			PubSub.sub('spin-state', 'reset-spin-round').listen<'reset-spin-round'>(_message => {
+				this.dispatcher.dispatch(new OnResetRound())
 			})
 
 			// #endregion

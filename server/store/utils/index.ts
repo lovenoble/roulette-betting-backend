@@ -1,5 +1,6 @@
 import { utils, BigNumber } from 'ethers'
 import validator from 'validator'
+import numeral from 'numeral'
 import type { Entity } from 'redis-om'
 
 import type { SchemaAdditions } from '../types'
@@ -19,6 +20,13 @@ export const formatBN = (bn: BigNumber, decimals = 0) => utils.formatUnits(bn, d
 export const toEth = (bn: string) => utils.parseEther(bn)
 export const BN = BigNumber.from
 export const upperETHLimit = BN('1000000000')
+
+export const prettyNum = (num: string | BigNumber) => {
+	if (num instanceof BigNumber) {
+		return numeral(formatBN(num)).format('0,0.00')
+	}
+	return numeral(num).format('0,0.00')
+}
 
 export const BNToNumber = (bn: BigNumber) => {
 	try {

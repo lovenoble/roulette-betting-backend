@@ -3,10 +3,33 @@ syntax = "proto3";
 package admin;
 
 service Admin {
+    rpc GetSeedAccounts(GetSeedAccountsRequest) returns (GetSeedAccountsResponse) {}
+    rpc CreateSeedAccounts(CreateSeedAccountsRequest) returns (CreateSeedAccountsResponse) {}
     rpc CreateBatchEntry(CreateBatchEntryRequest) returns (CreateBatchEntryResponse) {}
     rpc SettleBatchEntry(SettleBatchEntryRequest) returns (SettleBatchEntryResponse) {}
     rpc PauseRound(PauseRoundRequest) returns (PauseRoundResponse) {}
     rpc ConcludeRound(ConcludeRoundRequest) returns (ConcludeRoundResponse) {}
+}
+
+
+message CreateSeedAccountsRequest {
+    string authToken = 1;
+    uint32 count = 2;
+}
+
+message CreateSeedAccountsResponse {
+    string status = 1;
+    repeated string accounts = 2;
+    repeated string createdAccounts = 3;
+}
+
+message GetSeedAccountsRequest {
+    string authToken = 1;
+}
+
+message GetSeedAccountsResponse {
+    string status = 1;
+    repeated string accounts = 2;
 }
 
 message CreateBatchEntryRequest {
