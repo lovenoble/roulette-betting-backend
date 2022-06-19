@@ -63,7 +63,7 @@ lint:
   script:
     - echo 'LINT'
     - cd server/
-    - pnpm run lint-ci
+    - pnpm run lint:ci
 
 build:
   stage: build
