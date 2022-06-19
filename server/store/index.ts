@@ -48,7 +48,7 @@ export class RedisStore {
 		this.redis = createClient({ url: this.omUrl })
 	}
 
-	async initialize(runAfterConnect = true) {
+	async initialize(_runAfterConnect = true) {
 		if (this.om?.isOpen) return this.om
 
 		await this.redis.connect()
