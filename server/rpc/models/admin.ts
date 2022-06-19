@@ -15,7 +15,7 @@ import {
 import _m0 from 'protobufjs/minimal'
 
 export interface CreateSeedAccountsRequest {
-	authToken: string
+	token: string
 	count: number
 }
 
@@ -26,7 +26,7 @@ export interface CreateSeedAccountsResponse {
 }
 
 export interface GetSeedAccountsRequest {
-	authToken: string
+	token: string
 }
 
 export interface GetSeedAccountsResponse {
@@ -35,7 +35,7 @@ export interface GetSeedAccountsResponse {
 }
 
 export interface CreateBatchEntryRequest {
-	authToken: string
+	token: string
 	seedIdx: number
 }
 
@@ -44,7 +44,7 @@ export interface CreateBatchEntryResponse {
 }
 
 export interface SettleBatchEntryRequest {
-	authToken: string
+	token: string
 	roundId: number
 	seedIdx: number
 }
@@ -54,7 +54,7 @@ export interface SettleBatchEntryResponse {
 }
 
 export interface PauseRoundRequest {
-	authToken: string
+	token: string
 	isPaused: boolean
 }
 
@@ -63,7 +63,7 @@ export interface PauseRoundResponse {
 }
 
 export interface ConcludeRoundRequest {
-	authToken: string
+	token: string
 }
 
 export interface ConcludeRoundResponse {
@@ -71,7 +71,7 @@ export interface ConcludeRoundResponse {
 }
 
 function createBaseCreateSeedAccountsRequest(): CreateSeedAccountsRequest {
-	return { authToken: '', count: 0 }
+	return { token: '', count: 0 }
 }
 
 export const CreateSeedAccountsRequest = {
@@ -79,8 +79,8 @@ export const CreateSeedAccountsRequest = {
 		message: CreateSeedAccountsRequest,
 		writer: _m0.Writer = _m0.Writer.create()
 	): _m0.Writer {
-		if (message.authToken !== '') {
-			writer.uint32(10).string(message.authToken)
+		if (message.token !== '') {
+			writer.uint32(10).string(message.token)
 		}
 		if (message.count !== 0) {
 			writer.uint32(16).uint32(message.count)
@@ -96,7 +96,7 @@ export const CreateSeedAccountsRequest = {
 			const tag = reader.uint32()
 			switch (tag >>> 3) {
 				case 1:
-					message.authToken = reader.string()
+					message.token = reader.string()
 					break
 				case 2:
 					message.count = reader.uint32()
@@ -111,14 +111,14 @@ export const CreateSeedAccountsRequest = {
 
 	fromJSON(object: any): CreateSeedAccountsRequest {
 		return {
-			authToken: isSet(object.authToken) ? String(object.authToken) : '',
+			token: isSet(object.token) ? String(object.token) : '',
 			count: isSet(object.count) ? Number(object.count) : 0,
 		}
 	},
 
 	toJSON(message: CreateSeedAccountsRequest): unknown {
 		const obj: any = {}
-		message.authToken !== undefined && (obj.authToken = message.authToken)
+		message.token !== undefined && (obj.token = message.token)
 		message.count !== undefined && (obj.count = Math.round(message.count))
 		return obj
 	},
@@ -127,7 +127,7 @@ export const CreateSeedAccountsRequest = {
 		object: I
 	): CreateSeedAccountsRequest {
 		const message = createBaseCreateSeedAccountsRequest()
-		message.authToken = object.authToken ?? ''
+		message.token = object.token ?? ''
 		message.count = object.count ?? 0
 		return message
 	},
@@ -218,13 +218,13 @@ export const CreateSeedAccountsResponse = {
 }
 
 function createBaseGetSeedAccountsRequest(): GetSeedAccountsRequest {
-	return { authToken: '' }
+	return { token: '' }
 }
 
 export const GetSeedAccountsRequest = {
 	encode(message: GetSeedAccountsRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-		if (message.authToken !== '') {
-			writer.uint32(10).string(message.authToken)
+		if (message.token !== '') {
+			writer.uint32(10).string(message.token)
 		}
 		return writer
 	},
@@ -237,7 +237,7 @@ export const GetSeedAccountsRequest = {
 			const tag = reader.uint32()
 			switch (tag >>> 3) {
 				case 1:
-					message.authToken = reader.string()
+					message.token = reader.string()
 					break
 				default:
 					reader.skipType(tag & 7)
@@ -249,13 +249,13 @@ export const GetSeedAccountsRequest = {
 
 	fromJSON(object: any): GetSeedAccountsRequest {
 		return {
-			authToken: isSet(object.authToken) ? String(object.authToken) : '',
+			token: isSet(object.token) ? String(object.token) : '',
 		}
 	},
 
 	toJSON(message: GetSeedAccountsRequest): unknown {
 		const obj: any = {}
-		message.authToken !== undefined && (obj.authToken = message.authToken)
+		message.token !== undefined && (obj.token = message.token)
 		return obj
 	},
 
@@ -263,7 +263,7 @@ export const GetSeedAccountsRequest = {
 		object: I
 	): GetSeedAccountsRequest {
 		const message = createBaseGetSeedAccountsRequest()
-		message.authToken = object.authToken ?? ''
+		message.token = object.token ?? ''
 		return message
 	},
 }
@@ -335,13 +335,13 @@ export const GetSeedAccountsResponse = {
 }
 
 function createBaseCreateBatchEntryRequest(): CreateBatchEntryRequest {
-	return { authToken: '', seedIdx: 0 }
+	return { token: '', seedIdx: 0 }
 }
 
 export const CreateBatchEntryRequest = {
 	encode(message: CreateBatchEntryRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-		if (message.authToken !== '') {
-			writer.uint32(10).string(message.authToken)
+		if (message.token !== '') {
+			writer.uint32(10).string(message.token)
 		}
 		if (message.seedIdx !== 0) {
 			writer.uint32(16).int32(message.seedIdx)
@@ -357,7 +357,7 @@ export const CreateBatchEntryRequest = {
 			const tag = reader.uint32()
 			switch (tag >>> 3) {
 				case 1:
-					message.authToken = reader.string()
+					message.token = reader.string()
 					break
 				case 2:
 					message.seedIdx = reader.int32()
@@ -372,14 +372,14 @@ export const CreateBatchEntryRequest = {
 
 	fromJSON(object: any): CreateBatchEntryRequest {
 		return {
-			authToken: isSet(object.authToken) ? String(object.authToken) : '',
+			token: isSet(object.token) ? String(object.token) : '',
 			seedIdx: isSet(object.seedIdx) ? Number(object.seedIdx) : 0,
 		}
 	},
 
 	toJSON(message: CreateBatchEntryRequest): unknown {
 		const obj: any = {}
-		message.authToken !== undefined && (obj.authToken = message.authToken)
+		message.token !== undefined && (obj.token = message.token)
 		message.seedIdx !== undefined && (obj.seedIdx = Math.round(message.seedIdx))
 		return obj
 	},
@@ -388,7 +388,7 @@ export const CreateBatchEntryRequest = {
 		object: I
 	): CreateBatchEntryRequest {
 		const message = createBaseCreateBatchEntryRequest()
-		message.authToken = object.authToken ?? ''
+		message.token = object.token ?? ''
 		message.seedIdx = object.seedIdx ?? 0
 		return message
 	},
@@ -449,13 +449,13 @@ export const CreateBatchEntryResponse = {
 }
 
 function createBaseSettleBatchEntryRequest(): SettleBatchEntryRequest {
-	return { authToken: '', roundId: 0, seedIdx: 0 }
+	return { token: '', roundId: 0, seedIdx: 0 }
 }
 
 export const SettleBatchEntryRequest = {
 	encode(message: SettleBatchEntryRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-		if (message.authToken !== '') {
-			writer.uint32(10).string(message.authToken)
+		if (message.token !== '') {
+			writer.uint32(10).string(message.token)
 		}
 		if (message.roundId !== 0) {
 			writer.uint32(16).int32(message.roundId)
@@ -474,7 +474,7 @@ export const SettleBatchEntryRequest = {
 			const tag = reader.uint32()
 			switch (tag >>> 3) {
 				case 1:
-					message.authToken = reader.string()
+					message.token = reader.string()
 					break
 				case 2:
 					message.roundId = reader.int32()
@@ -492,7 +492,7 @@ export const SettleBatchEntryRequest = {
 
 	fromJSON(object: any): SettleBatchEntryRequest {
 		return {
-			authToken: isSet(object.authToken) ? String(object.authToken) : '',
+			token: isSet(object.token) ? String(object.token) : '',
 			roundId: isSet(object.roundId) ? Number(object.roundId) : 0,
 			seedIdx: isSet(object.seedIdx) ? Number(object.seedIdx) : 0,
 		}
@@ -500,7 +500,7 @@ export const SettleBatchEntryRequest = {
 
 	toJSON(message: SettleBatchEntryRequest): unknown {
 		const obj: any = {}
-		message.authToken !== undefined && (obj.authToken = message.authToken)
+		message.token !== undefined && (obj.token = message.token)
 		message.roundId !== undefined && (obj.roundId = Math.round(message.roundId))
 		message.seedIdx !== undefined && (obj.seedIdx = Math.round(message.seedIdx))
 		return obj
@@ -510,7 +510,7 @@ export const SettleBatchEntryRequest = {
 		object: I
 	): SettleBatchEntryRequest {
 		const message = createBaseSettleBatchEntryRequest()
-		message.authToken = object.authToken ?? ''
+		message.token = object.token ?? ''
 		message.roundId = object.roundId ?? 0
 		message.seedIdx = object.seedIdx ?? 0
 		return message
@@ -572,13 +572,13 @@ export const SettleBatchEntryResponse = {
 }
 
 function createBasePauseRoundRequest(): PauseRoundRequest {
-	return { authToken: '', isPaused: false }
+	return { token: '', isPaused: false }
 }
 
 export const PauseRoundRequest = {
 	encode(message: PauseRoundRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-		if (message.authToken !== '') {
-			writer.uint32(10).string(message.authToken)
+		if (message.token !== '') {
+			writer.uint32(10).string(message.token)
 		}
 		if (message.isPaused === true) {
 			writer.uint32(16).bool(message.isPaused)
@@ -594,7 +594,7 @@ export const PauseRoundRequest = {
 			const tag = reader.uint32()
 			switch (tag >>> 3) {
 				case 1:
-					message.authToken = reader.string()
+					message.token = reader.string()
 					break
 				case 2:
 					message.isPaused = reader.bool()
@@ -609,21 +609,21 @@ export const PauseRoundRequest = {
 
 	fromJSON(object: any): PauseRoundRequest {
 		return {
-			authToken: isSet(object.authToken) ? String(object.authToken) : '',
+			token: isSet(object.token) ? String(object.token) : '',
 			isPaused: isSet(object.isPaused) ? Boolean(object.isPaused) : false,
 		}
 	},
 
 	toJSON(message: PauseRoundRequest): unknown {
 		const obj: any = {}
-		message.authToken !== undefined && (obj.authToken = message.authToken)
+		message.token !== undefined && (obj.token = message.token)
 		message.isPaused !== undefined && (obj.isPaused = message.isPaused)
 		return obj
 	},
 
 	fromPartial<I extends Exact<DeepPartial<PauseRoundRequest>, I>>(object: I): PauseRoundRequest {
 		const message = createBasePauseRoundRequest()
-		message.authToken = object.authToken ?? ''
+		message.token = object.token ?? ''
 		message.isPaused = object.isPaused ?? false
 		return message
 	},
@@ -681,13 +681,13 @@ export const PauseRoundResponse = {
 }
 
 function createBaseConcludeRoundRequest(): ConcludeRoundRequest {
-	return { authToken: '' }
+	return { token: '' }
 }
 
 export const ConcludeRoundRequest = {
 	encode(message: ConcludeRoundRequest, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-		if (message.authToken !== '') {
-			writer.uint32(10).string(message.authToken)
+		if (message.token !== '') {
+			writer.uint32(10).string(message.token)
 		}
 		return writer
 	},
@@ -700,7 +700,7 @@ export const ConcludeRoundRequest = {
 			const tag = reader.uint32()
 			switch (tag >>> 3) {
 				case 1:
-					message.authToken = reader.string()
+					message.token = reader.string()
 					break
 				default:
 					reader.skipType(tag & 7)
@@ -712,13 +712,13 @@ export const ConcludeRoundRequest = {
 
 	fromJSON(object: any): ConcludeRoundRequest {
 		return {
-			authToken: isSet(object.authToken) ? String(object.authToken) : '',
+			token: isSet(object.token) ? String(object.token) : '',
 		}
 	},
 
 	toJSON(message: ConcludeRoundRequest): unknown {
 		const obj: any = {}
-		message.authToken !== undefined && (obj.authToken = message.authToken)
+		message.token !== undefined && (obj.token = message.token)
 		return obj
 	},
 
@@ -726,7 +726,7 @@ export const ConcludeRoundRequest = {
 		object: I
 	): ConcludeRoundRequest {
 		const message = createBaseConcludeRoundRequest()
-		message.authToken = object.authToken ?? ''
+		message.token = object.token ?? ''
 		return message
 	},
 }

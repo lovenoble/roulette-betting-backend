@@ -28,6 +28,7 @@ export default class CryptoSeed {
 	}
 
 	async init(fileName = 'default') {
+		if (this.#signers.length !== 0) return
 		const seedFilePath = `${this.seedPath}/${fileName}.seed`
 		const data = fs.readFileSync(seedFilePath, { encoding: 'utf8' })
 		let privateKeys: string[] = []
@@ -43,11 +44,6 @@ export default class CryptoSeed {
 		this.#signers = privateKeys.map(privKey => new Wallet(privKey, provider))
 
 		this.#publicKeys = this.#signers.map(signer => signer.address)
-
-		return {
-			signers: this.#signers,
-			publicKeys: this.#publicKeys,
-		}
 	}
 
 	async getPrivateKeys(fileName = 'default') {
