@@ -16,12 +16,12 @@ export class Analytics implements AnalyticsServer {
 		callback: sendUnaryData<UserProfileResponse>
 	) {
 		try {
-			logger.info('userProfile requested', Date.now())
+			logger.info(`userProfile requested: ${Date.now()}`)
 			const res: Partial<UserProfileResponse> = {}
 			const { entityId } = call.request
 
 			// @NOTE: Look up user by entityId and send response with values
-			logger.info('entityId passed', entityId)
+			logger.info(`entityId passed: ${entityId}`)
 
 			res.fareAmount = '500000'
 			res.totalWins = 10
@@ -29,7 +29,7 @@ export class Analytics implements AnalyticsServer {
 
 			return callback(null, UserProfileResponse.fromJSON(res))
 		} catch (err) {
-			logger.info('generateNonce error', err.toString(), Date.now())
+			logger.info(`generateNonce error: ${err.toString()} ${Date.now()}`)
 			return callback(new ServiceError(status.INTERNAL, err.toString()), null)
 		}
 	}

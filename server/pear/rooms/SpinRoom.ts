@@ -60,7 +60,7 @@ class SpinGame extends Room<SpinState> {
 	async onCreate(options: ICreateSpinRoomOptions) {
 		try {
 			const { name, desc, password } = options
-			logger.info('Creating new SpinRoom', name, desc)
+			logger.info(`Creating new SpinRoom: name --> ${name},\n description --> ${desc}`)
 
 			this.#name = name
 			this.#desc = desc
@@ -69,7 +69,7 @@ class SpinGame extends Room<SpinState> {
 			let hasPassword = false
 			if (password) {
 				// @NOTE: Handle hashing password before setting the metadata
-				logger.info('Password was set', password)
+				logger.info(`Password was set ${password}`)
 				hasPassword = true
 			}
 

@@ -179,7 +179,7 @@ export class OnBatchEntrySettled extends Command<SpinRoom, SettledBatchEntryArgs
 
 		// be.settled = true
 		// be.totalWinAmount = batchEntry.totalWinAmount
-		logger.info('OnBatchEntry', batchEntry, entries)
+		logger.info(`OnBatchEntry: batch entry --> ${batchEntry},\n entries --> ${entries}`)
 	}
 }
 

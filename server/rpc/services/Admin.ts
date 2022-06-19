@@ -31,7 +31,7 @@ export class Admin implements AdminServer {
 		callback: sendUnaryData<CreateSeedAccountsResponse>
 	) {
 		try {
-			logger.info('createSeedAccounts requested', Date.now())
+			logger.info(`createSeedAccounts requested: ${Date.now()}`)
 			const { authToken, count } = call.request
 			const publicAddress = PearHash.getAddressFromToken(authToken)
 
@@ -69,7 +69,7 @@ export class Admin implements AdminServer {
 		callback: sendUnaryData<GetSeedAccountsResponse>
 	) {
 		try {
-			logger.info('getSeedAccounts requested', Date.now())
+			logger.info(`getSeedAccounts requested: ${Date.now()}`)
 			const { authToken } = call.request
 			const publicAddress = PearHash.getAddressFromToken(authToken)
 
@@ -98,7 +98,7 @@ export class Admin implements AdminServer {
 		callback: sendUnaryData<CreateBatchEntryResponse>
 	) {
 		try {
-			logger.info('createBatchEntry requested', Date.now())
+			logger.info(`createBatchEntry requested: ${Date.now()}`)
 			const { authToken, seedIdx } = call.request
 			const publicAddress = PearHash.getAddressFromToken(authToken)
 
@@ -126,7 +126,7 @@ export class Admin implements AdminServer {
 		callback: sendUnaryData<SettleBatchEntryResponse>
 	) {
 		try {
-			logger.info('settleBatchEntry requested', Date.now())
+			logger.info(`settleBatchEntry requested: ${Date.now()}`)
 			const { authToken, roundId, seedIdx } = call.request
 			const publicAddress = PearHash.getAddressFromToken(authToken)
 
@@ -181,7 +181,7 @@ export class Admin implements AdminServer {
 		callback: sendUnaryData<ConcludeRoundResponse>
 	) {
 		try {
-			logger.info('concludeRound requested', Date.now())
+			logger.info(`concludeRound requested: ${Date.now()}`)
 			const { authToken } = call.request
 			const publicAddress = PearHash.getAddressFromToken(authToken)
 
