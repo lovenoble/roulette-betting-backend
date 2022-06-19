@@ -21,6 +21,7 @@ module.exports = {
 	},
 	plugins: ['@typescript-eslint', 'promise', 'import'],
 	rules: {
+		'no-plusplus': 'off',
 		'consistent-return': 'off',
 		'no-restricted-syntax': 'off',
 		'no-await-in-loop': 'off',
