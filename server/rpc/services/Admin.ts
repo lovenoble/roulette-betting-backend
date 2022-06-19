@@ -19,7 +19,6 @@ import {
 
 import { ServiceError, logger } from '../utils'
 import { authAdminToken } from '../utils/auth'
-import { PearHash } from '../../store/utils'
 import CryptoAdmin from '../../crypto/admin'
 
 export { AdminService } from '../models/admin'

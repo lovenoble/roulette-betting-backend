@@ -96,55 +96,55 @@ export default class RedisPresence implements Presence {
 	}
 
 	public async smembers(key: string): Promise<string[]> {
-		return await this.pub.smembers(key)
+		return this.pub.smembers(key)
 	}
 
 	public async sismember(key: string, field: string): Promise<number> {
-		return await this.pub.sismember(key, field)
+		return this.pub.sismember(key, field)
 	}
 
 	public async srem(key: string, value: any) {
-		return await this.pub.srem(key, value)
+		return this.pub.srem(key, value)
 	}
 
 	public async scard(key: string) {
-		return await this.pub.scard(key)
+		return this.pub.scard(key)
 	}
 
 	public async sinter(...keys: string[]) {
-		return await this.pub.sinter(...keys)
+		return this.pub.sinter(...keys)
 	}
 
 	public async hset(key: string, field: string, value: string) {
-		return await this.pub.hset(key, field, value)
+		return this.pub.hset(key, field, value)
 	}
 
 	public async hincrby(key: string, field: string, value: number) {
-		return await this.pub.hincrby(key, field, value)
+		return this.pub.hincrby(key, field, value)
 	}
 
 	public async hget(key: string, field: string) {
-		return await this.pub.hget(key, field)
+		return this.pub.hget(key, field)
 	}
 
 	public async hgetall(key: string) {
-		return await this.pub.hgetall(key)
+		return this.pub.hgetall(key)
 	}
 
 	public async hdel(key: string, field: string) {
-		return await this.pub.hdel(key, field)
+		return this.pub.hdel(key, field)
 	}
 
 	public async hlen(key: string): Promise<number> {
-		return await this.pub.hlen(key)
+		return this.pub.hlen(key)
 	}
 
 	public async incr(key: string): Promise<number> {
-		return await this.pub.incr(key)
+		return this.pub.incr(key)
 	}
 
 	public async decr(key: string): Promise<number> {
-		return await this.pub.decr(key)
+		return this.pub.decr(key)
 	}
 
 	public shutdown() {
