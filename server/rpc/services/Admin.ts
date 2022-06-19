@@ -18,10 +18,16 @@ import {
 } from '../models/admin'
 
 import { ServiceError, logger } from '../utils'
-import { PearHash } from '../../store/utils'
-import cryptoAdmin from '../../crypto/admin'
+import { authAdminToken } from '../utils/auth'
+import CryptoAdmin from '../../crypto/admin'
 
 export { AdminService } from '../models/admin'
+
+// @NOTE: Only run on local and testnet DO NOT RUN IN PRODUCTION
+// Create instance of seed accounts and populate
+if (process.env.NODE_ENV === 'development') {
+	await CryptoAdmin.init()
+}
 
 export class Admin implements AdminServer {
 	[method: string]: UntypedHandleCall
@@ -32,14 +38,9 @@ export class Admin implements AdminServer {
 	) {
 		try {
 			logger.info(`createSeedAccounts requested @TIME: ${Date.now()}`)
-			const { authToken, count } = call.request
-			const publicAddress = PearHash.getAddressFromToken(authToken)
+			const { token, count } = call.request
 
-			if (publicAddress !== '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
-				return callback(
-					new ServiceError(status.PERMISSION_DENIED, 'Only admins can make this request'),
-					null
-				)
+			if (!authAdminToken(callback, token)) return
 
 			if (count <= 0 || count >= 100) {
 				return callback(
@@ -47,8 +48,8 @@ export class Admin implements AdminServer {
 					null
 				)
 			}
-			await cryptoAdmin.seed.createSeedAccounts(count)
-			const accounts = cryptoAdmin.seed.publicKeys
+			await CryptoAdmin.seed.createSeedAccounts(count)
+			const accounts = CryptoAdmin.seed.publicKeys
 			const createdAccounts = accounts.slice(count * -1)
 
 			const res: Partial<CreateSeedAccountsResponse> = {
@@ -70,16 +71,11 @@ export class Admin implements AdminServer {
 	) {
 		try {
 			logger.info(`getSeedAccounts requested @TIME: ${Date.now()}`)
-			const { authToken } = call.request
-			const publicAddress = PearHash.getAddressFromToken(authToken)
+			const { token } = call.request
 
-			if (publicAddress !== '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
-				return callback(
-					new ServiceError(status.PERMISSION_DENIED, 'Only admins can make this request'),
-					null
-				)
+			if (!authAdminToken(callback, token)) return
 
-			const accounts = cryptoAdmin.seed.publicKeys
+			const accounts = CryptoAdmin.seed.publicKeys
 			const res: Partial<GetSeedAccountsResponse> = {
 				status: 'Fetched seed accounts (public keys)!',
 				accounts,
@@ -99,16 +95,11 @@ export class Admin implements AdminServer {
 	) {
 		try {
 			logger.info(`createBatchEntry requested @TIME: ${Date.now()}`)
-			const { authToken, seedIdx } = call.request
-			const publicAddress = PearHash.getAddressFromToken(authToken)
+			const { token, seedIdx } = call.request
 
-			if (publicAddress !== '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
-				return callback(
-					new ServiceError(status.PERMISSION_DENIED, 'Only admins can make this request'),
-					null
-				)
+			if (!authAdminToken(callback, token)) return
 
-			await cryptoAdmin.createBatchEntry(seedIdx, [[10000, 0, 1]])
+			await CryptoAdmin.createBatchEntry(seedIdx, [[10000, 0, 1]])
 			const res: Partial<CreateBatchEntryResponse> = {
 				status: 'Batch entry created!',
 			}
@@ -127,16 +118,11 @@ export class Admin implements AdminServer {
 	) {
 		try {
 			logger.info(`settleBatchEntry requested @TIME: ${Date.now()}`)
-			const { authToken, roundId, seedIdx } = call.request
-			const publicAddress = PearHash.getAddressFromToken(authToken)
+			const { token, roundId, seedIdx } = call.request
 
-			if (publicAddress !== '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
-				return callback(
-					new ServiceError(status.PERMISSION_DENIED, 'Only admins can make this request'),
-					null
-				)
+			if (!authAdminToken(callback, token)) return
 
-			await cryptoAdmin.settleBatchEntry(seedIdx, roundId)
+			await CryptoAdmin.settleBatchEntry(seedIdx, roundId)
 
 			const res: Partial<SettleBatchEntryResponse> = {
 				status: 'Settled batch entry created!',
@@ -154,17 +140,12 @@ export class Admin implements AdminServer {
 		callback: sendUnaryData<PauseRoundResponse>
 	) {
 		try {
-			const { authToken, isPaused } = call.request
+			const { token, isPaused } = call.request
 			logger.info(`pauseRound requested: ${isPaused}, @TIME: ${Date.now()}`)
-			const publicAddress = PearHash.getAddressFromToken(authToken)
 
-			if (publicAddress !== '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
-				return callback(
-					new ServiceError(status.PERMISSION_DENIED, 'Only admins can make this request'),
-					null
-				)
+			if (!authAdminToken(callback, token)) return
 
-			await cryptoAdmin.pauseSpinRound(isPaused)
+			await CryptoAdmin.pauseSpinRound(isPaused)
 
 			const res: Partial<PauseRoundResponse> = {
 				status: `Round paused -> ${isPaused}`,
@@ -182,16 +163,11 @@ export class Admin implements AdminServer {
 	) {
 		try {
 			logger.info(`concludeRound requested @TIME: ${Date.now()}`)
-			const { authToken } = call.request
-			const publicAddress = PearHash.getAddressFromToken(authToken)
+			const { token } = call.request
 
-			if (publicAddress !== '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
-				return callback(
-					new ServiceError(status.PERMISSION_DENIED, 'Only admins can make this request'),
-					null
-				)
+			if (!authAdminToken(callback, token)) return
 
-			await cryptoAdmin.concludeRound()
+			await CryptoAdmin.concludeRound()
 
 			const res: Partial<ConcludeRoundResponse> = {
 				status: `Round concluded`,

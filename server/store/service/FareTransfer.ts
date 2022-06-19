@@ -67,6 +67,10 @@ export default class FareTransferService extends ServiceBase<FareTransfer> {
 	public async adjustCachedTotalSupply(transferType: 'mint' | 'burn', amount: string) {
 		if (transferType !== 'mint' && transferType !== 'burn')
 			throw new Error('Invalid transferType in adjustCachedTotalSupply')
+		if (transferType === 'mint' && amount === '50000000000.0') {
+			logger.info('Initial mint event ignored')
+			return
+		}
 
 		const previousSupplyBN = toEth(this.#totalFareSupply || (await fareAPI.getTotalSupply()))
 

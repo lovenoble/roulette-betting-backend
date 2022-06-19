@@ -43,9 +43,13 @@ export const ioRedisOptions: RedisOptions = {
 }
 
 // Pear-Connect state sync config
-export const pearRedisUri = isDev
-	? `${redisUri}/${RedisDBIndex.StateSync}`
-	: `redis://${REDIS_PEAR_USERNAME}:${REDIS_PEAR_PASSWORD}@${REDIS_PEAR_HOST}:${REDIS_PEAR_PORT}`
+export const defaultPresenceOpts: RedisOptions = {
+	username: REDIS_PEAR_USERNAME || REDIS_USERNAME,
+	password: REDIS_PEAR_PASSWORD || REDIS_PASSWORD,
+	host: REDIS_PEAR_HOST || REDIS_HOST,
+	port: Number(REDIS_PEAR_PORT || REDIS_PORT),
+	db: isDev ? RedisDBIndex.StateSync : 0,
+}
 
 // Bullmq config
 export const bullConnectionOpts: ConnectionOptions = {

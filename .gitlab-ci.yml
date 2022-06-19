@@ -63,7 +63,7 @@ lint:
   script:
     - echo 'LINT'
     - cd server/
-    - pnpm run lint-ci
+    - pnpm run lint:ci
 
 build:
   stage: build
@@ -80,7 +80,7 @@ build:
     - pnpm config set store-dir .pnpm-store
   script:
     - echo 'BUILD'
-    - $BIN_DIR/ensure-env-vars.sh
+    # - $BIN_DIR/ensure-env-vars.sh
     - mkdir -p $TMP_DIR
     - touch $EB_OPTIONS_FILE
     - node $BIN_DIR/generate-eb-options.js > $EB_OPTIONS_FILE
@@ -89,7 +89,7 @@ build:
     - pnpm run build
     - pnpm run postbuild
     - mkdir -p $BUILD_DIR
-    - cd dist && zip -r $BUILD_FILE * && cd ..
+    - cd dist && zip -qdgds 10m -r $BUILD_FILE * && cd ..
     - ls $BUILD_DIR
   artifacts:
     paths:
@@ -120,9 +120,8 @@ deploy-test:
       aws elasticbeanstalk update-environment \
       --environment-name $ENV_NAME \
       --version-label v_$CI_COMMIT_SHORT_SHA \
-      --option-settings file://$EB_OPTIONS_FILE
+      # --option-settings file://$EB_OPTIONS_FILE
   dependencies:
     - build
   only:
-    - feature/gitlab-ci
-    - test
+    - environment/test

@@ -13,7 +13,7 @@ service Admin {
 
 
 message CreateSeedAccountsRequest {
-    string authToken = 1;
+    string token = 1;
     uint32 count = 2;
 }
 
@@ -24,7 +24,7 @@ message CreateSeedAccountsResponse {
 }
 
 message GetSeedAccountsRequest {
-    string authToken = 1;
+    string token = 1;
 }
 
 message GetSeedAccountsResponse {
@@ -33,7 +33,7 @@ message GetSeedAccountsResponse {
 }
 
 message CreateBatchEntryRequest {
-    string authToken = 1;
+    string token = 1;
     int32 seedIdx = 2;
 }
 
@@ -42,7 +42,7 @@ message CreateBatchEntryResponse {
 }
 
 message SettleBatchEntryRequest {
-    string authToken = 1;
+    string token = 1;
     int32 roundId = 2;
     int32 seedIdx = 3;
 }
@@ -52,7 +52,7 @@ message SettleBatchEntryResponse {
 }
 
 message PauseRoundRequest {
-    string authToken = 1;
+    string token = 1;
     bool isPaused = 2;
 }
 
@@ -61,7 +61,7 @@ message PauseRoundResponse {
 }
 
 message ConcludeRoundRequest {
-    string authToken = 1;
+    string token = 1;
 }
 
 message ConcludeRoundResponse {

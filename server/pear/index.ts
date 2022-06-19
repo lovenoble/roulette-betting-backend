@@ -1,24 +1,19 @@
 import { Server } from '@colyseus/core'
-import { RedisPresence } from '@colyseus/redis-presence'
 import { MongooseDriver } from '@colyseus/mongoose-driver'
 
-import type { RedisClientOptions } from 'redis'
+import type { RedisOptions } from 'ioredis'
+import RedisPresence from '../store/presence'
 
 import { logger } from './utils'
-import { MONGO_ROOT_USERNAME, mongoUri, pearServerPort, pearRedisUri } from '../config'
+import { MONGO_ROOT_USERNAME, mongoUri, pearServerPort, defaultPresenceOpts } from '../config'
 import Rooms from './rooms'
 import transport from '../transport'
 
 export interface IPearOptions {
-	presenceOpts?: RedisClientOptions
+	presenceOpts?: RedisOptions
 	pearServerPort?: number
 	mongoBaseUri?: string
 	mongoAuthSource?: string
-	redisUri?: string
-}
-
-const defaultPresenceOpts: RedisClientOptions = {
-	url: pearRedisUri,
 }
 
 const defaultPearOptions: IPearOptions = {
@@ -26,7 +21,6 @@ const defaultPearOptions: IPearOptions = {
 	presenceOpts: defaultPresenceOpts,
 	mongoBaseUri: mongoUri,
 	mongoAuthSource: MONGO_ROOT_USERNAME,
-	redisUri: pearRedisUri,
 }
 
 export class PearServer {
@@ -35,7 +29,6 @@ export class PearServer {
 	#isStarted = false
 	#port = pearServerPort
 	#mongoUri: string
-	#redisUri: string
 
 	public get port() {
 		return this.#port
@@ -45,32 +38,32 @@ export class PearServer {
 		return this.#mongoUri
 	}
 
-	public get redisUri() {
-		return this.#redisUri
-	}
-
 	public get isStarted() {
 		return this.#isStarted
 	}
 
 	constructor(options = defaultPearOptions) {
-		const { presenceOpts, mongoBaseUri, redisUri, mongoAuthSource } = Object.assign(
+		const { presenceOpts, mongoBaseUri, mongoAuthSource } = Object.assign(
 			defaultPearOptions,
 			options
 		)
-
-		this.#redisUri = redisUri
 
 		this.#mongoUri = mongoBaseUri
 		if (mongoAuthSource) {
 			this.#mongoUri += `?authSource=${mongoAuthSource}`
 		}
 
-		this.server = new Server({
-			transport: transport.instance,
-			presence: new RedisPresence(presenceOpts),
-			driver: new MongooseDriver(this.#mongoUri),
-		})
+		try {
+			this.server = new Server({
+				transport: transport.instance,
+				presence: new RedisPresence(presenceOpts),
+				driver: new MongooseDriver(this.#mongoUri),
+			})
+		} catch (error) {
+			console.error(error)
+			// prettier-ignore
+			throw (error)
+		}
 		logger.info(`Created Server instance!`)
 		logger.info(`Created WebSocketTransport instance!`)
 		logger.info(`Created RedisPresence instance!`)
