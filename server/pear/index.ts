@@ -58,7 +58,7 @@ export class PearServer {
 			defaultPearOptions,
 			options
 		)
-
+		console.log(presenceOpts)
 		this.#redisUri = redisUri
 
 		this.#mongoUri = mongoBaseUri
