@@ -74,6 +74,7 @@ export class PearServer {
 			})
 		} catch (error) {
 			console.error(error)
+			// prettier-ignore
 			throw(error)
 		}
 		logger.info(`Created Server instance!`)
