@@ -89,6 +89,8 @@ build:
     - pnpm run build
     - pnpm run postbuild
     - mkdir -p $BUILD_DIR
+    - mkdir -p $BUILD_DIR/.platform
+    - cp -r $CI_PROJECT_DIR/.platform/* $BUILD_DIR/.platform
     - cd dist && zip -qdgds 10m -r $BUILD_FILE * && cd ..
     - ls $BUILD_DIR
   artifacts:
