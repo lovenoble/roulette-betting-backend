@@ -95,7 +95,7 @@ export default class SmartContractListener {
 
 			this.#mountListeners()
 		} catch (err) {
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 			this.reconnect()
 		}
 	}

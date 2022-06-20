@@ -70,10 +70,10 @@ class CryptoAdmin {
 
 			tx = await this.spin.connect(signer).placeBatchEntry(params)
 			receipt = await tx.wait()
-			logger.info(`Submitted batch entry for Player(${signer.address.substring(0, 11)})`)
+			logger.info(`Submitted batch entry for Player: (${signer.address.substring(0, 11)})`)
 			return receipt
 		} catch (err: any) {
-			logger.error(err.error.reason)
+			logger.error(new Error(`${err.error.reason}`))
 			throw new Error(err.error.reason)
 		}
 	}
@@ -225,7 +225,7 @@ class CryptoAdmin {
 			this.startCountdown(this.countdown)
 		} catch (err) {
 			clearInterval(this.eventLoopIntervalId)
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 		}
 	}
 }

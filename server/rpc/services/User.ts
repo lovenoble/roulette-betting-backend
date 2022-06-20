@@ -49,7 +49,7 @@ export class User implements UserServer {
 
 			return callback(null, GenerateNonceResponse.fromJSON(res))
 		} catch (err) {
-			logger.error('generateNonce error', err.toString())
+			logger.error(new Error(`generateNonce error: ${err.toString()}`))
 			return callback(new ServiceError(status.INTERNAL, err.toString()), null)
 		}
 	}
@@ -96,7 +96,7 @@ export class User implements UserServer {
 
 			return callback(null, VerifyTokenResponse.fromJSON({ publicAddress }))
 		} catch (err) {
-			logger.error(`verifyToken error: ${err.toString()}`, err)
+			logger.error(new Error(`verifyToken error: ${err.toString()}`))
 			if (err instanceof Error) {
 				return callback(new ServiceError(status.PERMISSION_DENIED, err.message), null)
 			}
@@ -143,7 +143,7 @@ export class User implements UserServer {
 				null
 			)
 		} catch (err) {
-			logger.error('verifySignature error', err.toString())
+			logger.error(new Error(`verifySignature error: ${err.toString()}`))
 			return callback(new ServiceError(status.INTERNAL, err.toString()), null)
 		}
 	}
@@ -185,7 +185,7 @@ export class User implements UserServer {
 
 			return callback(null, LogoutResponse.fromJSON(res))
 		} catch (err) {
-			logger.error('logout error', err.toString())
+			logger.error(new Error(`logout error: ${err.toString()}`))
 			return callback(new ServiceError(status.INTERNAL, err.toString()), null)
 		}
 	}
@@ -212,7 +212,7 @@ export class User implements UserServer {
 
 			return callback(null, SetUserDataResponse.fromJSON(res))
 		} catch (err) {
-			logger.error('setUserData error', err.toString())
+			logger.error(new Error(`setUserData error: ${err.toString()}`))
 			return callback(new ServiceError(status.INTERNAL, err.toString()), null)
 		}
 	}

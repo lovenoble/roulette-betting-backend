@@ -34,7 +34,7 @@ class ChatRoom extends Room<ChatState> {
 			let hasPassword = false
 			if (password) {
 				// @NOTE: Handle hashing password before setting the metadata
-				logger.info('Password was set', password)
+				logger.info(`Password was set ${password}`)
 				hasPassword = true
 			}
 			this.setMetadata({
@@ -52,7 +52,7 @@ class ChatRoom extends Room<ChatState> {
 				})
 			})
 		} catch (err) {
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
 		}
 	}
@@ -66,7 +66,7 @@ class ChatRoom extends Room<ChatState> {
 				const user = await store.service.user.getUserFromToken(authToken)
 
 				if (!user) {
-					logger.error('Invalid user authToken.')
+					logger.error(new Error('Invalid user authToken.'))
 					throw new ServerError(HttpStatusCode.UNAUTHORIZED, 'Invalid user authToken.')
 				}
 
@@ -80,7 +80,7 @@ class ChatRoom extends Room<ChatState> {
 
 			return `guest:${guestId}`
 		} catch (err: any) {
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
 		}
 	}
@@ -90,12 +90,14 @@ class ChatRoom extends Room<ChatState> {
 			/* @ts-ignore */
 			const { sessionId } = client
 			const [publicAddress, guestId] = auth.split(':')
-			logger.info(publicAddress, guestId)
+			logger.info(`public address --> ${publicAddress},\n guest id --> ${guestId}`)
 
 			if (guestId) {
 				this.dispatcher.dispatch(new OnGuestChatUserJoined(), { sessionId, guestId })
 			} else if (publicAddress) {
-				logger.info('Updated users sessionId:', publicAddress, sessionId)
+				logger.info(
+					`Updated users sessionId: public address --> ${publicAddress},\n session id --> ${sessionId}`
+				)
 				this.dispatcher.dispatch(new OnChatUserJoined(), {
 					publicAddress,
 					sessionId,
@@ -107,7 +109,7 @@ class ChatRoom extends Room<ChatState> {
 				)
 			}
 		} catch (err) {
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
 		}
 	}

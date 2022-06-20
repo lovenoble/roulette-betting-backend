@@ -31,7 +31,7 @@ export class Health implements HealthServer {
 		callback: sendUnaryData<HealthCheckResponse>
 	): void {
 		const { service } = call.request
-		logger.info('healthCheck', service)
+		logger.info(`healthCheck ${service}`)
 
 		const serviceStatus = healthStatus.get(service)
 		if (!serviceStatus) {

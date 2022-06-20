@@ -38,7 +38,7 @@ export class OnFareTransfer extends Command<SpinRoom, FareTransferArgs> {
 				fromUser.balance.fare = utils.formatEther(bnBalance.sub(bnAmount))
 			}
 		} catch (err) {
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 		}
 	}
 }
@@ -167,7 +167,7 @@ export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
 
 			this.state.batchEntries.set(batchEntryState.player, batchEntryState)
 		} catch (err) {
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 		}
 	}
 }
@@ -179,7 +179,7 @@ export class OnBatchEntrySettled extends Command<SpinRoom, SettledBatchEntryArgs
 
 		// be.settled = true
 		// be.totalWinAmount = batchEntry.totalWinAmount
-		logger.info('OnBatchEntry', batchEntry, entries)
+		logger.info(`OnBatchEntry: batch entry --> ${batchEntry},\n entries --> ${entries}`)
 	}
 }
 

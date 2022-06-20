@@ -37,7 +37,7 @@ export class Admin implements AdminServer {
 		callback: sendUnaryData<CreateSeedAccountsResponse>
 	) {
 		try {
-			logger.info('createSeedAccounts requested', Date.now())
+			logger.info(`createSeedAccounts requested @TIME: ${Date.now()}`)
 			const { token, count } = call.request
 
 			if (!authAdminToken(callback, token)) return
@@ -60,7 +60,7 @@ export class Admin implements AdminServer {
 
 			return callback(null, CreateSeedAccountsResponse.fromJSON(res))
 		} catch (err) {
-			logger.warn('createSeedAccounts error', err.toString(), Date.now())
+			logger.warn(`createSeedAccounts error: ${err.toString()}, @TIME: ${Date.now()}`)
 			return callback(new ServiceError(status.INTERNAL, err.toString()), null)
 		}
 	}
@@ -70,7 +70,7 @@ export class Admin implements AdminServer {
 		callback: sendUnaryData<GetSeedAccountsResponse>
 	) {
 		try {
-			logger.info('getSeedAccounts requested', Date.now())
+			logger.info(`getSeedAccounts requested @TIME: ${Date.now()}`)
 			const { token } = call.request
 
 			if (!authAdminToken(callback, token)) return
@@ -84,7 +84,7 @@ export class Admin implements AdminServer {
 			// // // @NOTE: Look up user by entityId and send response with values
 			return callback(null, GetSeedAccountsResponse.fromJSON(res))
 		} catch (err) {
-			logger.warn('getSeedAccounts error', err.toString(), Date.now())
+			logger.warn(`getSeedAccounts error: ${err.toString()}, @TIME: ${Date.now()}`)
 			return callback(new ServiceError(status.INTERNAL, err.toString()), null)
 		}
 	}
@@ -94,7 +94,7 @@ export class Admin implements AdminServer {
 		callback: sendUnaryData<CreateBatchEntryResponse>
 	) {
 		try {
-			logger.info('createBatchEntry requested', Date.now())
+			logger.info(`createBatchEntry requested @TIME: ${Date.now()}`)
 			const { token, seedIdx } = call.request
 
 			if (!authAdminToken(callback, token)) return
@@ -107,7 +107,7 @@ export class Admin implements AdminServer {
 			// // @NOTE: Look up user by entityId and send response with values
 			return callback(null, CreateBatchEntryResponse.fromJSON(res))
 		} catch (err) {
-			logger.warn('createBatchEntry error', err.toString(), Date.now())
+			logger.warn(`createBatchEntry error: ${err.toString()}, @TIME: ${Date.now()}`)
 			return callback(new ServiceError(status.INTERNAL, err.toString()), null)
 		}
 	}
@@ -117,7 +117,7 @@ export class Admin implements AdminServer {
 		callback: sendUnaryData<SettleBatchEntryResponse>
 	) {
 		try {
-			logger.info('settleBatchEntry requested', Date.now())
+			logger.info(`settleBatchEntry requested @TIME: ${Date.now()}`)
 			const { token, roundId, seedIdx } = call.request
 
 			if (!authAdminToken(callback, token)) return
@@ -130,7 +130,7 @@ export class Admin implements AdminServer {
 
 			return callback(null, SettleBatchEntryResponse.fromJSON(res))
 		} catch (err) {
-			logger.warn('settleBatchEntry error', err.toString(), Date.now())
+			logger.warn(`settleBatchEntry error: ${err.toString()}, @TIME: ${Date.now()}`)
 			return callback(new ServiceError(status.INTERNAL, err.toString()), null)
 		}
 	}
@@ -141,7 +141,7 @@ export class Admin implements AdminServer {
 	) {
 		try {
 			const { token, isPaused } = call.request
-			logger.info(`pauseRound requested -> ${isPaused} -> ${Date.now()}`)
+			logger.info(`pauseRound requested: ${isPaused}, @TIME: ${Date.now()}`)
 
 			if (!authAdminToken(callback, token)) return
 
@@ -152,7 +152,7 @@ export class Admin implements AdminServer {
 			}
 			return callback(null, PauseRoundResponse.fromJSON(res))
 		} catch (err) {
-			logger.warn('pauseRound error', err.toString(), Date.now())
+			logger.warn(`pauseRound error: ${err.toString()}, @TIME: ${Date.now()}`)
 			return callback(new ServiceError(status.INTERNAL, err.toString()), null)
 		}
 	}
@@ -162,7 +162,7 @@ export class Admin implements AdminServer {
 		callback: sendUnaryData<ConcludeRoundResponse>
 	) {
 		try {
-			logger.info('concludeRound requested', Date.now())
+			logger.info(`concludeRound requested @TIME: ${Date.now()}`)
 			const { token } = call.request
 
 			if (!authAdminToken(callback, token)) return
@@ -174,7 +174,7 @@ export class Admin implements AdminServer {
 			}
 			return callback(null, PauseRoundResponse.fromJSON(res))
 		} catch (err) {
-			logger.warn('concludeRound error', err.toString(), Date.now())
+			logger.warn(`concludeRound error: ${err.toString()}, @TIME: ${Date.now()}`)
 			return callback(new ServiceError(status.INTERNAL, err.toString()), null)
 		}
 	}

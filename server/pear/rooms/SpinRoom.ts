@@ -60,7 +60,7 @@ class SpinGame extends Room<SpinState> {
 	async onCreate(options: ICreateSpinRoomOptions) {
 		try {
 			const { name, desc, password } = options
-			logger.info('Creating new SpinRoom', name, desc)
+			logger.info(`Creating new SpinRoom: name --> ${name},\n description --> ${desc}`)
 
 			this.#name = name
 			this.#desc = desc
@@ -69,7 +69,7 @@ class SpinGame extends Room<SpinState> {
 			let hasPassword = false
 			if (password) {
 				// @NOTE: Handle hashing password before setting the metadata
-				logger.info('Password was set', password)
+				logger.info(`Password was set ${password}`)
 				hasPassword = true
 			}
 
@@ -143,7 +143,7 @@ class SpinGame extends Room<SpinState> {
 			// #endregion
 		} catch (err) {
 			// @NOTE: Need better error handling here. If this fails the state doesn't get set
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
 		}
 	}
@@ -194,7 +194,7 @@ class SpinGame extends Room<SpinState> {
 				this.broadcast(SpinEvent.TimerUpdated, this.currentCountdown)
 			}, 1000)
 		} catch (err) {
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 		}
 	}
 
@@ -228,7 +228,7 @@ class SpinGame extends Room<SpinState> {
 				const user = await store.service.user.getUserFromToken(authToken)
 
 				if (!user) {
-					logger.error('Invalid user authToken.')
+					logger.error(new Error('Invalid user authToken.'))
 					throw new ServerError(HttpStatusCode.UNAUTHORIZED, 'Invalid user authToken.')
 				}
 
@@ -249,7 +249,7 @@ class SpinGame extends Room<SpinState> {
 
 			return `guest:${guestId}`
 		} catch (err: any) {
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
 		}
 	}
@@ -272,7 +272,7 @@ class SpinGame extends Room<SpinState> {
 				)
 			}
 		} catch (err) {
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
 		}
 	}
