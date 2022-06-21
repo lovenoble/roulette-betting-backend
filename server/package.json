@@ -17,7 +17,7 @@
         "clean:logs": "rm -rf ./logs",
         "copy-deps": "cp package.json ./dist/package.json && cd ./dist && pnpm install --only=production",
         "copy-dockerfile": "cp Dockerfile_deployed ./dist/Dockerfile",
-        "copy-platform": "mkdir -p ./dist/.platform/ && cp -r .platform/* ./dist/.platform/",
+        "copy-platform": "mkdir -p ./dist/.platform/ && cp -r .platform/* ./dist/.platform/ && ll .dist/",
         "copy-protos": "bin/copy-protos.sh",
         "db:cli": "mongo admin -u admin -p password",
         "docker:down": "docker-compose -p pear-connect --env-file .env down",
