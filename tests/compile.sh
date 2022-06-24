@@ -17,8 +17,9 @@ echo "$GRPC_TOOLS_NODE_PROTOC \
     "$PROTO_DIR"/*.proto"
 
 $GRPC_TOOLS_NODE_PROTOC \
-    --plugin=protoc-gen-ts="$GRPC_TOOLS_NODE_PROTOC_PLUGIN" \
+    --plugin=protoc-gen-grpc="$GRPC_TOOLS_NODE_PROTOC_PLUGIN" \
+    --plugin=protoc-gen-ts="$PROTOC_GEN_TS_PATH" \
     --js_out="import_style=commonjs,binary:$PROTO_DIR/generated" \
-    --ts_out="service=grpc-web:$PROTO_DIR/generated" \
+    --grpc-web_out="import_style=commonjs,mode=grpcwebtext:$PROTO_DIR/generated" \
     -I "$PROTO_DIR" \
     "$PROTO_DIR"/*.proto

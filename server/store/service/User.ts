@@ -51,7 +51,7 @@ export default class UserService extends ServiceBase<User> {
 			userEntity.nonce = nonce
 			await this.repo.save(userEntity)
 
-			logger.info(`Updated nonce for player: ${publicAddress}`)
+			logger.info(`Updated nonce for player: ${publicAddress}, ${userEntity.entityId}`)
 		}
 
 		return { nonce, signingMessage }
