@@ -63,7 +63,7 @@ lint:
   script:
     - echo 'LINT'
     - cd server/
-    - pnpm run lint-ci
+    - pnpm run lint:ci
 
 build:
   stage: build
@@ -89,7 +89,9 @@ build:
     - pnpm run build
     - pnpm run postbuild
     - mkdir -p $BUILD_DIR
-    - cd dist && zip -qdgds 10m -r $BUILD_FILE * && cd ..
+      #- mkdir -p $BUILD_DIR/.platform
+      #- cp -r $CI_PROJECT_DIR/server/.platform/* $BUILD_DIR/.platform
+    - cd dist && zip -qdgds 10m -r $BUILD_FILE . && cd ..
     - ls $BUILD_DIR
   artifacts:
     paths:

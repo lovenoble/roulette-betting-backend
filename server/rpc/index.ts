@@ -82,7 +82,7 @@ export class RPCServer {
 		return new Promise((resolve, reject) => {
 			this.server.bindAsync(rpcUri, this.#credentials, (err, port) => {
 				if (err) {
-					logger.error('RPC server failed to start.', err)
+					logger.error(new Error(`RPC server failed to start: ${err.toString()}`))
 					reject(err)
 				}
 

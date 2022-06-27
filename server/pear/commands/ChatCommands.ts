@@ -20,7 +20,7 @@ export class OnNewMessage extends Command<ChatRoom, OnMessageOptions> {
 				return
 			}
 
-			logger.info('New message created by', publicAddress)
+			logger.info(`New message created by: ${publicAddress}`)
 
 			const newMsg = new Message({
 				text,
@@ -29,7 +29,7 @@ export class OnNewMessage extends Command<ChatRoom, OnMessageOptions> {
 
 			this.room.broadcast(ChatMessage.NewChatMessage, newMsg)
 		} catch (err) {
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 		}
 	}
 }
@@ -64,7 +64,7 @@ export class OnChatUserJoined extends Command<ChatRoom, IUserOptions> {
 			this.state.users.set(sessionId, user)
 		} catch (err) {
 			// @NOTE: NEED TO ADD ERROR QUEUE WHEN THIS IS HIT
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 			throw new Error(err.toString())
 		}
 	}
@@ -81,10 +81,10 @@ export class OnUserLeave extends Command<
 			// Remove player from state
 			if (this.state.users.has(sessionId)) {
 				this.state.users.delete(sessionId)
-				logger.info('User has left SpinRoom:', sessionId)
+				logger.info(`User has left SpinRoom: ${sessionId}`)
 			} else if (this.state.guestUsers.has(sessionId)) {
 				this.state.guestUsers.delete(sessionId)
-				logger.info('GuestUser has left SpinRoom:', sessionId)
+				logger.info(`GuestUser has left SpinRoom: ${sessionId}`)
 			} else {
 				logger.warn(
 					"User left room but their sessionId wasn't in state. Look into why that is."
@@ -92,7 +92,7 @@ export class OnUserLeave extends Command<
 			}
 		} catch (err) {
 			// @NOTE: NEED TO ADD ERROR QUEUE WHEN THIS IS HIT
-			logger.error(err)
+			logger.error(new Error(err.toString()))
 			throw new Error(err.toString())
 		}
 	}
