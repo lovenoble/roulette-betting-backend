@@ -5,10 +5,12 @@
         "lib": [
             "ESNext"
         ],
+        "preserveSymlinks": true,
         "moduleResolution": "node",
         "target": "ES2020",
         "module": "ESNext",
         "declaration": true,
+        "declarationMap": true,
         "noImplicitAny": false,
         "experimentalDecorators": true,
         "sourceMap": false,
@@ -21,9 +23,10 @@
         "resolveJsonModule": true
     },
     "include": [
-        "."
+        "./**/*.ts"
     ],
     "exclude": [
+        "./bin/*",
         "dist",
         "node_modules"
     ]
