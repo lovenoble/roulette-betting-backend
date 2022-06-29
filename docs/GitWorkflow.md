@@ -8,6 +8,7 @@
 - Branch name format: "feature/<name-of-feature>"
 - Create a new branch by running `git checkout -b feature/<name-of-feature>`
 - Create the branch on the server by running `git push -u origin feature/<name-of-feature>`
+- Create a new `Merge Request` to the main branch with the title of `[WIP] Description of feature`
 - For reviewing, create a new branch from the feature branch and name it `review/<name-of-feature>`
 - After reviewing, merge review branch into feature branch and add comments about requested changes (if applicable)
 - Start working!
@@ -29,9 +30,9 @@
 
 - When the work is completed, make sure all files are committed and pushed
 - Open the project in [GitLab](https://pear-labs.io/mono-projects/development) and navigate to your branch
-- There you'll see a button that says "Create Merge Request"
-- Create the merge request with the default options
-- Once the merge request is up, add information to the description to debrief the reviewer.
+- Request an approval from `Tim Raddish`, `Hierophant` or `T3rl`
+- Feedback will be given via a review branch merge request / comments
+- Once feedback is resolved, remove `[WIP]` from the title of the merge request
 - Once the code is approved and merged, it will be available in the `main` branch
 - Run `git checkout main` and then `git pull` to get the latest code
   - You are now ready to move on to the next task
