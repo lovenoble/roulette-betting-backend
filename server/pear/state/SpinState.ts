@@ -3,7 +3,7 @@ import {
 	MapSchema,
 	// SetSchema,
 	// ArraySchema,
-	type,
+	Context,
 } from '@colyseus/schema'
 
 import {
@@ -19,6 +19,8 @@ import {
 
 import { SpinRoomStatus } from '../../store/types'
 
+const type = Context.create()
+
 export interface ISpinState extends Schema {
 	guestUsers: MapSchema<IGuestUser>
 	users: MapSchema<IUser>
@@ -29,7 +31,7 @@ export interface ISpinState extends Schema {
 	currentRoundId: number
 }
 
-export default class SpinState extends Schema {
+export class SpinState extends Schema {
 	// sessionId(probably publicAddress?) -> Player, GuestPlayer
 	@type({ map: GuestUser }) guestUsers = new MapSchema<GuestUser>()
 	@type({ map: User }) users = new MapSchema<User>()

@@ -1,6 +1,8 @@
-import { Schema, ArraySchema, type } from '@colyseus/schema'
+import { Schema, ArraySchema, Context } from '@colyseus/schema'
 
 import { Entry } from './Entry'
+
+const type = Context.create()
 
 export interface IBatchEntry {
 	roundId: number // Round when batchEntry was submitted

@@ -1,5 +1,7 @@
-import { Schema, type } from '@colyseus/schema'
+import { Schema, Context } from '@colyseus/schema'
 import shortId from 'shortid'
+
+const type = Context.create()
 
 export interface IMessage {
 	id: string // Random id (shortId)

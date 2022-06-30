@@ -1,4 +1,6 @@
-import { Schema, type } from '@colyseus/schema'
+import { Schema, Context } from '@colyseus/schema'
+
+const type = Context.create()
 
 // GuestPlayers have access to join a room and spectate but they must authenticate with a wallet to play games
 export interface IGuestUser {

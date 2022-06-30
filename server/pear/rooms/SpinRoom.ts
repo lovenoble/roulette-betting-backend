@@ -20,7 +20,7 @@ import {
 	// OnBalanceUpdate,
 	// OnBatchEntrySettled,
 } from '../commands'
-import SpinState from '../state/SpinState'
+import { SpinState } from '../state/SpinState'
 import { logger } from '../utils'
 import store from '../../store'
 import PubSub from '../../pubsub'

@@ -24,7 +24,7 @@
         "docker:up": "docker-compose -p pear-connect --env-file .env up -d",
         "envoy": "envoy -c config/envoy.config.yaml",
         "envoy:docker": "envoy -c config/envoy.docker.yaml",
-        "update:contract:types": "cd ../../fare-smart-contracts/crypto && npm run generate:types",
+        "gen:csharp": "npx schema-codegen pear/state/SpinState.ts --output ./pear/unity-classes/ --csharp && npx schema-codegen pear/entities/* --output ./pear/unity-classes/ --csharp",
         "lint": "npx eslint . --ext .ts",
         "lint:ci": "eslint --max-warnings=0 . --ext .ts,.tsx,.js,.jsx",
         "lint:fix": "npx eslint . --ext .ts --fix",
@@ -33,7 +33,7 @@
         "start": "nodemon -r dotenv/config --exec node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm index.ts",
         "start:keeper": "nodemon -r dotenv/config --exec 'node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm' processes/pearKeeper.ts",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "gen:csharp": "npx schema-codegen pear/state/SpinState.ts --output ./pear/unity-classes/ --csharp && npx schema-codegen pear/entities/* --output ./pear/unity-classes/ --csharp"
+        "update:contract:types": "cd ../../fare-smart-contracts/crypto && npm run generate:types"
     },
     "keywords": [],
     "author": "",

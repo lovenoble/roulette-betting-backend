@@ -1,4 +1,6 @@
-import { Schema, type } from '@colyseus/schema'
+import { Schema, Context } from '@colyseus/schema'
+
+const type = Context.create()
 
 // @NOTE: Add wheel event messages to control global wheel events
 // export enum RoundState {

@@ -1,6 +1,7 @@
-import { Schema, type } from '@colyseus/schema'
-
+import { Schema, Context } from '@colyseus/schema'
 import { Balance, IBalance } from './Balance'
+
+const type = Context.create()
 
 export interface IUser {
 	// entityId: string // Redis hashId to reference in Redis store (emitted from pubsub event)
