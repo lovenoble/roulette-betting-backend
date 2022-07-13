@@ -218,7 +218,7 @@ class SpinGame extends Room<SpinState> {
 		this.clock.clear()
 		this.clock.stop()
 	}
-
+// window.ethereum.request({ method: "personal_sign", params: ["0x70997970C51812dc3A010C7d01b50e0d17dc79C8", "Fareplay.io would like to authenticate your account.\nPlease sign the following: 0x35643836303933642d343166312d343163302d616337342d343266383339653165306139"]})
 	async onAuth(client: Client, options: IDefaultRoomOptions = {}) {
 		try {
 			const { authToken } = options

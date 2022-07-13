@@ -2,6 +2,7 @@ import type { Client } from '@colyseus/core'
 import { Command } from '@colyseus/command'
 import { utils } from 'ethers'
 import numeral from 'numeral'
+import shortId from 'shortid'
 
 import type { SpinRoom } from '../types'
 import type {
@@ -15,6 +16,7 @@ import store from '../../store'
 import { SpinEvent, MAX_CHAT_MESSAGE_LENGTH, WebSocketCustomCodes } from '../constants'
 import { Entry, BatchEntry, Round, Message } from '../entities'
 import { logger } from '../utils'
+import { UserColorTheme } from 'rpc/models/user'
 
 // @NOTE: Needed commands
 // OnFetchFareSupply
@@ -42,12 +44,25 @@ export class OnFareTransfer extends Command<SpinRoom, FareTransferArgs> {
 		}
 	}
 }
-
+const guestUserMap = {}
 type OnNewChatMessageOpts = { text: string; client: Client }
 export class OnNewChatMessage extends Command<SpinRoom, OnNewChatMessageOpts> {
 	async execute({ text: _text, client }: OnNewChatMessageOpts) {
 		const text = (_text || '').trim()
-		const user = this.state.users.get(client.sessionId)
+
+		let clientUser = this.state.users.get(client.sessionId)
+		let user: any = {}
+
+		if (!clientUser) {
+			user = {
+				username: `Guest ${client.userData.guestId}`,
+				publicAddress: client.userData.guestId,
+				timestamp: Date.now(),
+				colorTheme: 'default'
+			}
+		} else {
+			user = { ...clientUser }
+		}
 
 		if (!client.auth) {
 			client.error(
