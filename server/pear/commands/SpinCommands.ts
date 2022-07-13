@@ -48,7 +48,6 @@ export class OnNewChatMessage extends Command<SpinRoom, OnNewChatMessageOpts> {
 	async execute({ text: _text, client }: OnNewChatMessageOpts) {
 		const text = (_text || '').trim()
 		const user = this.state.users.get(client.sessionId)
-		console.log('USER SENT MESSAGE', user)
 
 		if (!client.auth) {
 			client.error(

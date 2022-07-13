@@ -29,6 +29,7 @@ export interface ISpinState extends Schema {
 	roomStatus: SpinRoomStatus
 	fareTotalSupply: string
 	currentRoundId: number
+	isRoundPaused: boolean
 }
 
 export class SpinState extends Schema {
