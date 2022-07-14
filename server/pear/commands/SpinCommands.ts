@@ -14,9 +14,8 @@ import type {
 
 import store from '../../store'
 import { SpinEvent, MAX_CHAT_MESSAGE_LENGTH, WebSocketCustomCodes } from '../constants'
-import { Entry, BatchEntry, Round, Message } from '../entities'
+import { Entry, BatchEntry, Round, IMessage } from '../entities'
 import { logger } from '../utils'
-import { UserColorTheme } from 'rpc/models/user'
 
 // @NOTE: Needed commands
 // OnFetchFareSupply
@@ -44,25 +43,37 @@ export class OnFareTransfer extends Command<SpinRoom, FareTransferArgs> {
 		}
 	}
 }
-const guestUserMap = {}
-type OnNewChatMessageOpts = { text: string; client: Client }
+type OnNewChatMessageOpts = { text: string; client: Client; actorNumber: string }
 export class OnNewChatMessage extends Command<SpinRoom, OnNewChatMessageOpts> {
-	async execute({ text: _text, client }: OnNewChatMessageOpts) {
+	async execute({ text: _text, client, actorNumber }: OnNewChatMessageOpts) {
 		const text = (_text || '').trim()
+		if (!text) return
 
 		let clientUser = this.state.users.get(client.sessionId)
-		let user: any = {}
+		let newMsg: IMessage
 
 		if (!clientUser) {
-			user = {
-				username: `Guest ${client.userData.guestId}`,
-				publicAddress: client.userData.guestId,
-				timestamp: Date.now(),
-				colorTheme: 'default'
+			newMsg = {
+				id: shortId(),
+				text: text || '',
+				username: `Guest ${client.userData.guestId || shortId()}`,
+				createdBy: String(client.userData.guestId || ''),
+				colorTheme: 'default',
+				timestamp: Date.now().toString(),
+				actorNumber: actorNumber || '',
 			}
 		} else {
-			user = { ...clientUser }
+			newMsg = {
+				id: shortId(),
+				text,
+				username: clientUser.username || '',
+				createdBy: clientUser.publicAddress,
+				colorTheme: clientUser.colorTheme,
+				timestamp: Date.now().toString(),
+				actorNumber,
+			}
 		}
+		console.log(newMsg)
 
 		if (!client.auth) {
 			client.error(
@@ -88,16 +99,13 @@ export class OnNewChatMessage extends Command<SpinRoom, OnNewChatMessageOpts> {
 			return
 		}
 
-		logger.info(`New chat message from ${user.publicAddress} - ${text}`)
+		logger.info(`New chat message from ${newMsg.createdBy} - ${text}`)
 
-		const msg = new Message({
-			text,
-			username: user.username,
-			createdBy: user.publicAddress,
-			colorTheme: user.colorTheme,
-		})
-
-		this.room.broadcast(SpinEvent.NewChatMessage, msg, { except: client })
+		// const msg = new Message(newMsg)
+		const msgJSON = JSON.stringify(newMsg)
+		console.log(msgJSON)
+		this.room.broadcast(SpinEvent.NewChatMessage, msgJSON, { except: client })
+		// this.room.broadcast(newMsg, { except: client })
 	}
 }
 

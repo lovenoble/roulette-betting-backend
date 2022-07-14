@@ -93,8 +93,12 @@ class SpinGame extends Room<SpinState> {
 				logger.info(`New client action from ${client.sessionId} - ${type} - ${message}`)
 			})
 
-			this.onMessage(SpinEvent.NewChatMessage, (client, text: string) => {
-				this.dispatcher.dispatch(new OnNewChatMessage(), { text, client })
+			this.onMessage(SpinEvent.NewChatMessage, (client, payload: string) => {
+				const [text, actorNumber] = payload.split('::')
+				console.log(text, actorNumber)
+				if (!actorNumber || !text) return
+				console.log(client, text)
+				this.dispatcher.dispatch(new OnNewChatMessage(), { text, client, actorNumber })
 			})
 
 			// #endregion
@@ -218,7 +222,7 @@ class SpinGame extends Room<SpinState> {
 		this.clock.clear()
 		this.clock.stop()
 	}
-// window.ethereum.request({ method: "personal_sign", params: ["0x70997970C51812dc3A010C7d01b50e0d17dc79C8", "Fareplay.io would like to authenticate your account.\nPlease sign the following: 0x35643836303933642d343166312d343163302d616337342d343266383339653165306139"]})
+	// window.ethereum.request({ method: "personal_sign", params: ["0x70997970C51812dc3A010C7d01b50e0d17dc79C8", "Fareplay.io would like to authenticate your account.\nPlease sign the following: 0x35643836303933642d343166312d343163302d616337342d343266383339653165306139"]})
 	async onAuth(client: Client, options: IDefaultRoomOptions = {}) {
 		try {
 			const { authToken } = options
@@ -250,7 +254,7 @@ class SpinGame extends Room<SpinState> {
 
 			// @NOTE: Implement setting user data here
 			client.userData = { authToken, guestId }
-
+			console.log('GUEST JOINED!', client)
 			return `guest:${guestId}`
 		} catch (err: any) {
 			logger.error(err)
@@ -271,6 +275,7 @@ class SpinGame extends Room<SpinState> {
 	onJoin(client: Client, _options: IDefaultRoomOptions = {}, auth?: string) {
 		try {
 			const [publicAddress, guestId] = auth.split(':')
+			console.log(auth)
 
 			if (guestId) {
 				this.dispatcher.dispatch(new OnGuestUserJoined(), { client, guestId })
