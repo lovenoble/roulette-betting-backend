@@ -7,12 +7,14 @@
 
 using Colyseus.Schema;
 
-public class IMessage {
-	public string id;
-	public string text;
-	public string createdBy;
-	public string username;
-	public string colorTheme;
-	public float timestamp;
+namespace FareProtocol.Pear.State {
+	public class IMessage {
+		public string id;
+		public string text;
+		public string createdBy;
+		public string username;
+		public string colorTheme;
+		public string timestamp;
+		public string actorNumber;
+	}
 }
-

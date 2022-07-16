@@ -7,32 +7,33 @@
 
 using Colyseus.Schema;
 
-public partial class BatchEntry : Schema {
-	[Type(0, "number")]
-	public float roundId = default(float);
+namespace FareProtocol.Pear.State {
+	public partial class BatchEntry : Schema {
+		[Type(0, "number")]
+		public float roundId = default(float);
 
-	[Type(1, "number")]
-	public float batchEntryId = default(float);
+		[Type(1, "number")]
+		public float batchEntryId = default(float);
 
-	[Type(2, "string")]
-	public string player = default(string);
+		[Type(2, "string")]
+		public string player = default(string);
 
-	[Type(3, "boolean")]
-	public bool settled = default(bool);
+		[Type(3, "boolean")]
+		public bool settled = default(bool);
 
-	[Type(4, "string")]
-	public string totalEntryAmount = default(string);
+		[Type(4, "string")]
+		public string totalEntryAmount = default(string);
 
-	[Type(5, "string")]
-	public string totalWinAmount = default(string);
+		[Type(5, "string")]
+		public string totalWinAmount = default(string);
 
-	[Type(6, "number")]
-	public float timestamp = default(float);
+		[Type(6, "number")]
+		public float timestamp = default(float);
 
-	[Type(7, "array", typeof(ArraySchema<Entry>))]
-	public ArraySchema<Entry> entries = new ArraySchema<Entry>();
+		[Type(7, "array", typeof(ArraySchema<Entry>))]
+		public ArraySchema<Entry> entries = new ArraySchema<Entry>();
 
-	[Type(8, "boolean")]
-	public bool isLoss = default(bool);
+		[Type(8, "boolean")]
+		public bool isLoss = default(bool);
+	}
 }
-

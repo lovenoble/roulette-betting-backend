@@ -30,6 +30,8 @@ export interface IChatRoomState extends Schema {
 
 export interface IDefaultRoomOptions {
 	authToken?: string
+	networkUsername?: string
+	networkActorNumber?: string
 }
 
 export interface ICreateSpinRoomOptions {

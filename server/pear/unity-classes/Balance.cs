@@ -7,11 +7,12 @@
 
 using Colyseus.Schema;
 
-public partial class Balance : Schema {
-	[Type(0, "string")]
-	public string eth = default(string);
+namespace FareProtocol.Pear.State {
+	public partial class Balance : Schema {
+		[Type(0, "string")]
+		public string eth = default(string);
 
-	[Type(1, "string")]
-	public string fare = default(string);
+		[Type(1, "string")]
+		public string fare = default(string);
+	}
 }
-

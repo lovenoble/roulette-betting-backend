@@ -7,10 +7,11 @@
 
 using Colyseus.Schema;
 
-public class IMessageOpts {
-	public string text;
-	public string createdBy;
-	public string username;
-	public string colorTheme;
+namespace FareProtocol.Pear.State {
+	public class IMessageOpts {
+		public string text;
+		public string createdBy;
+		public string username;
+		public string colorTheme;
+	}
 }
-

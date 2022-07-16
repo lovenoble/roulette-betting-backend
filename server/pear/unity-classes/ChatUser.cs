@@ -7,14 +7,15 @@
 
 using Colyseus.Schema;
 
-public partial class ChatUser : Schema {
-	[Type(0, "string")]
-	public string publicAddress = default(string);
+namespace FareProtocol.Pear.State {
+	public partial class ChatUser : Schema {
+		[Type(0, "string")]
+		public string publicAddress = default(string);
 
-	[Type(1, "string")]
-	public string username = default(string);
+		[Type(1, "string")]
+		public string username = default(string);
 
-	[Type(2, "string")]
-	public string colorTheme = default(string);
+		[Type(2, "string")]
+		public string colorTheme = default(string);
+	}
 }
-

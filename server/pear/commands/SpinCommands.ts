@@ -43,24 +43,35 @@ export class OnFareTransfer extends Command<SpinRoom, FareTransferArgs> {
 		}
 	}
 }
-type OnNewChatMessageOpts = { text: string; client: Client; actorNumber: string }
+type OnNewChatMessageOpts = { text: string; client: Client }
 export class OnNewChatMessage extends Command<SpinRoom, OnNewChatMessageOpts> {
-	async execute({ text: _text, client, actorNumber }: OnNewChatMessageOpts) {
+	async execute({ text: _text, client }: OnNewChatMessageOpts) {
 		const text = (_text || '').trim()
 		if (!text) return
 
 		let clientUser = this.state.users.get(client.sessionId)
 		let newMsg: IMessage
 
+		if (!client.userData.networkActorNumber) {
+			client.error(
+				WebSocketCustomCodes.RESTRICTED_USER_ACTION,
+				'User does not have network actorNumber'
+			)
+			return
+		}
+
 		if (!clientUser) {
 			newMsg = {
 				id: shortId(),
 				text: text || '',
-				username: `Guest ${client.userData.guestId || shortId()}`,
-				createdBy: String(client.userData.guestId || ''),
+				username:
+					client.userData?.networkUsername ||
+					`Guest ${client.userData.guestId || shortId()}`,
+				createdBy:
+					client.userData?.networkUsername || String(client.userData.guestId || ''),
 				colorTheme: 'default',
 				timestamp: Date.now().toString(),
-				actorNumber: actorNumber || '',
+				actorNumber: client.userData?.networkActorNumber,
 			}
 		} else {
 			newMsg = {
@@ -70,18 +81,18 @@ export class OnNewChatMessage extends Command<SpinRoom, OnNewChatMessageOpts> {
 				createdBy: clientUser.publicAddress,
 				colorTheme: clientUser.colorTheme,
 				timestamp: Date.now().toString(),
-				actorNumber,
+				actorNumber: client.userData?.networkActorNumber,
 			}
 		}
 		console.log(newMsg)
 
-		if (!client.auth) {
-			client.error(
-				WebSocketCustomCodes.RESTRICTED_USER_ACTION,
-				'Guests cannot send chat messages.'
-			)
-			return
-		}
+		// if (!client.auth) {
+		// 	client.error(
+		// 		WebSocketCustomCodes.RESTRICTED_USER_ACTION,
+		// 		'Guests cannot send chat messages.'
+		// 	)
+		// 	return
+		// }
 
 		if (text.length === 0) {
 			client.error(

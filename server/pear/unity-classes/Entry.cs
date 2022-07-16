@@ -7,32 +7,33 @@
 
 using Colyseus.Schema;
 
-public partial class Entry : Schema {
-	[Type(0, "string")]
-	public string amount = default(string);
+namespace FareProtocol.Pear.State {
+	public partial class Entry : Schema {
+		[Type(0, "string")]
+		public string amount = default(string);
 
-	[Type(1, "number")]
-	public float roundId = default(float);
+		[Type(1, "number")]
+		public float roundId = default(float);
 
-	[Type(2, "number")]
-	public float gameModeId = default(float);
+		[Type(2, "number")]
+		public float gameModeId = default(float);
 
-	[Type(3, "number")]
-	public float pickedNumber = default(float);
+		[Type(3, "number")]
+		public float pickedNumber = default(float);
 
-	[Type(4, "string")]
-	public string player = default(string);
+		[Type(4, "string")]
+		public string player = default(string);
 
-	[Type(5, "number")]
-	public float entryIdx = default(float);
+		[Type(5, "number")]
+		public float entryIdx = default(float);
 
-	[Type(6, "string")]
-	public string winAmount = default(string);
+		[Type(6, "string")]
+		public string winAmount = default(string);
 
-	[Type(7, "boolean")]
-	public bool settled = default(bool);
+		[Type(7, "boolean")]
+		public bool settled = default(bool);
 
-	[Type(8, "boolean")]
-	public bool isLoss = default(bool);
+		[Type(8, "boolean")]
+		public bool isLoss = default(bool);
+	}
 }
-
