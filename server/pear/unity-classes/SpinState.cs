@@ -7,7 +7,7 @@
 
 using Colyseus.Schema;
 
-namespace FareProtocol.Pear.State {
+namespace FareProtocol.Schemas {
 	public partial class SpinState : Schema {
 		[Type(0, "map", typeof(MapSchema<GuestUser>))]
 		public MapSchema<GuestUser> guestUsers = new MapSchema<GuestUser>();

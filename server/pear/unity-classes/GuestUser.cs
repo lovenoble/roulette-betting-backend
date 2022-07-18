@@ -7,7 +7,7 @@
 
 using Colyseus.Schema;
 
-namespace FareProtocol.Pear.State {
+namespace FareProtocol.Schemas {
 	public partial class GuestUser : Schema {
 		[Type(0, "string")]
 		public string guestId = default(string);

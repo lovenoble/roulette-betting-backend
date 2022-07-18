@@ -7,7 +7,7 @@
 
 using Colyseus.Schema;
 
-namespace FareProtocol.Pear.State {
+namespace FareProtocol.Schemas {
 	public class IMessage {
 		public string id;
 		public string text;

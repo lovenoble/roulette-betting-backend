@@ -173,6 +173,11 @@ export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
 					batchEntry.totalEntryAmount
 				).format('0,0.00')} - Entry count: ${entries.length}`
 			)
+			// @NOTE: Look this over later
+			if (!batchEntry || !entries || !batchEntry.player) {
+				return
+			}
+
 			const batchEntryState = new BatchEntry()
 			batchEntryState.roundId = batchEntry.roundId
 			batchEntryState.batchEntryId = batchEntry.batchEntryId

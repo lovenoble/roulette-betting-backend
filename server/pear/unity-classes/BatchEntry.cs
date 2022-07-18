@@ -7,7 +7,7 @@
 
 using Colyseus.Schema;
 
-namespace FareProtocol.Pear.State {
+namespace FareProtocol.Schemas {
 	public partial class BatchEntry : Schema {
 		[Type(0, "number")]
 		public float roundId = default(float);

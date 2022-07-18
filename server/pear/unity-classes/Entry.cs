@@ -7,7 +7,7 @@
 
 using Colyseus.Schema;
 
-namespace FareProtocol.Pear.State {
+namespace FareProtocol.Schemas {
 	public partial class Entry : Schema {
 		[Type(0, "string")]
 		public string amount = default(string);
