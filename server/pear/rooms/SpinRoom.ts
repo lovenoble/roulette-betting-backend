@@ -4,7 +4,7 @@ import { Dispatcher } from '@colyseus/command'
 import shortId from 'shortid'
 
 import type { IDefaultRoomOptions, ICreateSpinRoomOptions } from '../types'
-import { HttpStatusCode, SpinEvent, MAX_SPIN_CLIENTS } from '../constants'
+import { HttpStatusCode, SpinEvent, MAX_SPIN_CLIENTS, WebSocketCloseCode } from '../constants'
 import { INITIAL_COUNTDOWN_SECS } from '../../crypto/constants'
 import {
 	OnBatchEntry,
@@ -20,7 +20,7 @@ import {
 	// OnBalanceUpdate,
 	// OnBatchEntrySettled,
 } from '../commands'
-import SpinState from '../state/SpinState'
+import { SpinState } from '../state/SpinState'
 import { logger } from '../utils'
 import store from '../../store'
 import PubSub from '../../pubsub'
@@ -60,7 +60,7 @@ class SpinGame extends Room<SpinState> {
 	async onCreate(options: ICreateSpinRoomOptions) {
 		try {
 			const { name, desc, password } = options
-			logger.info(`Creating new SpinRoom: name --> ${name},\n description --> ${desc}`)
+			logger.info(`Creating new SpinRoom: name --> ${name} description --> ${desc}`)
 
 			this.#name = name
 			this.#desc = desc
@@ -211,7 +211,6 @@ class SpinGame extends Room<SpinState> {
 	resetCountdown() {
 		this.stopCountdown()
 		this.#currentCountdown = INITIAL_COUNTDOWN_SECS
-		console.log('reset')
 	}
 
 	stopCountdown() {
@@ -219,21 +218,31 @@ class SpinGame extends Room<SpinState> {
 		this.clock.clear()
 		this.clock.stop()
 	}
-
+	// window.ethereum.request({ method: "personal_sign", params: ["0x70997970C51812dc3A010C7d01b50e0d17dc79C8", "Fareplay.io would like to authenticate your account.\nPlease sign the following: 0x35643836303933642d343166312d343163302d616337342d343266383339653165306139"]})
 	async onAuth(client: Client, options: IDefaultRoomOptions = {}) {
 		try {
-			const { authToken } = options
+			const { authToken, networkUsername, networkActorNumber } = options
 			// Handle authenticated user
 			if (authToken) {
 				const user = await store.service.user.getUserFromToken(authToken)
 
 				if (!user) {
-					logger.error(new Error('Invalid user authToken.'))
-					throw new ServerError(HttpStatusCode.UNAUTHORIZED, 'Invalid user authToken.')
+					logger.error(
+						new Error('Invalid authToken. Please reauthenticate and try again.')
+					)
+					throw new ServerError(
+						HttpStatusCode.UNAUTHORIZED,
+						'Invalid authToken. Please reauthenticate and try again.'
+					)
 				}
 
 				// @NOTE: Implement setting user data here
-				client.userData = { authToken, publicAddress: user.publicAddress }
+				client.userData = {
+					authToken,
+					publicAddress: user.publicAddress,
+					networkUsername,
+					networkActorNumber,
+				}
 				return user.publicAddress
 			}
 
@@ -245,18 +254,28 @@ class SpinGame extends Room<SpinState> {
 			// client.send(SpinEvent.GuestUserJoined, guestId)
 
 			// @NOTE: Implement setting user data here
-			client.userData = { authToken, guestId }
-
+			client.userData = { authToken, guestId, networkUsername, networkActorNumber }
 			return `guest:${guestId}`
 		} catch (err: any) {
-			logger.error(new Error(err.toString()))
-			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
+			logger.error(err)
+			setTimeout(
+				() => client.leave(WebSocketCloseCode.POLICY_VIOLATION, (err as Error).message),
+				0
+			)
+			if (err instanceof ServerError) {
+				throw err
+			} else if (err instanceof Error) {
+				throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.message)
+			}
+
+			throw err
 		}
 	}
 
 	onJoin(client: Client, _options: IDefaultRoomOptions = {}, auth?: string) {
 		try {
 			const [publicAddress, guestId] = auth.split(':')
+			console.log(auth)
 
 			if (guestId) {
 				this.dispatcher.dispatch(new OnGuestUserJoined(), { client, guestId })
@@ -272,8 +291,18 @@ class SpinGame extends Room<SpinState> {
 				)
 			}
 		} catch (err) {
-			logger.error(new Error(err.toString()))
-			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
+			logger.error(err)
+			setTimeout(
+				() => client.leave(WebSocketCloseCode.POLICY_VIOLATION, (err as Error).message),
+				0
+			)
+			if (err instanceof ServerError) {
+				throw err
+			} else if (err instanceof Error) {
+				throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.message)
+			}
+
+			throw err
 		}
 	}
 

@@ -15,14 +15,15 @@ export class OnGuestUserJoined extends Command<SpinRoom, IGuestUser & { client: 
 			guestId,
 			sessionId: client.sessionId,
 		})
-
-		client.send(SpinEvent.SendRoomData, {
-			guestId,
-			countdown: this.room.currentCountdown,
-			roomStatus: this.state.roomStatus,
-			fareTotalSupply: this.state.fareTotalSupply,
-			currentRoundId: this.state.currentRoundId,
-		})
+		console.log(guestUser)
+		// @NOTE: Add this back later
+		// client.send(SpinEvent.SendRoomData, {
+		// 	guestId,
+		// 	countdown: this.room.currentCountdown,
+		// 	roomStatus: this.state.roomStatus,
+		// 	fareTotalSupply: this.state.fareTotalSupply,
+		// 	currentRoundId: this.state.currentRoundId,
+		// })
 
 		this.state.guestUsers.set(client.sessionId, guestUser)
 	}

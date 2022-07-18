@@ -1,4 +1,6 @@
-import { Schema, type } from '@colyseus/schema'
+import { Schema, Context } from '@colyseus/schema'
+
+const type = Context.create()
 
 export interface IEntry {
 	amount: string // Amount of FARE token submitted

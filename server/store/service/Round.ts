@@ -60,8 +60,7 @@ export default class RoundService extends ServiceBase<Round> {
 
 	public async getCachedSpinRoundPaused() {
 		const isPaused = await this.client.get(`Global:${GlobalRedisKey.IsSpinRoundPaused}`)
-
-		return Boolean(isPaused)
+		return isPaused === 'true'
 	}
 
 	public async setSpinCountdownTimer(time: number) {

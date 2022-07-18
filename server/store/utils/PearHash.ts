@@ -41,9 +41,17 @@ export default abstract class PearHash {
 
 	static decodeJwt(token: string) {
 		// @NOTE: Generate PEM RSA public/private key for verifying
-		const decoded = jwt.verify(token, jwtSecret) as JWTDecodedData
+		try {
+			const decoded = jwt.verify(token, jwtSecret) as JWTDecodedData
 
-		return decoded
+			return decoded
+		} catch (err) {
+			if (err instanceof Error) {
+				if (err.message === 'jwt malformed')
+					throw new Error('Invalid auth token. Please reauthenticate and try again.')
+			}
+			throw err
+		}
 	}
 
 	static getAddressFromToken(token: string) {

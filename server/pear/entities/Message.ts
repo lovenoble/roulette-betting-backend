@@ -1,14 +1,8 @@
-import { Schema, type } from '@colyseus/schema'
+import { Schema, Context } from '@colyseus/schema'
 import shortId from 'shortid'
+import { IMessage } from './IMessage'
 
-export interface IMessage {
-	id: string // Random id (shortId)
-	text: string // @NOTE: May need to do parsing to handle emojis
-	createdBy: string // User's public address
-	username?: string // User's username
-	colorTheme?: string // User's colorScheme
-	timestamp: number // Unix timestamp
-}
+const type = Context.create()
 
 export interface IMessageOpts {
 	text: string
@@ -26,9 +20,10 @@ export class Message extends Schema implements IMessage {
 	@type('string') id: string
 	@type('string') text: string
 	@type('string') createdBy: string
-	@type('string') username?: string
-	@type('string') colorTheme?: string
-	@type('number') timestamp: number
+	@type('string') username: string
+	@type('string') colorTheme: string
+	@type('string') timestamp: string
+	@type('string') actorNumber: string
 
 	constructor({ text, createdBy, username, colorTheme }: IMessageOpts) {
 		super()
@@ -37,6 +32,6 @@ export class Message extends Schema implements IMessage {
 		this.createdBy = createdBy
 		this.username = username
 		this.colorTheme = colorTheme
-		this.timestamp = Date.now()
+		this.timestamp = Date.now().toString()
 	}
 }

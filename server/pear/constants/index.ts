@@ -1,9 +1,9 @@
 // General
 export enum RoomName {
-	Lobby = 'Lobby',
-	Spin = 'Spin',
-	ChatRoom = 'ChatRoom',
-	MediaStream = 'MediaStream',
+    Lobby = 'Lobby',
+    Spin = 'Spin',
+    ChatRoom = 'ChatRoom',
+    MediaStream = 'MediaStream',
 }
 
 export const MAX_CHAT_MESSAGE_LENGTH = 140

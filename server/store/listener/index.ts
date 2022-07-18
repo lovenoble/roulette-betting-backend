@@ -82,6 +82,7 @@ export default class SmartContractListener {
 		spinAPI.contract.on(EventNames.EntrySubmitted, this.listeners.entrySubmitted)
 		spinAPI.contract.on(EventNames.RoundConcluded, this.listeners.roundConcluded)
 		spinAPI.contract.on(EventNames.EntrySettled, this.listeners.entrySettled)
+		spinAPI.contract.on(EventNames.RoundPausedChanged, this.listeners.roundPausedChanged)
 		// @NOTE: Need to implement NFTWon event
 		// spinAPI.contract.on(EventNames.NFTWon, this.listeners.nftWon)
 

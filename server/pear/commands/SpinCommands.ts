@@ -2,6 +2,7 @@ import type { Client } from '@colyseus/core'
 import { Command } from '@colyseus/command'
 import { utils } from 'ethers'
 import numeral from 'numeral'
+import shortId from 'shortid'
 
 import type { SpinRoom } from '../types'
 import type {
@@ -13,7 +14,7 @@ import type {
 
 import store from '../../store'
 import { SpinEvent, MAX_CHAT_MESSAGE_LENGTH, WebSocketCustomCodes } from '../constants'
-import { Entry, BatchEntry, Round, Message } from '../entities'
+import { Entry, BatchEntry, Round, IMessage } from '../entities'
 import { logger } from '../utils'
 
 // @NOTE: Needed commands
@@ -42,21 +43,56 @@ export class OnFareTransfer extends Command<SpinRoom, FareTransferArgs> {
 		}
 	}
 }
-
 type OnNewChatMessageOpts = { text: string; client: Client }
 export class OnNewChatMessage extends Command<SpinRoom, OnNewChatMessageOpts> {
 	async execute({ text: _text, client }: OnNewChatMessageOpts) {
 		const text = (_text || '').trim()
-		const user = this.state.users.get(client.sessionId)
-		console.log('USER SENT MESSAGE', user)
+		if (!text) return
 
-		if (!client.auth) {
+		let clientUser = this.state.users.get(client.sessionId)
+		let newMsg: IMessage
+
+		if (!client.userData.networkActorNumber) {
 			client.error(
 				WebSocketCustomCodes.RESTRICTED_USER_ACTION,
-				'Guests cannot send chat messages.'
+				'User does not have network actorNumber'
 			)
 			return
 		}
+
+		if (!clientUser) {
+			newMsg = {
+				id: shortId(),
+				text: text || '',
+				username:
+					client.userData?.networkUsername ||
+					`Guest ${client.userData.guestId || shortId()}`,
+				createdBy:
+					client.userData?.networkUsername || String(client.userData.guestId || ''),
+				colorTheme: 'default',
+				timestamp: Date.now().toString(),
+				actorNumber: client.userData?.networkActorNumber,
+			}
+		} else {
+			newMsg = {
+				id: shortId(),
+				text,
+				username: clientUser.username || '',
+				createdBy: clientUser.publicAddress,
+				colorTheme: clientUser.colorTheme,
+				timestamp: Date.now().toString(),
+				actorNumber: client.userData?.networkActorNumber,
+			}
+		}
+		console.log(newMsg)
+
+		// if (!client.auth) {
+		// 	client.error(
+		// 		WebSocketCustomCodes.RESTRICTED_USER_ACTION,
+		// 		'Guests cannot send chat messages.'
+		// 	)
+		// 	return
+		// }
 
 		if (text.length === 0) {
 			client.error(
@@ -74,16 +110,13 @@ export class OnNewChatMessage extends Command<SpinRoom, OnNewChatMessageOpts> {
 			return
 		}
 
-		logger.info(`New chat message from ${user.publicAddress} - ${text}`)
+		logger.info(`New chat message from ${newMsg.createdBy} - ${text}`)
 
-		const msg = new Message({
-			text,
-			username: user.username,
-			createdBy: user.publicAddress,
-			colorTheme: user.colorTheme,
-		})
-
-		this.room.broadcast(SpinEvent.NewChatMessage, msg, { except: client })
+		// const msg = new Message(newMsg)
+		const msgJSON = JSON.stringify(newMsg)
+		console.log(msgJSON)
+		this.room.broadcast(SpinEvent.NewChatMessage, msgJSON, { except: client })
+		// this.room.broadcast(newMsg, { except: client })
 	}
 }
 

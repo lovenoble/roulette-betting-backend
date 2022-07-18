@@ -3,6 +3,20 @@ const chrome = require("selenium-webdriver/chrome");
 const path = require("path");
 const fs = require("fs");
 const CD_PATH = require("chromedriver").path;
+const UserClientService = require("../lib/rpc/protos/generated/user_grpc_web_pb");
+const grpc = require("@grpc/grpc-js");
+const protoLoader = require("@grpc/proto-loader");
+const { resolve } = require("path");
+const USER_PROTO = path.resolve("./lib/rpc/protos/user.proto");
+const HEALTH_PROTO = path.resolve("./lib/rpc/protos/health.proto");
+const ANALYTICS_PROTO = path.resolve("./lib/rpc/protos/analytics.proto");
+const ganache = require("ganache-core");
+const Web3 = require("web3");
+const currentProvider = new Web3.providers.HttpProvider(
+  "http://localhost:8545"
+);
+
+const web3 = new Web3(currentProvider);
 
 const checkExistence = (elementRef) => {
   if (elementRef) {
@@ -20,7 +34,7 @@ const checkClickThrough = async (elementRef) => {
 
 const e2eSequence00 = () => {
   // testing globals
-  const GC_PATH = path.resolve(`./chromedriver`); // this path is relative to the jest runner file
+  const GC_PATH = path.resolve(`./chromedriver.exe`); // this path is relative to the jest runner file
   let driver;
 
   // global fp target elements
@@ -45,7 +59,7 @@ const e2eSequence00 = () => {
 
   beforeAll(async () => {
     const opt = new chrome.Options();
-    opt.setChromeBinaryPath(GC_PATH);
+    //opt.setChromeBinaryPath(GC_PATH);
     driver = chrome.Driver.createSession(
       opt,
       new chrome.ServiceBuilder(CD_PATH).build()
@@ -127,7 +141,7 @@ const e2eSequence00 = () => {
     });
 
     // future features
-    /* 
+    /*
     test('click on about/info button', async () => {
       const about = await driver.wait(until.elementLocated(By.xpath(`//html/body/div/div/img`)), 20000, '20 second timeout', 1000);
       try {
@@ -136,7 +150,7 @@ const e2eSequence00 = () => {
         return new Error(e);
       }
     });
-  
+
     test('click on whitepaper button', async () => {
       const whitepaper = await driver.wait(until.elementLocated(By.xpath(`//html/body/div/div[2]/div/div/div/div[2]/button[1]`)), 20000, '20 second timeout', 1000);
       try {
@@ -144,10 +158,10 @@ const e2eSequence00 = () => {
       } catch(e) {
         return new Error(e);
       }
-  
+
       expect('white paper does not appear').toBe(true);
     });
-  
+
     test('click on about/info button', async () => {
       const about = await driver.wait(until.elementLocated(By.xpath(`//html/body/div/div/img`)), 20000, '20 second timeout', 1000);
       try {
@@ -156,7 +170,7 @@ const e2eSequence00 = () => {
         return new Error(e);
       }
     });
-  
+
     test('click on simulation button', async () => {
       const simulation = await driver.wait(until.elementLocated(By.xpath(`//html/body/div/div[2]/div/div/div/div[2]/button[1]`)), 20000, '20 second timeout', 1000);
       try {
@@ -164,7 +178,7 @@ const e2eSequence00 = () => {
       } catch(e) {
         return new Error(e);
       }
-  
+
       expect('simulation does not appear').toBe(true);
     });
     */
@@ -307,6 +321,133 @@ const e2eSequence00 = () => {
     });
   });
 
+  describe("redis store test", () => {
+    it("test generate nonce", async () => {
+      var packageDefinition = protoLoader.loadSync(USER_PROTO, {
+        keepCase: true,
+        longs: String,
+        enums: String,
+        defaults: true,
+        oneofs: true,
+      });
+      var protoDescriptor = grpc.loadPackageDefinition(packageDefinition);
+
+      var user = protoDescriptor.user;
+      var client = new user.User(
+        "localhost:8080",
+        grpc.credentials.createInsecure()
+      );
+
+      const result = await new Promise((resolve, reject) =>
+        client.generateNonce(
+          {
+            publicAddress: "0x0bEB3097F8e61FB90432d151590D701C5D90f614",
+          },
+          {},
+          (err, response) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(response);
+            }
+          }
+        )
+      );
+      // console.log(result);
+
+      // const signature = await web3.eth.personal.sign(
+      //   result.signingMessage,
+      //   "0x0bEB3097F8e61FB90432d151590D701C5D90f614"
+      // );
+
+      // console.log(signature);
+
+      // const verifyResult = await new Promise((resolve, reject) =>
+      //   client.verifySignature(
+      //     {
+      //       publicAddress: "0x0bEB3097F8e61FB90432d151590D701C5D90f614",
+      //       signature: result.signingMessage,
+      //     },
+      //     {},
+      //     (err, response) => {
+      //       if (err) {
+      //         reject(err);
+      //       } else {
+      //         resolve(response);
+      //       }
+      //     }
+      //   )
+      // );
+      expect(result.nonce).not.toBe(null);
+    });
+
+    it("test health status", async () => {
+      var packageDefinitionHealth = protoLoader.loadSync(HEALTH_PROTO, {
+        keepCase: true,
+        longs: String,
+        enums: String,
+        defaults: true,
+        oneofs: true,
+      });
+      var protoDescriptorHealth = grpc.loadPackageDefinition(
+        packageDefinitionHealth
+      );
+      var health = protoDescriptorHealth.grpc.health.v1;
+      var client = new health.Health(
+        "localhost:8080",
+        grpc.credentials.createInsecure()
+      );
+      const result = await new Promise((resolve, reject) =>
+        client.check(
+          {
+            service: "pear.User",
+          },
+          {},
+          (err, response) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(response);
+            }
+          }
+        )
+      );
+      expect(result.status).toBe("SERVING");
+    });
+
+    it("test analytics api", async () => {
+      var packageDefinition = protoLoader.loadSync(ANALYTICS_PROTO, {
+        keepCase: true,
+        longs: String,
+        enums: String,
+        defaults: true,
+        oneofs: true,
+      });
+      var protoDescriptor = grpc.loadPackageDefinition(packageDefinition);
+      var analytics = protoDescriptor.analytics;
+      var client = new analytics.Analytics(
+        "localhost:8080",
+        grpc.credentials.createInsecure()
+      );
+      const result = await new Promise((resolve, reject) =>
+        client.userProfile(
+          {
+            entityId: "01G4FV1Y5BZHTPBX9KKTYS0QXJ",
+          },
+          {},
+          (err, response) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(response);
+            }
+          }
+        )
+      );
+      expect(result.fareAmount).not.toBe(null);
+    });
+  });
+
   describe("click on join as guest and attempt to play", () => {
     test("check target strategy: GAME_BTNS[0]", async () => {
       const wheel = await driver.wait(
@@ -424,22 +565,22 @@ const e2eSequence00 = () => {
     });
 
     // future features
-    /*    
+    /*
     test('deposit button appears', async () => {
       const deposit = await driver.wait(until.elementLocated(By.className('sc-hBUSln ioNfJn')), 10000, '10 second timeout', 1000);
       try {
         await deposit.click();
       } catch(e) {
-        return new Error(e); 
+        return new Error(e);
       }
     });
-  
+
     test('withrdaw button appears', async () => {
       const withdraw = await driver.wait(until.elementLocated(By.className('sc-dlVxhl iVbvpI')), 10000, '10 second timeout', 1000);
       try {
         await withdraw.click();
       } catch(e) {
-        return new Error(e); 
+        return new Error(e);
       }
     });
     */
@@ -491,94 +632,9 @@ const e2eSequence00 = () => {
 
       return expect(modalIsDisPlayed).toBe(true);
     });
-   
 
     afterAll(async () => await driver.get("http://localhost:3000"));
   });
-
-  describe('connect with metamask',async() => {
-    test('Does not display wallet because not connected', async () => {
-      // Setup
-      const buttonWallet = await driver.queryByText(/Show me your wallet/);
-    
-      // Pre Expecations
-      expect(buttonWallet).toBeInTheDocument();
-    
-      // Init
-      // - Because our button click is an async we need to both await the act and have it async
-      await act(async () => {
-        user.click(buttonWallet);
-      });
-    
-      // Post Expectations
-      const regexWallet = new RegExp(`${WALLET_ADDRESS}`);
-      expect(await driver.queryByText(regexWallet)).not.toBeInTheDocument();
-    });
-    
-    /**
-     * 
-     */
-    test('Signs message with connected wallet', async () => {
-      // Setup
-      render(<App />);
-      const buttonWallet = await driver.queryByText(/Show me your wallet/);
-      const buttonSignMessage = await driver.queryByText(/Sign message/);
-    
-      // Pre Expecations
-      expect(buttonWallet).toBeInTheDocument();
-      expect(buttonSignMessage).not.toBeInTheDocument();
-    
-      // Init
-      await act(async () => {
-        user.click(buttonWallet);
-      });
-    
-      await act(async () => {
-        user.click(await driver.queryByText(/Sign message/) );
-      })
-    
-      // Post Expectations
-      const regexWallet = new RegExp(`${WALLET_ADDRESS}`);
-      const signedMessageParagraph = await driver.queryByText(/Your signed message:/);
-      const signedMessage = signedMessageParagraph?.innerHTML.replace('Your signed message: ', '');
-      expect(signedMessageParagraph).toBeInTheDocument();
-      expect(await driver.queryByText(regexWallet)).toBeInTheDocument();
-      expect(await driver.queryByText(/Sign message/)).toBeInTheDocument();
-      expect(ethers.utils.verifyMessage('Hello there!', signedMessage as string)).toBe(WALLET_ADDRESS);
-    });
-    
-    /**
-     * 
-     */
-    test('Does NOT sign message with connected wallet because canceled', async () => {
-      // Setup
-      const buttonWallet = await driver.queryByText(/Show me your wallet/);
-      const buttonSignMessage = await driver.queryByText(/Sign message/);
-    
-      // Pre Expecations
-      expect(buttonWallet).toBeInTheDocument();
-      expect(buttonSignMessage).not.toBeInTheDocument();
-    
-      // Init
-      await act(async () => {
-        user.click(buttonWallet);
-      });
-    
-      await act(async () => {
-        user.click(await driver.queryByText(/Sign message/));
-      })
-    
-      // Post Expectations
-      const regexWallet = new RegExp(`${WALLET_ADDRESS}`);
-      const regexDeclinedSignature = new RegExp(`Signature declined. "${ERROR_DECLINED_SIGNATURE}"`);
-      const signedMessageParagraph = await driver.queryByText(/Your signed message:/);
-      expect(signedMessageParagraph).not.toBeInTheDocument();
-      expect(await driver.queryByText(regexWallet)).toBeInTheDocument();
-      expect(await driver.queryByText(/Sign message/)).toBeInTheDocument();
-      expect(await driver.queryByText(regexDeclinedSignature)).toBeInTheDocument();
-    });
-  })
-
 
   describe("check F logo link", () => {
     test("check target strategy: F_LOGO_BTN", async () => {

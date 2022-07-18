@@ -1,4 +1,6 @@
-import { Schema, type } from '@colyseus/schema'
+import { Schema, Context } from '@colyseus/schema'
+
+const type = Context.create()
 
 export interface IChatUser {
 	// entityId: string // Redis hashId to reference in Redis store (emitted from pubsub event)

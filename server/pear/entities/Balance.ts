@@ -1,4 +1,6 @@
-import { Schema, type } from '@colyseus/schema'
+import { Schema, Context } from '@colyseus/schema'
+
+const type = Context.create()
 
 export interface IBalance {
 	eth: string // @NOTE: may need to rename this to avaxBalance when we deploy to production
