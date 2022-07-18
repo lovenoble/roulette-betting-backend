@@ -34,6 +34,12 @@ export interface IDefaultRoomOptions {
 	networkActorNumber?: string
 }
 
+export interface IMetaverseOptions {
+	authToken?: string
+	username?: string
+	actorNumber?: string
+}
+
 export interface ICreateSpinRoomOptions {
 	name?: string
 	desc?: string

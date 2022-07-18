@@ -2,6 +2,7 @@ import { Server, LobbyRoom } from '@colyseus/core'
 
 import SpinRoom from './SpinRoom'
 import ChatRoom from './ChatRoom'
+import Metaverse from './Metaverse'
 // import MediaStream from './MediaStream'
 
 import type { RoomMap } from '../types'
@@ -35,14 +36,15 @@ export const roomList: RoomMap = {
 			password: null,
 		},
 	},
-	// mediaStream: {
-	// 	def: MediaStream,
-	// 	options: {
-	// 		name: RoomName.MediaStream
-	// 		desc: 'Media Stream for audio, video, file-sharing, and screen-sharing',
-	// 		password: null,
-	// 	},
-	// },
+	metaverse: {
+		name: RoomName.Metaverse,
+		def: Metaverse,
+		options: {
+			name: 'Metaverse room',
+			desc: 'Metaverse room',
+			password: null,
+		},
+	},
 }
 
 class Rooms {
@@ -55,11 +57,12 @@ class Rooms {
 	}
 
 	createAll() {
-		const { chat, spin, lobby } = this.roomList
+		const { chat, spin, lobby, metaverse } = this.roomList
 
 		this.pearServer.define(chat.name, chat.def, chat.options).enableRealtimeListing()
 		this.pearServer.define(spin.name, spin.def, spin.options)
 		this.pearServer.define(lobby.name, lobby.def, lobby.options)
+		this.pearServer.define(metaverse.name, metaverse.def, metaverse.options)
 	}
 }
 
