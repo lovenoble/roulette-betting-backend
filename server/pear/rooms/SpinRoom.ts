@@ -306,11 +306,13 @@ class SpinGame extends Room<SpinState> {
 		}
 	}
 
-	onLeave(client: Client) {
+	onLeave(client: Client, consented: boolean) {
 		const { sessionId } = client
 
 		this.dispatcher.dispatch(new OnUserLeave(), {
 			sessionId,
+			client,
+			consented,
 		})
 	}
 
