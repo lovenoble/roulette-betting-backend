@@ -168,15 +168,15 @@ export class OnFareTotalSupplyUpdated extends Command<SpinRoom, string> {
 export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
 	execute({ batchEntry, entries }: BatchEntryMsgArgs) {
 		try {
+			// @NOTE: Look this over later
+			if (!batchEntry || !entries || !batchEntry.player) {
+				return
+			}
 			logger.info(
 				`OnBatchEntry -> ${batchEntry.player.substring(0, 11)} - Amount: ${numeral(
 					batchEntry.totalEntryAmount
 				).format('0,0.00')} - Entry count: ${entries.length}`
 			)
-			// @NOTE: Look this over later
-			if (!batchEntry || !entries || !batchEntry.player) {
-				return
-			}
 
 			const batchEntryState = new BatchEntry()
 			batchEntryState.roundId = batchEntry.roundId
