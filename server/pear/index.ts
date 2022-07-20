@@ -55,6 +55,8 @@ export class PearServer {
 
 		try {
 			this.server = new Server({
+				pingInterval: 30,
+				pingMaxRetries: 30,
 				transport: transport.instance,
 				presence: new RedisPresence(presenceOpts),
 				driver: new MongooseDriver(this.#mongoUri),
