@@ -11,11 +11,12 @@ import store from '../../store'
 
 export class OnGuestUserJoined extends Command<SpinRoom, IGuestUser & { client: Client }> {
 	async execute({ guestId, client }: IGuestUser & { client: Client }) {
+		console.log('ADDing guest user', guestId, client)
 		const guestUser = new GuestUser({
 			guestId,
 			sessionId: client.sessionId,
 		})
-		console.log(guestUser)
+
 		// @NOTE: Add this back later
 		// client.send(SpinEvent.SendRoomData, {
 		// 	guestId,
@@ -125,8 +126,9 @@ export class OnUserLeave extends Command<SpinRoom, OnUserLeaveOptions> {
 			if (consented) {
 				const logMessage = `Consented Leave -> ${JSON.stringify(client.userData)}`
 				logger.info(logMessage)
-				throw new Error(logMessage)
+				// throw new Error(logMessage)
 			}
+
 			if (this.state.users.has(sessionId)) {
 				// Clear sessionId on user model for Redis
 				await store.service.user.clearOutSessionId(sessionId)
