@@ -126,6 +126,7 @@ export class OnUserLeave extends Command<SpinRoom, OnUserLeaveOptions> {
 			if (consented) {
 				const logMessage = `Consented Leave -> ${JSON.stringify(client.userData)}`
 				logger.info(logMessage)
+				throw new Error(logMessage)
 			}
 
 			await this.room.allowReconnection(client, RECONNECT_TIME_LIMIT)
@@ -156,3 +157,43 @@ export class OnUserLeave extends Command<SpinRoom, OnUserLeaveOptions> {
 		}
 	}
 }
+
+// const RECONNECT_TIME_LIMIT = 30
+// export class OnUserLeave extends Command<SpinRoom, OnUserLeaveOptions> {
+// 	async execute({ sessionId, client, consented }: OnUserLeaveOptions) {
+// 		try {
+// 			// @NOTE: Need to add connected property to users and guestUsers
+// 			// this.state.guestUsers.get(client.sessionId).connected = false
+// 			if (consented) {
+// 				const logMessage = `Consented Leave -> ${JSON.stringify(client.userData)}`
+// 				logger.info(logMessage)
+// 			}
+
+// 			await this.room.allowReconnection(client, RECONNECT_TIME_LIMIT)
+
+// 			// @NOTE: Need to add connected property to users and guestUsers
+// 			// this.state.guestUsers.get(client.sessionId).connected = true
+// 		} catch (err) {
+// 			try {
+// 				// Remove player from state
+// 				if (this.state.users.has(sessionId)) {
+// 					// Clear sessionId on user model for Redis
+// 					await store.service.user.clearOutSessionId(sessionId)
+// 					this.state.users.delete(sessionId)
+// 					logger.info(`User has left SpinRoom: ${sessionId}`)
+// 				} else if (this.state.guestUsers.has(sessionId)) {
+// 					this.state.guestUsers.delete(sessionId)
+// 					logger.info(`GuestUser has left SpinRoom: ${sessionId}`)
+// 				} else {
+// 					logger.warn(
+// 						"User left room but their sessionId wasn't in state. Look into why that is."
+// 					)
+// 				}
+// 			} catch (err) {
+// 				// @NOTE: NEED TO ADD ERROR QUEUE WHEN THIS IS HIT
+// 				logger.error(new Error(err.toString()))
+// 				throw new Error(err.toString())
+// 			}
+// 		}
+// 	}
+// }
