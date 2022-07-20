@@ -279,8 +279,7 @@ class SpinGame extends Room<SpinState> {
 	onJoin(client: Client, _options: IDefaultRoomOptions = {}, auth?: string) {
 		try {
 			const [publicAddress, guestId] = auth.split(':')
-			console.log(auth)
-
+			console.log('onjoin', guestId)
 			if (guestId) {
 				this.dispatcher.dispatch(new OnGuestUserJoined(), { client, guestId })
 			} else if (publicAddress) {
