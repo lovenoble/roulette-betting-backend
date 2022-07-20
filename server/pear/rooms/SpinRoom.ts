@@ -254,7 +254,11 @@ class SpinGame extends Room<SpinState> {
 			// client.send(SpinEvent.GuestUserJoined, guestId)
 
 			// @NOTE: Implement setting user data here
+			console.log('before userdata', client.userData)
+
 			client.userData = { authToken, guestId, networkUsername, networkActorNumber }
+
+			console.log('after userdata', client.userData)
 			return `guest:${guestId}`
 		} catch (err: any) {
 			logger.error(err)
