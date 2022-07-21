@@ -93,6 +93,14 @@ class SpinGame extends Room<SpinState> {
 				logger.info(`New client action from ${client.sessionId} - ${type} - ${message}`)
 			})
 
+			this.onMessage('heartbeat', client => {
+				console.log('Heartbeat', client.sessionId)
+			})
+
+			this.delayedInterval = this.clock.setInterval(() => {
+				this.broadcast('heartbeat', 'heartbeat')
+			}, 3000)
+
 			this.onMessage(SpinEvent.NewChatMessage, (client, text: string) => {
 				this.dispatcher.dispatch(new OnNewChatMessage(), { text, client })
 			})
