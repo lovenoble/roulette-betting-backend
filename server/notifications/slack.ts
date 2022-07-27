@@ -9,9 +9,9 @@ import Logger from '../utils/logger'
 
 const {
 	SLACK_BOT_TOKEN: token,
-	SLACK_SIGNING_SECRET: signingSecret,
+	SLACK_BOT_APP_TOKEN: appToken,
 	SLACK_BOT_PORT: port = 4255,
-	// SLACK_BOT_APP_TOKEN: appToken,
+	// SLACK_SIGNING_SECRET: signingSecret,
 } = process.env
 
 const App = SlackBolt.App
@@ -26,15 +26,17 @@ class SlackBot {
 	constructor() {
 		this.#server = new App({
 			token,
-			signingSecret,
-			// appToken,
+			appToken,
+			socketMode: true,
+			logLevel: SlackBolt.LogLevel.WARN,
+			// signingSecret,
 		})
 	}
 
 	async initServer() {
 		try {
 			Logger.info('Initializing Slack Server Bot...')
-			if (!token || !signingSecret) {
+			if (!token || !appToken) {
 				Logger.info(
 					'No SLACK_BOT_TOKEN or SLACK_BOT_SIGNING_SECRET present. Stopping initialization.'
 				)
@@ -42,7 +44,14 @@ class SlackBot {
 			}
 			createSlackCommands(this.#server)
 
-			await this.#server.start(port)
+			this.#server.use(async ({ next }) => {
+				console.log('Incoming request')
+				await next()
+			})
+
+			this.#server.use
+
+			await this.#server.start(Number(port))
 			Logger.info(`Slack Server Bot started on port ${port}...`)
 
 			return this.#server
