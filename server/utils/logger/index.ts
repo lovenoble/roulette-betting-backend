@@ -3,27 +3,12 @@ import fs from 'fs'
 import path from 'path'
 import chalk from 'chalk'
 
-import { LogType, LoggerOptions } from './types'
+import { LogType, LoggerOptions, logColors } from './types'
 
 const levels = {
 	error: 0,
 	warn: 1,
 	info: 2,
-}
-
-const logColors = {
-	blue: '#0277BD',
-	pink: '#F8873A',
-	brightPink: '#CE49BF',
-	palePink: '#FF7396',
-	purple: '#764AF1',
-	lightGreen: '#B4FF9F',
-	neonGreen: '#17D7A0',
-	royalRed: '#ef5350',
-	regalYellow: '#F7D716',
-	postiveGreen: '#14C38E',
-	mexicanBrown: '#C69B7B',
-	gold: '#FFC600',
 }
 
 export class Logger {
@@ -124,6 +109,7 @@ export class Logger {
 
 export default Logger.create({
 	logType: 'Global',
+	theme: ['paleGold'],
 })
 
 export * from './types'

@@ -2,6 +2,7 @@ import pearServer from './pear'
 import redisStore from './store'
 import rpcServer from './rpc'
 import transport from './transport'
+import './notifications/slack'
 import logger from './utils/logger'
 import { pearServerPort, isDev } from './config'
 // import cryptoAdmin from './crypto/admin'
@@ -14,6 +15,8 @@ function stopAllProcesses() {
 	rpcServer.stop()
 	transport.stopAll()
 }
+
+// console.log(slackBotServer)
 
 async function init() {
 	try {
