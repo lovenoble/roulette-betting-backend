@@ -22,7 +22,8 @@ services:
             - ./config/envoy.docker.yaml:/etc/envoy/envoy.yaml
             # - ./envoy.config.yaml:/etc/envoy/envoy.yaml
     pear-connect-redis:
-        image: redis/redis-stack:latest
+        # image: redis/redis-stack:latest
+        image: redis/redis-stack-server:latest
         restart: always
         ports:
             - 6379:6379
