@@ -2,6 +2,7 @@ import { createLogger, format, transports } from 'winston'
 import fs from 'fs'
 import path from 'path'
 import chalk from 'chalk'
+import slackBotServer from '../../notifications/slack'
 
 import { LogType, LoggerOptions, logColors } from './types'
 
@@ -50,6 +51,11 @@ export class Logger {
 				format.errors({ stack: true }),
 				format.printf(info => {
 					if (info.level === 'error') {
+						// Register slackBotServer
+						if (slackBotServer.isConnected) {
+							slackBotServer.createUploadFile('logger-error', JSON.stringify(info))
+						}
+
 						if (info.metadata) {
 							return chalk
 								.hex(config.colors.error)
@@ -94,7 +100,7 @@ export class Logger {
 	static #ensureLogFile(logType: LogType) {
 		const logPath = `${process.cwd()}/logs`
 		const filePath = `${logType.toLowerCase()}.log`
-		const errorFilePath = `${logPath}/${logType.toLowerCase()}-error.logs`
+		const errorFilePath = `${logPath}/${logType.toLowerCase()}-error.log`
 
 		const logFilePath = path.join(logPath, filePath)
 

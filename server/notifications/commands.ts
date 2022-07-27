@@ -1,32 +1,91 @@
-import { SlackBoltApp } from './types'
+import fs from 'fs/promises'
 
-export const createSlackCommands = (slackBoltApp: SlackBoltApp) => {
-	slackBoltApp.message('hello', async ({ message, say }: any) => {
-		console.log('Working')
+import { ISlackBot } from './types'
+
+export const createSlackCommands = (slackBot: ISlackBot) => {
+	slackBot.server.message('request logs', async ({ message, say }: any) => {
 		await say({
 			blocks: [
 				{
 					type: 'section',
 					text: {
 						type: 'mrkdwn',
-						text: `Hey there <@${message.user}>!`,
+						text: `
+> Requesting all logs from <@${message.user}>!
+> Click the button when you are ready to download
+`,
 					},
 					accessory: {
 						type: 'button',
 						text: {
 							type: 'plain_text',
-							text: 'Click Me',
+							text: 'Download All logs',
 						},
-						action_id: 'button_click',
+						action_id: 'download_global_logs',
 					},
 				},
 			],
-			text: `Hey there <@${message.user}>!`,
+			text: `Requesting logs from <@${message.user}>! Click the button when you are ready to download`,
+		})
+
+		await say({
+			blocks: [
+				{
+					type: 'section',
+					text: {
+						type: 'mrkdwn',
+						text: `
+> Requesting error logs from <@${message.user}>!
+> Click the button when you are ready to download
+`,
+					},
+					accessory: {
+						type: 'button',
+						text: {
+							type: 'plain_text',
+							text: 'Download Error logs',
+						},
+						action_id: 'download_global_error_logs',
+					},
+				},
+			],
+			text: `Requesting logs from <@${message.user}>! Click the button when you are ready to download`,
 		})
 	})
 
-	slackBoltApp.action('button_click', async ({ body, ack, say }: any) => {
+	slackBot.server.action('download_global_logs', async ({ ack, say, client }) => {
 		await ack()
-		await say(`<${body.user.id}> clicked the button`)
+
+		const fileReadBuffer = await fs.readFile(`${process.cwd()}/logs/global.log`)
+
+		await client.files.upload({
+			channels: slackBot.metaverseLogChannelId,
+			title: 'Global Logs',
+			initial_comment: 'Output:',
+			content: 'global-logs.json',
+			filename: 'global-logs.json',
+			filetype: 'json',
+			file: fileReadBuffer,
+		})
+
+		await say('Downloaded global logs successfully!')
+	})
+
+	slackBot.server.action('download_global_error_logs', async ({ ack, say, client }) => {
+		await ack()
+
+		const fileReadBuffer = await fs.readFile(`${process.cwd()}/logs/global-error.log`)
+
+		await client.files.upload({
+			channels: slackBot.metaverseLogChannelId,
+			title: 'Global Error Logs',
+			initial_comment: 'Output:',
+			content: 'global-error-logs.json',
+			filename: 'global-error-logs.json',
+			filetype: 'json',
+			file: fileReadBuffer,
+		})
+
+		await say('Downloaded global error logs successfully!')
 	})
 }

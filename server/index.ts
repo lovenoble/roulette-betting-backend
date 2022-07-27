@@ -46,7 +46,7 @@ async function init() {
 		// @NOTE: Need to add more exit eventListeners conditions
 		process.once('SIGUSR2', stopAllProcesses)
 	} catch (err) {
-		logger.error(new Error(err.toString()))
+		logger.error(err)
 		process.exit(1)
 	}
 }
