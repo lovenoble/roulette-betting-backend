@@ -84,7 +84,6 @@ export class OnNewChatMessage extends Command<SpinRoom, OnNewChatMessageOpts> {
 				actorNumber: client.userData?.networkActorNumber,
 			}
 		}
-		console.log(newMsg)
 
 		// if (!client.auth) {
 		// 	client.error(
@@ -112,11 +111,11 @@ export class OnNewChatMessage extends Command<SpinRoom, OnNewChatMessageOpts> {
 
 		logger.info(`New chat message from ${newMsg.createdBy} - ${text}`)
 
-		// const msg = new Message(newMsg)
 		const msgJSON = JSON.stringify(newMsg)
-		console.log(msgJSON)
+
+		logger.info(msgJSON)
+
 		this.room.broadcast(SpinEvent.NewChatMessage, msgJSON, { except: client })
-		// this.room.broadcast(newMsg, { except: client })
 	}
 }
 
@@ -125,36 +124,39 @@ export class OnInitSpinRoom extends Command<SpinRoom, void> {
 		this.state.fareTotalSupply = await store.service.fareTransfer.getCachedTotalSupply()
 		this.state.currentRoundId = Number(await store.service.round.getCachedCurrentRoundId())
 		this.state.isRoundPaused = await store.service.round.getCachedSpinRoundPaused()
-		const roundData = await store.service.batchEntry.getCurrentRoundBatchEntries()
 
-		roundData.forEach(({ batchEntry, entries }) => {
-			const batchEntryState = new BatchEntry()
-			batchEntryState.roundId = batchEntry.roundId
-			batchEntryState.batchEntryId = batchEntry.batchEntryId
-			batchEntryState.player = batchEntry.player
-			batchEntryState.settled = batchEntry.settled
-			batchEntryState.totalEntryAmount = batchEntry.totalEntryAmount
-			batchEntryState.totalWinAmount = batchEntry.totalWinAmount
-			batchEntryState.timestamp = batchEntry.timestamp
-			batchEntryState.isLoss = false
+		// @NOTE: Commenting out for the metaverse demo
+		// @NOTE: We'll need to reimplement this during production demo
+		// const roundData = await store.service.batchEntry.getCurrentRoundBatchEntries()
 
-			entries.forEach(entry => {
-				const entryState = new Entry()
+		// roundData.forEach(({ batchEntry, entries }) => {
+		// 	const batchEntryState = new BatchEntry()
+		// 	batchEntryState.roundId = batchEntry.roundId
+		// 	batchEntryState.batchEntryId = batchEntry.batchEntryId
+		// 	batchEntryState.player = batchEntry.player
+		// 	batchEntryState.settled = batchEntry.settled
+		// 	batchEntryState.totalEntryAmount = batchEntry.totalEntryAmount
+		// 	batchEntryState.totalWinAmount = batchEntry.totalWinAmount
+		// 	batchEntryState.timestamp = batchEntry.timestamp
+		// 	batchEntryState.isLoss = false
 
-				entryState.amount = entry.amount
-				entryState.roundId = entry.roundId
-				entryState.gameModeId = entry.gameModeId
-				entryState.pickedNumber = entry.pickedNumber
-				entryState.entryIdx = entry.entryIdx
-				entryState.winAmount = entry.winAmount
-				entryState.settled = entry.settled
-				entryState.isLoss = false
+		// 	entries.forEach(entry => {
+		// 		const entryState = new Entry()
 
-				batchEntryState.entries.push(entryState)
-			})
+		// 		entryState.amount = entry.amount
+		// 		entryState.roundId = entry.roundId
+		// 		entryState.gameModeId = entry.gameModeId
+		// 		entryState.pickedNumber = entry.pickedNumber
+		// 		entryState.entryIdx = entry.entryIdx
+		// 		entryState.winAmount = entry.winAmount
+		// 		entryState.settled = entry.settled
+		// 		entryState.isLoss = false
 
-			this.state.batchEntries.set(batchEntryState.player, batchEntryState)
-		})
+		// 		batchEntryState.entries.push(entryState)
+		// 	})
+
+		// 	this.state.batchEntries.set(batchEntryState.player, batchEntryState)
+		// })
 	}
 }
 

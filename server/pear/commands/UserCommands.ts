@@ -11,7 +11,6 @@ import store from '../../store'
 
 export class OnGuestUserJoined extends Command<SpinRoom, IGuestUser & { client: Client }> {
 	async execute({ guestId, client }: IGuestUser & { client: Client }) {
-		console.log('ADDing guest user', guestId, client)
 		const guestUser = new GuestUser({
 			guestId,
 			sessionId: client.sessionId,

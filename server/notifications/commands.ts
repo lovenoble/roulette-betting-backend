@@ -54,8 +54,6 @@ export const createSlackCommands = (slackBot: ISlackBot) => {
 	})
 
 	slackBot.server.action('download_global_logs', async ({ ack, say, client }) => {
-		await ack()
-
 		const fileReadBuffer = await fs.readFile(`${process.cwd()}/logs/global.log`)
 
 		await client.files.upload({
@@ -69,11 +67,10 @@ export const createSlackCommands = (slackBot: ISlackBot) => {
 		})
 
 		await say('Downloaded global logs successfully!')
+		await ack()
 	})
 
 	slackBot.server.action('download_global_error_logs', async ({ ack, say, client }) => {
-		await ack()
-
 		const fileReadBuffer = await fs.readFile(`${process.cwd()}/logs/global-error.log`)
 
 		await client.files.upload({
@@ -87,5 +84,6 @@ export const createSlackCommands = (slackBot: ISlackBot) => {
 		})
 
 		await say('Downloaded global error logs successfully!')
+		await ack()
 	})
 }

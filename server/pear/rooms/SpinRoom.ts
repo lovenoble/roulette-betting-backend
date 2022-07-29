@@ -5,7 +5,6 @@ import shortId from 'shortid'
 
 import type { IDefaultRoomOptions, ICreateSpinRoomOptions } from '../types'
 import { HttpStatusCode, SpinEvent, MAX_SPIN_CLIENTS, WebSocketCloseCode } from '../constants'
-import { INITIAL_COUNTDOWN_SECS } from '../../crypto/constants'
 import {
 	OnBatchEntry,
 	OnUserJoined,
@@ -29,7 +28,6 @@ class SpinGame extends Room<SpinState> {
 	#name: string
 	#desc: string
 	#password: string | null = null
-	#currentCountdown = INITIAL_COUNTDOWN_SECS
 
 	maxClients = MAX_SPIN_CLIENTS // @NOTE: Need to determine the number of clients where performance begins to fall off
 	dispatcher = new Dispatcher(this)
@@ -51,10 +49,6 @@ class SpinGame extends Room<SpinState> {
 	get password() {
 		// @NOTE: Ensure password, if set, is hashed
 		return this.#password
-	}
-
-	get currentCountdown() {
-		return this.#currentCountdown
 	}
 
 	async onCreate(options: ICreateSpinRoomOptions) {
@@ -80,9 +74,6 @@ class SpinGame extends Room<SpinState> {
 			})
 
 			this.setState(new SpinState())
-
-			// @NOTE: This should be initialized by smart contract events
-			// this.startCountdown()
 
 			// Initialize SpinRoom state
 			await this.dispatcher.dispatch(new OnInitSpinRoom())
@@ -151,82 +142,11 @@ class SpinGame extends Room<SpinState> {
 			// #endregion
 		} catch (err) {
 			// @NOTE: Need better error handling here. If this fails the state doesn't get set
-			logger.error(new Error(err.toString()))
+			logger.error(err)
 			throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
 		}
 	}
 
-	startCountdownOld() {
-		// OLD
-		try {
-			if (this.clock.running || this.delayedInterval?.active) this.resetCountdown()
-			this.#currentCountdown = INITIAL_COUNTDOWN_SECS // Set initial countdown value
-
-			this.clock.start()
-			this.state.roomStatus = 'countdown'
-
-			// export type SpinRoomStatus = 'paused' | 'countdown' | 'wheel-spinning' | 'round-finished'
-			this.delayedInterval = this.clock.setInterval(() => {
-				logger.info(
-					`countdown(${this.currentCountdown} secs), deltaTime(${
-						this.clock.deltaTime
-					} ms), elaspedTime(${this.clock.elapsedTime / 1000} secs)`
-				)
-				this.#currentCountdown -= 1
-
-				// If countdown has already hit 0 interval should be existed
-				if (this.currentCountdown < 0) {
-					this.state.roomStatus = 'wheel-spinning'
-					this.delayedInterval.clear()
-					this.clock.clear()
-
-					this.#currentCountdown = 30
-					this.broadcast(SpinEvent.TimerUpdated, this.currentCountdown)
-					this.delayedInterval = this.clock.setInterval(() => {
-						this.#currentCountdown -= 1
-
-						if (this.currentCountdown < 0) {
-							this.delayedInterval.clear()
-							this.clock.clear()
-							this.state.roomStatus = 'round-finished'
-							this.#currentCountdown = 0
-						} else {
-							this.broadcast(SpinEvent.TimerUpdated, this.currentCountdown)
-						}
-					}, 1000)
-
-					logger.info('Clock has finished ticking')
-					return
-				}
-
-				this.broadcast(SpinEvent.TimerUpdated, this.currentCountdown)
-			}, 1000)
-		} catch (err) {
-			logger.error(new Error(err.toString()))
-		}
-	}
-
-	pauseCountdown() {
-		if (this.delayedInterval) this.delayedInterval.pause()
-		this.clock.stop()
-	}
-
-	resumeCountdown() {
-		if (this.delayedInterval && this.delayedInterval.paused) this.delayedInterval.resume()
-		this.clock.start()
-	}
-
-	resetCountdown() {
-		this.stopCountdown()
-		this.#currentCountdown = INITIAL_COUNTDOWN_SECS
-	}
-
-	stopCountdown() {
-		if (this.delayedInterval) this.delayedInterval.clear()
-		this.clock.clear()
-		this.clock.stop()
-	}
-	// window.ethereum.request({ method: "personal_sign", params: ["0x70997970C51812dc3A010C7d01b50e0d17dc79C8", "Fareplay.io would like to authenticate your account.\nPlease sign the following: 0x35643836303933642d343166312d343163302d616337342d343266383339653165306139"]})
 	async onAuth(client: Client, options: IDefaultRoomOptions = {}) {
 		try {
 			const { authToken, networkUsername, networkActorNumber } = options
@@ -258,36 +178,27 @@ class SpinGame extends Room<SpinState> {
 			const guestId = shortId() // Generate guestId
 
 			// @NOTE: Moved this to onGuestJoined dispatch
-			// logger.info(`User logging in as guest with username: ${guestId}`)
-			// client.send(SpinEvent.GuestUserJoined, guestId)
-
 			// @NOTE: Implement setting user data here
-			console.log('before userdata', client.userData)
-
 			client.userData = { authToken, guestId, networkUsername, networkActorNumber }
 
-			console.log('after userdata', client.userData)
 			return `guest:${guestId}`
 		} catch (err: any) {
 			logger.error(err)
+
 			setTimeout(
 				() => client.leave(WebSocketCloseCode.POLICY_VIOLATION, (err as Error).message),
 				0
 			)
-			if (err instanceof ServerError) {
-				throw err
-			} else if (err instanceof Error) {
+			if (err instanceof Error) {
 				throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.message)
 			}
-
-			throw err
 		}
 	}
 
 	onJoin(client: Client, _options: IDefaultRoomOptions = {}, auth?: string) {
 		try {
 			const [publicAddress, guestId] = auth.split(':')
-			console.log('onjoin', guestId)
+
 			if (guestId) {
 				this.dispatcher.dispatch(new OnGuestUserJoined(), { client, guestId })
 			} else if (publicAddress) {
@@ -307,13 +218,10 @@ class SpinGame extends Room<SpinState> {
 				() => client.leave(WebSocketCloseCode.POLICY_VIOLATION, (err as Error).message),
 				0
 			)
-			if (err instanceof ServerError) {
-				throw err
-			} else if (err instanceof Error) {
+
+			if (err instanceof Error) {
 				throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.message)
 			}
-
-			throw err
 		}
 	}
 
@@ -328,13 +236,6 @@ class SpinGame extends Room<SpinState> {
 	}
 
 	onDispose() {
-		// @NOTE: Need to clear garbage here
-
-		// if (this.pear.pearTokenContract && this.pear.pearGameContract) {
-		// 	this.pear.pearTokenContract.removeAllListeners()
-		// 	this.pear.pearGameContract.removeAllListeners()
-		// }
-		this.stopCountdown()
 		this.dispatcher.stop()
 		logger.info('Disposing of SpinGame room...')
 	}

@@ -56,6 +56,7 @@ class CryptoAdmin {
 
 			logger.info('CryptoAdmin has been initialized')
 		} catch (err) {
+			logger.warn(err)
 			logger.warn('Failed to initialize CryptoAdmin. Did not seed/transfer to accounts')
 		}
 	}

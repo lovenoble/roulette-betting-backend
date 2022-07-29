@@ -1,5 +1,6 @@
 /* eslint-disable import/no-internal-modules */
 import SlackBolt from '@slack/bolt'
+import { Logger } from 'winston'
 
 import { createSlackCommands } from './commands'
 import { createSlackEvents } from './events'
@@ -17,6 +18,7 @@ class SlackBot implements ISlackBot {
 	#server?: SlackBoltApp
 	channelIdMap = new Map<string, string>()
 	isConnected = false
+	logger: Logger
 
 	get server() {
 		return this.#server
@@ -39,11 +41,15 @@ class SlackBot implements ISlackBot {
 		})
 	}
 
+	setLogger(logger: Logger) {
+		this.logger = logger
+	}
+
 	async initServer() {
 		try {
-			console.info('Initializing Slack Server Bot...')
+			this.logger.info('Initializing Slack Server Bot...')
 			if (!token || !appToken) {
-				console.info(
+				this.logger.info(
 					'No SLACK_BOT_TOKEN or SLACK_BOT_SIGNING_SECRET present. Stopping initialization.'
 				)
 				return
@@ -52,7 +58,7 @@ class SlackBot implements ISlackBot {
 			// Initialize Slack Bot Server
 			await this.server.start(Number(port))
 			this.isConnected = true
-			console.info(`Slack Server Bot started on port ${port}...`)
+			this.logger.info(`Slack Server Bot started on port ${port}...`)
 
 			// Populate channelName: channelId Map
 			await this.populateChannelIdMap()
@@ -64,7 +70,7 @@ class SlackBot implements ISlackBot {
 			return this.#server
 		} catch (err) {
 			this.isConnected = false
-			console.error(err)
+			this.logger.error(err)
 		}
 	}
 
@@ -78,7 +84,7 @@ class SlackBot implements ISlackBot {
 				this.channelIdMap.set(channel.name, channel.id)
 			}
 		} catch (err) {
-			console.error(err)
+			this.logger.error(err)
 		}
 	}
 
@@ -96,15 +102,13 @@ class SlackBot implements ISlackBot {
 				throw new Error('Channel name not found')
 			}
 
-			const result = await this.server.client.chat.postMessage({
+			await this.server.client.chat.postMessage({
 				token,
 				channel,
 				text,
 			})
-
-			console.log(result)
 		} catch (err) {
-			console.error(err)
+			this.logger.error(err)
 		}
 	}
 
@@ -124,12 +128,11 @@ class SlackBot implements ISlackBot {
 				file: fileBuffer,
 			})
 		} catch (err) {
-			console.error(err)
+			this.logger.error(err)
 		}
 	}
 }
 
 const slackBotServer = new SlackBot()
-await slackBotServer.initServer()
 
 export default slackBotServer

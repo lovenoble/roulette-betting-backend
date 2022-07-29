@@ -2,7 +2,7 @@ import pearServer from './pear'
 import redisStore from './store'
 import rpcServer from './rpc'
 import transport from './transport'
-import './notifications/slack'
+import slackBotServer from './notifications/slack'
 import logger from './utils/logger'
 import { pearServerPort, isDev } from './config'
 // import cryptoAdmin from './crypto/admin'
@@ -16,10 +16,12 @@ function stopAllProcesses() {
 	transport.stopAll()
 }
 
-// console.log(slackBotServer)
-
 async function init() {
 	try {
+		// Initialize slack bot and dependency inject logger
+		slackBotServer.setLogger(logger)
+		await slackBotServer.initServer()
+
 		// If running multiple processes, ensures only one RPC server and RedisStore instance is created
 		if (pearServerPort === 3100) {
 			// @NOTE: Setup clustering for Redis
