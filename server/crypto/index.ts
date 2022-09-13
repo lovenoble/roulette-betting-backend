@@ -7,18 +7,18 @@ import {
 	FareNFTLootBoxController,
 	FareNFTLootBoxController__factory,
 	FareNFTLootBox__factory,
-	FareSpinGame,
-	FareSpinGame__factory,
+	FareSpin,
+	FareSpin__factory,
 	FareToken,
 	FareToken__factory,
 } from './types'
 import config from '../config/crypto.config'
 import * as utils from './utils'
-import { FareSpinGameAPI, FareTokenAPI } from './apis'
+import { FareSpinAPI, FareTokenAPI } from './apis'
 
 const {
 	fareTokenAddress,
-	fareSpinGameAddress,
+	fareSpinAddress,
 	fareItemsAddress,
 	fareNftLootboxAddress,
 	fareNftLootboxControllerAddress,
@@ -31,7 +31,7 @@ export class Crypto {
 	provider!: providers.JsonRpcProvider
 	signer!: Wallet
 	fare!: FareToken
-	spin!: FareSpinGame
+	spin!: FareSpin
 	items!: FareItems
 	lootbox!: FareNFTLootBox
 	lootboxCtrl!: FareNFTLootBoxController
@@ -43,7 +43,7 @@ export class Crypto {
 		this.provider = new providers.JsonRpcProvider(blockchainRpcUrl)
 		this.signer = new Wallet(privateKey, this.provider)
 		this.fare = FareToken__factory.connect(fareTokenAddress, this.signer)
-		this.spin = FareSpinGame__factory.connect(fareSpinGameAddress, this.signer)
+		this.spin = FareSpin__factory.connect(fareSpinAddress, this.signer)
 		this.items = FareItems__factory.connect(fareItemsAddress, this.signer)
 		this.lootbox = FareNFTLootBox__factory.connect(fareNftLootboxAddress, this.signer)
 		this.lootboxCtrl = FareNFTLootBoxController__factory.connect(
@@ -98,6 +98,6 @@ const crypto = new Crypto()
 
 // API Instances
 export const fareAPI = new FareTokenAPI(crypto.fare)
-export const spinAPI = new FareSpinGameAPI(crypto.fare, crypto.spin)
+export const spinAPI = new FareSpinAPI(crypto.fare, crypto.spin)
 
 export default crypto

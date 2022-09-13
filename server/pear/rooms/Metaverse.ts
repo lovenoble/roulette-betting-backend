@@ -95,7 +95,7 @@ class Metaverse extends Room<MetaverseState> {
 		// @NOTE: Need to clear garbage here
 
 		this.dispatcher.stop()
-		logger.info('Disposing of SpinGame room...')
+		logger.info('Disposing of SpinContract room...')
 	}
 }
 

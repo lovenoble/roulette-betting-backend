@@ -1,131 +1,131 @@
 import { BigNumber, ContractReceipt, ContractTransaction } from 'ethers'
 
-export type GameModeParams = {
-	id: BigNumber
-	cardinality: BigNumber
-	mintMultiplier: BigNumber
-	gameEdgeFloor: BigNumber
-	minAmount: BigNumber
-	maxAmount: BigNumber
-	entryLimit: BigNumber
-	isActive: boolean
+export type ContractModeParams = {
+  id: BigNumber
+  cardinality: BigNumber
+  mintMultiplier: BigNumber
+  contractExpectedValueFloor: BigNumber
+  minAmount: BigNumber
+  maxAmount: BigNumber
+  entryLimit: BigNumber
+  isActive: boolean
 }
 
-export interface GameMode {
-	id: number
-	cardinality: number
-	mintMultiplier: number
-	gameEdgeFloor: BigNumber
-	minAmount: number
-	maxAmount: number
-	entryLimit: number
-	isActive: boolean
+export interface ContractMode {
+  id: number
+  cardinality: number
+  mintMultiplier: number
+  minAmount: number
+  contractExpectedValueFloor: BigNumber
+  maxAmount: number
+  entryLimit: number
+  isActive: boolean
 }
 
-export interface IGameModesTx {
-	tx: ContractTransaction
-	gameMode: GameMode
+export interface IContractModesTx {
+  tx: ContractTransaction
+  contractMode: ContractMode
 }
 
 export interface IBatchEntryItem {
-	amount: BigNumber
-	gameModeId: string
-	pickedNumber: string
+  amount: BigNumber
+  contractModeId: string
+  pickedNumber: string
 }
 
 export interface IBatchEntryTx {
-	tx: ContractTransaction
-	receipt: ContractReceipt | null
-	entries: IBatchEntryItem[]
-	totalEntryAmount: number
+  tx: ContractTransaction
+  receipt: ContractReceipt | null
+  entries: IBatchEntryItem[]
+  totalEntryAmount: number
 }
 
 export interface IConcludeRoundResp {
-	currentRoundId: number
-	tx: ContractTransaction
-	receipt?: ContractReceipt | null
+  currentRoundId: number
+  tx: ContractTransaction
+  receipt?: ContractReceipt | null
 }
 
 export interface IEntry {
-	amount: number
-	gameModeId: number
-	pickedNumber: number
+  amount: number
+  contractModeId: number
+  pickedNumber: number
 }
 
 export interface IBatchEntry {
-	player: string
-	settled: boolean
-	totalEntryAmount: number
-	totalWinAmount: number
-	entries?: IEntry[]
+  player: string
+  settled: boolean
+  totalEntryAmount: number
+  totalMintAmount: number
+  entries?: IEntry[]
 }
 
 export interface IRound {
-	id: number
-	randomNum: number
-	vrfRequestId: string
-	eliminatorGameMode?: [{ [gameModeId: string]: boolean }]
-	randomEliminator?: number
+  id: number
+  randomNum: number
+  vrfRequestId: string
+  eliminatorContractMode?: [{ [contractModeId: string]: boolean }]
+  randomEliminator?: number
 }
 
 export interface IEliminator {
-	gameModeId: number
-	recordedEdgeFloor: number
-	isEliminator: boolean
+  contractModeId: number
+  recordedExpectedValueFloor: number
+  isEliminator: boolean
 }
 
 export interface IEliminatorMap {
-	[gameModeId: string]: IEliminator[]
+  [contractModeId: string]: IEliminator[]
 }
 
 export interface IBreakDown {
-	totalRoundWinAmount: number
-	totalRoundEntryAmount: number
-	totalRoundSupply: number
-	totalDeltaAmount: number
-	totalRakeAmount: number
+  totalRoundMintAmount: number
+  totalRoundEntryAmount: number
+  totalRoundSupply: number
+  totalDeltaAmount: number
+  totalRakeAmount: number
 }
 
 export interface IRoundBreakdown {
-	info: IRound
-	breakdown: IBreakDown
-	batchEntries: IBatchEntry[]
+  info: IRound
+  breakdown: IBreakDown
+  batchEntries: IBatchEntry[]
 }
 
 export interface ISpinSimulationOptions {
-	roundCount: number
-	entryCount: number
-	batchRange: number[]
-	amountRange: number[]
-	fixedAmount?: number | null
+  roundCount: number
+  entryCount: number
+  batchRange: number[]
+  amountRange: number[]
+  fixedAmount?: number | null
 }
 
 export interface IEntryIds {
-	roundId: number
-	entryId: number
-	gameModeId?: number
+  roundId: number
+  entryId: number
+  contractModeId?: number
 }
 
 export interface Entry {
-	player: string
-	gameModeId: string
-	roundId: string
-	entryId: string
-	pickedNumber: string
-	amount: string
-	winAmount: string
-	settled: boolean
-	result: string
+  player: string
+  contractModeId: string
+  roundId: string
+  entryId: string
+  pickedNumber: string
+  amount: string
+  mintAmount: string
+  settled: boolean
+  result: string
 }
 
 export type EntryStructOutput = [BigNumber, BigNumber, BigNumber] & {
-	amount: BigNumber
-	gameModeId: BigNumber
-	pickedNumber: BigNumber
+  amount: BigNumber
+  contractModeId: BigNumber
+  pickedNumber: BigNumber
 }
 
 export type EliminatorStructOutput = [BigNumber, BigNumber, boolean] & {
-	gameModeId: BigNumber
-	recordedEdgeFloor: BigNumber
-	isEliminator: boolean
+  contractModeId: BigNumber
+  recordedExpectedValueFloor: BigNumber
+  isEliminator: boolean
 }

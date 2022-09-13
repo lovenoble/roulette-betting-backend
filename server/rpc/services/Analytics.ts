@@ -24,8 +24,8 @@ export class Analytics implements AnalyticsServer {
 			logger.info(`entityId passed: ${entityId}`)
 
 			res.fareAmount = '500000'
-			res.totalWins = 10
-			res.totalLosses = 11
+			res.totalMints = 10
+			res.totalBurns = 11
 
 			return callback(null, UserProfileResponse.fromJSON(res))
 		} catch (err) {

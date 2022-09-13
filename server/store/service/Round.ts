@@ -2,7 +2,7 @@ import type { BigNumber } from 'ethers'
 
 import type EntryService from './Entry'
 import type BatchEntryService from './BatchEntry'
-import type GameModeService from './GameMode'
+import type ContractModeService from './ContractMode'
 import type { Round, BNGameMode } from '../schema/types'
 import type { SettledBatchEntryArgs, SettledBatchEntry, SettledEntry } from '../../pubsub/types'
 
@@ -14,12 +14,12 @@ import { SpinRoomStatus } from '../types'
 import PubSub from '../../pubsub'
 
 export default class RoundService extends ServiceBase<Round> {
-	gameModeService!: GameModeService
+	ContractModeService!: ContractModeService
 	batchEntryService!: BatchEntryService
 	entryService!: EntryService
 
 	constructor(
-		gameModeService: GameModeService,
+		ContractModeService: ContractModeService,
 		batchEntryService: BatchEntryService,
 		entryService: EntryService
 	) {
@@ -27,7 +27,7 @@ export default class RoundService extends ServiceBase<Round> {
 
 		this.batchEntryService = batchEntryService
 		this.entryService = entryService
-		this.gameModeService = gameModeService
+		this.ContractModeService = ContractModeService
 	}
 
 	public fetch(roundId: BigNumber | number) {
@@ -94,7 +94,7 @@ export default class RoundService extends ServiceBase<Round> {
 		return this.batchEntryService.repo.search().where('roundId').eq(roundId).returnCount()
 	}
 
-	// Calculates winners and losers from randomNum/randomEliminator by round
+	// Calculates minters and burners from randomNum/randomEliminator by round
 	public async updateRoundBatchEntries(
 		roundId: number,
 		_randomNum: number,
@@ -109,10 +109,10 @@ export default class RoundService extends ServiceBase<Round> {
 			.eq(roundId)
 			.returnAll()
 
-		const gameModes = await this.gameModeService.getActiveGameModes()
+		const contractModes = await this.ContractModeService.getActiveGameModes()
 
 		const gameModeMap: { [key: number]: BNGameMode } = {}
-		gameModes.forEach(gm => {
+		contractModes.forEach(gm => {
 			gameModeMap[gm.id] = gm.bnify()
 		})
 
@@ -136,12 +136,12 @@ export default class RoundService extends ServiceBase<Round> {
 
 		const promiseList: Promise<SettledBatchEntryArgs>[] = data.map(
 			async ({ batchEntry, entries }) => {
-				let totalWinAmount = BN('0')
+				let totalMintAmount = BN('0')
 
 				const entryPromise: Promise<SettledEntry>[] = entries.map(async entry => {
-					const gm = gameModeMap[entry.gameModeId].bn
+					const gm = gameModeMap[entry.contractModeId].bn
 
-					if (BN(gm.gameEdgeFloor).lt(randomEliminator)) {
+					if (BN(gm.contractExpectedValueFloor).lt(randomEliminator)) {
 						// @NOTE: MINT NFT LOOTBOX (ONLY ONCE PER BATCH ENTRY)
 						logger.warn('@NOTE: ELIMINATOR ROUND: NFT LOOTBOXES SHOULD BE MINTED')
 					} else {
@@ -151,22 +151,22 @@ export default class RoundService extends ServiceBase<Round> {
 						}
 
 						if (rng.mod(gm.cardinality).eq(entry.pickedNumber)) {
-							entry.winAmount = formatETH(gm.mintMultiplier.mul(toEth(entry.amount)))
-							totalWinAmount = totalWinAmount.add(toEth(entry.winAmount))
+							entry.mintAmount = formatETH(gm.mintMultiplier.mul(toEth(entry.amount)))
+							totalMintAmount = totalMintAmount.add(toEth(entry.mintAmount))
 						}
 					}
 					await this.entryService.repo.save(entry)
-					const { player, winAmount, entryIdx } = entry
-					return { player, roundId, winAmount, entryIdx } as SettledEntry
+					const { player, mintAmount, entryIdx } = entry
+					return { player, roundId, mintAmount, entryIdx } as SettledEntry
 				})
 
 				const updatedEntries = await Promise.all(entryPromise)
-				batchEntry.totalWinAmount = formatETH(totalWinAmount)
+				batchEntry.totalMintAmount = formatETH(totalMintAmount)
 				await this.batchEntryService.repo.save(batchEntry)
 
 				return {
 					batchEntry: {
-						totalWinAmount: batchEntry.totalWinAmount,
+						totalMintAmount: batchEntry.totalMintAmount,
 						roundId: batchEntry.roundId,
 						player: batchEntry.player,
 						batchEntryId: batchEntry.batchEntryId,

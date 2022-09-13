@@ -126,7 +126,7 @@ class ChatRoom extends Room<ChatState> {
 		// @NOTE: Need to clear garbage here
 
 		this.dispatcher.stop()
-		logger.info('Disposing of SpinGame room...')
+		logger.info('Disposing of SpinContract room...')
 	}
 }
 

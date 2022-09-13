@@ -3,7 +3,7 @@ import SlackBolt from '@slack/bolt'
 import { Logger } from 'winston'
 
 import { createSlackCommands } from './commands'
-import { createSlackEvents } from './events'
+// import { createSlackEvents } from './events'
 import { SlackBoltApp, ISlackBot, SlackChannels } from './types'
 
 const {
@@ -12,7 +12,7 @@ const {
 	SLACK_BOT_PORT: port = 4255,
 } = process.env
 
-const App = SlackBolt.App
+const { App } = SlackBolt
 
 class SlackBot implements ISlackBot {
 	#server?: SlackBoltApp
@@ -33,12 +33,14 @@ class SlackBot implements ISlackBot {
 	}
 
 	constructor() {
-		this.#server = new App({
-			token,
-			appToken,
-			socketMode: true,
-			logLevel: SlackBolt.LogLevel.WARN,
-		})
+		if (process.env.NODE_ENV === 'production') {
+			this.#server = new App({
+				token,
+				appToken,
+				socketMode: true,
+				logLevel: SlackBolt.LogLevel.WARN,
+			})
+		}
 	}
 
 	setLogger(logger: Logger) {
@@ -65,7 +67,7 @@ class SlackBot implements ISlackBot {
 
 			// Create interactions
 			createSlackCommands(this)
-			createSlackEvents(this)
+			// createSlackEvents(this) // @NOTE: Commented out since there are no events defined
 
 			return this.#server
 		} catch (err) {

@@ -1,9 +1,9 @@
-// 
+//
 // THIS FILE HAS BEEN GENERATED AUTOMATICALLY
 // DO NOT CHANGE IT MANUALLY UNLESS YOU KNOW WHAT YOU'RE DOING
-// 
+//
 // GENERATED USING @colyseus/schema 1.0.34
-// 
+//
 
 using Colyseus.Schema;
 
@@ -25,7 +25,7 @@ namespace FareProtocol.Schemas {
 		public string totalEntryAmount = default(string);
 
 		[Type(5, "string")]
-		public string totalWinAmount = default(string);
+		public string totalMintAmount = default(string);
 
 		[Type(6, "number")]
 		public float timestamp = default(float);
@@ -34,6 +34,6 @@ namespace FareProtocol.Schemas {
 		public ArraySchema<Entry> entries = new ArraySchema<Entry>();
 
 		[Type(8, "boolean")]
-		public bool isLoss = default(bool);
+		public bool isBurn = default(bool);
 	}
 }

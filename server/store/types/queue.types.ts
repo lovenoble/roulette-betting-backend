@@ -18,8 +18,8 @@ export interface IFareTransferQueue {
 	event: IEventLogQueue
 }
 
-export interface IGameModeUpdatedQueue {
-	gameModeId: number
+export interface IContractModeUpdatedQueue {
+	contractModeId: number
 	timestamp: number
 	event: IEventLogQueue
 }

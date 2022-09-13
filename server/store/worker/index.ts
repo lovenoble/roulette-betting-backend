@@ -86,8 +86,8 @@ export default class StoreWorker {
 		try {
 			logger.info(`Process started: ${job.name} - ${Date.now()}`)
 			switch (job.name) {
-				case EventNames.GameModeUpdated:
-					return await this.process.gameModeUpdated(job.data, job.id)
+				case EventNames.ContractModeUpdated:
+					return await this.process.contractModeUpdated(job.data, job.id)
 				case EventNames.EntrySubmitted:
 					return await this.process.entrySubmitted(job.data, job.id)
 				case EventNames.RoundConcluded:

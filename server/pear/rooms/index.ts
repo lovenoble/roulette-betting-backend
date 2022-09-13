@@ -22,8 +22,8 @@ export const roomList: RoomMap = {
 		name: RoomName.Spin,
 		def: SpinRoom,
 		options: {
-			name: 'Spin Game',
-			desc: 'Fareplay Spin Game Room',
+			name: 'Spin',
+			desc: 'Fareplay Spin Room',
 			password: null,
 		},
 	},

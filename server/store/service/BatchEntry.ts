@@ -79,7 +79,7 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 		)
 
 		const be = await spinAPI.contract.batchEntryMap(roundId, player)
-		const { settled, totalEntryAmount, totalWinAmount } = be
+		const { settled, totalEntryAmount, totalMintAmount } = be
 
 		const batchEntry = {
 			eventLogId,
@@ -88,7 +88,7 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
 			settled,
 			player,
 			totalEntryAmount: formatETH(totalEntryAmount),
-			totalWinAmount: formatETH(totalWinAmount),
+			totalMintAmount: formatETH(totalMintAmount),
 			timestamp,
 			jobId,
 		}

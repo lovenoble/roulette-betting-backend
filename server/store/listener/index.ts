@@ -6,7 +6,7 @@ import { StoreQueue } from '../queue'
 import { logger, sleep } from '../utils'
 
 import createFareTokenListener from './fareToken'
-import createSpinGameListener from './spinGame'
+import createSpinContractListener from './spinContract'
 
 export default class SmartContractListener {
 	#reconnectAttempts = 10
@@ -14,7 +14,7 @@ export default class SmartContractListener {
 	#isReconnected = false
 	service!: IServiceObj
 	listeners!: ReturnType<typeof createFareTokenListener> &
-		ReturnType<typeof createSpinGameListener>
+		ReturnType<typeof createSpinContractListener>
 
 	public get listenerCount() {
 		return Object.keys(this.listeners).length
@@ -28,13 +28,13 @@ export default class SmartContractListener {
 		this.service = service
 		this.listeners = {
 			...createFareTokenListener(service, storeQueue),
-			...createSpinGameListener(service, storeQueue),
+			...createSpinContractListener(service, storeQueue),
 		}
 	}
 
 	private async beforeStart() {
 		await this.service.round.ensureSpinRoundPaused()
-		await this.service.gameMode.ensureGameModes()
+		await this.service.contractMode.ensureGameModes()
 		await this.service.fareTransfer.updateTotalSupply()
 		await this.service.round.updateCurrentRoundId()
 	}
@@ -78,13 +78,13 @@ export default class SmartContractListener {
 		fareAPI.contract.on(EventNames.Transfer, this.listeners.fareTransfer)
 
 		// Spin
-		spinAPI.contract.on(EventNames.GameModeUpdated, this.listeners.gameModeUpdated)
+		spinAPI.contract.on(EventNames.ContractModeUpdated, this.listeners.contractModeUpdated)
 		spinAPI.contract.on(EventNames.EntrySubmitted, this.listeners.entrySubmitted)
 		spinAPI.contract.on(EventNames.RoundConcluded, this.listeners.roundConcluded)
 		spinAPI.contract.on(EventNames.EntrySettled, this.listeners.entrySettled)
 		spinAPI.contract.on(EventNames.RoundPausedChanged, this.listeners.roundPausedChanged)
-		// @NOTE: Need to implement NFTWon event
-		// spinAPI.contract.on(EventNames.NFTWon, this.listeners.nftWon)
+		// @NOTE: Need to implement NFTMint event
+		// spinAPI.contract.on(EventNames.NFTMint, this.listeners.nftWon)
 
 		// @NOTE: Perhaps this event won't be needed since we already get the random number from roundConcluded
 		// spinAPI.contract.on(EventNames.RandomNumberRequested, (...args) => console.log(args))

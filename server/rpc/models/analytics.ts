@@ -20,8 +20,8 @@ export interface UserProfileRequest {
 
 export interface UserProfileResponse {
 	fareAmount: string
-	totalWins: number
-	totalLosses: number
+	totalMints: number
+	totalBurns: number
 }
 
 function createBaseUserProfileRequest(): UserProfileRequest {
@@ -76,7 +76,7 @@ export const UserProfileRequest = {
 }
 
 function createBaseUserProfileResponse(): UserProfileResponse {
-	return { fareAmount: '', totalWins: 0, totalLosses: 0 }
+	return { fareAmount: '', totalMints: 0, totalBurns: 0 }
 }
 
 export const UserProfileResponse = {
@@ -84,11 +84,11 @@ export const UserProfileResponse = {
 		if (message.fareAmount !== '') {
 			writer.uint32(10).string(message.fareAmount)
 		}
-		if (message.totalWins !== 0) {
-			writer.uint32(16).int32(message.totalWins)
+		if (message.totalMints !== 0) {
+			writer.uint32(16).int32(message.totalMints)
 		}
-		if (message.totalLosses !== 0) {
-			writer.uint32(24).int32(message.totalLosses)
+		if (message.totalBurns !== 0) {
+			writer.uint32(24).int32(message.totalBurns)
 		}
 		return writer
 	},
@@ -104,10 +104,10 @@ export const UserProfileResponse = {
 					message.fareAmount = reader.string()
 					break
 				case 2:
-					message.totalWins = reader.int32()
+					message.totalMints = reader.int32()
 					break
 				case 3:
-					message.totalLosses = reader.int32()
+					message.totalBurns = reader.int32()
 					break
 				default:
 					reader.skipType(tag & 7)
@@ -120,16 +120,16 @@ export const UserProfileResponse = {
 	fromJSON(object: any): UserProfileResponse {
 		return {
 			fareAmount: isSet(object.fareAmount) ? String(object.fareAmount) : '',
-			totalWins: isSet(object.totalWins) ? Number(object.totalWins) : 0,
-			totalLosses: isSet(object.totalLosses) ? Number(object.totalLosses) : 0,
+			totalMints: isSet(object.totalMints) ? Number(object.totalMints) : 0,
+			totalBurns: isSet(object.totalBurns) ? Number(object.totalBurns) : 0,
 		}
 	},
 
 	toJSON(message: UserProfileResponse): unknown {
 		const obj: any = {}
 		message.fareAmount !== undefined && (obj.fareAmount = message.fareAmount)
-		message.totalWins !== undefined && (obj.totalWins = Math.round(message.totalWins))
-		message.totalLosses !== undefined && (obj.totalLosses = Math.round(message.totalLosses))
+		message.totalMints !== undefined && (obj.totalMints = Math.round(message.totalMints))
+		message.totalBurns !== undefined && (obj.totalBurns = Math.round(message.totalBurns))
 		return obj
 	},
 
@@ -138,8 +138,8 @@ export const UserProfileResponse = {
 	): UserProfileResponse {
 		const message = createBaseUserProfileResponse()
 		message.fareAmount = object.fareAmount ?? ''
-		message.totalWins = object.totalWins ?? 0
-		message.totalLosses = object.totalLosses ?? 0
+		message.totalMints = object.totalMints ?? 0
+		message.totalBurns = object.totalBurns ?? 0
 		return message
 	},
 }

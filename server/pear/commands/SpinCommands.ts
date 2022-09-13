@@ -136,21 +136,21 @@ export class OnInitSpinRoom extends Command<SpinRoom, void> {
 		// 	batchEntryState.player = batchEntry.player
 		// 	batchEntryState.settled = batchEntry.settled
 		// 	batchEntryState.totalEntryAmount = batchEntry.totalEntryAmount
-		// 	batchEntryState.totalWinAmount = batchEntry.totalWinAmount
+		// 	batchEntryState.totalMintAmount = batchEntry.totalMintAmount
 		// 	batchEntryState.timestamp = batchEntry.timestamp
-		// 	batchEntryState.isLoss = false
+		// 	batchEntryState.isBurn = false
 
 		// 	entries.forEach(entry => {
 		// 		const entryState = new Entry()
 
 		// 		entryState.amount = entry.amount
 		// 		entryState.roundId = entry.roundId
-		// 		entryState.gameModeId = entry.gameModeId
+		// 		entryState.contractModeId = entry.contractModeId
 		// 		entryState.pickedNumber = entry.pickedNumber
 		// 		entryState.entryIdx = entry.entryIdx
-		// 		entryState.winAmount = entry.winAmount
+		// 		entryState.mintAmount = entry.mintAmount
 		// 		entryState.settled = entry.settled
-		// 		entryState.isLoss = false
+		// 		entryState.isBurn = false
 
 		// 		batchEntryState.entries.push(entryState)
 		// 	})
@@ -186,21 +186,21 @@ export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
 			batchEntryState.player = batchEntry.player
 			batchEntryState.settled = batchEntry.settled
 			batchEntryState.totalEntryAmount = batchEntry.totalEntryAmount
-			batchEntryState.totalWinAmount = batchEntry.totalWinAmount
+			batchEntryState.totalMintAmount = batchEntry.totalMintAmount
 			batchEntryState.timestamp = batchEntry.timestamp
-			batchEntryState.isLoss = false
+			batchEntryState.isBurn = false
 
 			entries.forEach(entry => {
 				const entryState = new Entry()
 
 				entryState.amount = entry.amount
 				entryState.roundId = entry.roundId
-				entryState.gameModeId = entry.gameModeId
+				entryState.contractModeId = entry.contractModeId
 				entryState.pickedNumber = entry.pickedNumber
 				entryState.entryIdx = entry.entryIdx
-				entryState.winAmount = entry.winAmount
+				entryState.mintAmount = entry.mintAmount
 				entryState.settled = entry.settled
-				entryState.isLoss = false
+				entryState.isBurn = false
 
 				batchEntryState.entries.push(entryState)
 			})
@@ -218,7 +218,7 @@ export class OnBatchEntrySettled extends Command<SpinRoom, SettledBatchEntryArgs
 		// const be = this.state.batchEntries.get(batchEntry.entityId)
 
 		// be.settled = true
-		// be.totalWinAmount = batchEntry.totalWinAmount
+		// be.totalMintAmount = batchEntry.totalMintAmount
 		logger.info(`OnBatchEntry: batch entry --> ${batchEntry},\n entries --> ${entries}`)
 	}
 }
@@ -247,22 +247,22 @@ export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
 		this.state.round.isTenXElim = roundData.isTenXElim
 		this.state.round.isHundoXElim = roundData.isHundoXElim
 
-		// Set winAmounts for call batchEntries/entries
+		// Set mintAmount for call batchEntries/entries
 		roundData.settledData.forEach(({ batchEntry, entries }) => {
 			const be = this.state.batchEntries.get(batchEntry.player)
 			if (!be) return
 
-			if (batchEntry.totalWinAmount) {
-				be.totalWinAmount = batchEntry.totalWinAmount
+			if (batchEntry.totalMintAmount) {
+				be.totalMintAmount = batchEntry.totalMintAmount
 				be.entries.forEach((e, idx) => {
-					if (entries[idx].winAmount) {
-						e.winAmount = entries[idx].winAmount
+					if (entries[idx].mintAmount) {
+						e.mintAmount = entries[idx].mintAmount
 					} else {
-						e.isLoss = true
+						e.isBurn = true
 					}
 				})
 			} else {
-				be.isLoss = true
+				be.isBurn = true
 			}
 		})
 

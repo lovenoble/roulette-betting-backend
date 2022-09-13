@@ -4,13 +4,13 @@ import type { BigNumber } from 'ethers'
 import { bnify } from '../utils'
 import type { Overwrite } from '../types'
 
-export interface GameMode {
+export interface ContractMode {
 	jobId: string
 	eventLogId: string
 	id: number
 	cardinality: number
 	mintMultiplier: number
-	gameEdgeFloor: string
+	contractExpectedValueFloor: string
 	minAmount: string
 	maxAmount: string
 	entryLimit: number
@@ -20,20 +20,26 @@ export interface GameMode {
 
 export interface BNGameMode
 	extends Overwrite<
-		GameMode,
+		ContractMode,
 		{
 			bn: {
 				cardinality: BigNumber
 				mintMultiplier: BigNumber
-				gameEdgeFloor: BigNumber
+				contractExpectedValueFloor: BigNumber
 				minAmount: BigNumber
 				maxAmount: BigNumber
 			}
 		}
 	> {}
 
-export class GameMode extends Entity {
-	public ethFields = ['cardinality', 'mintMultiplier', 'gameEdgeFloor', 'minAmount', 'maxAmount']
+export class ContractMode extends Entity {
+	public ethFields = [
+		'cardinality',
+		'mintMultiplier',
+		'contractExpectedValueFloor',
+		'minAmount',
+		'maxAmount',
+	]
 
 	public bnify(): BNGameMode & Entity {
 		return bnify(this)
@@ -41,13 +47,13 @@ export class GameMode extends Entity {
 }
 
 export default new Schema(
-	GameMode,
+	ContractMode,
 	{
 		jobId: { type: 'string' },
 		eventLogId: { type: 'string' },
 		id: { type: 'number' },
 		cardinality: { type: 'number' },
-		gameEdgeFloor: { type: 'string' },
+		contractExpectedValueFloor: { type: 'string' },
 		mintMultiplier: { type: 'number' },
 		minAmount: { type: 'string' },
 		maxAmount: { type: 'string' },

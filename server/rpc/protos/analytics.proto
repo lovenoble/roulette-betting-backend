@@ -12,7 +12,7 @@ message UserProfileRequest {
 
 message UserProfileResponse {
     string fareAmount = 1;
-    int32 totalWins = 2;
-    int32 totalLosses = 3;
+    int32 totalMints = 2;
+    int32 totalBurns = 3;
 }
 

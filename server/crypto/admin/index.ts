@@ -1,13 +1,7 @@
 import { Wallet, providers, ContractTransaction, ContractReceipt } from 'ethers'
 import { Clock, Delayed } from '@colyseus/core'
 
-import {
-	FareSpinGame,
-	FareSpinGame__factory,
-	FareToken,
-	FareToken__factory,
-	FlatEntry,
-} from '../types'
+import { FareSpin, FareSpin__factory, FareToken, FareToken__factory, FlatEntry } from '../types'
 import CryptoToken from './token'
 import CryptoSeed from './seed'
 import cryptoConfig from '../../config/crypto.config'
@@ -19,7 +13,7 @@ import {
 	// DEFAULT_PATCH_RATE,
 } from '../constants'
 
-const { blockchainRpcUrl, privateKey, fareTokenAddress, fareSpinGameAddress } = cryptoConfig
+const { blockchainRpcUrl, privateKey, fareTokenAddress, fareSpinAddress } = cryptoConfig
 
 const provider = new providers.JsonRpcProvider(blockchainRpcUrl)
 
@@ -29,7 +23,7 @@ class CryptoAdmin {
 	seed = new CryptoSeed()
 	fund!: CryptoToken
 	fare!: FareToken
-	spin!: FareSpinGame
+	spin!: FareSpin
 	clock = new Clock()
 	delayedInterval!: Delayed
 	delayedTimeout!: Delayed
@@ -43,7 +37,7 @@ class CryptoAdmin {
 
 		try {
 			this.fare = FareToken__factory.connect(fareTokenAddress, this.adminSigner)
-			this.spin = FareSpinGame__factory.connect(fareSpinGameAddress, this.adminSigner)
+			this.spin = FareSpin__factory.connect(fareSpinAddress, this.adminSigner)
 			this.fund = new CryptoToken({
 				fundSigner: this.adminSigner,
 				fare: this.fare,
@@ -158,7 +152,7 @@ class CryptoAdmin {
 		this.delayedTimeout = this.clock.setTimeout(async () => {
 			await this.concludeRound()
 
-			// Win/Lose screens event
+			// Mint/Burn screens event
 			this.delayedTimeout = this.clock.setTimeout(async () => {
 				// Pubsub new round started
 				// Allow batchEntries

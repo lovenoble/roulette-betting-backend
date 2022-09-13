@@ -5,13 +5,13 @@ const type = Context.create()
 export interface IEntry {
 	amount: string // Amount of FARE token submitted
 	roundId: number // Round when this entry was submitted
-	gameModeId: number // References the GameMode mapping in the smart contract (0 = 2X, 1 = 10X, 2 = 100X)
-	pickedNumber: number // Number picked for the specific gameMode
+	contractModeId: number // References the ContractMode mapping in the smart contract (0 = 2X, 1 = 10X, 2 = 100X)
+	pickedNumber: number // Number picked for the specific contractMode
 	player: string // Players public address
 	entryIdx: number // References position in entry array in smart contract
-	winAmount?: string // Amount won when round is over
+	mintAmount?: string // Amount won when round is over
 	settled: boolean // Determines if a player has submitted an batchEntrySettled transaction to claim token
-	isLoss: boolean
+	isBurn: boolean
 }
 
 // @NOTE: This data should probably be fetched whenever someone clicks on a batchEntry
@@ -19,11 +19,11 @@ export interface IEntry {
 export class Entry extends Schema implements IEntry {
 	@type('string') amount: string
 	@type('number') roundId: number
-	@type('number') gameModeId: number
+	@type('number') contractModeId: number
 	@type('number') pickedNumber: number
 	@type('string') player: string
 	@type('number') entryIdx: number
-	@type('string') winAmount?: string // Updates when round is over
+	@type('string') mintAmount?: string // Updates when round is over
 	@type('boolean') settled = false // Defaults to false
-	@type('boolean') isLoss: boolean // Defaults to false
+	@type('boolean') isBurn: boolean // Defaults to false
 }

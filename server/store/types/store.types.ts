@@ -5,7 +5,7 @@ import type {
 	Entry,
 	EventLog,
 	FareTransfer,
-	GameMode,
+	ContractMode,
 	Round,
 	User,
 	Eliminator,
@@ -15,7 +15,7 @@ import type {
 	EntryService,
 	EventLogService,
 	FareTransferService,
-	GameModeService,
+	ContractModeService,
 	RoundService,
 	UserService,
 	EliminatorService,
@@ -24,7 +24,7 @@ import type {
 export interface IRepoObj {
 	eliminator?: Repository<Eliminator>
 	eventLog?: Repository<EventLog>
-	gameMode?: Repository<GameMode>
+	contractMode?: Repository<ContractMode>
 	fareTransfer?: Repository<FareTransfer>
 	entry?: Repository<Entry>
 	batchEntry?: Repository<BatchEntry>
@@ -35,7 +35,7 @@ export interface IRepoObj {
 export interface IServiceObj {
 	eliminator?: EliminatorService
 	eventLog?: EventLogService
-	gameMode?: GameModeService
+	contractMode?: ContractModeService
 	fareTransfer?: FareTransferService
 	entry?: EntryService
 	batchEntry?: BatchEntryService

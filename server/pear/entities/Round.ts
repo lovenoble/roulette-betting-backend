@@ -14,7 +14,7 @@ export interface IRound {
 	// entityId: string // Redis hashId to reference in Redis store (emitted from pubsub event)
 	roundId: number
 	randomNum: number
-	// @NOTE: Need to parse out winning numbers for 2x, 10x, 100x
+	// @NOTE: Need to parse out minting numbers for 2x, 10x, 100x
 	// twoXNum: (0 - 1)
 	// tenXNum: (0 - 9)
 	// hundoNum: (0 - 99)
@@ -27,8 +27,8 @@ export interface IRound {
 	// fareTotalStartingSupply: string
 	// fareTotalEndingSupply: string
 	// numberOfChatMessages: string
-	// highestWinningBatchEntry: string
-	// mostFareLost: string
+	// highestMintAmountBatchEntry: string
+	// mostFareBurned: string
 }
 
 export class Round extends Schema implements IRound {

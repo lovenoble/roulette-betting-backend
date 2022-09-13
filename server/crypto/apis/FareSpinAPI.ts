@@ -2,29 +2,35 @@ import { BigNumber, utils } from 'ethers'
 
 import { BNToNumber } from '../utils'
 
-import type { IEntry, IBatchEntry, IRound, IEliminator, GameModeParams } from '../types/spin.types'
-import type { FareToken, FareSpinGame, EntryStructOutput, EliminatorStructOutput } from '../types'
+import type {
+	IEntry,
+	IBatchEntry,
+	IRound,
+	IEliminator,
+	ContractModeParams,
+} from '../types/spin.types'
+import type { FareToken, FareSpin, EntryStructOutput, EliminatorStructOutput } from '../types'
 
-import { GameModes } from '../constants'
+import { ContractModes } from '../constants'
 import config from '../../config/crypto.config'
 
-class FareSpinGameAPI {
+class FareSpinAPI {
 	public token!: FareToken
-	public contract!: FareSpinGame
+	public contract!: FareSpin
 	private _treasuryAddress = config.treasuryAddress
-	private _gameModes = GameModes
+	private _contractModes = ContractModes
 
-	constructor(fareTokenContract: FareToken, fareSpinGameContract: FareSpinGame) {
+	constructor(fareTokenContract: FareToken, fareSpinContract: FareSpin) {
 		this.token = fareTokenContract
-		this.contract = fareSpinGameContract
+		this.contract = fareSpinContract
 	}
 
 	public get treasuryAddress() {
 		return this._treasuryAddress
 	}
 
-	public get gameModes() {
-		return this._gameModes
+	public get contractModes() {
+		return this._contractModes
 	}
 
 	public getAddress(): string {
@@ -35,15 +41,15 @@ class FareSpinGameAPI {
 		return this.contract.provider.getCode(this.getAddress())
 	}
 
-	public getGameModeById(id: number): GameModeParams {
-		return this.gameModes.filter(gm => BNToNumber(gm.id) === id)[0]
+	public getContractModeById(id: number): ContractModeParams {
+		return this.contractModes.filter(gm => BNToNumber(gm.id) === id)[0]
 	}
 
-	public async getAllGameModes(): Promise<GameModeParams[]> {
-		const currentGameModeId = BNToNumber(await this.contract.getCurrentGameModeId())
-		const gameModeIds = [...Array(currentGameModeId).keys()]
+	public async getAllContractModes(): Promise<ContractModeParams[]> {
+		const currentContractModeId = BNToNumber(await this.contract.getCurrentContractModeId())
+		const contractModeIds = [...Array(currentContractModeId).keys()]
 
-		const promiseList = gameModeIds.map(id => this.contract.gameModes(id))
+		const promiseList = contractModeIds.map(id => this.contract.contractModes(id))
 
 		return Promise.all(promiseList)
 	}
@@ -74,8 +80,8 @@ class FareSpinGameAPI {
 
 	public parseEliminator(eliminator: EliminatorStructOutput): IEliminator {
 		return {
-			gameModeId: BNToNumber(eliminator.gameModeId),
-			recordedEdgeFloor: BNToNumber(eliminator.recordedEdgeFloor),
+			contractModeId: BNToNumber(eliminator.contractModeId),
+			recordedExpectedValueFloor: BNToNumber(eliminator.recordedExpectedValueFloor),
 			isEliminator: eliminator.isEliminator,
 		}
 	}
@@ -94,14 +100,14 @@ class FareSpinGameAPI {
 
 	public parseEntry(entry: EntryStructOutput): IEntry {
 		return {
-			gameModeId: BNToNumber(entry.gameModeId),
+			contractModeId: BNToNumber(entry.contractModeId),
 			amount: BNToNumber(entry.amount, 18),
 			pickedNumber: BNToNumber(entry.pickedNumber),
 		}
 	}
 
 	public async getAllEntries(roundId: BigNumber | number, player: string): Promise<IEntry[]> {
-		const bcEntries = await this.contract.getEntriesByRoundPlayer(roundId, player)
+		const bcEntries = await this.contract.getEntriesByRoundUser(roundId, player)
 
 		const entries = bcEntries.map(entry => {
 			return this.parseEntry(entry)
@@ -114,10 +120,10 @@ class FareSpinGameAPI {
 		const _batchEntry = await this.contract.batchEntryMap(roundId, player)
 
 		return {
-			player: _batchEntry.player,
+			player: _batchEntry.user,
 			settled: _batchEntry.settled,
 			totalEntryAmount: BNToNumber(_batchEntry.totalEntryAmount, 18),
-			totalWinAmount: BNToNumber(_batchEntry.totalWinAmount, 18),
+			totalMintAmount: BNToNumber(_batchEntry.totalMintAmount, 18),
 		}
 	}
 
@@ -127,19 +133,19 @@ class FareSpinGameAPI {
 	): Promise<{
 		batchEntries: IBatchEntry[]
 		totalRoundEntryAmount: number
-		totalRoundWinAmount: number
+		totalRoundMintAmount: number
 	}> {
 		let totalRoundEntryAmount = 0
-		let totalRoundWinAmount = 0
+		let totalRoundMintAmount = 0
 
-		const players = await this.contract.getAllPlayersByRoundId(roundId)
+		const players = await this.contract.getAllUsersByRoundId(roundId)
 
 		const promiseList = players.map((player): Promise<IBatchEntry> => {
 			return new Promise((resolve, reject) => {
 				this.getBatchEntry(roundId, player)
 					.then(batchEntry => {
 						totalRoundEntryAmount += batchEntry.totalEntryAmount
-						totalRoundWinAmount += batchEntry.totalWinAmount
+						totalRoundMintAmount += batchEntry.totalMintAmount
 						if (includeEntries) {
 							this.getAllEntries(roundId, player)
 								.then(entries => {
@@ -162,9 +168,9 @@ class FareSpinGameAPI {
 		return {
 			batchEntries,
 			totalRoundEntryAmount,
-			totalRoundWinAmount,
+			totalRoundMintAmount,
 		}
 	}
 }
 
-export default FareSpinGameAPI
+export default FareSpinAPI

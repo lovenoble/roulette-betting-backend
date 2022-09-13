@@ -7,10 +7,10 @@ export const logger = Logger.create({ logType: 'CryptoAdmin', theme: ['palePink'
 
 export const BN = BigNumber.from
 
-export function createEntry(amount: number, gameModeId: 0 | 1 | 2, pickedNumber: number) {
+export function createEntry(amount: number, contractModeId: 0 | 1 | 2, pickedNumber: number) {
 	return {
 		amount: utils.parseEther(amount.toString()),
-		gameModeId: BN(gameModeId),
+		contractModeId: BN(contractModeId),
 		pickedNumber: BN(pickedNumber),
 	}
 }

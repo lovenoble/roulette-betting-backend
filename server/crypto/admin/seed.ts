@@ -30,7 +30,12 @@ export default class CryptoSeed {
 	async init(fileName = 'default') {
 		if (this.#signers.length !== 0) return
 		const seedFilePath = `${this.seedPath}/${fileName}.seed`
-		const data = fs.readFileSync(seedFilePath, { encoding: 'utf8' })
+		let data = ''
+		try {
+			data = fs.readFileSync(seedFilePath, { encoding: 'utf8' })
+		} catch (e) {
+			this.#ensureSeedFile(fileName)
+		}
 		let privateKeys: string[] = []
 
 		if (!data) {
@@ -70,7 +75,12 @@ export default class CryptoSeed {
 
 	#ensureSeedFile(fileName = 'default') {
 		const seedFilePath = `${this.seedPath}/${fileName}.seed`
-		if (!fs.existsSync(seedFilePath)) fs.openSync(seedFilePath, 'w')
+		console.log(seedFilePath)
+		console.log(!fs.existsSync(seedFilePath))
+		if (!fs.existsSync(seedFilePath)) {
+			fs.openSync(seedFilePath, 'w')
+			fs.writeFileSync(seedFilePath, '')
+		}
 	}
 
 	#addToSeedFile(privateKeys: string[], fileName = 'default') {

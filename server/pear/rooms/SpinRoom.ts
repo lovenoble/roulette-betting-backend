@@ -24,7 +24,7 @@ import { logger } from '../utils'
 import store from '../../store'
 import PubSub from '../../pubsub'
 
-class SpinGame extends Room<SpinState> {
+class SpinContract extends Room<SpinState> {
 	#name: string
 	#desc: string
 	#password: string | null = null
@@ -237,8 +237,8 @@ class SpinGame extends Room<SpinState> {
 
 	onDispose() {
 		this.dispatcher.stop()
-		logger.info('Disposing of SpinGame room...')
+		logger.info('Disposing of SpinContract room...')
 	}
 }
 
-export default SpinGame
+export default SpinContract

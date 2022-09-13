@@ -19,8 +19,10 @@ function stopAllProcesses() {
 async function init() {
 	try {
 		// Initialize slack bot and dependency inject logger
-		slackBotServer.setLogger(logger)
-		await slackBotServer.initServer()
+		if (process.env.NODE_ENV === 'production') {
+			slackBotServer.setLogger(logger)
+			await slackBotServer.initServer()
+		}
 
 		// If running multiple processes, ensures only one RPC server and RedisStore instance is created
 		if (pearServerPort === 3100) {

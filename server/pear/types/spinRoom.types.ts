@@ -29,14 +29,14 @@ export interface IEntry {
 	pickedColor: string
 	isSettled: boolean
 	result: string
-	winAmount: string
+	mintAmount: string
 }
 
 export interface IEntryList {
 	list: ArraySchema<IEntry>
 }
 
-export interface ISpinGameState {
+export interface ISpinContractState {
 	gamePlayers: MapSchema<IGamePlayer>
 	guestPlayers: MapSchema<IGuestPlayer>
 	entries: MapSchema<IEntryList>

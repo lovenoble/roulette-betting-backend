@@ -10,7 +10,7 @@ import {
 	EntryService,
 	EventLogService,
 	FareTransferService,
-	GameModeService,
+	ContractModeService,
 	RoundService,
 	UserService,
 	EliminatorService,
@@ -23,7 +23,7 @@ import {
 	entrySchema,
 	eventLogSchema,
 	fareTransferSchema,
-	gameModeSchema,
+	contractModeSchema,
 	roundSchema,
 	userSchema,
 	eliminatorSchema,
@@ -78,7 +78,7 @@ export class RedisStore {
 	private async initRepos(om: Client) {
 		this.repo.eliminator = await this.service.eliminator.init(om, eliminatorSchema)
 		this.repo.eventLog = await this.service.eventLog.init(om, eventLogSchema)
-		this.repo.gameMode = await this.service.gameMode.init(om, gameModeSchema)
+		this.repo.contractMode = await this.service.contractMode.init(om, contractModeSchema)
 		this.repo.fareTransfer = await this.service.fareTransfer.init(om, fareTransferSchema)
 		this.repo.entry = await this.service.entry.init(om, entrySchema)
 		this.repo.batchEntry = await this.service.batchEntry.init(om, batchEntrySchema)
@@ -89,12 +89,12 @@ export class RedisStore {
 	private async initServices() {
 		this.service.eliminator = new EliminatorService()
 		this.service.eventLog = new EventLogService()
-		this.service.gameMode = new GameModeService()
+		this.service.contractMode = new ContractModeService()
 		this.service.fareTransfer = new FareTransferService()
 		this.service.entry = new EntryService()
 		this.service.batchEntry = new BatchEntryService(this.service.entry)
 		this.service.round = new RoundService(
-			this.service.gameMode,
+			this.service.contractMode,
 			this.service.batchEntry,
 			this.service.entry
 		)

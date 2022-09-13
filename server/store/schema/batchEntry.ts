@@ -12,7 +12,7 @@ export interface BatchEntry {
 	player: string
 	settled: boolean
 	totalEntryAmount: string
-	totalWinAmount: string
+	totalMintAmount: string
 	timestamp: number
 	settledOn: number
 }
@@ -23,13 +23,13 @@ export interface BNBatchEntry
 		{
 			bn: {
 				totalEntryAmount: BigNumber
-				totalWinAmount: BigNumber
+				totalMintAmount: BigNumber
 			}
 		}
 	> {}
 
 export class BatchEntry extends Entity {
-	ethFields = ['totalEntryAmount', 'totalWinAmount']
+	ethFields = ['totalEntryAmount', 'totalMintAmount']
 
 	bnify(): BNBatchEntry & Entity {
 		return bnify(this)
@@ -46,7 +46,7 @@ export default new Schema(
 		player: { type: 'string' },
 		settled: { type: 'boolean' },
 		totalEntryAmount: { type: 'string' },
-		totalWinAmount: { type: 'string' },
+		totalMintAmount: { type: 'string' },
 		timestamp: { type: 'date' },
 		settledOn: { type: 'date' },
 	},

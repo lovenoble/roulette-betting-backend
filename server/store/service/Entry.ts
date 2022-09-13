@@ -26,20 +26,20 @@ export default class EntryService extends ServiceBase<Entry> {
 		jobId: string = null,
 		timestamp = Date.now()
 	): Promise<Entry[]> {
-		const entries = await spinAPI.contract.getEntriesByRoundPlayer(roundId, player)
+		const entries = await spinAPI.contract.getEntriesByRoundUser(roundId, player)
 
 		const promiseList: Promise<Entry>[] = entries.map((entry, entryIdx) => {
 			return new Promise((resolve, reject) => {
-				const [amount, gameModeId, pickedNumber] = entry
+				const [amount, contractModeId, pickedNumber] = entry
 				const newEntry = {
 					eventLogId,
 					amount: formatETH(amount),
 					roundId,
-					gameModeId: BNToNumber(gameModeId),
+					contractModeId: BNToNumber(contractModeId),
 					pickedNumber: BNToNumber(pickedNumber),
 					player,
 					entryIdx,
-					winAmount: null,
+					mintAmount: null,
 					settled: false,
 					timestamp,
 					jobId,

@@ -10,10 +10,10 @@ export interface IBatchEntry {
 	player: string // Public address of player
 	settled: boolean // Determines if a player has submitted an batchEntrySettled transaction to claim token
 	totalEntryAmount: string // Amount(sum of all entries) won when round is over
-	totalWinAmount?: string // Amount(sum of all winning entries) won when round is over
+	totalMintAmount?: string // Amount(sum of all minting entries) won when round is over
 	timestamp: number
 	entries: ArraySchema<Entry>
-	isLoss: boolean // Defaults to false
+	isBurn: boolean // Defaults to false
 }
 
 // @NOTE: This data should probably be fetched whenever someone clicks on a batchEntry
@@ -24,8 +24,8 @@ export class BatchEntry extends Schema implements IBatchEntry {
 	@type('string') player: string
 	@type('boolean') settled = false
 	@type('string') totalEntryAmount: string
-	@type('string') totalWinAmount?: string // Updated when round is over
+	@type('string') totalMintAmount?: string // Updated when round is over
 	@type('number') timestamp: number
 	@type([Entry]) entries = new ArraySchema<Entry>()
-	@type('boolean') isLoss: boolean // Defaults to false
+	@type('boolean') isBurn: boolean // Defaults to false
 }

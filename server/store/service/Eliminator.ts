@@ -20,17 +20,19 @@ export default class EliminatorService extends ServiceBase<Eliminator> {
 		const roundId = ensureNumber(_roundId)
 		const eliminators = await spinAPI.getAllEliminatorsByRound(ensureNumber(roundId))
 
-		const promiseList = eliminators.map(({ gameModeId, recordedEdgeFloor, isEliminator }) => {
-			return this.repo.createAndSave({
-				jobId,
-				evenetLogId,
-				roundId,
-				gameModeId: ensureNumber(gameModeId),
-				recordedEdgeFloor: ensureNumber(recordedEdgeFloor),
-				isEliminator,
-				timestamp,
-			})
-		})
+		const promiseList = eliminators.map(
+			({ contractModeId, recordedExpectedValueFloor, isEliminator }) => {
+				return this.repo.createAndSave({
+					jobId,
+					evenetLogId,
+					roundId,
+					contractModeId: ensureNumber(contractModeId),
+					recordedExpectedValueFloor: ensureNumber(recordedExpectedValueFloor),
+					isEliminator,
+					timestamp,
+				})
+			}
+		)
 
 		return Promise.all(promiseList)
 	}

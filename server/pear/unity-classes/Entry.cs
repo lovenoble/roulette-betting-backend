@@ -1,9 +1,9 @@
-// 
+//
 // THIS FILE HAS BEEN GENERATED AUTOMATICALLY
 // DO NOT CHANGE IT MANUALLY UNLESS YOU KNOW WHAT YOU'RE DOING
-// 
+//
 // GENERATED USING @colyseus/schema 1.0.34
-// 
+//
 
 using Colyseus.Schema;
 
@@ -16,7 +16,7 @@ namespace FareProtocol.Schemas {
 		public float roundId = default(float);
 
 		[Type(2, "number")]
-		public float gameModeId = default(float);
+		public float contractModeId = default(float);
 
 		[Type(3, "number")]
 		public float pickedNumber = default(float);
@@ -28,12 +28,12 @@ namespace FareProtocol.Schemas {
 		public float entryIdx = default(float);
 
 		[Type(6, "string")]
-		public string winAmount = default(string);
+		public string mintAmount = default(string);
 
 		[Type(7, "boolean")]
 		public bool settled = default(bool);
 
 		[Type(8, "boolean")]
-		public bool isLoss = default(bool);
+		public bool isBurn = default(bool);
 	}
 }

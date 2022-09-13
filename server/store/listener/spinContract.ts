@@ -3,7 +3,7 @@ import type { BigNumber, Event } from 'ethers'
 import { BNToNumber, formatBN } from '../utils'
 import { EventNames, ContractNames } from '../constants'
 import {
-	IGameModeUpdatedQueue,
+	IContractModeUpdatedQueue,
 	IEntrySubmittedQueue,
 	IEntrySettledQueue,
 	IRoundConcludedQueue,
@@ -12,16 +12,16 @@ import type { StoreQueue } from '../queue'
 import type { IServiceObj } from '../types'
 import PubSub from '../../pubsub'
 
-const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) => {
+const createSpinContractListener = (service: IServiceObj, storeQueue: StoreQueue) => {
 	const { eventLog } = service
 
-	const gameModeUpdated = async (gameModeId: BigNumber, event: Event) => {
-		const queueData: IGameModeUpdatedQueue = {
-			gameModeId: BNToNumber(gameModeId),
-			event: eventLog.parseForQueue(event, ContractNames.FareSpinGame),
+	const contractModeUpdated = async (contractModeId: BigNumber, event: Event) => {
+		const queueData: IContractModeUpdatedQueue = {
+			contractModeId: BNToNumber(contractModeId),
+			event: eventLog.parseForQueue(event, ContractNames.FareSpin),
 			timestamp: Date.now(),
 		}
-		await storeQueue.spinContract.add(EventNames.GameModeUpdated, queueData)
+		await storeQueue.spinContract.add(EventNames.ContractModeUpdated, queueData)
 	}
 
 	const entrySubmitted = async (
@@ -34,7 +34,7 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 			roundId: BNToNumber(roundId),
 			batchEntryId: BNToNumber(batchEntryId),
 			player,
-			event: eventLog.parseForQueue(event, ContractNames.FareSpinGame),
+			event: eventLog.parseForQueue(event, ContractNames.FareSpin),
 			timestamp: Date.now(),
 		}
 
@@ -53,7 +53,7 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 			vrfRequestId,
 			randomNum: BNToNumber(randomNum),
 			randomEliminator: formatBN(randomEliminator, 0),
-			event: eventLog.parseForQueue(event, ContractNames.FareSpinGame),
+			event: eventLog.parseForQueue(event, ContractNames.FareSpin),
 			timestamp: Date.now(),
 		}
 
@@ -70,7 +70,7 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 			roundId: BNToNumber(roundId),
 			player,
 			hasWon,
-			event: eventLog.parseForQueue(event, ContractNames.FareSpinGame),
+			event: eventLog.parseForQueue(event, ContractNames.FareSpin),
 			timestamp: Date.now(),
 		}
 
@@ -87,7 +87,7 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 	}
 
 	return {
-		gameModeUpdated,
+		contractModeUpdated,
 		entrySubmitted,
 		roundConcluded,
 		entrySettled,
@@ -95,4 +95,4 @@ const createSpinGameListener = (service: IServiceObj, storeQueue: StoreQueue) =>
 	}
 }
 
-export default createSpinGameListener
+export default createSpinContractListener

@@ -4,8 +4,8 @@ export interface Eliminator {
 	jobId: string
 	eventLogId: string
 	roundId: number
-	gameModeId: number
-	recordedEdgeFloor: string // gameModeFloor at the time of the round
+	contractModeId: number
+	recordedExpectedValueFloor: string // gameModeFloor at the time of the round
 	isEliminator: boolean
 	timestamp: number
 }
@@ -18,8 +18,8 @@ export default new Schema(
 		jobId: { type: 'string' },
 		eventLogId: { type: 'string' },
 		roundId: { type: 'number' },
-		gameModeId: { type: 'number' },
-		recordedEdgeFloor: { type: 'string' },
+		contractModeId: { type: 'number' },
+		recordedExpectedValueFloor: { type: 'string' },
 		isEliminator: { type: 'boolean' },
 		timestamp: { type: 'date' },
 	},

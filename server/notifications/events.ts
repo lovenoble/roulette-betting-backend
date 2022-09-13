@@ -1,7 +1,7 @@
-import { ISlackBot } from './types'
+// import { ISlackBot } from './types'
 
-export const createSlackEvents = (slackBot: ISlackBot) => {
-	slackBot.server.event('app_mention', async ({ payload }) => {
-		console.log(payload, payload.channel == slackBot.metaverseLogChannelId)
-	})
+// export const createSlackEvents = (slackBot: ISlackBot) => {
+export const createSlackEvents = () => {
+	// slackBot.server.event('app_mention', async ({ payload }) => {
+	// })
 }

@@ -10,11 +10,11 @@ export interface Entry {
 	eventLogId: string
 	amount: string
 	roundId: number
-	gameModeId: number
+	contractModeId: number
 	pickedNumber: number
 	player: string // Player's public address
 	entryIdx: number
-	winAmount: string
+	mintAmount: string
 	settled: boolean
 	timestamp: number
 	settledOn: number
@@ -25,13 +25,13 @@ export interface BNEntry
 		Entry,
 		{
 			bn: {
-				winAmount: BigNumber
+				mintAmount: BigNumber
 			}
 		}
 	> {}
 
 export class Entry extends Entity {
-	ethFields = ['winAmount']
+	ethFields = ['mintAmount']
 
 	bnify(): BNEntry & Entity {
 		return bnify(this)
@@ -45,11 +45,11 @@ export default new Schema(
 		eventLogId: { type: 'string' },
 		amount: { type: 'string' },
 		roundId: { type: 'number', sortable: true },
-		gameModeId: { type: 'number' },
+		contractModeId: { type: 'number' },
 		pickedNumber: { type: 'number' },
 		player: { type: 'string' },
 		entryIdx: { type: 'number', sortable: true },
-		winAmount: { type: 'string' },
+		mintAmount: { type: 'string' },
 		settled: { type: 'boolean' },
 		timestamp: { type: 'date' },
 		settledOn: { type: 'date' },

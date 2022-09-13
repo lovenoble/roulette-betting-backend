@@ -1,18 +1,18 @@
 export enum ContractNames {
 	FareToken = 'FareToken',
-	FareSpinGame = 'FareSpinGame',
+	FareSpin = 'FareSpin',
 }
 
 export enum EventNames {
 	Transfer = 'Transfer',
 	EnsureBalance = 'EnsureBalance',
-	GameModeUpdated = 'GameModeUpdated',
+	ContractModeUpdated = 'ContractModeUpdated',
 	EntrySubmitted = 'EntrySubmitted',
 	EntrySettled = 'EntrySettled',
 	RoundPausedChanged = 'RoundPausedChanged',
 	RoundConcluded = 'RoundConcluded',
 	RandomNumberRequested = 'RandomNumberRequested',
-	NFTWon = 'NFTWon',
+	NFTMint = 'NFTMint',
 }
 
 export enum QueueNames {
