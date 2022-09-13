@@ -4,7 +4,7 @@
 
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
-import type { FareSpinGame, FareSpinGameInterface } from "../FareSpinGame";
+import type { FareSpin, FareSpinInterface } from "../FareSpin";
 
 const _abi = [
   {
@@ -49,19 +49,32 @@ const _abi = [
       {
         indexed: true,
         internalType: "uint256",
+        name: "contractModeId",
+        type: "uint256",
+      },
+    ],
+    name: "ContractModeUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
         name: "roundId",
         type: "uint256",
       },
       {
         indexed: true,
         internalType: "address",
-        name: "player",
+        name: "user",
         type: "address",
       },
       {
         indexed: false,
         internalType: "bool",
-        name: "hasWon",
+        name: "hasMinted",
         type: "bool",
       },
     ],
@@ -86,24 +99,11 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "player",
+        name: "user",
         type: "address",
       },
     ],
     name: "EntrySubmitted",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "uint256",
-        name: "gameModeId",
-        type: "uint256",
-      },
-    ],
-    name: "GameModeUpdated",
     type: "event",
   },
   {
@@ -118,30 +118,11 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "player",
+        name: "user",
         type: "address",
       },
     ],
-    name: "NFTWon",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "previousOwner",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
-      },
-    ],
-    name: "OwnershipTransferred",
+    name: "NFTMint",
     type: "event",
   },
   {
@@ -229,7 +210,20 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "GAME_EDGE_CEILING",
+    name: "CONTRACT_EXPECTED_VALUE_CEILING",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "TREASURY_MINT_CAP",
     outputs: [
       {
         internalType: "uint256",
@@ -262,7 +256,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "player",
+        name: "user",
         type: "address",
       },
       {
@@ -277,7 +271,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "totalWinAmount",
+        name: "totalMintAmount",
         type: "uint256",
       },
     ],
@@ -292,7 +286,7 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "gameModes",
+    name: "contractModes",
     outputs: [
       {
         internalType: "uint256",
@@ -306,7 +300,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "gameEdgeFloor",
+        name: "contractExpectedValueFloor",
         type: "uint256",
       },
       {
@@ -346,11 +340,11 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "getAllPlayersByRoundId",
+    name: "getAllUsersByRoundId",
     outputs: [
       {
         internalType: "address[]",
-        name: "players",
+        name: "users",
         type: "address[]",
       },
     ],
@@ -378,7 +372,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getCurrentGameModeId",
+    name: "getCurrentContractModeId",
     outputs: [
       {
         internalType: "uint256",
@@ -416,12 +410,12 @@ const _abi = [
         components: [
           {
             internalType: "uint256",
-            name: "gameModeId",
+            name: "contractModeId",
             type: "uint256",
           },
           {
             internalType: "uint256",
-            name: "recordedEdgeFloor",
+            name: "recordedExpectedValueFloor",
             type: "uint256",
           },
           {
@@ -430,7 +424,7 @@ const _abi = [
             type: "bool",
           },
         ],
-        internalType: "struct FareSpinGame.Eliminator[]",
+        internalType: "struct FareSpin.Eliminator[]",
         name: "eliminators",
         type: "tuple[]",
       },
@@ -447,11 +441,11 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "player",
+        name: "user",
         type: "address",
       },
     ],
-    name: "getEntriesByRoundPlayer",
+    name: "getEntriesByRoundUser",
     outputs: [
       {
         components: [
@@ -462,7 +456,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "gameModeId",
+            name: "contractModeId",
             type: "uint256",
           },
           {
@@ -471,7 +465,7 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct FareSpinGame.Entry[]",
+        internalType: "struct FareSpin.Entry[]",
         name: "",
         type: "tuple[]",
       },
@@ -488,7 +482,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "player",
+        name: "user",
         type: "address",
       },
       {
@@ -508,7 +502,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "gameModeId",
+            name: "contractModeId",
             type: "uint256",
           },
           {
@@ -517,7 +511,7 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct FareSpinGame.Entry",
+        internalType: "struct FareSpin.Entry",
         name: "",
         type: "tuple",
       },
@@ -534,7 +528,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "player",
+        name: "user",
         type: "address",
       },
     ],
@@ -571,7 +565,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "gameModeId",
+        name: "contractModeId",
         type: "uint256",
       },
     ],
@@ -636,7 +630,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "gameModeId",
+            name: "contractModeId",
             type: "uint256",
           },
           {
@@ -645,7 +639,7 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct FareSpinGame.Entry[]",
+        internalType: "struct FareSpin.Entry[]",
         name: "entries",
         type: "tuple[]",
       },
@@ -669,13 +663,6 @@ const _abi = [
       },
     ],
     name: "rawFulfillRandomness",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "renounceOwnership",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -735,30 +722,17 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_fareTokenAddress",
-        type: "address",
-      },
-    ],
-    name: "setFareToken",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
-        name: "gameModeId",
+        name: "contractModeId",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "_gameEdgeFloor",
+        name: "_contractExpectedValueFloor",
         type: "uint256",
       },
     ],
-    name: "setGameEdgeFloor",
+    name: "setContractExpectedValueFloor",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -772,7 +746,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "gameEdgeFloor",
+        name: "contractExpectedValueFloor",
         type: "uint256",
       },
       {
@@ -796,7 +770,7 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "setGameMode",
+    name: "setContractMode",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -805,7 +779,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "gameModeId",
+        name: "contractModeId",
         type: "uint256",
       },
       {
@@ -814,7 +788,7 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "setGameModeEntryLimit",
+    name: "setContractModeEntryLimit",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -823,7 +797,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "gameModeId",
+        name: "contractModeId",
         type: "uint256",
       },
       {
@@ -832,7 +806,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "setGameModeIsActive",
+    name: "setContractModeIsActive",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -841,7 +815,7 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "gameModeId",
+        name: "contractModeId",
         type: "uint256",
       },
       {
@@ -855,7 +829,33 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "setGameModeMinMax",
+    name: "setContractModeMinMax",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_fareTokenAddress",
+        type: "address",
+      },
+    ],
+    name: "setFareToken",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bool",
+        name: "paused",
+        type: "bool",
+      },
+    ],
+    name: "setPauseContract",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -908,7 +908,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "player",
+        name: "user",
         type: "address",
       },
     ],
@@ -944,19 +944,6 @@ const _abi = [
       },
     ],
     name: "testFulfillRandomness",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
-      },
-    ],
-    name: "transferOwnership",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -1002,15 +989,15 @@ const _abi = [
   },
 ];
 
-export class FareSpinGame__factory {
+export class FareSpin__factory {
   static readonly abi = _abi;
-  static createInterface(): FareSpinGameInterface {
-    return new utils.Interface(_abi) as FareSpinGameInterface;
+  static createInterface(): FareSpinInterface {
+    return new utils.Interface(_abi) as FareSpinInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): FareSpinGame {
-    return new Contract(address, _abi, signerOrProvider) as FareSpinGame;
+  ): FareSpin {
+    return new Contract(address, _abi, signerOrProvider) as FareSpin;
   }
 }

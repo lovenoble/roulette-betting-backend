@@ -54,25 +54,6 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "previousOwner",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
-      },
-    ],
-    name: "OwnershipTransferred",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
         name: "from",
         type: "address",
       },
@@ -176,7 +157,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "player",
+        name: "user",
         type: "address",
       },
       {
@@ -198,6 +179,49 @@ const _abi = [
         internalType: "uint256",
         name: "",
         type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "contractUserAllowList",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "contractWhitelist",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -244,11 +268,16 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "",
+        name: "_user",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_contractAddress",
         type: "address",
       },
     ],
-    name: "gameWhitelist",
+    name: "didUserAllowContract",
     outputs: [
       {
         internalType: "bool",
@@ -287,7 +316,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "player",
+        name: "user",
         type: "address",
       },
       {
@@ -341,8 +370,19 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "renounceOwnership",
+    inputs: [
+      {
+        internalType: "address",
+        name: "_contractAddress",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "_allow",
+        type: "bool",
+      },
+    ],
+    name: "setAllowContractMintBurn",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -377,7 +417,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "gameAddress",
+        name: "contractAddress",
         type: "address",
       },
       {
@@ -467,19 +507,6 @@ const _abi = [
         type: "bool",
       },
     ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
-      },
-    ],
-    name: "transferOwnership",
-    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
