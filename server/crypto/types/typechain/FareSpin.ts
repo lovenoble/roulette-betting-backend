@@ -57,7 +57,7 @@ export interface FareSpinInterface extends utils.Interface {
 
   functions: {
     "CONTRACT_EXPECTED_VALUE_CEILING()": FunctionFragment;
-    "TREASURY_MINT_CAP()": FunctionFragment;
+    "REWARDS_MINT_CAP()": FunctionFragment;
     "batchEntryMap(uint256,address)": FunctionFragment;
     "contractModes(uint256)": FunctionFragment;
     "getAllUsersByRoundId(uint256)": FunctionFragment;
@@ -76,6 +76,8 @@ export interface FareSpinInterface extends utils.Interface {
     "placeBatchEntry((uint256,uint256,uint256)[])": FunctionFragment;
     "rawFulfillRandomness(bytes32,uint256)": FunctionFragment;
     "requestRandomNumber()": FunctionFragment;
+    "rewardsAddress()": FunctionFragment;
+    "rewardsMint()": FunctionFragment;
     "rounds(uint256)": FunctionFragment;
     "setContractExpectedValueFloor(uint256,uint256)": FunctionFragment;
     "setContractMode(uint256,uint256,uint256,uint256,uint256,uint256)": FunctionFragment;
@@ -84,21 +86,19 @@ export interface FareSpinInterface extends utils.Interface {
     "setContractModeMinMax(uint256,uint256,uint256)": FunctionFragment;
     "setFareToken(address)": FunctionFragment;
     "setPauseContract(bool)": FunctionFragment;
+    "setRewardsAddress(address)": FunctionFragment;
+    "setRewardsMint(uint256)": FunctionFragment;
     "setRoundPaused(bool)": FunctionFragment;
-    "setTreasuryAddress(address)": FunctionFragment;
-    "setTreasuryMint(uint256)": FunctionFragment;
     "settleBatchEntry(uint256,address)": FunctionFragment;
     "testConcludeRound(bytes32)": FunctionFragment;
     "testFulfillRandomness(bytes32,uint256)": FunctionFragment;
-    "treasuryAddress()": FunctionFragment;
-    "treasuryMint()": FunctionFragment;
     "vrfCoordinator()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "CONTRACT_EXPECTED_VALUE_CEILING"
-      | "TREASURY_MINT_CAP"
+      | "REWARDS_MINT_CAP"
       | "batchEntryMap"
       | "contractModes"
       | "getAllUsersByRoundId"
@@ -117,6 +117,8 @@ export interface FareSpinInterface extends utils.Interface {
       | "placeBatchEntry"
       | "rawFulfillRandomness"
       | "requestRandomNumber"
+      | "rewardsAddress"
+      | "rewardsMint"
       | "rounds"
       | "setContractExpectedValueFloor"
       | "setContractMode"
@@ -125,14 +127,12 @@ export interface FareSpinInterface extends utils.Interface {
       | "setContractModeMinMax"
       | "setFareToken"
       | "setPauseContract"
+      | "setRewardsAddress"
+      | "setRewardsMint"
       | "setRoundPaused"
-      | "setTreasuryAddress"
-      | "setTreasuryMint"
       | "settleBatchEntry"
       | "testConcludeRound"
       | "testFulfillRandomness"
-      | "treasuryAddress"
-      | "treasuryMint"
       | "vrfCoordinator"
   ): FunctionFragment;
 
@@ -141,7 +141,7 @@ export interface FareSpinInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "TREASURY_MINT_CAP",
+    functionFragment: "REWARDS_MINT_CAP",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -211,6 +211,14 @@ export interface FareSpinInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "rewardsAddress",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "rewardsMint",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "rounds",
     values: [BigNumberish]
   ): string;
@@ -250,16 +258,16 @@ export interface FareSpinInterface extends utils.Interface {
     values: [boolean]
   ): string;
   encodeFunctionData(
-    functionFragment: "setRoundPaused",
-    values: [boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setTreasuryAddress",
+    functionFragment: "setRewardsAddress",
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "setTreasuryMint",
+    functionFragment: "setRewardsMint",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRoundPaused",
+    values: [boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "settleBatchEntry",
@@ -274,14 +282,6 @@ export interface FareSpinInterface extends utils.Interface {
     values: [BytesLike, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "treasuryAddress",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "treasuryMint",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "vrfCoordinator",
     values?: undefined
   ): string;
@@ -291,7 +291,7 @@ export interface FareSpinInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "TREASURY_MINT_CAP",
+    functionFragment: "REWARDS_MINT_CAP",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -360,6 +360,14 @@ export interface FareSpinInterface extends utils.Interface {
     functionFragment: "requestRandomNumber",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "rewardsAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "rewardsMint",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "rounds", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setContractExpectedValueFloor",
@@ -390,15 +398,15 @@ export interface FareSpinInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setRewardsAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRewardsMint",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setRoundPaused",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setTreasuryAddress",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setTreasuryMint",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -411,14 +419,6 @@ export interface FareSpinInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "testFulfillRandomness",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "treasuryAddress",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "treasuryMint",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -574,7 +574,7 @@ export interface FareSpin extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    TREASURY_MINT_CAP(overrides?: CallOverrides): Promise<[BigNumber]>;
+    REWARDS_MINT_CAP(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     batchEntryMap(
       arg0: BigNumberish,
@@ -692,6 +692,10 @@ export interface FareSpin extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    rewardsAddress(overrides?: CallOverrides): Promise<[string]>;
+
+    rewardsMint(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     rounds(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -750,18 +754,18 @@ export interface FareSpin extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    setRewardsAddress(
+      _rewardsAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setRewardsMint(
+      percent: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setRoundPaused(
       paused: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setTreasuryAddress(
-      _treasuryAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setTreasuryMint(
-      percent: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -782,10 +786,6 @@ export interface FareSpin extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    treasuryAddress(overrides?: CallOverrides): Promise<[string]>;
-
-    treasuryMint(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     vrfCoordinator(overrides?: CallOverrides): Promise<[string]>;
   };
 
@@ -793,7 +793,7 @@ export interface FareSpin extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  TREASURY_MINT_CAP(overrides?: CallOverrides): Promise<BigNumber>;
+  REWARDS_MINT_CAP(overrides?: CallOverrides): Promise<BigNumber>;
 
   batchEntryMap(
     arg0: BigNumberish,
@@ -901,6 +901,10 @@ export interface FareSpin extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  rewardsAddress(overrides?: CallOverrides): Promise<string>;
+
+  rewardsMint(overrides?: CallOverrides): Promise<BigNumber>;
+
   rounds(
     arg0: BigNumberish,
     overrides?: CallOverrides
@@ -959,18 +963,18 @@ export interface FareSpin extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setRewardsAddress(
+    _rewardsAddress: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setRewardsMint(
+    percent: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setRoundPaused(
     paused: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setTreasuryAddress(
-    _treasuryAddress: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setTreasuryMint(
-    percent: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -991,10 +995,6 @@ export interface FareSpin extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  treasuryAddress(overrides?: CallOverrides): Promise<string>;
-
-  treasuryMint(overrides?: CallOverrides): Promise<BigNumber>;
-
   vrfCoordinator(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
@@ -1002,7 +1002,7 @@ export interface FareSpin extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    TREASURY_MINT_CAP(overrides?: CallOverrides): Promise<BigNumber>;
+    REWARDS_MINT_CAP(overrides?: CallOverrides): Promise<BigNumber>;
 
     batchEntryMap(
       arg0: BigNumberish,
@@ -1108,6 +1108,10 @@ export interface FareSpin extends BaseContract {
 
     requestRandomNumber(overrides?: CallOverrides): Promise<string>;
 
+    rewardsAddress(overrides?: CallOverrides): Promise<string>;
+
+    rewardsMint(overrides?: CallOverrides): Promise<BigNumber>;
+
     rounds(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -1163,17 +1167,17 @@ export interface FareSpin extends BaseContract {
 
     setPauseContract(paused: boolean, overrides?: CallOverrides): Promise<void>;
 
-    setRoundPaused(paused: boolean, overrides?: CallOverrides): Promise<void>;
-
-    setTreasuryAddress(
-      _treasuryAddress: string,
+    setRewardsAddress(
+      _rewardsAddress: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setTreasuryMint(
+    setRewardsMint(
       percent: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    setRoundPaused(paused: boolean, overrides?: CallOverrides): Promise<void>;
 
     settleBatchEntry(
       roundId: BigNumberish,
@@ -1191,10 +1195,6 @@ export interface FareSpin extends BaseContract {
       randomness: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    treasuryAddress(overrides?: CallOverrides): Promise<string>;
-
-    treasuryMint(overrides?: CallOverrides): Promise<BigNumber>;
 
     vrfCoordinator(overrides?: CallOverrides): Promise<string>;
   };
@@ -1273,7 +1273,7 @@ export interface FareSpin extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    TREASURY_MINT_CAP(overrides?: CallOverrides): Promise<BigNumber>;
+    REWARDS_MINT_CAP(overrides?: CallOverrides): Promise<BigNumber>;
 
     batchEntryMap(
       arg0: BigNumberish,
@@ -1353,6 +1353,10 @@ export interface FareSpin extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    rewardsAddress(overrides?: CallOverrides): Promise<BigNumber>;
+
+    rewardsMint(overrides?: CallOverrides): Promise<BigNumber>;
+
     rounds(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     setContractExpectedValueFloor(
@@ -1400,18 +1404,18 @@ export interface FareSpin extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    setRewardsAddress(
+      _rewardsAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setRewardsMint(
+      percent: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     setRoundPaused(
       paused: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setTreasuryAddress(
-      _treasuryAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setTreasuryMint(
-      percent: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1432,10 +1436,6 @@ export interface FareSpin extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    treasuryAddress(overrides?: CallOverrides): Promise<BigNumber>;
-
-    treasuryMint(overrides?: CallOverrides): Promise<BigNumber>;
-
     vrfCoordinator(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
@@ -1444,7 +1444,7 @@ export interface FareSpin extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    TREASURY_MINT_CAP(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    REWARDS_MINT_CAP(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     batchEntryMap(
       arg0: BigNumberish,
@@ -1528,6 +1528,10 @@ export interface FareSpin extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    rewardsAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    rewardsMint(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     rounds(
       arg0: BigNumberish,
       overrides?: CallOverrides
@@ -1578,18 +1582,18 @@ export interface FareSpin extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    setRewardsAddress(
+      _rewardsAddress: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setRewardsMint(
+      percent: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     setRoundPaused(
       paused: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setTreasuryAddress(
-      _treasuryAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setTreasuryMint(
-      percent: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1609,10 +1613,6 @@ export interface FareSpin extends BaseContract {
       randomness: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    treasuryAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    treasuryMint(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     vrfCoordinator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };

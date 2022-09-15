@@ -12,6 +12,7 @@ module.exports = {
 		'airbnb-typescript/base',
 		'plugin:@typescript-eslint/recommended',
 		'plugin:prettier/recommended',
+		// 'plugin:prettier/recommended',
 	],
 	parser: '@typescript-eslint/parser',
 	parserOptions: {
@@ -45,7 +46,13 @@ module.exports = {
 		'no-unreachable': 'off',
 		'prefer-const': 'off',
 		'no-console': 'off',
-		'prettier/prettier': 'warn',
+		'prettier/prettier': [
+			'warn',
+			{},
+			{
+				usePrettierrc: true,
+			},
+		],
 		'no-underscore-dangle': 'off',
 		'@typescript-eslint/naming-convention': 'off',
 		'@typescript-eslint/lines-between-class-members': 'off',

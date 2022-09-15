@@ -48,20 +48,20 @@ export default class FareTransferService extends ServiceBase<FareTransfer> {
 	}
 
 	public async updateTotalSupply(_totalFareSupply?: string) {
-		let totalFareSuppply = _totalFareSupply
+		let totalFareSupply = _totalFareSupply
 
-		if (!totalFareSuppply) {
-			totalFareSuppply = await fareAPI.getTotalSupply()
+		if (!totalFareSupply) {
+			totalFareSupply = await fareAPI.getTotalSupply()
 		}
 
-		this.#totalFareSupply = totalFareSuppply
+		this.#totalFareSupply = totalFareSupply
 
-		await this.client.set(`Global:${GlobalRedisKey.FareTotalSupply}`, totalFareSuppply)
+		await this.client.set(`Global:${GlobalRedisKey.FareTotalSupply}`, totalFareSupply)
 		await PubSub.pub<'fare-total-supply-updated'>('fare', 'fare-total-supply-updated', {
-			totalSupply: totalFareSuppply,
+			totalSupply: totalFareSupply,
 		})
 
-		return totalFareSuppply
+		return totalFareSupply
 	}
 
 	public async adjustCachedTotalSupply(transferType: 'mint' | 'burn', amount: string) {

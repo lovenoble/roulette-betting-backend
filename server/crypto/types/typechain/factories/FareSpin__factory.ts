@@ -36,7 +36,7 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "_treasuryAddress",
+        name: "_rewardsAddress",
         type: "address",
       },
     ],
@@ -223,7 +223,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "TREASURY_MINT_CAP",
+    name: "REWARDS_MINT_CAP",
     outputs: [
       {
         internalType: "uint256",
@@ -681,6 +681,32 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "rewardsAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "rewardsMint",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "uint256",
@@ -863,25 +889,12 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bool",
-        name: "paused",
-        type: "bool",
-      },
-    ],
-    name: "setRoundPaused",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "address",
-        name: "_treasuryAddress",
+        name: "_rewardsAddress",
         type: "address",
       },
     ],
-    name: "setTreasuryAddress",
+    name: "setRewardsAddress",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -894,7 +907,20 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "setTreasuryMint",
+    name: "setRewardsMint",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bool",
+        name: "paused",
+        type: "bool",
+      },
+    ],
+    name: "setRoundPaused",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -946,32 +972,6 @@ const _abi = [
     name: "testFulfillRandomness",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "treasuryAddress",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "treasuryMint",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
