@@ -105,10 +105,10 @@ class CryptoAdmin {
 			} else {
 				randomContractMode = randomizer(0, 2)
 			}
-
 			const contractMode = ContractModes[randomContractMode]
 			let randomPickedNumber = 0
 			let isNewNumber = false
+
 			while (!isNewNumber) {
 				randomPickedNumber = Number(
 					ethers.utils.formatUnits(
@@ -118,7 +118,8 @@ class CryptoAdmin {
 						0
 					)
 				)
-				if (entryMemoryMap[`${randomContractMode}`].indexOf(randomPickedNumber) !== -1) {
+
+				if (entryMemoryMap[`${randomContractMode}`].indexOf(randomPickedNumber) === -1) {
 					isNewNumber = true
 					entryMemoryMap[`${randomContractMode}`].push(randomPickedNumber) // Add number to memoryMap
 				}
@@ -133,14 +134,23 @@ class CryptoAdmin {
 
 	async submitRandomBatchEntry() {
 		// Reset currentUserIdx if current seed accounts is exceeded
-		if (this.seed.publicKeys.length - 1 > this.currentUserIdx) {
+		if (this.currentUserIdx > this.seed.publicKeys.length - 1) {
 			this.currentUserIdx = 0
 		}
 
 		const batchEntryParams = this.createRandomBatchEntryParams()
-		await this.createBatchEntry(this.currentUserIdx, batchEntryParams)
-		logger.info(`Submitted batchEntry for UserIdx(${this.currentUserIdx})`)
-		logger.info(JSON.stringify(batchEntryParams))
+		try {
+			await this.createBatchEntry(this.currentUserIdx, batchEntryParams)
+			logger.info(`Submitted batchEntry for userIdx(${this.currentUserIdx})`)
+			logger.info(JSON.stringify(batchEntryParams))
+			this.currentUserIdx += 1 // Increment currentUserIdx
+		} catch (err) {
+			this.currentUserIdx += 1 // Increment currentUserIdx
+			logger.warn(
+				`Seed userIdx(${this.currentUserIdx}) has already entered into the round. Trying the next userIdx...`
+			)
+			return this.submitRandomBatchEntry()
+		}
 	}
 
 	async pauseSpinRound(isPaused: boolean) {
@@ -183,7 +193,13 @@ class CryptoAdmin {
 			}
 
 			if (this.countdown % SEED_USER_SUBMIT_FEQUENCY === 0) {
-				this.submitRandomBatchEntry() // Submit seed user random batch entry
+				;(async () => {
+					try {
+						await this.submitRandomBatchEntry() // Submit seed user random batch entry
+					} catch (err) {
+						logger.error(err)
+					}
+				})()
 			}
 
 			// @NOTE: Probably do this every 15 seconds
@@ -225,8 +241,8 @@ class CryptoAdmin {
 				store.service.round.setSpinRoomStatus('finished')
 				this.delayedTimeout.clear()
 				this.resetRound()
-			}, INITIAL_DISPLAY_RESULT_DURATION) // Time for round to conclude and begin next timer
-		}, INITIAL_SPIN_DURATION) // Time wheel is spinning
+			}, INITIAL_DISPLAY_RESULT_DURATION * 1000) // Time for round to conclude and begin next timer
+		}, INITIAL_SPIN_DURATION * 1000) // Time wheel is spinning
 	}
 
 	async resetRound() {

@@ -2,7 +2,7 @@ import { utils } from 'ethers'
 import { BN } from '../utils'
 import type { ContractModeParams } from '../types/spin.types'
 
-export const INITIAL_COUNTDOWN_SECS = 120 // 120 secs countdown timer
+export const INITIAL_COUNTDOWN_SECS = 60 // 60 secs countdown timer
 export const INITIAL_PAUSE_ROUND_MARKER = 10 // Pause round at 10 second mark
 export const INITIAL_SPIN_DURATION = 20 // Time wheel spins
 export const INITIAL_DISPLAY_RESULT_DURATION = 10 // Mint/Burn screen duration
