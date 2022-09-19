@@ -1,4 +1,4 @@
-import { Wallet, providers, ContractTransaction, ContractReceipt } from 'ethers'
+import { Wallet, providers, ContractTransaction, ContractReceipt, ethers } from 'ethers'
 import { Clock, Delayed } from '@colyseus/core'
 
 import { FareSpin, FareSpin__factory, FareToken, FareToken__factory, FlatEntry } from '../types'
@@ -6,10 +6,17 @@ import CryptoToken from './token'
 import CryptoSeed from './seed'
 import cryptoConfig from '../../config/crypto.config'
 import { logger, createBatchEntry, randomHexString } from './utils'
+import { randomizer } from '../../utils'
 import store from '../../store'
 import {
 	INITIAL_COUNTDOWN_SECS,
+	INITIAL_PAUSE_ROUND_MARKER,
+	INITIAL_FINISHED_SECS,
+	INITIAL_SPIN_DURATION,
+	INITIAL_DISPLAY_RESULT_DURATION,
 	DEFAULT_SIMULATION_INTERVAL,
+	SEED_USER_SUBMIT_FEQUENCY,
+	ContractModes,
 	// DEFAULT_PATCH_RATE,
 } from '../constants'
 
@@ -29,6 +36,7 @@ class CryptoAdmin {
 	delayedTimeout!: Delayed
 	countdown!: number
 	eventLoopIntervalId: NodeJS.Timer
+	currentUserIdx = 0
 
 	async init() {
 		logger.warn(
@@ -82,6 +90,59 @@ class CryptoAdmin {
 		return receipt
 	}
 
+	createRandomBatchEntryParams(possibleEntries = 5, maxFare = 10000) {
+		if (possibleEntries < 1) throw new Error('possibleEntries must be more than 1.')
+		const entryMemoryMap = {
+			'0': [],
+			'1': [],
+			'2': [],
+		}
+		const entryCount = randomizer(1, possibleEntries)
+		const batchEntry: FlatEntry[] = [...Array(entryCount)].map(() => {
+			let randomContractMode = 0
+			if (entryMemoryMap['0'].length > 0) {
+				randomContractMode = randomizer(1, 2)
+			} else {
+				randomContractMode = randomizer(0, 2)
+			}
+
+			const contractMode = ContractModes[randomContractMode]
+			let randomPickedNumber = 0
+			let isNewNumber = false
+			while (!isNewNumber) {
+				randomPickedNumber = Number(
+					ethers.utils.formatUnits(
+						ethers.BigNumber.from(ethers.utils.randomBytes(32)).mod(
+							contractMode.cardinality
+						),
+						0
+					)
+				)
+				if (entryMemoryMap[`${randomContractMode}`].indexOf(randomPickedNumber) !== -1) {
+					isNewNumber = true
+					entryMemoryMap[`${randomContractMode}`].push(randomPickedNumber) // Add number to memoryMap
+				}
+			}
+			const randomFareAmount = randomizer(1, maxFare)
+
+			return [randomFareAmount, randomContractMode, randomPickedNumber] as FlatEntry
+		})
+
+		return batchEntry
+	}
+
+	async submitRandomBatchEntry() {
+		// Reset currentUserIdx if current seed accounts is exceeded
+		if (this.seed.publicKeys.length - 1 > this.currentUserIdx) {
+			this.currentUserIdx = 0
+		}
+
+		const batchEntryParams = this.createRandomBatchEntryParams()
+		await this.createBatchEntry(this.currentUserIdx, batchEntryParams)
+		logger.info(`Submitted batchEntry for UserIdx(${this.currentUserIdx})`)
+		logger.info(JSON.stringify(batchEntryParams))
+	}
+
 	async pauseSpinRound(isPaused: boolean) {
 		const tx = await this.spin.setRoundPaused(isPaused)
 		const receipt = await tx.wait()
@@ -111,14 +172,18 @@ class CryptoAdmin {
 		this.clock.start()
 		this.countdown = _countdown
 
-		// Every 15 seconds check if player threshold has been met
+		// @NOTE: Every 15 seconds check if player threshold has been met
 		store.service.round.setSpinRoomStatus('countdown')
 		this.delayedInterval = this.clock.setInterval(() => {
-			if (this.countdown < 0) {
+			if (this.countdown <= 0) {
 				// Emit countdown hit 0 pubsub event
 				this.delayedInterval.clear()
 				this.startSpin()
 				return
+			}
+
+			if (this.countdown % SEED_USER_SUBMIT_FEQUENCY === 0) {
+				this.submitRandomBatchEntry() // Submit seed user random batch entry
 			}
 
 			// @NOTE: Probably do this every 15 seconds
@@ -143,7 +208,7 @@ class CryptoAdmin {
 			this.logCountdown('ABOUT TO SPIN')
 			this.setCountdown(this.countdown)
 			this.countdown -= 1
-		}, 30_000) // 30 second countdown
+		}, INITIAL_PAUSE_ROUND_MARKER) // Wait 10 seconds before starting spin
 	}
 
 	endRound() {
@@ -160,19 +225,19 @@ class CryptoAdmin {
 				store.service.round.setSpinRoomStatus('finished')
 				this.delayedTimeout.clear()
 				this.resetRound()
-			}, 10_000)
-		}, 15_000)
+			}, INITIAL_DISPLAY_RESULT_DURATION) // Time for round to conclude and begin next timer
+		}, INITIAL_SPIN_DURATION) // Time wheel is spinning
 	}
 
 	async resetRound() {
-		this.countdown = 30
-		// pubsub countdown update
+		this.countdown = INITIAL_FINISHED_SECS // Time duration before spin round is reset
+		// PubSub countdown update
 		await this.setCountdown(this.countdown)
 
 		this.delayedInterval = this.clock.setInterval(() => {
-			if (this.countdown < 0) {
-				// @NOTE: Need to wait for pauseSpinRound here
-				this.pauseSpinRound(false)
+			if (this.countdown <= 0) {
+				// @NOTE: commented out because FareSpin concludeRound now handles unpausing the round
+				// this.pauseSpinRound(false)
 				this.clock.stop()
 				this.clock.clear()
 				this.delayedInterval.clear()
@@ -201,7 +266,7 @@ class CryptoAdmin {
 			}
 
 			this.clock.start()
-			logger.info('Clock has started!')
+			logger.info('Spin countdown has started!')
 
 			// Initialize event loop interval
 			this.eventLoopIntervalId = setInterval(() => {

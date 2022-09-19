@@ -4,7 +4,7 @@ const {
 	FARE_ITEMS_ADDRESS = '0x95401dc811bb5740090279Ba06cfA8fcF6113778',
 	FARE_NFT_LOOTBOX_ADDRESS = '0x998abeb3E57409262aE5b751f60747921B33613E',
 	FARE_NFT_LOOTBOX_CONTROLLER_ADDRESS = '0x70e0bA845a1A0F2DA3359C97E0285013525FFC49',
-	TREASURY_ADDRESS = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+	REWARDS_ADDRESS = '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC',
 	BLOCKCHAIN_ETH_URL = 'http://localhost:8545',
 	PRIVATE_KEY = '',
 } = process.env
@@ -15,7 +15,7 @@ const config = {
 	fareItemsAddress: FARE_ITEMS_ADDRESS,
 	fareNftLootboxAddress: FARE_NFT_LOOTBOX_ADDRESS,
 	fareNftLootboxControllerAddress: FARE_NFT_LOOTBOX_CONTROLLER_ADDRESS,
-	treasuryAddress: TREASURY_ADDRESS,
+	rewardsAddress: REWARDS_ADDRESS,
 	blockchainRpcUrl: BLOCKCHAIN_ETH_URL,
 	privateKey: PRIVATE_KEY, // @NOTE: We need to ensure that this private key is totally secured in production (multi-sig)
 }

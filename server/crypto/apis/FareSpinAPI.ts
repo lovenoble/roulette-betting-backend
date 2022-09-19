@@ -17,7 +17,7 @@ import config from '../../config/crypto.config'
 class FareSpinAPI {
 	public token!: FareToken
 	public contract!: FareSpin
-	private _treasuryAddress = config.treasuryAddress
+	private _rewardsAddress = config.rewardsAddress
 	private _contractModes = ContractModes
 
 	constructor(fareTokenContract: FareToken, fareSpinContract: FareSpin) {
@@ -25,8 +25,8 @@ class FareSpinAPI {
 		this.contract = fareSpinContract
 	}
 
-	public get treasuryAddress() {
-		return this._treasuryAddress
+	public get rewardsAddress() {
+		return this._rewardsAddress
 	}
 
 	public get contractModes() {

@@ -25,6 +25,14 @@ export default class CryptoToken {
 		this.fundSigner = fundSigner || new Wallet(privateKey, provider)
 		this.fare = fare || FareToken__factory.connect(fareTokenAddress, this.fundSigner)
 		this.spin = spin || FareSpin__factory.connect(fareSpinAddress, this.fundSigner)
+
+		// Log owners Fare and ETH balances
+		// ;(async () => {
+		// 	const balance = await this.fundSigner.getBalance()
+		// 	const fareBalance = await this.fare.balanceOf(await this.fundSigner.getAddress())
+		// 	console.log(utils.formatEther(fareBalance))
+		// 	console.log(utils.formatEther(balance))
+		// })()
 	}
 
 	async ensureBalance(address: string) {
@@ -82,8 +90,8 @@ export default class CryptoToken {
 			const { address } = signer
 
 			return async () => {
-				await this.ensureAllowSpinMintBurn(signer)
-				return this.ensureBalance(address)
+				await this.ensureBalance(address)
+				return this.ensureAllowSpinMintBurn(signer)
 			}
 		})
 

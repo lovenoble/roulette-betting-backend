@@ -2,14 +2,18 @@ import { utils } from 'ethers'
 import { BN } from '../utils'
 import type { ContractModeParams } from '../types/spin.types'
 
-// export const INITIAL_COUNTDOWN_SECS = 300 // 5 minutes
-export const INITIAL_COUNTDOWN_SECS = 45 // 45 secs
+export const INITIAL_COUNTDOWN_SECS = 120 // 120 secs countdown timer
+export const INITIAL_PAUSE_ROUND_MARKER = 10 // Pause round at 10 second mark
+export const INITIAL_SPIN_DURATION = 20 // Time wheel spins
+export const INITIAL_DISPLAY_RESULT_DURATION = 10 // Mint/Burn screen duration
+export const INITIAL_FINISHED_SECS = 30 // Time between wheel finished spinning and new countdown timer
+export const SEED_USER_SUBMIT_FEQUENCY = 10 // Amount of secs between seed user batchEntry submits
 
 // @NOTE: Need to discuss about these values
 export const AVAX_FLOOR = utils.parseEther('0.25')
 export const AVAX_FAUCET_AMOUNT = utils.parseEther('1')
-export const FARE_FLOOR = utils.parseEther('10000')
-export const FARE_FAUCET_AMOUNT = utils.parseEther('500000')
+export const FARE_FLOOR = utils.parseEther('50000')
+export const FARE_FAUCET_AMOUNT = utils.parseEther('1000000')
 export const DEFAULT_PATCH_RATE = 1000 / 20 // 20fps (50ms)
 export const DEFAULT_SIMULATION_INTERVAL = 1000 / 60 // 60fps (16.66ms)
 

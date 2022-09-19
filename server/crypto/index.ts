@@ -22,7 +22,7 @@ const {
 	fareItemsAddress,
 	fareNftLootboxAddress,
 	fareNftLootboxControllerAddress,
-	treasuryAddress,
+	rewardsAddress,
 	blockchainRpcUrl,
 	privateKey,
 } = config
@@ -36,7 +36,7 @@ export class Crypto {
 	lootbox!: FareNFTLootBox
 	lootboxCtrl!: FareNFTLootBoxController
 	rpcUrl = blockchainRpcUrl
-	treasuryAddress = treasuryAddress
+	rewardsAddress = rewardsAddress
 	utils = utils
 
 	constructor() {
@@ -79,8 +79,8 @@ export class Crypto {
 		}
 	}
 
-	public async getTreasuryBalance() {
-		return this.getFareBalance(this.treasuryAddress)
+	public async getRewardsBalance() {
+		return this.getFareBalance(this.rewardsAddress)
 	}
 
 	public async getFareTotalSupply() {

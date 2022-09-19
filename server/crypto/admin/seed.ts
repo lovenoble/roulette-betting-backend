@@ -118,7 +118,7 @@ export default class CryptoSeed {
 		})
 	}
 
-	async createSeedAccounts(count = 10, newFileName?: string) {
+	async createSeedAccounts(count = 25, newFileName?: string) {
 		this.#ensureSeedDir() // Create seed directory if it doesn't exist
 		this.#ensureSeedFile(newFileName)
 
