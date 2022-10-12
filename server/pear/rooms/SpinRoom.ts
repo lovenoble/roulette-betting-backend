@@ -114,11 +114,13 @@ class SpinContract extends Room<SpinState> {
 
 			// New BatchEntry + Entry[]
 			PubSub.sub('spin-state', 'batch-entry').listen<'batch-entry'>(data => {
+				console.log('batchEntry',data)
 				this.dispatcher.dispatch(new OnBatchEntry(), data)
 			})
 
 			// Spin Round has concluded (increment round)
 			PubSub.sub('spin-state', 'round-concluded').listen<'round-concluded'>(data => {
+				console.log('round',this.state.round)
 				this.dispatcher.dispatch(new OnRoundConcluded(), data)
 			})
 

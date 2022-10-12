@@ -31,7 +31,7 @@
         "postbuild": "npm run copy-dockerfile && npm run copy-deps && npm run copy-platform",
         "production": "node -r dotenv/config --experimental-specifier-resolution=node  dist/index.js",
         "start": "nodemon -r dotenv/config --exec node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm index.ts",
-        "start:keeper": "nodemon -r dotenv/config --exec 'node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm' processes/pearKeeper.ts",
+        "start:keeper": "nodemon -r dotenv/config --exec node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm processes/pearKeeper.ts",
         "test": "echo \"Error: no test specified\" && exit 1",
         "update:contract:types": "cd ../../fare-smart-contracts/crypto && npm run generate:types"
     },

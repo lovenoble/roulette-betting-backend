@@ -25,7 +25,7 @@ export interface ISpinState extends Schema {
 	guestUsers: MapSchema<IGuestUser>
 	users: MapSchema<IUser>
 	batchEntries: MapSchema<IBatchEntry>
-	round: IRound
+	round: MapSchema<IRound>
 	roomStatus: SpinRoomStatus
 	fareTotalSupply: string
 	currentRoundId: number
@@ -41,7 +41,7 @@ export class SpinState extends Schema {
 	@type({ map: BatchEntry }) batchEntries = new MapSchema<BatchEntry>()
 
 	// roundId -> Round
-	@type(Round) round = new Round()
+	@type({map:Round}) round = new MapSchema<Round>();
 
 	// @NOTE: Ensure that publicAddress can only submit one batchEntry per round (in smart contract)
 	// @NOTE: Determine if we should start wheel at 2-5 mins or once 300 players are reached

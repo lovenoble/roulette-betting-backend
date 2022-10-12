@@ -229,7 +229,6 @@ export class OnResetRound extends Command<SpinRoom, void> {
 		for (let key of keys) {
 			this.state.batchEntries.delete(key)
 		}
-		this.state.round = new Round()
 		logger.info(`Round has been reset`)
 	}
 }
@@ -237,15 +236,17 @@ export class OnResetRound extends Command<SpinRoom, void> {
 export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
 	execute(roundData: SettledRound) {
 		// Set round info
-		this.state.round.roundId = roundData.roundId
-		this.state.round.vrfRequestId = roundData.vrfRequestId
-		this.state.round.randomNum = roundData.randomNum
-		this.state.round.randomEliminator = roundData.randomEliminator
+
+		const round = new Round();
+		round.roundId = roundData.roundId
+		round.vrfRequestId = roundData.vrfRequestId
+		round.randomNum = roundData.randomNum
+		round.randomEliminator = roundData.randomEliminator
 
 		// Set eliminator results
-		this.state.round.isTwoXElim = roundData.isTwoXElim
-		this.state.round.isTenXElim = roundData.isTenXElim
-		this.state.round.isHundoXElim = roundData.isHundoXElim
+		round.isTwoXElim = roundData.isTwoXElim
+		round.isTenXElim = roundData.isTenXElim
+		round.isHundoXElim = roundData.isHundoXElim
 
 		// Set mintAmount for call batchEntries/entries
 		roundData.settledData.forEach(({ batchEntry, entries }) => {
@@ -265,6 +266,9 @@ export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
 				be.isBurn = true
 			}
 		})
+
+		this.state.round.set(roundData.roundId.toString(),round);
+
 
 		this.state.currentRoundId += 1
 	}
