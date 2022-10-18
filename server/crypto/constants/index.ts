@@ -2,14 +2,13 @@ import { utils } from 'ethers'
 import { BN } from '../utils'
 import type { ContractModeParams } from '../types/spin.types'
 
-export const INITIAL_COUNTDOWN_SECS = 60 // 60 secs countdown timer
-export const INITIAL_PAUSE_ROUND_MARKER = 10 // Pause round at 10 second mark
-export const INITIAL_SPIN_DURATION = 20 // Time wheel spins
-export const INITIAL_DISPLAY_RESULT_DURATION = 10 // Mint/Burn screen duration
-export const INITIAL_FINISHED_SECS = 30 // Time between wheel finished spinning and new countdown timer
-export const SEED_USER_SUBMIT_FEQUENCY = 10 // Amount of secs between seed user batchEntry submits
+export const ENTRIES_OPEN_COUNTDOWN_DURATION = 75_000
+export const PRE_SPIN_DURATION = 15_000
+export const WHEEL_SPINNING_DURATION = 15_000
+export const RESULT_SCREEN_DURATION = 15_000
+export const SEC_MS = 1000
+export const SEED_USER_SUBMIT_FEQUENCY = 10_000 // Amount of secs between seed user batchEntry submits
 
-// @NOTE: Need to discuss about these values
 export const AVAX_FLOOR = utils.parseEther('0.25')
 export const AVAX_FAUCET_AMOUNT = utils.parseEther('1')
 export const FARE_FLOOR = utils.parseEther('50000')
