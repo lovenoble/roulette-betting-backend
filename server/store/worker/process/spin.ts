@@ -16,7 +16,7 @@ import { formatETH, toEth, workerLogger as logger } from '../../utils'
 const createSpinJobProcesses = (service: IServiceObj) => {
 	async function contractModeUpdated<T>(
 		queueData: IContractModeUpdatedQueue,
-		jobId: string = null
+		jobId: string = null,
 	) {
 		const { event, contractModeId, timestamp } = queueData
 
@@ -46,7 +46,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 			batchEntryId,
 			player,
 			jobId,
-			timestamp
+			timestamp,
 		)
 
 		PubSub.pub<'batch-entry'>('spin-state', 'batch-entry', {
@@ -69,7 +69,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 		const settledData = await service.round.updateRoundBatchEntries(
 			roundId,
 			randomNum,
-			randomEliminator
+			randomEliminator,
 		)
 
 		// Get and set eliminator data from blockchain
@@ -77,7 +77,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 			jobId,
 			eventLogId,
 			roundId,
-			timestamp
+			timestamp,
 		)
 
 		const eliminators: IRoundEliminators = {
@@ -153,7 +153,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 		if (hasWon && !toEth(batchEntryEntity.totalMintAmount).eq(_totalMintAmount)) {
 			logger.warn('------------------------------------------')
 			logger.warn(
-				'!IMPORTANT - Redis totalMintAmount and smart contract totalMintAmount do not match.'
+				'!IMPORTANT - Redis totalMintAmount and smart contract totalMintAmount do not match.',
 			)
 			logger.warn('If you see this error report steps to reproduce!')
 			logger.warn('Updating to reflect the amount fetched from the blockchain...')

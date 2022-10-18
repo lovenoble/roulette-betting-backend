@@ -33,7 +33,7 @@ export class User implements UserServer {
 
 	public async generateNonce(
 		call: ServerUnaryCall<GenerateNonceRequest, GenerateNonceResponse>,
-		callback: sendUnaryData<GenerateNonceResponse>
+		callback: sendUnaryData<GenerateNonceResponse>,
 	) {
 		try {
 			logger.info('generateNonce requested')
@@ -41,7 +41,7 @@ export class User implements UserServer {
 			const { publicAddress } = call.request
 
 			const { nonce, signingMessage } = await store.service.user.authPublicAddress(
-				publicAddress
+				publicAddress,
 			)
 
 			res.nonce = nonce
@@ -56,7 +56,7 @@ export class User implements UserServer {
 
 	public async verifyToken(
 		call: ServerUnaryCall<VerifyTokenRequest, VerifyTokenResponse>,
-		callback: sendUnaryData<VerifyTokenResponse>
+		callback: sendUnaryData<VerifyTokenResponse>,
 	) {
 		// @NOTE Need error catching
 		try {
@@ -72,7 +72,7 @@ export class User implements UserServer {
 			if (!publicAddress) {
 				return callback(
 					new ServiceError(status.PERMISSION_DENIED, 'Token is invalid'),
-					null
+					null,
 				)
 			}
 
@@ -82,7 +82,7 @@ export class User implements UserServer {
 			if (!doesExist) {
 				return callback(
 					new ServiceError(status.PERMISSION_DENIED, 'User does not exist'),
-					null
+					null,
 				)
 			}
 
@@ -106,7 +106,7 @@ export class User implements UserServer {
 
 	public async verifySignature(
 		call: ServerUnaryCall<VerifySignatureRequest, VerifySignatureResponse>,
-		callback: sendUnaryData<VerifySignatureResponse>
+		callback: sendUnaryData<VerifySignatureResponse>,
 	) {
 		try {
 			logger.info('verifySignature requested')
@@ -140,7 +140,7 @@ export class User implements UserServer {
 			// Signature is invalid
 			return callback(
 				new ServiceError(status.PERMISSION_DENIED, 'Signature is invalid'),
-				null
+				null,
 			)
 		} catch (err) {
 			logger.error(new Error(`verifySignature error: ${err.toString()}`))
@@ -150,7 +150,7 @@ export class User implements UserServer {
 
 	public async logout(
 		call: ServerUnaryCall<LogoutRequest, LogoutResponse>,
-		callback: sendUnaryData<LogoutResponse>
+		callback: sendUnaryData<LogoutResponse>,
 	) {
 		try {
 			logger.info('logout requested')
@@ -164,7 +164,7 @@ export class User implements UserServer {
 			if (!decodedToken.publicAddress) {
 				return callback(
 					new ServiceError(status.PERMISSION_DENIED, 'Token is invalid'),
-					null
+					null,
 				)
 			}
 
@@ -174,7 +174,7 @@ export class User implements UserServer {
 			if (!doesExist) {
 				return callback(
 					new ServiceError(status.PERMISSION_DENIED, 'User does not exist'),
-					null
+					null,
 				)
 			}
 
@@ -192,7 +192,7 @@ export class User implements UserServer {
 
 	public async setUserData(
 		call: ServerUnaryCall<SetUserDataRequest, SetUserDataResponse>,
-		callback: sendUnaryData<SetUserDataResponse>
+		callback: sendUnaryData<SetUserDataResponse>,
 	) {
 		try {
 			logger.info('setUserData requested')

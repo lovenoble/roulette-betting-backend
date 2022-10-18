@@ -68,7 +68,7 @@ export class RPCServer {
     */
 	changeHealthServingStatus(
 		servicePathName: ServicePathNames,
-		servingStatus: HealthCheckResponse_ServingStatus
+		servingStatus: HealthCheckResponse_ServingStatus,
 	) {
 		healthStatus.set(servicePathName, servingStatus)
 		logger.info(`[${servicePathName}]: Health serving staus changed to ${servingStatus}`)

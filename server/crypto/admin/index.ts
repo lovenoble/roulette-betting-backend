@@ -9,15 +9,14 @@ import { logger, createBatchEntry, randomHexString } from './utils'
 import { randomizer } from '../../utils'
 import store from '../../store'
 import {
-	INITIAL_COUNTDOWN_SECS,
-	INITIAL_PAUSE_ROUND_MARKER,
-	INITIAL_FINISHED_SECS,
-	INITIAL_SPIN_DURATION,
-	INITIAL_DISPLAY_RESULT_DURATION,
+	ENTRIES_OPEN_COUNTDOWN_DURATION,
+	PRE_SPIN_DURATION,
+	WHEEL_SPINNING_DURATION,
+	RESULT_SCREEN_DURATION,
+	SEC_MS,
 	DEFAULT_SIMULATION_INTERVAL,
 	SEED_USER_SUBMIT_FEQUENCY,
 	ContractModes,
-	// DEFAULT_PATCH_RATE,
 } from '../constants'
 
 const { blockchainRpcUrl, privateKey, fareTokenAddress, fareSpinAddress } = cryptoConfig
@@ -40,7 +39,7 @@ class CryptoAdmin {
 
 	async init() {
 		logger.warn(
-			'CryptoAdmin should only be used in a development or test environment. Do not use in production.'
+			'CryptoAdmin should only be used in a development or test environment. Do not use in production.',
 		)
 
 		try {
@@ -113,10 +112,10 @@ class CryptoAdmin {
 				randomPickedNumber = Number(
 					ethers.utils.formatUnits(
 						ethers.BigNumber.from(ethers.utils.randomBytes(32)).mod(
-							contractMode.cardinality
+							contractMode.cardinality,
 						),
-						0
-					)
+						0,
+					),
 				)
 
 				if (entryMemoryMap[`${randomContractMode}`].indexOf(randomPickedNumber) === -1) {
@@ -147,7 +146,7 @@ class CryptoAdmin {
 		} catch (err) {
 			this.currentUserIdx += 1 // Increment currentUserIdx
 			logger.warn(
-				`Seed userIdx(${this.currentUserIdx}) has already entered into the round. Trying the next userIdx...`
+				`Seed userIdx(${this.currentUserIdx}) has already entered into the round. Trying the next userIdx...`,
 			)
 			return this.submitRandomBatchEntry()
 		}
@@ -166,15 +165,16 @@ class CryptoAdmin {
 		return receipt
 	}
 
-	async setCountdown(time: number) {
-		return store.service.round.setSpinCountdownTimer(time)
+	async setCountdown(ms: number) {
+		const secs = ms / 1000 // Param passed in as miliseconds so we convert to seconds
+		return store.service.round.setSpinCountdownTimer(secs)
 	}
 
 	logCountdown(title: string) {
 		logger.info(
 			`[${title}]: countdown(${this.countdown} secs), deltaTime(${
 				this.clock.deltaTime
-			} ms), elaspedTime(${this.clock.elapsedTime / 1000} secs)`
+			} ms), elaspedTime(${this.clock.elapsedTime / 1000} secs)`,
 		)
 	}
 
@@ -188,7 +188,7 @@ class CryptoAdmin {
 			if (this.countdown <= 0) {
 				// Emit countdown hit 0 pubsub event
 				this.delayedInterval.clear()
-				this.startSpin()
+				this.preSpinPause()
 				return
 			}
 
@@ -205,48 +205,63 @@ class CryptoAdmin {
 			// @NOTE: Probably do this every 15 seconds
 			this.logCountdown('COUNTDOWN')
 			this.setCountdown(this.countdown)
-			this.countdown -= 1
+			this.countdown -= SEC_MS
 		}, 1000)
 	}
 
-	async startSpin() {
-		// Stop all batch entries
-		await this.pauseSpinRound(true)
-		// Change spinRoom state to 'about to spin'
+	preSpinPause() {
+		// Pause round - Prevents batch entries from being submitted
+		;(async () => {
+			try {
+				logger.info(`Pausing spin round...`)
+				await this.pauseSpinRound(true)
+				logger.info('Spin round was successfully paused')
+			} catch (err) {
+				// @NOTE: Need Slack alerts/notifications here
+				logger.error(err)
+				throw err
+			}
+		})()
+
+		// Round paused and wheel spin about to start
 		store.service.round.setSpinRoomStatus('starting')
 		this.delayedInterval = this.clock.setInterval(() => {
 			if (this.countdown < 0) {
 				this.delayedInterval.clear()
-				this.endRound()
+				this.spinAndConcludeRound()
 				return
 			}
 
-			this.logCountdown('ABOUT TO SPIN')
+			this.logCountdown('PRE-SPIN')
 			this.setCountdown(this.countdown)
-			this.countdown -= 1
-		}, INITIAL_PAUSE_ROUND_MARKER) // Wait 10 seconds before starting spin
+			this.countdown -= SEC_MS
+		}, PRE_SPIN_DURATION)
 	}
 
-	endRound() {
+	spinAndConcludeRound() {
 		// Start spinning wheel
 		store.service.round.setSpinRoomStatus('spinning')
+		logger.info('Wheel spin has begun!')
 		this.delayedTimeout = this.clock.setTimeout(async () => {
+			logger.info('Spin round is concluding. Fetching randomness...')
 			await this.concludeRound()
+			logger.info('Spin round has successfully concluded!')
 
 			// Mint/Burn screens event
 			this.delayedTimeout = this.clock.setTimeout(async () => {
 				// Pubsub new round started
 				// Allow batchEntries
 				// Reset countdown timer
+				logger.info('Spin round is resetting. Starting spin countdown...')
 				store.service.round.setSpinRoomStatus('finished')
 				this.delayedTimeout.clear()
 				this.resetRound()
-			}, INITIAL_DISPLAY_RESULT_DURATION * 1000) // Time for round to conclude and begin next timer
-		}, INITIAL_SPIN_DURATION * 1000) // Time wheel is spinning
+			}, RESULT_SCREEN_DURATION) // Time for round to conclude and begin next timer
+		}, WHEEL_SPINNING_DURATION) // Time wheel is spinning
 	}
 
 	async resetRound() {
-		this.countdown = INITIAL_FINISHED_SECS // Time duration before spin round is reset
+		this.countdown = ENTRIES_OPEN_COUNTDOWN_DURATION // Time duration before spin round is reset
 		// PubSub countdown update
 		await this.setCountdown(this.countdown)
 
@@ -259,13 +274,13 @@ class CryptoAdmin {
 				this.delayedInterval.clear()
 				this.delayedTimeout.clear()
 				store.service.round.resetPearStateRound()
-				this.startCountdown(INITIAL_COUNTDOWN_SECS)
+				this.startCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION)
 				return
 			}
 
 			this.logCountdown('RESETTING ROUND')
 			this.setCountdown(this.countdown)
-			this.countdown -= 1
+			this.countdown -= SEC_MS
 		}, 1000)
 	}
 
@@ -277,8 +292,8 @@ class CryptoAdmin {
 
 			this.countdown = await store.service.round.getSpinCountdownTimer()
 			if (shouldResetCountdown) {
-				await this.setCountdown(INITIAL_COUNTDOWN_SECS)
-				this.countdown = INITIAL_COUNTDOWN_SECS
+				await this.setCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION)
+				this.countdown = ENTRIES_OPEN_COUNTDOWN_DURATION
 			}
 
 			this.clock.start()
@@ -294,8 +309,8 @@ class CryptoAdmin {
 
 			/* Start spin event loop
 			 * 1. startCountdown - Start countdown from existing countdown number in Redis
-			 * 2. startSpin - Pauses batchEntries, starts 30 second timer for about to spin
-			 * 3. endRound - Runs concludeRound (fetches random number), slows down wheel, lands on a color
+			 * 2. preSpinPause - Pauses batchEntries, starts 30 second timer for about to spin
+			 * 3. spinAndConcludeRound - Runs concludeRound (fetches random number), slows down wheel, lands on a color
 			 * 4. resetRound - Reset countdown timer and starts back at event #1
 			 */
 			this.startCountdown(this.countdown)
