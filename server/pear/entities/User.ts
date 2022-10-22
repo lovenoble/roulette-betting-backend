@@ -9,12 +9,9 @@ export interface IUser {
 	username?: string // Optional username set by player
 	colorTheme?: string // @NOTE: Create colorTheme enum - Optional color theme set by players
 	sessionId?: string
+	balance?: IBalance
 	fareBalance?: string
 	ethBalance?: string
-}
-
-export interface IUserOptions extends IUser {
-	balance?: IBalance
 }
 
 export class User extends Schema implements IUser {
@@ -25,7 +22,7 @@ export class User extends Schema implements IUser {
 	@type('string') fareBalance?: string
 	@type(Balance) balance = new Balance()
 
-	constructor({ publicAddress, username, colorTheme, balance: { fare, eth } }: IUserOptions) {
+	constructor({ publicAddress, username, colorTheme, balance: { fare, eth } }: IUser) {
 		super()
 		this.publicAddress = publicAddress
 		this.username = username

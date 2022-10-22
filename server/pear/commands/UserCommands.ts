@@ -6,7 +6,7 @@ import { WebSocketCloseCode, SpinEvent } from '../constants'
 
 import crypto from '../../crypto'
 import { logger, findClientBySessionId } from '../utils'
-import { User, IUserOptions, GuestUser, IGuestUser } from '../entities'
+import { User, IUser, GuestUser, IGuestUser } from '../entities'
 import store from '../../store'
 
 export class OnGuestUserJoined extends Command<SpinRoom, IGuestUser & { client: Client }> {
@@ -29,7 +29,7 @@ export class OnGuestUserJoined extends Command<SpinRoom, IGuestUser & { client: 
 	}
 }
 
-export class OnUserJoined extends Command<SpinRoom, IUserOptions & { client: Client }> {
+export class OnUserJoined extends Command<SpinRoom, IUser & { client: Client }> {
 	async execute({ publicAddress, client }: { publicAddress: string; client: Client }) {
 		try {
 			const { sessionId } = client
@@ -64,7 +64,7 @@ export class OnUserJoined extends Command<SpinRoom, IUserOptions & { client: Cli
 			await store.service.user.updateUserSessionId(publicAddress, sessionId)
 			logger.info(`Updated user(${publicAddress}) sessionId in RedisStore: ${sessionId}`)
 
-			const userOptions: IUserOptions = {
+			const userOptions: IUser = {
 				sessionId,
 				publicAddress,
 				username,

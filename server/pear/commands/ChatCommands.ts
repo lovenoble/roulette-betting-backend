@@ -1,6 +1,6 @@
 import { Command } from '@colyseus/command'
 
-import { Message, ChatUser, IChatUser, IGuestUser, GuestUser, IUserOptions } from '../entities'
+import { Message, ChatUser, IChatUser, IGuestUser, GuestUser, IUser } from '../entities'
 import { ChatRoom, OnMessageOptions } from '../types'
 import { logger } from '../utils'
 import store from '../../store'
@@ -45,7 +45,7 @@ export class OnGuestChatUserJoined extends Command<ChatRoom, IGuestUser> {
 	}
 }
 
-export class OnChatUserJoined extends Command<ChatRoom, IUserOptions> {
+export class OnChatUserJoined extends Command<ChatRoom, IUser> {
 	async execute({ publicAddress, sessionId }: { publicAddress: string; sessionId: string }) {
 		try {
 			const userEntity = await store.service.user.getUserByAddress(publicAddress)
@@ -87,7 +87,7 @@ export class OnUserLeave extends Command<
 				logger.info(`GuestUser has left SpinRoom: ${sessionId}`)
 			} else {
 				logger.warn(
-					"User left room but their sessionId wasn't in state. Look into why that is."
+					"User left room but their sessionId wasn't in state. Look into why that is.",
 				)
 			}
 		} catch (err) {
