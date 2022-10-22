@@ -16,7 +16,7 @@ import {
 	OnNewChatMessage,
 	OnFareTransfer,
 	OnResetRound,
-	// OnBalanceUpdate,
+	OnBalanceUpdate,
 	// OnBatchEntrySettled,
 } from '../commands'
 import { SpinState } from '../state/SpinState'
@@ -30,6 +30,7 @@ class SpinContract extends Room<SpinState> {
 	#password: string | null = null
 
 	maxClients = MAX_SPIN_CLIENTS // @NOTE: Need to determine the number of clients where performance begins to fall off
+	autoDispose = false
 	dispatcher = new Dispatcher(this)
 	/**
 	 * Using @gamestdio/timer (this.clock, Delayed)
@@ -102,25 +103,27 @@ class SpinContract extends Room<SpinState> {
 
 			// FareTransfer event (update player balances that apply)
 			PubSub.sub('fare', 'fare-transfer').listen<'fare-transfer'>(transfer => {
-				this.dispatcher.dispatch(new OnFareTransfer(), transfer)
+				this.dispatcher.dispatch(new OnBalanceUpdate(), { playerAddress: transfer.to })
+				this.dispatcher.dispatch(new OnBalanceUpdate(), { playerAddress: transfer.from })
+				// this.dispatcher.dispatch(new OnFareTransfer(), transfer)
 			})
 
 			// FareTotalSupply updated
 			PubSub.sub('fare', 'fare-total-supply-updated').listen<'fare-total-supply-updated'>(
 				({ totalSupply }) => {
 					this.dispatcher.dispatch(new OnFareTotalSupplyUpdated(), totalSupply)
-				}
+				},
 			)
 
 			// New BatchEntry + Entry[]
 			PubSub.sub('spin-state', 'batch-entry').listen<'batch-entry'>(data => {
-				console.log('batchEntry',data)
+				console.log('batchEntry', data)
 				this.dispatcher.dispatch(new OnBatchEntry(), data)
 			})
 
 			// Spin Round has concluded (increment round)
 			PubSub.sub('spin-state', 'round-concluded').listen<'round-concluded'>(data => {
-				console.log('round',this.state.round)
+				console.log('round', this.state.round)
 				this.dispatcher.dispatch(new OnRoundConcluded(), data)
 			})
 
@@ -158,11 +161,11 @@ class SpinContract extends Room<SpinState> {
 
 				if (!user) {
 					logger.error(
-						new Error('Invalid authToken. Please reauthenticate and try again.')
+						new Error('Invalid authToken. Please reauthenticate and try again.'),
 					)
 					throw new ServerError(
 						HttpStatusCode.UNAUTHORIZED,
-						'Invalid authToken. Please reauthenticate and try again.'
+						'Invalid authToken. Please reauthenticate and try again.',
 					)
 				}
 
@@ -189,7 +192,7 @@ class SpinContract extends Room<SpinState> {
 
 			setTimeout(
 				() => client.leave(WebSocketCloseCode.POLICY_VIOLATION, (err as Error).message),
-				0
+				0,
 			)
 			if (err instanceof Error) {
 				throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.message)
@@ -211,14 +214,14 @@ class SpinContract extends Room<SpinState> {
 			} else {
 				throw new ServerError(
 					HttpStatusCode.INTERNAL_SERVER_ERROR,
-					'Auth token does not exist.'
+					'Auth token does not exist.',
 				)
 			}
 		} catch (err) {
 			logger.error(err)
 			setTimeout(
 				() => client.leave(WebSocketCloseCode.POLICY_VIOLATION, (err as Error).message),
-				0
+				0,
 			)
 
 			if (err instanceof Error) {

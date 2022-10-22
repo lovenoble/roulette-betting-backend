@@ -47,13 +47,13 @@ export class OnUserJoined extends Command<SpinRoom, IUserOptions & { client: Cli
 				const prevClient = findClientBySessionId(previousSessionId, this.room.clients)
 				if (prevClient) {
 					logger.info(
-						`User already in room. Disconnecting previous client: sessionId(${previousSessionId}) publicAddress(${publicAddress})`
+						`User already in room. Disconnecting previous client: sessionId(${previousSessionId}) publicAddress(${publicAddress})`,
 					)
 
 					// Throw error to client so frontend app can handle redirection and popup message
 					prevClient.error(
 						WebSocketCloseCode.NEW_CONNECTION_SESSION,
-						'Client with same publicAddress connected. Only one client can connect per publicAddress.'
+						'Client with same publicAddress connected. Only one client can connect per publicAddress.',
 					)
 
 					// Disconnect client from room session
@@ -102,6 +102,11 @@ export class OnBalanceUpdate extends Command<
 
 			const user = this.state.users.get(playerAddress)
 
+			if (!user) return
+
+			user.ethBalance = eth
+			user.fareBalance = fare
+
 			user.balance.eth = eth
 			user.balance.fare = fare
 		} catch (err) {
@@ -138,7 +143,7 @@ export class OnUserLeave extends Command<SpinRoom, OnUserLeaveOptions> {
 				logger.info(`GuestUser has left SpinRoom: ${sessionId}`)
 			} else {
 				logger.warn(
-					"User left room but their sessionId wasn't in state. Look into why that is."
+					"User left room but their sessionId wasn't in state. Look into why that is.",
 				)
 			}
 

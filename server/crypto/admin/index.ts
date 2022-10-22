@@ -261,7 +261,7 @@ class CryptoAdmin {
 	}
 
 	async resetRound() {
-		this.countdown = ENTRIES_OPEN_COUNTDOWN_DURATION // Time duration before spin round is reset
+		this.countdown = RESULT_SCREEN_DURATION // Time duration before spin round is reset
 		// PubSub countdown update
 		await this.setCountdown(this.countdown)
 

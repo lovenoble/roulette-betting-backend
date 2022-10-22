@@ -145,7 +145,7 @@ class ColorGame {
             })
 
             // @ts-ignore
-            round.list.onAdd = ((playerEntry: any, entryId) => {
+			round.list.onAdd = ((playerEntry: any, entryId: any) => {
                 const ent: types.IEntry = {
                     roundId: key,
                     publicAddress: playerEntry.publicAddress,

@@ -96,7 +96,7 @@ class ChatRoom extends Room<ChatState> {
 				this.dispatcher.dispatch(new OnGuestChatUserJoined(), { sessionId, guestId })
 			} else if (publicAddress) {
 				logger.info(
-					`Updated users sessionId: public address --> ${publicAddress},\n session id --> ${sessionId}`
+					`Updated users sessionId: public address --> ${publicAddress},\n session id --> ${sessionId}`,
 				)
 				this.dispatcher.dispatch(new OnChatUserJoined(), {
 					publicAddress,
@@ -105,7 +105,7 @@ class ChatRoom extends Room<ChatState> {
 			} else {
 				throw new ServerError(
 					HttpStatusCode.INTERNAL_SERVER_ERROR,
-					'Auth token does not exist.'
+					'Auth token does not exist.',
 				)
 			}
 		} catch (err) {

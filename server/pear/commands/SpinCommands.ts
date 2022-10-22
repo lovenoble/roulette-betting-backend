@@ -55,7 +55,7 @@ export class OnNewChatMessage extends Command<SpinRoom, OnNewChatMessageOpts> {
 		if (!client.userData.networkActorNumber) {
 			client.error(
 				WebSocketCustomCodes.RESTRICTED_USER_ACTION,
-				'User does not have network actorNumber'
+				'User does not have network actorNumber',
 			)
 			return
 		}
@@ -96,7 +96,7 @@ export class OnNewChatMessage extends Command<SpinRoom, OnNewChatMessageOpts> {
 		if (text.length === 0) {
 			client.error(
 				WebSocketCustomCodes.MESSAGE_VALIDATION_ERROR,
-				'Cannnot send empty chat message.'
+				'Cannnot send empty chat message.',
 			)
 			return
 		}
@@ -104,7 +104,7 @@ export class OnNewChatMessage extends Command<SpinRoom, OnNewChatMessageOpts> {
 		if (text.length > MAX_CHAT_MESSAGE_LENGTH) {
 			client.error(
 				WebSocketCustomCodes.MESSAGE_VALIDATION_ERROR,
-				`Message too long (max length: ${MAX_CHAT_MESSAGE_LENGTH})`
+				`Message too long (max length: ${MAX_CHAT_MESSAGE_LENGTH})`,
 			)
 			return
 		}
@@ -176,8 +176,8 @@ export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
 			}
 			logger.info(
 				`OnBatchEntry -> ${batchEntry.player.substring(0, 11)} - Amount: ${numeral(
-					batchEntry.totalEntryAmount
-				).format('0,0.00')} - Entry count: ${entries.length}`
+					batchEntry.totalEntryAmount,
+				).format('0,0.00')} - Entry count: ${entries.length}`,
 			)
 
 			const batchEntryState = new BatchEntry()
@@ -237,7 +237,7 @@ export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
 	execute(roundData: SettledRound) {
 		// Set round info
 
-		const round = new Round();
+		const round = new Round()
 		round.roundId = roundData.roundId
 		round.vrfRequestId = roundData.vrfRequestId
 		round.randomNum = roundData.randomNum
@@ -267,8 +267,7 @@ export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
 			}
 		})
 
-		this.state.round.set(roundData.roundId.toString(),round);
-
+		this.state.round.set(roundData.roundId.toString(), round)
 
 		this.state.currentRoundId += 1
 	}
