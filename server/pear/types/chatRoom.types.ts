@@ -1,4 +1,4 @@
-import { Room } from 'colyseus'
+import { Room } from '@colyseus/core'
 import { Schema, MapSchema } from '@colyseus/schema'
 
 import type ChatState from '../state/ChatState'

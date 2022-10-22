@@ -2,7 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@colyseus/command': ^0.2.0
-  '@colyseus/core': ^0.14.24
+  '@colyseus/core': ^0.14.36
   '@colyseus/mongoose-driver': ^0.14.22
   '@colyseus/monitor': ^0.14.22
   '@colyseus/proxy': ^0.12.7
@@ -70,7 +70,7 @@ specifiers:
 
 dependencies:
   '@colyseus/command': 0.2.1_colyseus@0.14.23
-  '@colyseus/core': 0.14.28
+  '@colyseus/core': 0.14.36
   '@colyseus/mongoose-driver': 0.14.22
   '@colyseus/monitor': 0.14.22
   '@colyseus/proxy': 0.12.8
@@ -156,10 +156,11 @@ packages:
       - supports-color
     dev: false
 
-  /@colyseus/core/0.14.28:
-    resolution: {integrity: sha512-hq7IzKWL4aQK9+3/IOkSD6gzMCFWZ4JaC3AvoTNXfLiScVsvw5JaWoqSO5/5GmsiiqPWygqQrOQ52kvU2YUjOQ==}
+  /@colyseus/core/0.14.36:
+    resolution: {integrity: sha512-Gy1/3xQV6Fd/NmmmWD3Cgb1aC2w516GGmOELcrKAgEBP0LAEal19hz0DaQRVJuLkUCo/9j5OxqK0ZvED4925YQ==}
     engines: {node: '>= 14.x'}
     dependencies:
+      '@colyseus/greeting-banner': 1.0.0
       '@colyseus/schema': 1.0.34
       '@gamestdio/timer': 1.3.2
       '@types/redis': 2.8.32
@@ -171,10 +172,14 @@ packages:
       - supports-color
     dev: false
 
+  /@colyseus/greeting-banner/1.0.0:
+    resolution: {integrity: sha512-B/gAslDjeIUdelpF/ILycRLVIwisgoNCw70MlzwntOrfYwZ5L6MA9SDd8hGG+ONN6Ic8MkziZpyo8UqApLXLfg==}
+    dev: false
+
   /@colyseus/mongoose-driver/0.14.22:
     resolution: {integrity: sha512-Bqg+1XGHo4t3UUqBxSCDuvxzuuDBObxOWVBH0GjdFmXWzJgrkMgkDFH8YXjo9h/sXaPRJNzJRlXMCV1txbYadw==}
     dependencies:
-      '@colyseus/core': 0.14.28
+      '@colyseus/core': 0.14.36
       mongoose: 5.13.14
     transitivePeerDependencies:
       - aws4
@@ -210,7 +215,7 @@ packages:
   /@colyseus/redis-presence/0.14.20:
     resolution: {integrity: sha512-ZxpY9ji/tGYT4ms/4q5w7tjUfqekCDnpZ8J+XuXVpZN02iD6cd/RpCwIyaEsRUVpkcRZw9jxX8hSQ3L5aG/3VA==}
     dependencies:
-      '@colyseus/core': 0.14.28
+      '@colyseus/core': 0.14.36
       redis: 2.8.0
     transitivePeerDependencies:
       - supports-color
@@ -224,7 +229,7 @@ packages:
   /@colyseus/uwebsockets-transport/0.14.27:
     resolution: {integrity: sha512-TmGrwFc1RJYtxg03fJ4HPBPLly60UgEKq4jB4rBSwRR8X5DHrMagJ5CFrDBO8EuYi0hju56WGBLRyIrRoxRDiw==}
     dependencies:
-      '@colyseus/core': 0.14.28
+      '@colyseus/core': 0.14.36
       '@colyseus/schema': 1.0.34
       uWebSockets.js: github.com/uNetworking/uWebSockets.js/77b1761c5a23ac6a5c2adf2bd808be0ae6b5000a
     transitivePeerDependencies:
@@ -234,7 +239,7 @@ packages:
   /@colyseus/ws-transport/0.14.21:
     resolution: {integrity: sha512-lQXqwp5MOAdFLOn6UCuSZh0hqFMRYjAkW0B0qCNqKjaGjhsupF+z6hdEX5erJpLmdMiL4wxipvYaYoG2KjxfwA==}
     dependencies:
-      '@colyseus/core': 0.14.28
+      '@colyseus/core': 0.14.36
       '@colyseus/schema': 1.0.34
       '@types/ws': 7.4.7
       ws: 7.5.8
@@ -1658,7 +1663,7 @@ packages:
     resolution: {integrity: sha512-y2F0vmOx+k8nG2KGcKMeDNjamYNYA+x+E0dVqqWw7lD6g2PhuX8/hkGRrWagJqbFiYTIMfZfa+zN9DinAMCshg==}
     engines: {node: '>= 14.x'}
     dependencies:
-      '@colyseus/core': 0.14.28
+      '@colyseus/core': 0.14.36
       '@colyseus/mongoose-driver': 0.14.22
       '@colyseus/redis-presence': 0.14.20
       '@colyseus/ws-transport': 0.14.21
@@ -4391,7 +4396,7 @@ packages:
     dev: false
 
   /shebang-command/1.2.0:
-    resolution: {integrity: sha1-RKrGW2lbAzmJaMOfNj/uXer98eo=}
+    resolution: {integrity: sha512-EV3L1+UQWGor21OmnvojK36mhg+TyIKDh3iFBKBohr5xeXIhNBcx8oWdgkTEEQ+BEFFYdLRuqMfd5L84N1V5Vg==}
     engines: {node: '>=0.10.0'}
     dependencies:
       shebang-regex: 1.0.0
@@ -4405,7 +4410,7 @@ packages:
     dev: true
 
   /shebang-regex/1.0.0:
-    resolution: {integrity: sha1-2kL0l0DAtC2yypcoVxyxkMmO/qM=}
+    resolution: {integrity: sha512-wpoSFAxys6b2a2wHZ1XpDSgD7N9iVjg29Ph9uV/uaP9Ex/KXlkTZTeddxDPSYQpgvzKLGJke2UU0AzoGCjNIvQ==}
     engines: {node: '>=0.10.0'}
     dev: false
 
@@ -4529,7 +4534,7 @@ packages:
     dev: true
 
   /strip-eof/1.0.0:
-    resolution: {integrity: sha1-u0P/VZim6wXYm1n80SnJgzE2Br8=}
+    resolution: {integrity: sha512-7FCwGGmx8mD5xQd3RPUvnSpUXHM3BWuzjtpD4TXsfcZ9EL4azvVVUscFYwD9nx8Kh+uCBC00XBtAykoMHwTh8Q==}
     engines: {node: '>=0.10.0'}
     dev: false
 

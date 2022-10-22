@@ -1,7 +1,7 @@
 // @NOTE: Need to implement later
 
-// import { Room, ServerError } from 'colyseus'
-// import type { Client } from 'colyseus'
+// import { Room, ServerError } from '@colyseus/core'
+// import type { Client } from '@colyseus/core'
 // import { Dispatcher } from '@colyseus/command'
 
 // import { MediaStreamState, MediaUser, ScreenShare } from '../state/MediaStreamState'
