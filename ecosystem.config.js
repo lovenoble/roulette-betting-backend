@@ -15,7 +15,7 @@ module.exports = {
 	apps: [
 		{
 			port: 5544,
-			name: 'pear-connect-proxy',
+			name: 'fareplay-colyseus-proxy',
 			script: './node_modules/@colyseus/proxy/bin/proxy',
 			instances: 1, // scale this up if the proxy becomes the bottleneck
 			exec_mode: 'cluster',
@@ -26,7 +26,7 @@ module.exports = {
 		},
 		{
 			port: 3100,
-			name: 'pear-authority-node',
+			name: 'fareplay-authority-node',
 			script: 'node bin/www', // @NOTE: NEED TO SETUP CONFIG SCRIPT
 			watch: false, // optional
 			// instances: 4,

@@ -31,7 +31,7 @@ cache: &global_cache
   key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
   paths:
     - .pnpm-store
-    - server/node_modules/
+    - node_modules/
   policy: pull-push
 
 setup:
@@ -41,28 +41,26 @@ setup:
     - pnpm config set store-dir .pnpm-store
   script:
     - echo 'INSTALLING DEPENDENCIES'
-    - cd server/
     - rm -rf node_modules/
     - pnpm i
   cache:
     key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
     paths:
       - .pnpm-store
-      - server/node_modules/
+      - node_modules/
 
 lint:
   stage: lint
   cache:
     key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
     paths:
-      - server/node_modules/
+      - node_modules/
     policy: pull
   before_script:
     - curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@7
     - pnpm config set store-dir .pnpm-store
   script:
     - echo 'LINT'
-    - cd server/
     - pnpm run lint:ci
 
 build:
@@ -73,7 +71,7 @@ build:
   cache:
     key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
     paths:
-      - server/node_modules/
+      - node_modules/
     policy: pull
   before_script:
     - curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@7
@@ -85,7 +83,6 @@ build:
     - touch $EB_OPTIONS_FILE
     - node $BIN_DIR/generate-eb-options.js > $EB_OPTIONS_FILE
     - apt-get update -y && apt-get install -y zip
-    - cd server/
     - pnpm run build
     - pnpm run postbuild
     - mkdir -p $BUILD_DIR
