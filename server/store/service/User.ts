@@ -125,7 +125,7 @@ export default class UserService extends ServiceBase<User> {
 
 	public async setUserData(
 		publicAddress: string,
-		{ username: _username, email, colorTheme: _colorTheme }: Omit<SetUserDataRequest, 'token'>
+		{ username: _username, email, colorTheme: _colorTheme }: Omit<SetUserDataRequest, 'token'>,
 	) {
 		const userEntity = await this.getUserByAddress(publicAddress)
 		const colorTheme = userColorThemeToJSON(_colorTheme)
@@ -137,7 +137,7 @@ export default class UserService extends ServiceBase<User> {
 			const username = _username.trim()
 			if (!isValidUsername(username)) {
 				throw new Error(
-					`Username is invalid. Valid format: [a-zA-Z0-9_] | Min: ${USERNAME_MIN_LENGTH} | Max: ${USERNAME_MAX_LENGTH}`
+					`Username is invalid. Valid format: [a-zA-Z0-9_] | Min: ${USERNAME_MIN_LENGTH} | Max: ${USERNAME_MAX_LENGTH}`,
 				)
 			}
 			const doesExist = await this.doesUsernameExist(username)

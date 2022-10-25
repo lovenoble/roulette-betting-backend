@@ -33,7 +33,7 @@ export default class ContractModeService extends ServiceBase<ContractMode> {
 		contractModeId: BigNumberish,
 		timestamp = Date.now(),
 		eventLogId?: string,
-		jobId: string = null
+		jobId: string = null,
 	) {
 		const [
 			id,

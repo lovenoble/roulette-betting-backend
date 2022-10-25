@@ -1,4 +1,5 @@
-import { Schema, ArraySchema, Context, type } from '@colyseus/schema'
+import { Schema, ArraySchema, type } from '@colyseus/schema'
+// import { Schema, ArraySchema, Context, type } from '@colyseus/schema'
 
 import { Entry } from './Entry'
 

@@ -28,7 +28,7 @@ const createSpinContractListener = (service: IServiceObj, storeQueue: StoreQueue
 		roundId: BigNumber,
 		batchEntryId: BigNumber,
 		player: string,
-		event: Event
+		event: Event,
 	) => {
 		const queueData: IEntrySubmittedQueue = {
 			roundId: BNToNumber(roundId),
@@ -46,7 +46,7 @@ const createSpinContractListener = (service: IServiceObj, storeQueue: StoreQueue
 		vrfRequestId: string,
 		randomNum: BigNumber,
 		randomEliminator: BigNumber,
-		event: Event
+		event: Event,
 	) => {
 		const queueData: IRoundConcludedQueue = {
 			roundId: BNToNumber(roundId),
@@ -64,7 +64,7 @@ const createSpinContractListener = (service: IServiceObj, storeQueue: StoreQueue
 		roundId: BigNumber,
 		player: string,
 		hasWon: boolean,
-		event: Event
+		event: Event,
 	) => {
 		const queueData: IEntrySettledQueue = {
 			roundId: BNToNumber(roundId),

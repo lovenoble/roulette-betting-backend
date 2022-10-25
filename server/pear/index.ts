@@ -45,7 +45,7 @@ export class PearServer {
 	constructor(options = defaultPearOptions) {
 		const { presenceOpts, mongoBaseUri, mongoAuthSource } = Object.assign(
 			defaultPearOptions,
-			options
+			options,
 		)
 
 		this.#mongoUri = mongoBaseUri

@@ -14,9 +14,9 @@ import {
 	OnInitSpinRoom,
 	OnRoundConcluded,
 	OnNewChatMessage,
-	OnFareTransfer,
 	OnResetRound,
 	OnBalanceUpdate,
+	// OnFareTransfer,
 	// OnBatchEntrySettled,
 } from '../commands'
 import { SpinState } from '../state/SpinState'

@@ -67,13 +67,13 @@ export class Logger {
 					}
 					if (info.level === 'warn') {
 						return chalk.hex(config.colors.warn)(
-							`[${logType}/${info.level}]: ${info.message}`
+							`[${logType}/${info.level}]: ${info.message}`,
 						)
 					}
 					return chalk.hex(config.colors.info)(
-						`[${logType}/${info.level}]: ${info.message}`
+						`[${logType}/${info.level}]: ${info.message}`,
 					)
-				})
+				}),
 			),
 		})
 
@@ -83,7 +83,7 @@ export class Logger {
 				format.errors({ stack: true }),
 				format.json(),
 				format.splat(),
-				format.metadata()
+				format.metadata(),
 			),
 			...args,
 			transports: [combinedFileTransport, errorFileTransport],

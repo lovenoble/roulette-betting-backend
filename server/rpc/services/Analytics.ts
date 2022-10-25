@@ -13,7 +13,7 @@ export class Analytics implements AnalyticsServer {
 
 	public async userProfile(
 		call: ServerUnaryCall<UserProfileRequest, UserProfileResponse>,
-		callback: sendUnaryData<UserProfileResponse>
+		callback: sendUnaryData<UserProfileResponse>,
 	) {
 		try {
 			logger.info(`userProfile requested @TIME: ${Date.now()}`)

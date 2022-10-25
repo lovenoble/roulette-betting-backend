@@ -56,5 +56,5 @@ export default new Schema(
 		nonce: { type: 'string' },
 		isDisabled: { type: 'boolean' },
 	},
-	{ dataStructure: 'JSON' }
+	{ dataStructure: 'JSON' },
 )

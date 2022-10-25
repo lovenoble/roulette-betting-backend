@@ -14,7 +14,7 @@ export const healthStatus: Map<string, HealthCheckResponse_ServingStatus> = new 
 		'': ServingStatus.SERVING,
 		'pear.Analytics': ServingStatus.SERVING,
 		'pear.User': ServingStatus.SERVING,
-	})
+	}),
 )
 export { HealthService } from '../models/health'
 
@@ -28,7 +28,7 @@ export class Health implements HealthServer {
 	// public check: handleUnaryCall<HealthCheckRequest, HealthCheckResponse> = (call, callback) => {}
 	public check(
 		call: ServerUnaryCall<HealthCheckRequest, HealthCheckResponse>,
-		callback: sendUnaryData<HealthCheckResponse>
+		callback: sendUnaryData<HealthCheckResponse>,
 	): void {
 		const { service } = call.request
 		logger.info(`healthCheck ${service}`)

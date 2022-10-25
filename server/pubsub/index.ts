@@ -29,7 +29,7 @@ function RedisSub(
 	channel: ChannelName,
 	messageName: keyof MessageListener,
 	overrideRedisOpts: RedisOptions,
-	onSub?: Callback<unknown>
+	onSub?: Callback<unknown>,
 ) {
 	const subInstance = ioRedisSub.duplicate(overrideRedisOpts)
 	subInstance.channel = channel
@@ -39,7 +39,7 @@ function RedisSub(
 	subInstance.onSub = () => {
 		if (onSub) return onSub()
 		return subInstance.logger.info(
-			`Created new RedisSub instance to channel/topic(s): ${subInstance.patternName}`
+			`Created new RedisSub instance to channel/topic(s): ${subInstance.patternName}`,
 		)
 	}
 	subInstance.sub = () => {
@@ -57,7 +57,7 @@ function RedisSub(
 	}
 	subInstance.shutdown = async () => {
 		subInstance.logger.info(
-			`Quitting RedisSub instance for channel(s): ${subInstance.patternName}`
+			`Quitting RedisSub instance for channel(s): ${subInstance.patternName}`,
 		)
 		return subInstance.quit()
 	}
@@ -76,7 +76,7 @@ export default abstract class PubSub {
 	static async pub<T extends keyof MessageListener>(
 		channel: ChannelName,
 		messageName: keyof MessageListener,
-		data: FirstArgument<MessageListener[T]>
+		data: FirstArgument<MessageListener[T]>,
 	) {
 		if (!this.#pub) {
 			this.#pub = new Redis(ioRedisOptions)
@@ -95,7 +95,7 @@ export default abstract class PubSub {
 		channel: ChannelName,
 		messageName: keyof MessageListener,
 		onSub?: Callback<unknown>,
-		overrideRedisOpts?: RedisOptions
+		overrideRedisOpts?: RedisOptions,
 	) {
 		const patternName = `${channel}.${messageName}`
 		if (!this.#sub) {
@@ -108,7 +108,7 @@ export default abstract class PubSub {
 				channel,
 				messageName,
 				overrideRedisOpts,
-				onSub
+				onSub,
 			)
 			this.#subInstance[patternName].sub(this.#subInstance[patternName].onSub)
 		}
@@ -129,7 +129,7 @@ export default abstract class PubSub {
 		if (this.#pub) await this.#pub.quit()
 		if (this.#sub) await this.#sub.quit()
 		const promiseList = Object.values(this.#subInstance).map(
-			subInstance => subInstance.shutdown
+			subInstance => subInstance.shutdown,
 		)
 		await Promise.all(promiseList)
 	}

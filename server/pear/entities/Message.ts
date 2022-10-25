@@ -1,5 +1,6 @@
 import { Schema, Context } from '@colyseus/schema'
 import shortId from 'shortid'
+
 import { IMessage } from './IMessage'
 
 const type = Context.create()

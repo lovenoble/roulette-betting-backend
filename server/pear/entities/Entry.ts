@@ -1,4 +1,5 @@
-import { Schema, Context, type } from '@colyseus/schema'
+import { Schema, type } from '@colyseus/schema'
+// import { Schema, Context, type } from '@colyseus/schema'
 
 // const type = Context.create()
 

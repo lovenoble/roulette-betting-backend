@@ -25,5 +25,5 @@ export default new Schema(
 		vrfNum: { type: 'string' },
 		vrfRequestId: { type: 'string' },
 	},
-	{ dataStructure: 'JSON' }
+	{ dataStructure: 'JSON' },
 )

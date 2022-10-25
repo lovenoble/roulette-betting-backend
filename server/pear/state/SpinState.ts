@@ -1,10 +1,10 @@
 import {
 	Schema,
 	MapSchema,
+	type,
 	// SetSchema,
 	// ArraySchema,
-	type,
-	Context,
+	// Context,
 } from '@colyseus/schema'
 
 import {

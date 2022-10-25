@@ -34,7 +34,7 @@ export class Admin implements AdminServer {
 
 	public async createSeedAccounts(
 		call: ServerUnaryCall<CreateSeedAccountsRequest, CreateSeedAccountsResponse>,
-		callback: sendUnaryData<CreateSeedAccountsResponse>
+		callback: sendUnaryData<CreateSeedAccountsResponse>,
 	) {
 		try {
 			logger.info(`createSeedAccounts requested @TIME: ${Date.now()}`)
@@ -45,7 +45,7 @@ export class Admin implements AdminServer {
 			if (count <= 0 || count >= 100) {
 				return callback(
 					new ServiceError(status.INVALID_ARGUMENT, 'Max/min accounts is 0 - 100'),
-					null
+					null,
 				)
 			}
 			await CryptoAdmin.seed.createSeedAccounts(count)
@@ -67,7 +67,7 @@ export class Admin implements AdminServer {
 
 	public async getSeedAccounts(
 		call: ServerUnaryCall<GetSeedAccountsRequest, GetSeedAccountsResponse>,
-		callback: sendUnaryData<GetSeedAccountsResponse>
+		callback: sendUnaryData<GetSeedAccountsResponse>,
 	) {
 		try {
 			logger.info(`getSeedAccounts requested @TIME: ${Date.now()}`)
@@ -91,7 +91,7 @@ export class Admin implements AdminServer {
 
 	public async createBatchEntry(
 		call: ServerUnaryCall<CreateBatchEntryRequest, CreateBatchEntryResponse>,
-		callback: sendUnaryData<CreateBatchEntryResponse>
+		callback: sendUnaryData<CreateBatchEntryResponse>,
 	) {
 		try {
 			logger.info(`createBatchEntry requested @TIME: ${Date.now()}`)
@@ -114,7 +114,7 @@ export class Admin implements AdminServer {
 
 	public async settleBatchEntry(
 		call: ServerUnaryCall<SettleBatchEntryRequest, SettleBatchEntryResponse>,
-		callback: sendUnaryData<SettleBatchEntryResponse>
+		callback: sendUnaryData<SettleBatchEntryResponse>,
 	) {
 		try {
 			logger.info(`settleBatchEntry requested @TIME: ${Date.now()}`)
@@ -137,7 +137,7 @@ export class Admin implements AdminServer {
 
 	public async pauseRound(
 		call: ServerUnaryCall<PauseRoundRequest, PauseRoundResponse>,
-		callback: sendUnaryData<PauseRoundResponse>
+		callback: sendUnaryData<PauseRoundResponse>,
 	) {
 		try {
 			const { token, isPaused } = call.request
@@ -159,7 +159,7 @@ export class Admin implements AdminServer {
 
 	public async concludeRound(
 		call: ServerUnaryCall<ConcludeRoundRequest, ConcludeRoundResponse>,
-		callback: sendUnaryData<ConcludeRoundResponse>
+		callback: sendUnaryData<ConcludeRoundResponse>,
 	) {
 		try {
 			logger.info(`concludeRound requested @TIME: ${Date.now()}`)

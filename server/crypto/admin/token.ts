@@ -42,8 +42,8 @@ export default class CryptoToken {
 			logger.info(
 				`Balance(s) low. Transfering transferType(${transferType}) to ${address.substring(
 					0,
-					11
-				)}`
+					11,
+				)}`,
 			)
 		}
 
@@ -71,15 +71,15 @@ export default class CryptoToken {
 		const userFare = this.fare.connect(signerWallet)
 		const didAllow = await userFare.didUserAllowContract(
 			signerWallet.address,
-			this.spin.address
+			this.spin.address,
 		)
 
 		if (!didAllow) {
 			logger.info(
 				`Submitting allow mint/burn transaction to FareSpin for ${signerWallet.address.substring(
 					0,
-					7
-				)}`
+					7,
+				)}`,
 			)
 			await userFare.setAllowContractMintBurn(this.spin.address, true)
 		}
@@ -117,8 +117,8 @@ export default class CryptoToken {
 
 		logger.info(
 			`Seed Player(${address.substring(0, 11)}) balances: AVAX(${this.prettyBN(
-				avaxBalance
-			)}) -- FARE(${this.prettyBN(fareBalance)})`
+				avaxBalance,
+			)}) -- FARE(${this.prettyBN(fareBalance)})`,
 		)
 
 		if (shouldTransferAvax && shouldTransferFare) {

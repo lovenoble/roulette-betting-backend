@@ -15,7 +15,7 @@ export default class EliminatorService extends ServiceBase<Eliminator> {
 		jobId: string,
 		evenetLogId: string,
 		_roundId: BigNumber | number,
-		timestamp = Date.now()
+		timestamp = Date.now(),
 	) {
 		const roundId = ensureNumber(_roundId)
 		const eliminators = await spinAPI.getAllEliminatorsByRound(ensureNumber(roundId))
@@ -31,7 +31,7 @@ export default class EliminatorService extends ServiceBase<Eliminator> {
 					isEliminator,
 					timestamp,
 				})
-			}
+			},
 		)
 
 		return Promise.all(promiseList)

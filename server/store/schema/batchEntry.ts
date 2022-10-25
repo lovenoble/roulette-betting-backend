@@ -50,5 +50,5 @@ export default new Schema(
 		timestamp: { type: 'date' },
 		settledOn: { type: 'date' },
 	},
-	{ dataStructure: 'JSON' }
+	{ dataStructure: 'JSON' },
 )

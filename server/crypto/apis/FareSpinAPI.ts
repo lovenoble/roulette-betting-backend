@@ -129,7 +129,7 @@ class FareSpinAPI {
 
 	public async getAllBatchEntries(
 		roundId: number,
-		includeEntries = true
+		includeEntries = true,
 	): Promise<{
 		batchEntries: IBatchEntry[]
 		totalRoundEntryAmount: number

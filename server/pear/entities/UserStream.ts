@@ -1,6 +1,7 @@
-import { Schema, Context } from '@colyseus/schema'
+import { Schema, type } from '@colyseus/schema'
+// import { Schema } from '@colyseus/schema'
 
-const type = Context.create()
+// const type = Context.create()
 
 export interface IUserStream {
 	isVideoEnabled: boolean
