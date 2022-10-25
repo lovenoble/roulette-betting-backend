@@ -1,0 +1,31 @@
+import { TextEncoder, TextDecoder } from 'util'
+import type { WebSocketBehavior } from 'uWebSockets.js'
+import type { IRouteController, RouteHandler, WSHandler } from '../types'
+
+import { Logger } from '../../utils'
+import { webSocketOptions } from '../../config/transport.config'
+
+export const logger = Logger.create({ logType: 'Transport', theme: ['purple'] })
+
+export const binaryDecoder = new TextDecoder('utf-8')
+export const binaryEncoder = new TextEncoder()
+
+export function WSRoute(wsHandler: WSHandler): WebSocketBehavior {
+	// Apply middleware here (cors for example)
+	return {
+		/* You can do app.publish('sensors/home/temperature', '22C') kind of pub/sub as well */
+		/* For brevity we skip the other events (upgrade, open, ping, pong, close) */
+		...webSocketOptions,
+		message: wsHandler,
+	}
+}
+
+export function HTTPRoute(httpHandler: RouteHandler) {
+	// Apply middleware here (cors for example)
+	return httpHandler
+}
+
+export class RouteController implements IRouteController {
+	ws?: { [routeName: string]: WebSocketBehavior } = {}
+	http?: { [routeName: string]: RouteHandler } = {}
+}

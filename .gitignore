@@ -111,3 +111,10 @@ status.sh
 #test assets
 *Google\ Chrome.app
 *googlechrome.dmg
+
+builds/**
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

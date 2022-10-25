@@ -1,43 +1,56 @@
-import StoreConnection, { ConnectionStatus } from './store/StoreConnection'
+import pearServer from './pear'
+import redisStore from './store'
+import rpcServer from './rpc'
+import transport from './transport'
+import slackBotServer from './notifications/slack'
+import logger from './utils/logger'
+import { pearServerPort, isDev } from './config'
+// import cryptoAdmin from './crypto/admin'
 
-import initRpcServer from './rpc'
-import initGameServer from './initGameServer'
-
-import { pear } from './pears/defs/ColorGame'
-
-const { GAME_SERVER_PORT, NODE_APP_INSTANCE } = process.env
-
-// This approach binds each instance of the server on a different port
-const gameServerPort = Number(GAME_SERVER_PORT || 3100) + Number(NODE_APP_INSTANCE || 0)
+// Handle stopping processes on exit, error, or shutdown
+function stopAllProcesses() {
+	logger.info('Stopping all processes...')
+	redisStore.disconnectAll()
+	pearServer.stopAll()
+	rpcServer.stop()
+	transport.stopAll()
+}
 
 async function init() {
 	try {
-		process.once('SIGUSR2', () => {
-			if (pear.pearTokenContract && pear.pearGameContract) {
-				console.log('Removing contract event listeners!')
-				pear.pearTokenContract.removeAllListeners()
-				pear.pearGameContract.removeAllListeners()
-			}
-		})
-		// Handle status changes in the store connection here
-		StoreConnection.statusObserver(status => {
-			if (status === ConnectionStatus.Connected) {
-				console.log('Connected to store successfully.')
-			} else if (status === ConnectionStatus.Failed) {
-				console.log('Failed to connect to store.')
-			} else {
-				console.log('Store status:', status)
-			}
-		})
-		await StoreConnection.connect()
-
-		if (gameServerPort === 3100) {
-			await initRpcServer()
+		// Initialize slack bot and dependency inject logger
+		if (process.env.NODE_ENV === 'production') {
+			slackBotServer.setLogger(logger)
+			await slackBotServer.initServer()
 		}
 
-		await initGameServer(gameServerPort)
+		// If running multiple processes, ensures only one RPC server and RedisStore instance is created
+		if (pearServerPort === 3100) {
+			// @NOTE: Setup clustering for Redis
+			await redisStore.initialize()
+			await redisStore.initQueue()
+			await redisStore.initSmartContractListeners()
+
+			// FOR TESTNET AND LOCAL DEV: Create seed test accounts and init admin methods
+			// await cryptoAdmin.init()
+
+			// Initializes gRPC server with reflection enabled (default port: 9090)
+			await rpcServer.start()
+		}
+
+		// Initializes HTTP/WebSocket server (default port: 3100)
+		// Configured to run multiple processes and round robin requests
+		await pearServer.listen()
+
+		// Pear monitor dashboard (default port: 4200)
+		if (isDev) {
+			await transport.startMonitorDashboard()
+		}
+
+		// @NOTE: Need to add more exit eventListeners conditions
+		process.once('SIGUSR2', stopAllProcesses)
 	} catch (err) {
-		console.error(err)
+		logger.error(err)
 		process.exit(1)
 	}
 }
