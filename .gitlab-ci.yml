@@ -16,12 +16,12 @@ variables:
   ENV_NAME: fp-api-test
   ENV_URL: http://fp-api-test.us-west-2.elasticbeanstalk.com/
   FILE: $CI_COMMIT_REF_NAME-$CI_PIPELINE_ID
-  BUILD_DIR: $CI_PROJECT_DIR/server/builds
+  BUILD_DIR: $CI_PROJECT_DIR/builds
   BUILD_FILENAME: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA-$CI_PIPELINE_ID.zip
   BUILD_FILE: $BUILD_DIR/$BUILD_FILENAME
-  TMP_DIR: $CI_PROJECT_DIR/server/tmp
+  TMP_DIR: $CI_PROJECT_DIR/tmp
   EB_OPTIONS_FILE: $TMP_DIR/ebOptions.json
-  BIN_DIR: $CI_PROJECT_DIR/server/bin
+  BIN_DIR: $CI_PROJECT_DIR/bin
   BUCKET: elasticbeanstalk-us-west-2-390985807324
   BUCKET_PREFIX: builds/test
   AWS_PLATFORM: Docker
@@ -31,7 +31,7 @@ cache: &global_cache
   key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
   paths:
     - .pnpm-store
-    - server/node_modules/
+    - node_modules/
   policy: pull-push
 
 setup:
@@ -41,28 +41,26 @@ setup:
     - pnpm config set store-dir .pnpm-store
   script:
     - echo 'INSTALLING DEPENDENCIES'
-    - cd server/
     - rm -rf node_modules/
     - pnpm i
   cache:
     key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
     paths:
       - .pnpm-store
-      - server/node_modules/
+      - node_modules/
 
 lint:
   stage: lint
   cache:
     key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
     paths:
-      - server/node_modules/
+      - node_modules/
     policy: pull
   before_script:
     - curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@7
     - pnpm config set store-dir .pnpm-store
   script:
     - echo 'LINT'
-    - cd server/
     - pnpm run lint:ci
 
 build:
@@ -73,7 +71,7 @@ build:
   cache:
     key: $CI_COMMIT_REF_SLUG-$CI_PROJECT_DIR
     paths:
-      - server/node_modules/
+      - node_modules/
     policy: pull
   before_script:
     - curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm@7
@@ -85,12 +83,11 @@ build:
     - touch $EB_OPTIONS_FILE
     - node $BIN_DIR/generate-eb-options.js > $EB_OPTIONS_FILE
     - apt-get update -y && apt-get install -y zip
-    - cd server/
     - pnpm run build
     - pnpm run postbuild
     - mkdir -p $BUILD_DIR
       #- mkdir -p $BUILD_DIR/.platform
-      #- cp -r $CI_PROJECT_DIR/server/.platform/* $BUILD_DIR/.platform
+      #- cp -r $CI_PROJECT_DIR/.platform/* $BUILD_DIR/.platform
     - cd dist && zip -qdgds 10m -r $BUILD_FILE . && cd ..
     - ls $BUILD_DIR
   artifacts:

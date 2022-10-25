@@ -118,3 +118,12 @@ builds/**
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+dist
+
+# Dev ops
+.env.prod
+.*.sw?
+tmp/**
+.DS_Store
+
