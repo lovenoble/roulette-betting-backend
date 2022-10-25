@@ -4,8 +4,12 @@ require('dotenv')
 const os = require('os')
 
 // @NOTE: Decide on a standard Redis index to use
-const REDIS_PROXY_DB_IDX = 4
-const REDIS_URL = `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/${REDIS_PROXY_DB_IDX}`
+const { REDIS_HOST, REDIS_PORT, REDIS_USERNAME, REDIS_PASSWORD, NODE_ENV } = process.env
+
+const redisUri =
+	NODE_ENV === 'development'
+		? `redis://${REDIS_HOST}:${REDIS_PORT}`
+		: `redis://${REDIS_USERNAME}:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}`
 
 module.exports = {
 	apps: [
@@ -17,7 +21,7 @@ module.exports = {
 			exec_mode: 'cluster',
 			env: {
 				PORT: 80,
-				REDIS_URL,
+				REDIS_URL: redisUri,
 			},
 		},
 		{

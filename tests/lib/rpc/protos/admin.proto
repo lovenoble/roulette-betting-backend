@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package admin;
+
+service Admin {
+    rpc GetSeedAccounts(GetSeedAccountsRequest) returns (GetSeedAccountsResponse) {}
+    rpc CreateSeedAccounts(CreateSeedAccountsRequest) returns (CreateSeedAccountsResponse) {}
+    rpc CreateBatchEntry(CreateBatchEntryRequest) returns (CreateBatchEntryResponse) {}
+    rpc SettleBatchEntry(SettleBatchEntryRequest) returns (SettleBatchEntryResponse) {}
+    rpc PauseRound(PauseRoundRequest) returns (PauseRoundResponse) {}
+    rpc ConcludeRound(ConcludeRoundRequest) returns (ConcludeRoundResponse) {}
+}
+
+
+message CreateSeedAccountsRequest {
+    string token = 1;
+    uint32 count = 2;
+}
+
+message CreateSeedAccountsResponse {
+    string status = 1;
+    repeated string accounts = 2;
+    repeated string createdAccounts = 3;
+}
+
+message GetSeedAccountsRequest {
+    string token = 1;
+}
+
+message GetSeedAccountsResponse {
+    string status = 1;
+    repeated string accounts = 2;
+}
+
+message CreateBatchEntryRequest {
+    string token = 1;
+    int32 seedIdx = 2;
+}
+
+message CreateBatchEntryResponse {
+    string status = 1;
+}
+
+message SettleBatchEntryRequest {
+    string token = 1;
+    int32 roundId = 2;
+    int32 seedIdx = 3;
+}
+
+message SettleBatchEntryResponse {
+    string status = 1;
+}
+
+message PauseRoundRequest {
+    string token = 1;
+    bool isPaused = 2;
+}
+
+message PauseRoundResponse {
+    string status = 1;
+}
+
+message ConcludeRoundRequest {
+    string token = 1;
+}
+
+message ConcludeRoundResponse {
+    string status = 1;
+}

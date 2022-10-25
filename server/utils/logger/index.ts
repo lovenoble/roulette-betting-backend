@@ -2,27 +2,14 @@ import { createLogger, format, transports } from 'winston'
 import fs from 'fs'
 import path from 'path'
 import chalk from 'chalk'
+import slackBotServer from '../../notifications/slack'
 
-import { LogType, LoggerOptions } from './types'
+import { LogType, LoggerOptions, logColors } from './types'
 
 const levels = {
 	error: 0,
 	warn: 1,
 	info: 2,
-}
-
-const logColors = {
-	blue: '#0277BD',
-	pink: '#F8873A',
-	brightPink: '#CE49BF',
-	purple: '#764AF1',
-	lightGreen: '#B4FF9F',
-	neonGreen: '#17D7A0',
-	royalRed: '#ef5350',
-	regalYellow: '#F7D716',
-	postiveGreen: '#14C38E',
-	mexicanBrown: '#C69B7B',
-	gold: '#FFC600',
 }
 
 export class Logger {
@@ -64,6 +51,11 @@ export class Logger {
 				format.errors({ stack: true }),
 				format.printf(info => {
 					if (info.level === 'error') {
+						// Register slackBotServer
+						if (slackBotServer.isConnected && process.env.NODE_ENV === 'production') {
+							slackBotServer.createUploadFile('logger-error', JSON.stringify(info))
+						}
+
 						if (info.metadata) {
 							return chalk
 								.hex(config.colors.error)
@@ -75,13 +67,13 @@ export class Logger {
 					}
 					if (info.level === 'warn') {
 						return chalk.hex(config.colors.warn)(
-							`[${logType}/${info.level}]: ${info.message}`
+							`[${logType}/${info.level}]: ${info.message}`,
 						)
 					}
 					return chalk.hex(config.colors.info)(
-						`[${logType}/${info.level}]: ${info.message}`
+						`[${logType}/${info.level}]: ${info.message}`,
 					)
-				})
+				}),
 			),
 		})
 
@@ -91,7 +83,7 @@ export class Logger {
 				format.errors({ stack: true }),
 				format.json(),
 				format.splat(),
-				format.metadata()
+				format.metadata(),
 			),
 			...args,
 			transports: [combinedFileTransport, errorFileTransport],
@@ -108,7 +100,7 @@ export class Logger {
 	static #ensureLogFile(logType: LogType) {
 		const logPath = `${process.cwd()}/logs`
 		const filePath = `${logType.toLowerCase()}.log`
-		const errorFilePath = `${logPath}/${logType.toLowerCase()}-error.logs`
+		const errorFilePath = `${logPath}/${logType.toLowerCase()}-error.log`
 
 		const logFilePath = path.join(logPath, filePath)
 
@@ -123,6 +115,7 @@ export class Logger {
 
 export default Logger.create({
 	logType: 'Global',
+	theme: ['paleGold'],
 })
 
 export * from './types'

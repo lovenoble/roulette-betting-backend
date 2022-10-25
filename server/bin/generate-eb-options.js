@@ -19,7 +19,11 @@ const lineInterface = readline.createInterface({
 const outputMap = []
 
 lineInterface.on('line', (line) => {
-    if (process.env[line] !== undefined && process.env[line].length > 0) {
+    if (
+        line[0] != '#' &&
+	process.env[line] !== undefined &&
+	process.env[line].length > 0
+    ) {
         outputMap.push({
             Namespace: envVarNamespace,
             OptionName: line,

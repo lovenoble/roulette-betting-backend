@@ -1,27 +1,30 @@
 import { Repository } from 'redis-om'
 
 import type {
-	User,
-	EventLog,
-	GameMode,
-	FareTransfer,
-	Entry,
 	BatchEntry,
+	Entry,
+	EventLog,
+	FareTransfer,
+	ContractMode,
 	Round,
+	User,
+	Eliminator,
 } from '../schema/types'
 import type {
 	BatchEntryService,
 	EntryService,
 	EventLogService,
 	FareTransferService,
-	GameModeService,
+	ContractModeService,
 	RoundService,
 	UserService,
+	EliminatorService,
 } from '../service'
 
 export interface IRepoObj {
+	eliminator?: Repository<Eliminator>
 	eventLog?: Repository<EventLog>
-	gameMode?: Repository<GameMode>
+	contractMode?: Repository<ContractMode>
 	fareTransfer?: Repository<FareTransfer>
 	entry?: Repository<Entry>
 	batchEntry?: Repository<BatchEntry>
@@ -30,11 +33,14 @@ export interface IRepoObj {
 }
 
 export interface IServiceObj {
+	eliminator?: EliminatorService
 	eventLog?: EventLogService
-	gameMode?: GameModeService
+	contractMode?: ContractModeService
 	fareTransfer?: FareTransferService
 	entry?: EntryService
 	batchEntry?: BatchEntryService
 	round?: RoundService
 	user?: UserService
 }
+
+export type SpinRoomStatus = 'countdown' | 'starting' | 'spinning' | 'finished'

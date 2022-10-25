@@ -36,15 +36,17 @@ export interface FareTokenInterface extends utils.Interface {
     "balanceOf(address)": FunctionFragment;
     "burnFare(address,uint256)": FunctionFragment;
     "burnLimit()": FunctionFragment;
+    "contractUserAllowList(address,address)": FunctionFragment;
+    "contractWhitelist(address)": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
-    "gameWhitelist(address)": FunctionFragment;
+    "didUserAllowContract(address,address)": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
     "mintFare(address,uint256)": FunctionFragment;
     "mintLimit()": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
+    "setAllowContractMintBurn(address,bool)": FunctionFragment;
     "setBurnLimit(uint256)": FunctionFragment;
     "setMintLimit(uint256)": FunctionFragment;
     "setWhitelistAddress(address,bool)": FunctionFragment;
@@ -52,7 +54,6 @@ export interface FareTokenInterface extends utils.Interface {
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
   };
 
   getFunction(
@@ -63,15 +64,17 @@ export interface FareTokenInterface extends utils.Interface {
       | "balanceOf"
       | "burnFare"
       | "burnLimit"
+      | "contractUserAllowList"
+      | "contractWhitelist"
       | "decimals"
       | "decreaseAllowance"
-      | "gameWhitelist"
+      | "didUserAllowContract"
       | "increaseAllowance"
       | "mintFare"
       | "mintLimit"
       | "name"
       | "owner"
-      | "renounceOwnership"
+      | "setAllowContractMintBurn"
       | "setBurnLimit"
       | "setMintLimit"
       | "setWhitelistAddress"
@@ -79,7 +82,6 @@ export interface FareTokenInterface extends utils.Interface {
       | "totalSupply"
       | "transfer"
       | "transferFrom"
-      | "transferOwnership"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -100,14 +102,22 @@ export interface FareTokenInterface extends utils.Interface {
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "burnLimit", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "contractUserAllowList",
+    values: [string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "contractWhitelist",
+    values: [string]
+  ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "decreaseAllowance",
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "gameWhitelist",
-    values: [string]
+    functionFragment: "didUserAllowContract",
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "increaseAllowance",
@@ -121,8 +131,8 @@ export interface FareTokenInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
+    functionFragment: "setAllowContractMintBurn",
+    values: [string, boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "setBurnLimit",
@@ -149,10 +159,6 @@ export interface FareTokenInterface extends utils.Interface {
     functionFragment: "transferFrom",
     values: [string, string, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
-  ): string;
 
   decodeFunctionResult(
     functionFragment: "INITIAL_SUPPLY",
@@ -163,13 +169,21 @@ export interface FareTokenInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burnFare", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burnLimit", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "contractUserAllowList",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "contractWhitelist",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "decreaseAllowance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "gameWhitelist",
+    functionFragment: "didUserAllowContract",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -181,7 +195,7 @@ export interface FareTokenInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "renounceOwnership",
+    functionFragment: "setAllowContractMintBurn",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -206,19 +220,13 @@ export interface FareTokenInterface extends utils.Interface {
     functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
@@ -233,18 +241,6 @@ export type ApprovalEvent = TypedEvent<
 >;
 
 export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
-
-export interface OwnershipTransferredEventObject {
-  previousOwner: string;
-  newOwner: string;
-}
-export type OwnershipTransferredEvent = TypedEvent<
-  [string, string],
-  OwnershipTransferredEventObject
->;
-
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface TransferEventObject {
   from: string;
@@ -304,12 +300,23 @@ export interface FareToken extends BaseContract {
     balanceOf(account: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     burnFare(
-      player: string,
+      user: string,
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     burnLimit(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    contractUserAllowList(
+      arg0: string,
+      arg1: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    contractWhitelist(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
@@ -319,7 +326,11 @@ export interface FareToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    gameWhitelist(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
+    didUserAllowContract(
+      _user: string,
+      _contractAddress: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     increaseAllowance(
       spender: string,
@@ -328,7 +339,7 @@ export interface FareToken extends BaseContract {
     ): Promise<ContractTransaction>;
 
     mintFare(
-      player: string,
+      user: string,
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -339,7 +350,9 @@ export interface FareToken extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
-    renounceOwnership(
+    setAllowContractMintBurn(
+      _contractAddress: string,
+      _allow: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -354,7 +367,7 @@ export interface FareToken extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setWhitelistAddress(
-      gameAddress: string,
+      contractAddress: string,
       isActive: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -373,11 +386,6 @@ export interface FareToken extends BaseContract {
       from: string,
       to: string,
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    transferOwnership(
-      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -399,12 +407,20 @@ export interface FareToken extends BaseContract {
   balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   burnFare(
-    player: string,
+    user: string,
     amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   burnLimit(overrides?: CallOverrides): Promise<BigNumber>;
+
+  contractUserAllowList(
+    arg0: string,
+    arg1: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  contractWhitelist(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
   decimals(overrides?: CallOverrides): Promise<number>;
 
@@ -414,7 +430,11 @@ export interface FareToken extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  gameWhitelist(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+  didUserAllowContract(
+    _user: string,
+    _contractAddress: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   increaseAllowance(
     spender: string,
@@ -423,7 +443,7 @@ export interface FareToken extends BaseContract {
   ): Promise<ContractTransaction>;
 
   mintFare(
-    player: string,
+    user: string,
     amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -434,7 +454,9 @@ export interface FareToken extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
-  renounceOwnership(
+  setAllowContractMintBurn(
+    _contractAddress: string,
+    _allow: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -449,7 +471,7 @@ export interface FareToken extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setWhitelistAddress(
-    gameAddress: string,
+    contractAddress: string,
     isActive: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -471,11 +493,6 @@ export interface FareToken extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  transferOwnership(
-    newOwner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     INITIAL_SUPPLY(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -494,12 +511,23 @@ export interface FareToken extends BaseContract {
     balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     burnFare(
-      player: string,
+      user: string,
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
     burnLimit(overrides?: CallOverrides): Promise<BigNumber>;
+
+    contractUserAllowList(
+      arg0: string,
+      arg1: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    contractWhitelist(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     decimals(overrides?: CallOverrides): Promise<number>;
 
@@ -509,7 +537,11 @@ export interface FareToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    gameWhitelist(arg0: string, overrides?: CallOverrides): Promise<boolean>;
+    didUserAllowContract(
+      _user: string,
+      _contractAddress: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     increaseAllowance(
       spender: string,
@@ -518,7 +550,7 @@ export interface FareToken extends BaseContract {
     ): Promise<boolean>;
 
     mintFare(
-      player: string,
+      user: string,
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -529,7 +561,11 @@ export interface FareToken extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+    setAllowContractMintBurn(
+      _contractAddress: string,
+      _allow: boolean,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setBurnLimit(
       _burnLimit: BigNumberish,
@@ -542,7 +578,7 @@ export interface FareToken extends BaseContract {
     ): Promise<void>;
 
     setWhitelistAddress(
-      gameAddress: string,
+      contractAddress: string,
       isActive: boolean,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -563,11 +599,6 @@ export interface FareToken extends BaseContract {
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
   filters: {
@@ -581,15 +612,6 @@ export interface FareToken extends BaseContract {
       spender?: string | null,
       value?: null
     ): ApprovalEventFilter;
-
-    "OwnershipTransferred(address,address)"(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): OwnershipTransferredEventFilter;
-    OwnershipTransferred(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): OwnershipTransferredEventFilter;
 
     "Transfer(address,address,uint256)"(
       from?: string | null,
@@ -621,12 +643,23 @@ export interface FareToken extends BaseContract {
     balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     burnFare(
-      player: string,
+      user: string,
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     burnLimit(overrides?: CallOverrides): Promise<BigNumber>;
+
+    contractUserAllowList(
+      arg0: string,
+      arg1: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    contractWhitelist(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -636,7 +669,11 @@ export interface FareToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    gameWhitelist(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+    didUserAllowContract(
+      _user: string,
+      _contractAddress: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     increaseAllowance(
       spender: string,
@@ -645,7 +682,7 @@ export interface FareToken extends BaseContract {
     ): Promise<BigNumber>;
 
     mintFare(
-      player: string,
+      user: string,
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -656,7 +693,9 @@ export interface FareToken extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    renounceOwnership(
+    setAllowContractMintBurn(
+      _contractAddress: string,
+      _allow: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -671,7 +710,7 @@ export interface FareToken extends BaseContract {
     ): Promise<BigNumber>;
 
     setWhitelistAddress(
-      gameAddress: string,
+      contractAddress: string,
       isActive: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -690,11 +729,6 @@ export interface FareToken extends BaseContract {
       from: string,
       to: string,
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -720,12 +754,23 @@ export interface FareToken extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     burnFare(
-      player: string,
+      user: string,
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     burnLimit(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    contractUserAllowList(
+      arg0: string,
+      arg1: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    contractWhitelist(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -735,8 +780,9 @@ export interface FareToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    gameWhitelist(
-      arg0: string,
+    didUserAllowContract(
+      _user: string,
+      _contractAddress: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -747,7 +793,7 @@ export interface FareToken extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     mintFare(
-      player: string,
+      user: string,
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -758,7 +804,9 @@ export interface FareToken extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    renounceOwnership(
+    setAllowContractMintBurn(
+      _contractAddress: string,
+      _allow: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -773,7 +821,7 @@ export interface FareToken extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setWhitelistAddress(
-      gameAddress: string,
+      contractAddress: string,
       isActive: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -792,11 +840,6 @@ export interface FareToken extends BaseContract {
       from: string,
       to: string,
       amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

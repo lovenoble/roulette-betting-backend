@@ -75,4 +75,8 @@ export class Transport {
 	}
 }
 
-export default new Transport({})
+export default new Transport({
+	transportOpts: {
+		idleTimeout: 0,
+	},
+})

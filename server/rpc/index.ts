@@ -8,6 +8,8 @@ import { logger } from './utils'
 import {
 	User,
 	UserService,
+	Admin,
+	AdminService,
 	Analytics,
 	AnalyticsService,
 	Health,
@@ -58,6 +60,7 @@ export class RPCServer {
 		this.server.addService(HealthService, new Health())
 		this.server.addService(AnalyticsService, new Analytics())
 		this.server.addService(UserService, new User())
+		this.server.addService(AdminService, new Admin())
 	}
 
 	/*
@@ -65,7 +68,7 @@ export class RPCServer {
     */
 	changeHealthServingStatus(
 		servicePathName: ServicePathNames,
-		servingStatus: HealthCheckResponse_ServingStatus
+		servingStatus: HealthCheckResponse_ServingStatus,
 	) {
 		healthStatus.set(servicePathName, servingStatus)
 		logger.info(`[${servicePathName}]: Health serving staus changed to ${servingStatus}`)
@@ -79,7 +82,7 @@ export class RPCServer {
 		return new Promise((resolve, reject) => {
 			this.server.bindAsync(rpcUri, this.#credentials, (err, port) => {
 				if (err) {
-					logger.error('RPC server failed to start.', err)
+					logger.error(new Error(`RPC server failed to start: ${err.toString()}`))
 					reject(err)
 				}
 

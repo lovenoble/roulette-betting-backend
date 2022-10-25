@@ -35,7 +35,7 @@ export enum HealthCheckResponse_ServingStatus {
 }
 
 export function healthCheckResponse_ServingStatusFromJSON(
-	object: any
+	object: any,
 ): HealthCheckResponse_ServingStatus {
 	switch (object) {
 		case 0:
@@ -55,7 +55,7 @@ export function healthCheckResponse_ServingStatusFromJSON(
 }
 
 export function healthCheckResponse_ServingStatusToJSON(
-	object: HealthCheckResponse_ServingStatus
+	object: HealthCheckResponse_ServingStatus,
 ): string {
 	switch (object) {
 		case HealthCheckResponse_ServingStatus.UNKNOWN:
@@ -113,7 +113,7 @@ export const HealthCheckRequest = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<HealthCheckRequest>, I>>(
-		object: I
+		object: I,
 	): HealthCheckRequest {
 		const message = createBaseHealthCheckRequest()
 		message.service = object.service ?? ''
@@ -167,7 +167,7 @@ export const HealthCheckResponse = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<HealthCheckResponse>, I>>(
-		object: I
+		object: I,
 	): HealthCheckResponse {
 		const message = createBaseHealthCheckResponse()
 		message.status = object.status ?? 0
@@ -197,29 +197,29 @@ export interface HealthServer extends UntypedServiceImplementation {
 export interface HealthClient extends Client {
 	check(
 		request: HealthCheckRequest,
-		callback: (error: ServiceError | null, response: HealthCheckResponse) => void
+		callback: (error: ServiceError | null, response: HealthCheckResponse) => void,
 	): ClientUnaryCall
 	check(
 		request: HealthCheckRequest,
 		metadata: Metadata,
-		callback: (error: ServiceError | null, response: HealthCheckResponse) => void
+		callback: (error: ServiceError | null, response: HealthCheckResponse) => void,
 	): ClientUnaryCall
 	check(
 		request: HealthCheckRequest,
 		metadata: Metadata,
 		options: Partial<CallOptions>,
-		callback: (error: ServiceError | null, response: HealthCheckResponse) => void
+		callback: (error: ServiceError | null, response: HealthCheckResponse) => void,
 	): ClientUnaryCall
 }
 
 export const HealthClient = makeGenericClientConstructor(
 	HealthService,
-	'grpc.health.v1.Health'
+	'grpc.health.v1.Health',
 ) as unknown as {
 	new (
 		address: string,
 		credentials: ChannelCredentials,
-		options?: Partial<ChannelOptions>
+		options?: Partial<ChannelOptions>,
 	): HealthClient
 	service: typeof HealthService
 }

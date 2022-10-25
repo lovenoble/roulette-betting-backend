@@ -1,35 +1,35 @@
 import { BigNumber, ContractReceipt, ContractTransaction } from 'ethers'
 
-export type GameModeParams = {
+export type ContractModeParams = {
 	id: BigNumber
 	cardinality: BigNumber
 	mintMultiplier: BigNumber
-	gameEdgeFloor: BigNumber
+	contractExpectedValueFloor: BigNumber
 	minAmount: BigNumber
 	maxAmount: BigNumber
 	entryLimit: BigNumber
 	isActive: boolean
 }
 
-export interface GameMode {
+export interface ContractMode {
 	id: number
 	cardinality: number
 	mintMultiplier: number
-	gameEdgeFloor: BigNumber
 	minAmount: number
+	contractExpectedValueFloor: BigNumber
 	maxAmount: number
 	entryLimit: number
 	isActive: boolean
 }
 
-export interface IGameModesTx {
+export interface IContractModesTx {
 	tx: ContractTransaction
-	gameMode: GameMode
+	contractMode: ContractMode
 }
 
 export interface IBatchEntryItem {
 	amount: BigNumber
-	gameModeId: string
+	contractModeId: string
 	pickedNumber: string
 }
 
@@ -48,16 +48,15 @@ export interface IConcludeRoundResp {
 
 export interface IEntry {
 	amount: number
-	gameModeId: number
+	contractModeId: number
 	pickedNumber: number
 }
 
 export interface IBatchEntry {
-	entryId: number
 	player: string
 	settled: boolean
 	totalEntryAmount: number
-	totalWinAmount: number
+	totalMintAmount: number
 	entries?: IEntry[]
 }
 
@@ -65,22 +64,22 @@ export interface IRound {
 	id: number
 	randomNum: number
 	vrfRequestId: string
-	eliminatorGameMode?: [{ [gameModeId: string]: boolean }]
+	eliminatorContractMode?: [{ [contractModeId: string]: boolean }]
 	randomEliminator?: number
 }
 
 export interface IEliminator {
-	gameModeId: number
-	recordedEdgeFloor: number
+	contractModeId: number
+	recordedExpectedValueFloor: number
 	isEliminator: boolean
 }
 
 export interface IEliminatorMap {
-	[gameModeId: string]: IEliminator[]
+	[contractModeId: string]: IEliminator[]
 }
 
 export interface IBreakDown {
-	totalRoundWinAmount: number
+	totalRoundMintAmount: number
 	totalRoundEntryAmount: number
 	totalRoundSupply: number
 	totalDeltaAmount: number
@@ -104,17 +103,29 @@ export interface ISpinSimulationOptions {
 export interface IEntryIds {
 	roundId: number
 	entryId: number
-	gameModeId?: number
+	contractModeId?: number
 }
 
 export interface Entry {
 	player: string
-	gameModeId: string
+	contractModeId: string
 	roundId: string
 	entryId: string
 	pickedNumber: string
 	amount: string
-	winAmount: string
+	mintAmount: string
 	settled: boolean
 	result: string
+}
+
+export type EntryStructOutput = [BigNumber, BigNumber, BigNumber] & {
+	amount: BigNumber
+	contractModeId: BigNumber
+	pickedNumber: BigNumber
+}
+
+export type EliminatorStructOutput = [BigNumber, BigNumber, boolean] & {
+	contractModeId: BigNumber
+	recordedExpectedValueFloor: BigNumber
+	isEliminator: boolean
 }

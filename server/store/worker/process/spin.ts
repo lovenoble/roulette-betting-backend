@@ -1,6 +1,6 @@
 import type {
 	IServiceObj,
-	IGameModeUpdatedQueue,
+	IContractModeUpdatedQueue,
 	IEntrySubmittedQueue,
 	IEntrySettledQueue,
 	IRoundConcludedQueue,
@@ -14,37 +14,39 @@ import { spinAPI } from '../../../crypto'
 import { formatETH, toEth, workerLogger as logger } from '../../utils'
 
 const createSpinJobProcesses = (service: IServiceObj) => {
-	async function gameModeUpdated<T>(queueData: IGameModeUpdatedQueue, jobId: string = null) {
-		const { event, gameModeId, timestamp } = queueData
+	async function contractModeUpdated<T>(
+		queueData: IContractModeUpdatedQueue,
+		jobId: string = null,
+	) {
+		const { event, contractModeId, timestamp } = queueData
 
-		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpinGame)
+		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpin)
 		if (!eventLogId) return null
 
 		const data = (
-			await service.gameMode.createOrUpdate(gameModeId, timestamp, eventLogId, jobId)
+			await service.contractMode.createOrUpdate(contractModeId, timestamp, eventLogId, jobId)
 		).toRedisJson()
 
 		// @NOTE: May need to publish here
 
 		return JSON.stringify({
-			eventName: EventNames.GameModeUpdated,
+			eventName: EventNames.ContractModeUpdated,
 			data,
 		} as EventReturnData<T>)
 	}
 
 	async function entrySubmitted(queueData: IEntrySubmittedQueue, jobId: string = null) {
-		const { roundId, batchEntryId, player, entryId, event, timestamp } = queueData
-		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpinGame)
+		const { roundId, batchEntryId, player, event, timestamp } = queueData
+		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpin)
 		if (!eventLogId) return null
 
 		const data = await service.batchEntry.create(
 			eventLogId,
 			roundId,
 			batchEntryId,
-			entryId,
 			player,
 			jobId,
-			timestamp
+			timestamp,
 		)
 
 		PubSub.pub<'batch-entry'>('spin-state', 'batch-entry', {
@@ -61,17 +63,22 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 	async function roundConcluded<T>(queueData: IRoundConcludedQueue, jobId: string = null) {
 		const { roundId, vrfRequestId, randomNum, randomEliminator, event, timestamp } = queueData
 
-		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpinGame)
+		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpin)
 		if (!eventLogId) return null
 
 		const settledData = await service.round.updateRoundBatchEntries(
 			roundId,
 			randomNum,
-			randomEliminator
+			randomEliminator,
 		)
 
 		// Get and set eliminator data from blockchain
-		const roundEliminators = await spinAPI.getAllEliminatorsByRound(roundId)
+		const roundEliminators = await service.eliminator.createEliminatorsByRoundId(
+			jobId,
+			eventLogId,
+			roundId,
+			timestamp,
+		)
 
 		const eliminators: IRoundEliminators = {
 			isTwoXElim: false,
@@ -79,22 +86,22 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 			isHundoXElim: false,
 		}
 
-		roundEliminators.forEach(({ gameModeId, isEliminator }) => {
-			switch (gameModeId) {
-				case 1:
+		roundEliminators.forEach(({ contractModeId, isEliminator }) => {
+			switch (contractModeId) {
+				case 0:
 					eliminators.isTwoXElim = isEliminator
 					break
-				case 2:
+				case 1:
 					eliminators.isTenXElim = isEliminator
 					break
-				case 3:
+				case 2:
 					eliminators.isHundoXElim = isEliminator
 					break
 
 				default:
 					break
 			}
-			eliminators[gameModeId] = isEliminator
+			eliminators[contractModeId] = isEliminator
 		})
 
 		PubSub.pub<'round-concluded'>('spin-state', 'round-concluded', {
@@ -106,7 +113,10 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 			...eliminators,
 		})
 
+		// Increment cached roundId in Redis
 		await service.round.updateCurrentRoundId((roundId + 1).toString())
+
+		const vrfNum = await spinAPI.getVRF(roundId)
 
 		const data = (
 			await service.round.repo.createAndSave({
@@ -114,6 +124,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 				roundId,
 				randomNum,
 				randomEliminator,
+				vrfNum,
 				vrfRequestId,
 				timestamp,
 				jobId,
@@ -127,40 +138,27 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 	}
 
 	async function entrySettled<T>(queueData: IEntrySettledQueue, jobId: string = null) {
-		const {
-			roundId,
-			batchEntryId,
-			player, // eslint-disable-line
-			entryId, // eslint-disable-line
-			hasWon,
-			event,
-			timestamp,
-		} = queueData
+		const { roundId, player, hasWon, event, timestamp } = queueData
 
-		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpinGame)
+		const eventLogId = await service.eventLog.process(event, ContractNames.FareSpin)
 		if (!eventLogId) return null
 
-		const batchEntryEntity = await service.batchEntry.settle(
-			roundId,
-			batchEntryId,
-			timestamp,
-			jobId
-		)
+		const batchEntryEntity = await service.batchEntry.settle(roundId, player, timestamp, jobId)
 
-		const [_entryId, _player, _settled, _totalEntryAmount, _totalWinAmount] =
-			await spinAPI.contract.batchEntryMap(roundId, batchEntryId)
+		const [_entryId, _player, _settled, _totalEntryAmount, _totalMintAmount] =
+			await spinAPI.contract.batchEntryMap(roundId, player)
 
-		// @NOTE: Ensure blockchain totalWinAmount and calculated Redis totalWinAmount is correct
+		// @NOTE: Ensure blockchain totalMintAmount and calculated Redis totalMintAmount is correct
 		// @NOTE: We need to log to our analytics if these numbers do not match
-		if (hasWon && !toEth(batchEntryEntity.totalWinAmount).eq(_totalWinAmount)) {
+		if (hasWon && !toEth(batchEntryEntity.totalMintAmount).eq(_totalMintAmount)) {
 			logger.warn('------------------------------------------')
 			logger.warn(
-				'!IMPORTANT - Redis totalWinAmount and smart contract totalWinAmount do not match.'
+				'!IMPORTANT - Redis totalMintAmount and smart contract totalMintAmount do not match.',
 			)
 			logger.warn('If you see this error report steps to reproduce!')
 			logger.warn('Updating to reflect the amount fetched from the blockchain...')
 			logger.warn('------------------------------------------')
-			batchEntryEntity.totalWinAmount = formatETH(_totalWinAmount)
+			batchEntryEntity.totalMintAmount = formatETH(_totalMintAmount)
 			await service.batchEntry.repo.save(batchEntryEntity)
 		}
 
@@ -172,7 +170,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 	}
 
 	return {
-		gameModeUpdated,
+		contractModeUpdated,
 		entrySubmitted,
 		entrySettled,
 		roundConcluded,

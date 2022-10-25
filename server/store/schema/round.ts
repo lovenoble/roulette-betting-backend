@@ -1,13 +1,14 @@
 import { Entity, Schema } from 'redis-om'
 
 export interface Round {
-	jobId: string
 	eventLogId: string
-	roundId: number
-	randomNum: number
+	jobId: string
 	randomEliminator: string
-	vrfRequestId: string
+	randomNum: number
+	roundId: number
 	timestamp: number
+	vrfNum: string
+	vrfRequestId: string
 }
 
 export class Round extends Entity {}
@@ -15,13 +16,14 @@ export class Round extends Entity {}
 export default new Schema(
 	Round,
 	{
-		jobId: { type: 'string' },
 		eventLogId: { type: 'string' },
-		roundId: { type: 'number' },
-		randomNum: { type: 'number' },
+		jobId: { type: 'string' },
 		randomEliminator: { type: 'string' },
-		vrfRequestId: { type: 'string' },
+		randomNum: { type: 'number' },
+		roundId: { type: 'number' },
 		timestamp: { type: 'date' },
+		vrfNum: { type: 'string' },
+		vrfRequestId: { type: 'string' },
 	},
-	{ dataStructure: 'JSON' }
+	{ dataStructure: 'JSON' },
 )

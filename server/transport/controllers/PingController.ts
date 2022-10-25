@@ -41,7 +41,7 @@ PingController.ws.latency = WSRoute((ws, message, isBinary) => {
 			currentTimeStamp: new Date().valueOf(),
 			pingMs: ping,
 		})
-		logger.info(`${pingJson.clientId}:`, `ping ${ping}ms`)
+		logger.info(`${pingJson.clientId}: ping ${ping}ms`)
 	}
 })
 

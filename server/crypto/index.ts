@@ -7,22 +7,22 @@ import {
 	FareNFTLootBoxController,
 	FareNFTLootBoxController__factory,
 	FareNFTLootBox__factory,
-	FareSpinGame,
-	FareSpinGame__factory,
+	FareSpin,
+	FareSpin__factory,
 	FareToken,
 	FareToken__factory,
 } from './types'
 import config from '../config/crypto.config'
 import * as utils from './utils'
-import { FareSpinGameAPI, FareTokenAPI } from './apis'
+import { FareSpinAPI, FareTokenAPI } from './apis'
 
 const {
 	fareTokenAddress,
-	fareSpinGameAddress,
+	fareSpinAddress,
 	fareItemsAddress,
 	fareNftLootboxAddress,
 	fareNftLootboxControllerAddress,
-	treasuryAddress,
+	rewardsAddress,
 	blockchainRpcUrl,
 	privateKey,
 } = config
@@ -31,25 +31,24 @@ export class Crypto {
 	provider!: providers.JsonRpcProvider
 	signer!: Wallet
 	fare!: FareToken
-	spin!: FareSpinGame
+	spin!: FareSpin
 	items!: FareItems
 	lootbox!: FareNFTLootBox
 	lootboxCtrl!: FareNFTLootBoxController
 	rpcUrl = blockchainRpcUrl
-	treasuryAddress = treasuryAddress
+	rewardsAddress = rewardsAddress
 	utils = utils
 
 	constructor() {
 		this.provider = new providers.JsonRpcProvider(blockchainRpcUrl)
 		this.signer = new Wallet(privateKey, this.provider)
-
 		this.fare = FareToken__factory.connect(fareTokenAddress, this.signer)
-		this.spin = FareSpinGame__factory.connect(fareSpinGameAddress, this.signer)
+		this.spin = FareSpin__factory.connect(fareSpinAddress, this.signer)
 		this.items = FareItems__factory.connect(fareItemsAddress, this.signer)
 		this.lootbox = FareNFTLootBox__factory.connect(fareNftLootboxAddress, this.signer)
 		this.lootboxCtrl = FareNFTLootBoxController__factory.connect(
 			fareNftLootboxControllerAddress,
-			this.signer
+			this.signer,
 		)
 	}
 
@@ -80,8 +79,8 @@ export class Crypto {
 		}
 	}
 
-	public async getTreasuryBalance() {
-		return this.getFareBalance(this.treasuryAddress)
+	public async getRewardsBalance() {
+		return this.getFareBalance(this.rewardsAddress)
 	}
 
 	public async getFareTotalSupply() {
@@ -97,12 +96,8 @@ export class Crypto {
 
 const crypto = new Crypto()
 
-// const testSigningMessage =
-// 	'Pear connects would like to authenticate your account. Please sign the following: 0x66383466396332322d396530312d346233642d386163642d643132613636613631656264'
-// console.log(await crypto.signMessage(testSigningMessage))
-
 // API Instances
 export const fareAPI = new FareTokenAPI(crypto.fare)
-export const spinAPI = new FareSpinGameAPI(crypto.fare, crypto.spin)
+export const spinAPI = new FareSpinAPI(crypto.fare, crypto.spin)
 
 export default crypto

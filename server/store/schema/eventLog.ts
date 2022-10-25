@@ -25,5 +25,5 @@ export default new Schema(
 		topics: { type: 'string[]' },
 		timestamp: { type: 'date' },
 	},
-	{ dataStructure: 'JSON' }
+	{ dataStructure: 'JSON' },
 )
