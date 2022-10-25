@@ -21,7 +21,7 @@ export default function createMonitorDashboard() {
 	})
 
 	// Middleware
-	pearMonitor.use('/pear-monitor', basicAuthMiddleware, monitor())
+	pearMonitor.use('/fare-state', basicAuthMiddleware, monitor())
 
 	return pearMonitor
 }

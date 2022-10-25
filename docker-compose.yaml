@@ -1,9 +1,9 @@
 version: '3.8'
 services:
-    fare-connect-store:
+    fareplay-store:
         image: mongo:latest
         restart: always
-        container_name: fare-connect-store
+        container_name: fareplay-store
         environment:
             - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}
             - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
@@ -11,14 +11,14 @@ services:
         ports:
             - 27017:27017
         volumes:
-            - fare-store-data:${FARE_STORE_DBPATH}
+            - fare-store-data:${MONGO_STORE_DBPATH}
             - ./bin/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
-    fare-connect-rpc-proxy:
+    fareplay-rpc-proxy:
         image: envoyproxy/envoy:v1.23.1
         network_mode: host
         volumes:
             - ./config/envoy.latest.yaml:/etc/envoy/envoy.yaml
-    fare-connect-redis:
+    fareplay-redis:
         image: redis/redis-stack-server:latest
         restart: always
         ports:
@@ -28,7 +28,7 @@ services:
             - fare-cache:/data
 networks:
     default:
-        name: fare-connect-network
+        name: fareplay-network
         driver: bridge
 volumes:
     fare-store-data:
