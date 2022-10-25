@@ -77,7 +77,7 @@ function createBaseCreateSeedAccountsRequest(): CreateSeedAccountsRequest {
 export const CreateSeedAccountsRequest = {
 	encode(
 		message: CreateSeedAccountsRequest,
-		writer: _m0.Writer = _m0.Writer.create()
+		writer: _m0.Writer = _m0.Writer.create(),
 	): _m0.Writer {
 		if (message.token !== '') {
 			writer.uint32(10).string(message.token)
@@ -124,7 +124,7 @@ export const CreateSeedAccountsRequest = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<CreateSeedAccountsRequest>, I>>(
-		object: I
+		object: I,
 	): CreateSeedAccountsRequest {
 		const message = createBaseCreateSeedAccountsRequest()
 		message.token = object.token ?? ''
@@ -140,7 +140,7 @@ function createBaseCreateSeedAccountsResponse(): CreateSeedAccountsResponse {
 export const CreateSeedAccountsResponse = {
 	encode(
 		message: CreateSeedAccountsResponse,
-		writer: _m0.Writer = _m0.Writer.create()
+		writer: _m0.Writer = _m0.Writer.create(),
 	): _m0.Writer {
 		if (message.status !== '') {
 			writer.uint32(10).string(message.status)
@@ -207,7 +207,7 @@ export const CreateSeedAccountsResponse = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<CreateSeedAccountsResponse>, I>>(
-		object: I
+		object: I,
 	): CreateSeedAccountsResponse {
 		const message = createBaseCreateSeedAccountsResponse()
 		message.status = object.status ?? ''
@@ -260,7 +260,7 @@ export const GetSeedAccountsRequest = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<GetSeedAccountsRequest>, I>>(
-		object: I
+		object: I,
 	): GetSeedAccountsRequest {
 		const message = createBaseGetSeedAccountsRequest()
 		message.token = object.token ?? ''
@@ -325,7 +325,7 @@ export const GetSeedAccountsResponse = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<GetSeedAccountsResponse>, I>>(
-		object: I
+		object: I,
 	): GetSeedAccountsResponse {
 		const message = createBaseGetSeedAccountsResponse()
 		message.status = object.status ?? ''
@@ -385,7 +385,7 @@ export const CreateBatchEntryRequest = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<CreateBatchEntryRequest>, I>>(
-		object: I
+		object: I,
 	): CreateBatchEntryRequest {
 		const message = createBaseCreateBatchEntryRequest()
 		message.token = object.token ?? ''
@@ -401,7 +401,7 @@ function createBaseCreateBatchEntryResponse(): CreateBatchEntryResponse {
 export const CreateBatchEntryResponse = {
 	encode(
 		message: CreateBatchEntryResponse,
-		writer: _m0.Writer = _m0.Writer.create()
+		writer: _m0.Writer = _m0.Writer.create(),
 	): _m0.Writer {
 		if (message.status !== '') {
 			writer.uint32(10).string(message.status)
@@ -440,7 +440,7 @@ export const CreateBatchEntryResponse = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<CreateBatchEntryResponse>, I>>(
-		object: I
+		object: I,
 	): CreateBatchEntryResponse {
 		const message = createBaseCreateBatchEntryResponse()
 		message.status = object.status ?? ''
@@ -507,7 +507,7 @@ export const SettleBatchEntryRequest = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<SettleBatchEntryRequest>, I>>(
-		object: I
+		object: I,
 	): SettleBatchEntryRequest {
 		const message = createBaseSettleBatchEntryRequest()
 		message.token = object.token ?? ''
@@ -524,7 +524,7 @@ function createBaseSettleBatchEntryResponse(): SettleBatchEntryResponse {
 export const SettleBatchEntryResponse = {
 	encode(
 		message: SettleBatchEntryResponse,
-		writer: _m0.Writer = _m0.Writer.create()
+		writer: _m0.Writer = _m0.Writer.create(),
 	): _m0.Writer {
 		if (message.status !== '') {
 			writer.uint32(10).string(message.status)
@@ -563,7 +563,7 @@ export const SettleBatchEntryResponse = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<SettleBatchEntryResponse>, I>>(
-		object: I
+		object: I,
 	): SettleBatchEntryResponse {
 		const message = createBaseSettleBatchEntryResponse()
 		message.status = object.status ?? ''
@@ -672,7 +672,7 @@ export const PauseRoundResponse = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<PauseRoundResponse>, I>>(
-		object: I
+		object: I,
 	): PauseRoundResponse {
 		const message = createBasePauseRoundResponse()
 		message.status = object.status ?? ''
@@ -723,7 +723,7 @@ export const ConcludeRoundRequest = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<ConcludeRoundRequest>, I>>(
-		object: I
+		object: I,
 	): ConcludeRoundRequest {
 		const message = createBaseConcludeRoundRequest()
 		message.token = object.token ?? ''
@@ -774,7 +774,7 @@ export const ConcludeRoundResponse = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<ConcludeRoundResponse>, I>>(
-		object: I
+		object: I,
 	): ConcludeRoundResponse {
 		const message = createBaseConcludeRoundResponse()
 		message.status = object.status ?? ''
@@ -864,93 +864,93 @@ export interface AdminServer extends UntypedServiceImplementation {
 export interface AdminClient extends Client {
 	getSeedAccounts(
 		request: GetSeedAccountsRequest,
-		callback: (error: ServiceError | null, response: GetSeedAccountsResponse) => void
+		callback: (error: ServiceError | null, response: GetSeedAccountsResponse) => void,
 	): ClientUnaryCall
 	getSeedAccounts(
 		request: GetSeedAccountsRequest,
 		metadata: Metadata,
-		callback: (error: ServiceError | null, response: GetSeedAccountsResponse) => void
+		callback: (error: ServiceError | null, response: GetSeedAccountsResponse) => void,
 	): ClientUnaryCall
 	getSeedAccounts(
 		request: GetSeedAccountsRequest,
 		metadata: Metadata,
 		options: Partial<CallOptions>,
-		callback: (error: ServiceError | null, response: GetSeedAccountsResponse) => void
+		callback: (error: ServiceError | null, response: GetSeedAccountsResponse) => void,
 	): ClientUnaryCall
 	createSeedAccounts(
 		request: CreateSeedAccountsRequest,
-		callback: (error: ServiceError | null, response: CreateSeedAccountsResponse) => void
-	): ClientUnaryCall
-	createSeedAccounts(
-		request: CreateSeedAccountsRequest,
-		metadata: Metadata,
-		callback: (error: ServiceError | null, response: CreateSeedAccountsResponse) => void
+		callback: (error: ServiceError | null, response: CreateSeedAccountsResponse) => void,
 	): ClientUnaryCall
 	createSeedAccounts(
 		request: CreateSeedAccountsRequest,
 		metadata: Metadata,
+		callback: (error: ServiceError | null, response: CreateSeedAccountsResponse) => void,
+	): ClientUnaryCall
+	createSeedAccounts(
+		request: CreateSeedAccountsRequest,
+		metadata: Metadata,
 		options: Partial<CallOptions>,
-		callback: (error: ServiceError | null, response: CreateSeedAccountsResponse) => void
+		callback: (error: ServiceError | null, response: CreateSeedAccountsResponse) => void,
 	): ClientUnaryCall
 	createBatchEntry(
 		request: CreateBatchEntryRequest,
-		callback: (error: ServiceError | null, response: CreateBatchEntryResponse) => void
+		callback: (error: ServiceError | null, response: CreateBatchEntryResponse) => void,
 	): ClientUnaryCall
 	createBatchEntry(
 		request: CreateBatchEntryRequest,
 		metadata: Metadata,
-		callback: (error: ServiceError | null, response: CreateBatchEntryResponse) => void
+		callback: (error: ServiceError | null, response: CreateBatchEntryResponse) => void,
 	): ClientUnaryCall
 	createBatchEntry(
 		request: CreateBatchEntryRequest,
 		metadata: Metadata,
 		options: Partial<CallOptions>,
-		callback: (error: ServiceError | null, response: CreateBatchEntryResponse) => void
+		callback: (error: ServiceError | null, response: CreateBatchEntryResponse) => void,
 	): ClientUnaryCall
 	settleBatchEntry(
 		request: SettleBatchEntryRequest,
-		callback: (error: ServiceError | null, response: SettleBatchEntryResponse) => void
+		callback: (error: ServiceError | null, response: SettleBatchEntryResponse) => void,
 	): ClientUnaryCall
 	settleBatchEntry(
 		request: SettleBatchEntryRequest,
 		metadata: Metadata,
-		callback: (error: ServiceError | null, response: SettleBatchEntryResponse) => void
+		callback: (error: ServiceError | null, response: SettleBatchEntryResponse) => void,
 	): ClientUnaryCall
 	settleBatchEntry(
 		request: SettleBatchEntryRequest,
 		metadata: Metadata,
 		options: Partial<CallOptions>,
-		callback: (error: ServiceError | null, response: SettleBatchEntryResponse) => void
+		callback: (error: ServiceError | null, response: SettleBatchEntryResponse) => void,
 	): ClientUnaryCall
 	pauseRound(
 		request: PauseRoundRequest,
-		callback: (error: ServiceError | null, response: PauseRoundResponse) => void
+		callback: (error: ServiceError | null, response: PauseRoundResponse) => void,
 	): ClientUnaryCall
 	pauseRound(
 		request: PauseRoundRequest,
 		metadata: Metadata,
-		callback: (error: ServiceError | null, response: PauseRoundResponse) => void
+		callback: (error: ServiceError | null, response: PauseRoundResponse) => void,
 	): ClientUnaryCall
 	pauseRound(
 		request: PauseRoundRequest,
 		metadata: Metadata,
 		options: Partial<CallOptions>,
-		callback: (error: ServiceError | null, response: PauseRoundResponse) => void
+		callback: (error: ServiceError | null, response: PauseRoundResponse) => void,
 	): ClientUnaryCall
 	concludeRound(
 		request: ConcludeRoundRequest,
-		callback: (error: ServiceError | null, response: ConcludeRoundResponse) => void
+		callback: (error: ServiceError | null, response: ConcludeRoundResponse) => void,
 	): ClientUnaryCall
 	concludeRound(
 		request: ConcludeRoundRequest,
 		metadata: Metadata,
-		callback: (error: ServiceError | null, response: ConcludeRoundResponse) => void
+		callback: (error: ServiceError | null, response: ConcludeRoundResponse) => void,
 	): ClientUnaryCall
 	concludeRound(
 		request: ConcludeRoundRequest,
 		metadata: Metadata,
 		options: Partial<CallOptions>,
-		callback: (error: ServiceError | null, response: ConcludeRoundResponse) => void
+		callback: (error: ServiceError | null, response: ConcludeRoundResponse) => void,
 	): ClientUnaryCall
 }
 
@@ -958,7 +958,7 @@ export const AdminClient = makeGenericClientConstructor(AdminService, 'admin.Adm
 	new (
 		address: string,
 		credentials: ChannelCredentials,
-		options?: Partial<ChannelOptions>
+		options?: Partial<ChannelOptions>,
 	): AdminClient
 	service: typeof AdminService
 }

@@ -67,7 +67,7 @@ export const UserProfileRequest = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<UserProfileRequest>, I>>(
-		object: I
+		object: I,
 	): UserProfileRequest {
 		const message = createBaseUserProfileRequest()
 		message.entityId = object.entityId ?? ''
@@ -134,7 +134,7 @@ export const UserProfileResponse = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<UserProfileResponse>, I>>(
-		object: I
+		object: I,
 	): UserProfileResponse {
 		const message = createBaseUserProfileResponse()
 		message.fareAmount = object.fareAmount ?? ''
@@ -166,29 +166,29 @@ export interface AnalyticsServer extends UntypedServiceImplementation {
 export interface AnalyticsClient extends Client {
 	userProfile(
 		request: UserProfileRequest,
-		callback: (error: ServiceError | null, response: UserProfileResponse) => void
+		callback: (error: ServiceError | null, response: UserProfileResponse) => void,
 	): ClientUnaryCall
 	userProfile(
 		request: UserProfileRequest,
 		metadata: Metadata,
-		callback: (error: ServiceError | null, response: UserProfileResponse) => void
+		callback: (error: ServiceError | null, response: UserProfileResponse) => void,
 	): ClientUnaryCall
 	userProfile(
 		request: UserProfileRequest,
 		metadata: Metadata,
 		options: Partial<CallOptions>,
-		callback: (error: ServiceError | null, response: UserProfileResponse) => void
+		callback: (error: ServiceError | null, response: UserProfileResponse) => void,
 	): ClientUnaryCall
 }
 
 export const AnalyticsClient = makeGenericClientConstructor(
 	AnalyticsService,
-	'analytics.Analytics'
+	'analytics.Analytics',
 ) as unknown as {
 	new (
 		address: string,
 		credentials: ChannelCredentials,
-		options?: Partial<ChannelOptions>
+		options?: Partial<ChannelOptions>,
 	): AnalyticsClient
 	service: typeof AnalyticsService
 }

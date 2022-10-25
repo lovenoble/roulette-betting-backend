@@ -171,7 +171,7 @@ export const SetUserDataRequest = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<SetUserDataRequest>, I>>(
-		object: I
+		object: I,
 	): SetUserDataRequest {
 		const message = createBaseSetUserDataRequest()
 		message.token = object.token ?? ''
@@ -225,7 +225,7 @@ export const SetUserDataResponse = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<SetUserDataResponse>, I>>(
-		object: I
+		object: I,
 	): SetUserDataResponse {
 		const message = createBaseSetUserDataResponse()
 		message.message = object.message ?? ''
@@ -276,7 +276,7 @@ export const GenerateNonceRequest = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<GenerateNonceRequest>, I>>(
-		object: I
+		object: I,
 	): GenerateNonceRequest {
 		const message = createBaseGenerateNonceRequest()
 		message.publicAddress = object.publicAddress ?? ''
@@ -335,7 +335,7 @@ export const GenerateNonceResponse = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<GenerateNonceResponse>, I>>(
-		object: I
+		object: I,
 	): GenerateNonceResponse {
 		const message = createBaseGenerateNonceResponse()
 		message.nonce = object.nonce ?? ''
@@ -395,7 +395,7 @@ export const VerifySignatureRequest = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<VerifySignatureRequest>, I>>(
-		object: I
+		object: I,
 	): VerifySignatureRequest {
 		const message = createBaseVerifySignatureRequest()
 		message.publicAddress = object.publicAddress ?? ''
@@ -447,7 +447,7 @@ export const VerifySignatureResponse = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<VerifySignatureResponse>, I>>(
-		object: I
+		object: I,
 	): VerifySignatureResponse {
 		const message = createBaseVerifySignatureResponse()
 		message.token = object.token ?? ''
@@ -498,7 +498,7 @@ export const VerifyTokenRequest = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<VerifyTokenRequest>, I>>(
-		object: I
+		object: I,
 	): VerifyTokenRequest {
 		const message = createBaseVerifyTokenRequest()
 		message.token = object.token ?? ''
@@ -549,7 +549,7 @@ export const VerifyTokenResponse = {
 	},
 
 	fromPartial<I extends Exact<DeepPartial<VerifyTokenResponse>, I>>(
-		object: I
+		object: I,
 	): VerifyTokenResponse {
 		const message = createBaseVerifyTokenResponse()
 		message.publicAddress = object.publicAddress ?? ''
@@ -725,78 +725,78 @@ export interface UserServer extends UntypedServiceImplementation {
 export interface UserClient extends Client {
 	generateNonce(
 		request: GenerateNonceRequest,
-		callback: (error: ServiceError | null, response: GenerateNonceResponse) => void
+		callback: (error: ServiceError | null, response: GenerateNonceResponse) => void,
 	): ClientUnaryCall
 	generateNonce(
 		request: GenerateNonceRequest,
 		metadata: Metadata,
-		callback: (error: ServiceError | null, response: GenerateNonceResponse) => void
+		callback: (error: ServiceError | null, response: GenerateNonceResponse) => void,
 	): ClientUnaryCall
 	generateNonce(
 		request: GenerateNonceRequest,
 		metadata: Metadata,
 		options: Partial<CallOptions>,
-		callback: (error: ServiceError | null, response: GenerateNonceResponse) => void
+		callback: (error: ServiceError | null, response: GenerateNonceResponse) => void,
 	): ClientUnaryCall
 	logout(
 		request: LogoutRequest,
-		callback: (error: ServiceError | null, response: LogoutResponse) => void
-	): ClientUnaryCall
-	logout(
-		request: LogoutRequest,
-		metadata: Metadata,
-		callback: (error: ServiceError | null, response: LogoutResponse) => void
+		callback: (error: ServiceError | null, response: LogoutResponse) => void,
 	): ClientUnaryCall
 	logout(
 		request: LogoutRequest,
 		metadata: Metadata,
+		callback: (error: ServiceError | null, response: LogoutResponse) => void,
+	): ClientUnaryCall
+	logout(
+		request: LogoutRequest,
+		metadata: Metadata,
 		options: Partial<CallOptions>,
-		callback: (error: ServiceError | null, response: LogoutResponse) => void
+		callback: (error: ServiceError | null, response: LogoutResponse) => void,
 	): ClientUnaryCall
 	verifySignature(
 		request: VerifySignatureRequest,
-		callback: (error: ServiceError | null, response: VerifySignatureResponse) => void
+		callback: (error: ServiceError | null, response: VerifySignatureResponse) => void,
 	): ClientUnaryCall
 	verifySignature(
 		request: VerifySignatureRequest,
 		metadata: Metadata,
-		callback: (error: ServiceError | null, response: VerifySignatureResponse) => void
+		callback: (error: ServiceError | null, response: VerifySignatureResponse) => void,
 	): ClientUnaryCall
 	verifySignature(
 		request: VerifySignatureRequest,
 		metadata: Metadata,
 		options: Partial<CallOptions>,
-		callback: (error: ServiceError | null, response: VerifySignatureResponse) => void
+		callback: (error: ServiceError | null, response: VerifySignatureResponse) => void,
 	): ClientUnaryCall
 	verifyToken(
 		request: VerifyTokenRequest,
-		callback: (error: ServiceError | null, response: VerifyTokenResponse) => void
+		callback: (error: ServiceError | null, response: VerifyTokenResponse) => void,
 	): ClientUnaryCall
 	verifyToken(
 		request: VerifyTokenRequest,
 		metadata: Metadata,
-		callback: (error: ServiceError | null, response: VerifyTokenResponse) => void
+		callback: (error: ServiceError | null, response: VerifyTokenResponse) => void,
 	): ClientUnaryCall
 	verifyToken(
 		request: VerifyTokenRequest,
 		metadata: Metadata,
 		options: Partial<CallOptions>,
-		callback: (error: ServiceError | null, response: VerifyTokenResponse) => void
+		callback: (error: ServiceError | null, response: VerifyTokenResponse) => void,
 	): ClientUnaryCall
 	setUserData(
 		request: SetUserDataRequest,
-		callback: (error: ServiceError | null, response: SetUserDataResponse) => void
+		callback: (error: ServiceError | null, response: SetUserDataResponse) => void,
 	): ClientUnaryCall
 	setUserData(
 		request: SetUserDataRequest,
 		metadata: Metadata,
-		callback: (error: ServiceError | null, response: SetUserDataResponse) => void
+		callback: (error: ServiceError | null, response: SetUserDataResponse) => void,
 	): ClientUnaryCall
 	setUserData(
 		request: SetUserDataRequest,
 		metadata: Metadata,
 		options: Partial<CallOptions>,
-		callback: (error: ServiceError | null, response: SetUserDataResponse) => void
+		callback: (error: ServiceError | null, response: SetUserDataResponse) => void,
 	): ClientUnaryCall
 }
 
@@ -804,7 +804,7 @@ export const UserClient = makeGenericClientConstructor(UserService, 'user.User')
 	new (
 		address: string,
 		credentials: ChannelCredentials,
-		options?: Partial<ChannelOptions>
+		options?: Partial<ChannelOptions>,
 	): UserClient
 	service: typeof UserService
 }
