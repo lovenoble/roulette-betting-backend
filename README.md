@@ -12,7 +12,7 @@
 pnpm i
 pnpm run docker:up # Ensure docker is running
 redis-cli FLUSHALL # Optionally clear server db
-pnpm run start
+pnpm start
 pnpm run start:keeper # Creates test accounts, seeds with ETH/FARE, and begins spin round timer
 ```
 
