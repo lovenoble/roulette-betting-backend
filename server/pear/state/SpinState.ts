@@ -3,6 +3,7 @@ import {
 	MapSchema,
 	// SetSchema,
 	// ArraySchema,
+	type,
 	Context,
 } from '@colyseus/schema'
 
@@ -19,7 +20,7 @@ import {
 
 import { SpinRoomStatus } from '../../store/types'
 
-const type = Context.create()
+// const type = Context.create()
 
 export interface ISpinState extends Schema {
 	guestUsers: MapSchema<IGuestUser>
@@ -41,7 +42,7 @@ export class SpinState extends Schema {
 	@type({ map: BatchEntry }) batchEntries = new MapSchema<BatchEntry>()
 
 	// roundId -> Round
-	@type({map:Round}) round = new MapSchema<Round>();
+	@type({ map: Round }) round = new MapSchema<Round>()
 
 	// @NOTE: Ensure that publicAddress can only submit one batchEntry per round (in smart contract)
 	// @NOTE: Determine if we should start wheel at 2-5 mins or once 300 players are reached

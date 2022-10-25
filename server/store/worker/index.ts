@@ -27,19 +27,19 @@ export default class StoreWorker {
 		this.fareWorker = new Worker(
 			QueueNames.FareContractEvent,
 			this.handleFareContractJob.bind(this),
-			workerDefaultOpts
+			workerDefaultOpts,
 		)
 
 		this.spinWorker = new Worker(
 			QueueNames.SpinContractEvent,
 			this.handleSpinContractJob.bind(this),
-			workerDefaultOpts
+			workerDefaultOpts,
 		)
 
 		this.userWorker = new Worker(
 			QueueNames.User,
 			this.handleUserJob.bind(this),
-			workerDefaultOpts
+			workerDefaultOpts,
 		)
 	}
 
