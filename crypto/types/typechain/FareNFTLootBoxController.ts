@@ -24,12 +24,13 @@ import type {
   TypedEvent,
   TypedListener,
   OnEvent,
+  PromiseOrValue,
 } from "./common";
 
 export declare namespace FareNFTLootBoxController {
   export type LootTableItemStruct = {
-    itemId: BigNumberish;
-    weight: BigNumberish;
+    itemId: PromiseOrValue<BigNumberish>;
+    weight: PromiseOrValue<BigNumberish>;
   };
 
   export type LootTableItemStructOutput = [BigNumber, BigNumber] & {
@@ -39,8 +40,6 @@ export declare namespace FareNFTLootBoxController {
 }
 
 export interface FareNFTLootBoxControllerInterface extends utils.Interface {
-  contractName: "FareNFTLootBoxController";
-
   functions: {
     "fareItems()": FunctionFragment;
     "fareLootBox()": FunctionFragment;
@@ -91,23 +90,23 @@ export interface FareNFTLootBoxControllerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getLootItemCount",
-    values: [BigNumberish]
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "lootBoxMap",
-    values: [BigNumberish]
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "lootTableMap",
-    values: [BigNumberish, BigNumberish]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "lootTableWeightMap",
-    values: [BigNumberish]
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "openLootBox",
-    values: [BigNumberish]
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -116,7 +115,11 @@ export interface FareNFTLootBoxControllerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "rewardLootBoxToken",
-    values: [BigNumberish, BigNumberish, string]
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "selectedLootTableId",
@@ -124,7 +127,7 @@ export interface FareNFTLootBoxControllerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setItemThrehold",
-    values: [BigNumberish]
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setLootTable",
@@ -132,11 +135,11 @@ export interface FareNFTLootBoxControllerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setSelectedLootTableId",
-    values: [BigNumberish]
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
-    values: [string]
+    values: [PromiseOrValue<string>]
   ): string;
 
   decodeFunctionResult(functionFragment: "fareItems", data: BytesLike): Result;
@@ -250,12 +253,12 @@ export interface FareNFTLootBoxController extends BaseContract {
     getLatestLootTableId(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getLootItemCount(
-      lootTableId: BigNumberish,
+      lootTableId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
     lootBoxMap(
-      arg0: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
       [boolean, number, BigNumber, BigNumber] & {
@@ -267,56 +270,56 @@ export interface FareNFTLootBoxController extends BaseContract {
     >;
 
     lootTableMap(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber] & { itemId: BigNumber; weight: BigNumber }
     >;
 
     lootTableWeightMap(
-      arg0: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
     openLootBox(
-      lootBoxId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      lootBoxId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     rewardLootBoxToken(
-      rarity: BigNumberish,
-      itemThreshold: BigNumberish,
-      owner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      rarity: PromiseOrValue<BigNumberish>,
+      itemThreshold: PromiseOrValue<BigNumberish>,
+      owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     selectedLootTableId(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     setItemThrehold(
-      newThreshold: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      newThreshold: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setLootTable(
       lootTableItems: FareNFTLootBoxController.LootTableItemStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setSelectedLootTableId(
-      lootTableId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      lootTableId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
@@ -327,12 +330,12 @@ export interface FareNFTLootBoxController extends BaseContract {
   getLatestLootTableId(overrides?: CallOverrides): Promise<BigNumber>;
 
   getLootItemCount(
-    lootTableId: BigNumberish,
+    lootTableId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   lootBoxMap(
-    arg0: BigNumberish,
+    arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<
     [boolean, number, BigNumber, BigNumber] & {
@@ -344,54 +347,54 @@ export interface FareNFTLootBoxController extends BaseContract {
   >;
 
   lootTableMap(
-    arg0: BigNumberish,
-    arg1: BigNumberish,
+    arg0: PromiseOrValue<BigNumberish>,
+    arg1: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<[BigNumber, BigNumber] & { itemId: BigNumber; weight: BigNumber }>;
 
   lootTableWeightMap(
-    arg0: BigNumberish,
+    arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   openLootBox(
-    lootBoxId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    lootBoxId: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   rewardLootBoxToken(
-    rarity: BigNumberish,
-    itemThreshold: BigNumberish,
-    owner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    rarity: PromiseOrValue<BigNumberish>,
+    itemThreshold: PromiseOrValue<BigNumberish>,
+    owner: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   selectedLootTableId(overrides?: CallOverrides): Promise<BigNumber>;
 
   setItemThrehold(
-    newThreshold: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    newThreshold: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setLootTable(
     lootTableItems: FareNFTLootBoxController.LootTableItemStruct[],
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setSelectedLootTableId(
-    lootTableId: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    lootTableId: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   transferOwnership(
-    newOwner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    newOwner: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -402,12 +405,12 @@ export interface FareNFTLootBoxController extends BaseContract {
     getLatestLootTableId(overrides?: CallOverrides): Promise<BigNumber>;
 
     getLootItemCount(
-      lootTableId: BigNumberish,
+      lootTableId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     lootBoxMap(
-      arg0: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
       [boolean, number, BigNumber, BigNumber] & {
@@ -419,20 +422,20 @@ export interface FareNFTLootBoxController extends BaseContract {
     >;
 
     lootTableMap(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber] & { itemId: BigNumber; weight: BigNumber }
     >;
 
     lootTableWeightMap(
-      arg0: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     openLootBox(
-      lootBoxId: BigNumberish,
+      lootBoxId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -441,16 +444,16 @@ export interface FareNFTLootBoxController extends BaseContract {
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     rewardLootBoxToken(
-      rarity: BigNumberish,
-      itemThreshold: BigNumberish,
-      owner: string,
+      rarity: PromiseOrValue<BigNumberish>,
+      itemThreshold: PromiseOrValue<BigNumberish>,
+      owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     selectedLootTableId(overrides?: CallOverrides): Promise<BigNumber>;
 
     setItemThrehold(
-      newThreshold: BigNumberish,
+      newThreshold: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -460,24 +463,24 @@ export interface FareNFTLootBoxController extends BaseContract {
     ): Promise<void>;
 
     setSelectedLootTableId(
-      lootTableId: BigNumberish,
+      lootTableId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     transferOwnership(
-      newOwner: string,
+      newOwner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
 
   filters: {
     "OwnershipTransferred(address,address)"(
-      previousOwner?: string | null,
-      newOwner?: string | null
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
     OwnershipTransferred(
-      previousOwner?: string | null,
-      newOwner?: string | null
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
   };
 
@@ -489,64 +492,64 @@ export interface FareNFTLootBoxController extends BaseContract {
     getLatestLootTableId(overrides?: CallOverrides): Promise<BigNumber>;
 
     getLootItemCount(
-      lootTableId: BigNumberish,
+      lootTableId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     lootBoxMap(
-      arg0: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     lootTableMap(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     lootTableWeightMap(
-      arg0: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     openLootBox(
-      lootBoxId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      lootBoxId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     rewardLootBoxToken(
-      rarity: BigNumberish,
-      itemThreshold: BigNumberish,
-      owner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      rarity: PromiseOrValue<BigNumberish>,
+      itemThreshold: PromiseOrValue<BigNumberish>,
+      owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     selectedLootTableId(overrides?: CallOverrides): Promise<BigNumber>;
 
     setItemThrehold(
-      newThreshold: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      newThreshold: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setLootTable(
       lootTableItems: FareNFTLootBoxController.LootTableItemStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setSelectedLootTableId(
-      lootTableId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      lootTableId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
@@ -560,42 +563,42 @@ export interface FareNFTLootBoxController extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getLootItemCount(
-      lootTableId: BigNumberish,
+      lootTableId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     lootBoxMap(
-      arg0: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     lootTableMap(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     lootTableWeightMap(
-      arg0: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     openLootBox(
-      lootBoxId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      lootBoxId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     rewardLootBoxToken(
-      rarity: BigNumberish,
-      itemThreshold: BigNumberish,
-      owner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      rarity: PromiseOrValue<BigNumberish>,
+      itemThreshold: PromiseOrValue<BigNumberish>,
+      owner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     selectedLootTableId(
@@ -603,23 +606,23 @@ export interface FareNFTLootBoxController extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setItemThrehold(
-      newThreshold: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      newThreshold: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setLootTable(
       lootTableItems: FareNFTLootBoxController.LootTableItemStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setSelectedLootTableId(
-      lootTableId: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      lootTableId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(
-      newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      newOwner: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

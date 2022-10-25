@@ -24,13 +24,14 @@ import type {
   TypedEvent,
   TypedListener,
   OnEvent,
+  PromiseOrValue,
 } from "./common";
 
 export declare namespace FareSpin {
   export type EliminatorStruct = {
-    contractModeId: BigNumberish;
-    recordedExpectedValueFloor: BigNumberish;
-    isEliminator: boolean;
+    contractModeId: PromiseOrValue<BigNumberish>;
+    recordedExpectedValueFloor: PromiseOrValue<BigNumberish>;
+    isEliminator: PromiseOrValue<boolean>;
   };
 
   export type EliminatorStructOutput = [BigNumber, BigNumber, boolean] & {
@@ -40,9 +41,9 @@ export declare namespace FareSpin {
   };
 
   export type EntryStruct = {
-    amount: BigNumberish;
-    contractModeId: BigNumberish;
-    pickedNumber: BigNumberish;
+    amount: PromiseOrValue<BigNumberish>;
+    contractModeId: PromiseOrValue<BigNumberish>;
+    pickedNumber: PromiseOrValue<BigNumberish>;
   };
 
   export type EntryStructOutput = [BigNumber, BigNumber, BigNumber] & {
@@ -53,8 +54,6 @@ export declare namespace FareSpin {
 }
 
 export interface FareSpinInterface extends utils.Interface {
-  contractName: "FareSpin";
-
   functions: {
     "CONTRACT_EXPECTED_VALUE_CEILING()": FunctionFragment;
     "REWARDS_MINT_CAP()": FunctionFragment;
@@ -146,19 +145,19 @@ export interface FareSpinInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "batchEntryMap",
-    values: [BigNumberish, string]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "contractModes",
-    values: [BigNumberish]
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "getAllUsersByRoundId",
-    values: [BigNumberish]
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "getBatchEntryCount",
-    values: [BigNumberish]
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "getCurrentContractModeId",
@@ -170,19 +169,23 @@ export interface FareSpinInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getEliminatorsByRoundId",
-    values: [BigNumberish]
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "getEntriesByRoundUser",
-    values: [BigNumberish, string]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "getEntryByIndex",
-    values: [BigNumberish, string, BigNumberish]
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "getEntryCount",
-    values: [BigNumberish, string]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "getFareTokenAddress",
@@ -190,7 +193,7 @@ export interface FareSpinInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getIsEliminator",
-    values: [BigNumberish, BigNumberish]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "isRoundPaused",
@@ -204,7 +207,7 @@ export interface FareSpinInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "rawFulfillRandomness",
-    values: [BytesLike, BigNumberish]
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "requestRandomNumber",
@@ -220,66 +223,70 @@ export interface FareSpinInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "rounds",
-    values: [BigNumberish]
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setContractExpectedValueFloor",
-    values: [BigNumberish, BigNumberish]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setContractMode",
     values: [
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
     functionFragment: "setContractModeEntryLimit",
-    values: [BigNumberish, BigNumberish]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setContractModeIsActive",
-    values: [BigNumberish, boolean]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
     functionFragment: "setContractModeMinMax",
-    values: [BigNumberish, BigNumberish, BigNumberish]
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "setFareToken",
-    values: [string]
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setPauseContract",
-    values: [boolean]
+    values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
     functionFragment: "setRewardsAddress",
-    values: [string]
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setRewardsMint",
-    values: [BigNumberish]
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setRoundPaused",
-    values: [boolean]
+    values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
     functionFragment: "settleBatchEntry",
-    values: [BigNumberish, string]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "testConcludeRound",
-    values: [BytesLike]
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "testFulfillRandomness",
-    values: [BytesLike, BigNumberish]
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "vrfCoordinator",
@@ -577,8 +584,8 @@ export interface FareSpin extends BaseContract {
     REWARDS_MINT_CAP(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     batchEntryMap(
-      arg0: BigNumberish,
-      arg1: string,
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, string, boolean, BigNumber, BigNumber] & {
@@ -591,7 +598,7 @@ export interface FareSpin extends BaseContract {
     >;
 
     contractModes(
-      arg0: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
       [
@@ -616,12 +623,12 @@ export interface FareSpin extends BaseContract {
     >;
 
     getAllUsersByRoundId(
-      roundId: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[string[]] & { users: string[] }>;
 
     getBatchEntryCount(
-      roundId: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { count: BigNumber }>;
 
@@ -634,7 +641,7 @@ export interface FareSpin extends BaseContract {
     ): Promise<[BigNumber] & { id: BigNumber }>;
 
     getEliminatorsByRoundId(
-      roundId: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
       [FareSpin.EliminatorStructOutput[]] & {
@@ -643,21 +650,21 @@ export interface FareSpin extends BaseContract {
     >;
 
     getEntriesByRoundUser(
-      roundId: BigNumberish,
-      user: string,
+      roundId: PromiseOrValue<BigNumberish>,
+      user: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[FareSpin.EntryStructOutput[]]>;
 
     getEntryByIndex(
-      roundId: BigNumberish,
-      user: string,
-      entryIdx: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
+      user: PromiseOrValue<string>,
+      entryIdx: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[FareSpin.EntryStructOutput]>;
 
     getEntryCount(
-      roundId: BigNumberish,
-      user: string,
+      roundId: PromiseOrValue<BigNumberish>,
+      user: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { count: BigNumber }>;
 
@@ -666,8 +673,8 @@ export interface FareSpin extends BaseContract {
     ): Promise<[string] & { fareAddress: string }>;
 
     getIsEliminator(
-      roundId: BigNumberish,
-      contractModeId: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
+      contractModeId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[boolean] & { isEliminator: boolean }>;
 
@@ -679,17 +686,17 @@ export interface FareSpin extends BaseContract {
 
     placeBatchEntry(
       entries: FareSpin.EntryStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     rawFulfillRandomness(
-      requestId: BytesLike,
-      randomness: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      requestId: PromiseOrValue<BytesLike>,
+      randomness: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     requestRandomNumber(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     rewardsAddress(overrides?: CallOverrides): Promise<[string]>;
@@ -697,7 +704,7 @@ export interface FareSpin extends BaseContract {
     rewardsMint(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     rounds(
-      arg0: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber, BigNumber, string, BigNumber] & {
@@ -710,80 +717,80 @@ export interface FareSpin extends BaseContract {
     >;
 
     setContractExpectedValueFloor(
-      contractModeId: BigNumberish,
-      _contractExpectedValueFloor: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      contractModeId: PromiseOrValue<BigNumberish>,
+      _contractExpectedValueFloor: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setContractMode(
-      cardinality: BigNumberish,
-      contractExpectedValueFloor: BigNumberish,
-      mintMultiplier: BigNumberish,
-      minAmount: BigNumberish,
-      maxAmount: BigNumberish,
-      entryLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      cardinality: PromiseOrValue<BigNumberish>,
+      contractExpectedValueFloor: PromiseOrValue<BigNumberish>,
+      mintMultiplier: PromiseOrValue<BigNumberish>,
+      minAmount: PromiseOrValue<BigNumberish>,
+      maxAmount: PromiseOrValue<BigNumberish>,
+      entryLimit: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setContractModeEntryLimit(
-      contractModeId: BigNumberish,
-      entryLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      contractModeId: PromiseOrValue<BigNumberish>,
+      entryLimit: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setContractModeIsActive(
-      contractModeId: BigNumberish,
-      isActive: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      contractModeId: PromiseOrValue<BigNumberish>,
+      isActive: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setContractModeMinMax(
-      contractModeId: BigNumberish,
-      minAmount: BigNumberish,
-      maxAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      contractModeId: PromiseOrValue<BigNumberish>,
+      minAmount: PromiseOrValue<BigNumberish>,
+      maxAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setFareToken(
-      _fareTokenAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      _fareTokenAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setPauseContract(
-      paused: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      paused: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setRewardsAddress(
-      _rewardsAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      _rewardsAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setRewardsMint(
-      percent: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      percent: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setRoundPaused(
-      paused: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      paused: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     settleBatchEntry(
-      roundId: BigNumberish,
-      user: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      roundId: PromiseOrValue<BigNumberish>,
+      user: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     testConcludeRound(
-      vrfRequestId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      vrfRequestId: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     testFulfillRandomness(
-      vrfRequestId: BytesLike,
-      randomness: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      vrfRequestId: PromiseOrValue<BytesLike>,
+      randomness: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     vrfCoordinator(overrides?: CallOverrides): Promise<[string]>;
@@ -796,8 +803,8 @@ export interface FareSpin extends BaseContract {
   REWARDS_MINT_CAP(overrides?: CallOverrides): Promise<BigNumber>;
 
   batchEntryMap(
-    arg0: BigNumberish,
-    arg1: string,
+    arg0: PromiseOrValue<BigNumberish>,
+    arg1: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<
     [BigNumber, string, boolean, BigNumber, BigNumber] & {
@@ -810,7 +817,7 @@ export interface FareSpin extends BaseContract {
   >;
 
   contractModes(
-    arg0: BigNumberish,
+    arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<
     [
@@ -835,12 +842,12 @@ export interface FareSpin extends BaseContract {
   >;
 
   getAllUsersByRoundId(
-    roundId: BigNumberish,
+    roundId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<string[]>;
 
   getBatchEntryCount(
-    roundId: BigNumberish,
+    roundId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -849,34 +856,34 @@ export interface FareSpin extends BaseContract {
   getCurrentRoundId(overrides?: CallOverrides): Promise<BigNumber>;
 
   getEliminatorsByRoundId(
-    roundId: BigNumberish,
+    roundId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<FareSpin.EliminatorStructOutput[]>;
 
   getEntriesByRoundUser(
-    roundId: BigNumberish,
-    user: string,
+    roundId: PromiseOrValue<BigNumberish>,
+    user: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<FareSpin.EntryStructOutput[]>;
 
   getEntryByIndex(
-    roundId: BigNumberish,
-    user: string,
-    entryIdx: BigNumberish,
+    roundId: PromiseOrValue<BigNumberish>,
+    user: PromiseOrValue<string>,
+    entryIdx: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<FareSpin.EntryStructOutput>;
 
   getEntryCount(
-    roundId: BigNumberish,
-    user: string,
+    roundId: PromiseOrValue<BigNumberish>,
+    user: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   getFareTokenAddress(overrides?: CallOverrides): Promise<string>;
 
   getIsEliminator(
-    roundId: BigNumberish,
-    contractModeId: BigNumberish,
+    roundId: PromiseOrValue<BigNumberish>,
+    contractModeId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
@@ -888,17 +895,17 @@ export interface FareSpin extends BaseContract {
 
   placeBatchEntry(
     entries: FareSpin.EntryStruct[],
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   rawFulfillRandomness(
-    requestId: BytesLike,
-    randomness: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    requestId: PromiseOrValue<BytesLike>,
+    randomness: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   requestRandomNumber(
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   rewardsAddress(overrides?: CallOverrides): Promise<string>;
@@ -906,7 +913,7 @@ export interface FareSpin extends BaseContract {
   rewardsMint(overrides?: CallOverrides): Promise<BigNumber>;
 
   rounds(
-    arg0: BigNumberish,
+    arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<
     [BigNumber, BigNumber, BigNumber, string, BigNumber] & {
@@ -919,80 +926,80 @@ export interface FareSpin extends BaseContract {
   >;
 
   setContractExpectedValueFloor(
-    contractModeId: BigNumberish,
-    _contractExpectedValueFloor: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    contractModeId: PromiseOrValue<BigNumberish>,
+    _contractExpectedValueFloor: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setContractMode(
-    cardinality: BigNumberish,
-    contractExpectedValueFloor: BigNumberish,
-    mintMultiplier: BigNumberish,
-    minAmount: BigNumberish,
-    maxAmount: BigNumberish,
-    entryLimit: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    cardinality: PromiseOrValue<BigNumberish>,
+    contractExpectedValueFloor: PromiseOrValue<BigNumberish>,
+    mintMultiplier: PromiseOrValue<BigNumberish>,
+    minAmount: PromiseOrValue<BigNumberish>,
+    maxAmount: PromiseOrValue<BigNumberish>,
+    entryLimit: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setContractModeEntryLimit(
-    contractModeId: BigNumberish,
-    entryLimit: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    contractModeId: PromiseOrValue<BigNumberish>,
+    entryLimit: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setContractModeIsActive(
-    contractModeId: BigNumberish,
-    isActive: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    contractModeId: PromiseOrValue<BigNumberish>,
+    isActive: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setContractModeMinMax(
-    contractModeId: BigNumberish,
-    minAmount: BigNumberish,
-    maxAmount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    contractModeId: PromiseOrValue<BigNumberish>,
+    minAmount: PromiseOrValue<BigNumberish>,
+    maxAmount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setFareToken(
-    _fareTokenAddress: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    _fareTokenAddress: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setPauseContract(
-    paused: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    paused: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setRewardsAddress(
-    _rewardsAddress: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    _rewardsAddress: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setRewardsMint(
-    percent: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    percent: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setRoundPaused(
-    paused: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    paused: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   settleBatchEntry(
-    roundId: BigNumberish,
-    user: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    roundId: PromiseOrValue<BigNumberish>,
+    user: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   testConcludeRound(
-    vrfRequestId: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    vrfRequestId: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   testFulfillRandomness(
-    vrfRequestId: BytesLike,
-    randomness: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    vrfRequestId: PromiseOrValue<BytesLike>,
+    randomness: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   vrfCoordinator(overrides?: CallOverrides): Promise<string>;
@@ -1005,8 +1012,8 @@ export interface FareSpin extends BaseContract {
     REWARDS_MINT_CAP(overrides?: CallOverrides): Promise<BigNumber>;
 
     batchEntryMap(
-      arg0: BigNumberish,
-      arg1: string,
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, string, boolean, BigNumber, BigNumber] & {
@@ -1019,7 +1026,7 @@ export interface FareSpin extends BaseContract {
     >;
 
     contractModes(
-      arg0: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
       [
@@ -1044,12 +1051,12 @@ export interface FareSpin extends BaseContract {
     >;
 
     getAllUsersByRoundId(
-      roundId: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string[]>;
 
     getBatchEntryCount(
-      roundId: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1058,34 +1065,34 @@ export interface FareSpin extends BaseContract {
     getCurrentRoundId(overrides?: CallOverrides): Promise<BigNumber>;
 
     getEliminatorsByRoundId(
-      roundId: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<FareSpin.EliminatorStructOutput[]>;
 
     getEntriesByRoundUser(
-      roundId: BigNumberish,
-      user: string,
+      roundId: PromiseOrValue<BigNumberish>,
+      user: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<FareSpin.EntryStructOutput[]>;
 
     getEntryByIndex(
-      roundId: BigNumberish,
-      user: string,
-      entryIdx: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
+      user: PromiseOrValue<string>,
+      entryIdx: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<FareSpin.EntryStructOutput>;
 
     getEntryCount(
-      roundId: BigNumberish,
-      user: string,
+      roundId: PromiseOrValue<BigNumberish>,
+      user: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getFareTokenAddress(overrides?: CallOverrides): Promise<string>;
 
     getIsEliminator(
-      roundId: BigNumberish,
-      contractModeId: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
+      contractModeId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1101,8 +1108,8 @@ export interface FareSpin extends BaseContract {
     ): Promise<void>;
 
     rawFulfillRandomness(
-      requestId: BytesLike,
-      randomness: BigNumberish,
+      requestId: PromiseOrValue<BytesLike>,
+      randomness: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1113,7 +1120,7 @@ export interface FareSpin extends BaseContract {
     rewardsMint(overrides?: CallOverrides): Promise<BigNumber>;
 
     rounds(
-      arg0: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber, BigNumber, string, BigNumber] & {
@@ -1126,73 +1133,79 @@ export interface FareSpin extends BaseContract {
     >;
 
     setContractExpectedValueFloor(
-      contractModeId: BigNumberish,
-      _contractExpectedValueFloor: BigNumberish,
+      contractModeId: PromiseOrValue<BigNumberish>,
+      _contractExpectedValueFloor: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setContractMode(
-      cardinality: BigNumberish,
-      contractExpectedValueFloor: BigNumberish,
-      mintMultiplier: BigNumberish,
-      minAmount: BigNumberish,
-      maxAmount: BigNumberish,
-      entryLimit: BigNumberish,
+      cardinality: PromiseOrValue<BigNumberish>,
+      contractExpectedValueFloor: PromiseOrValue<BigNumberish>,
+      mintMultiplier: PromiseOrValue<BigNumberish>,
+      minAmount: PromiseOrValue<BigNumberish>,
+      maxAmount: PromiseOrValue<BigNumberish>,
+      entryLimit: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setContractModeEntryLimit(
-      contractModeId: BigNumberish,
-      entryLimit: BigNumberish,
+      contractModeId: PromiseOrValue<BigNumberish>,
+      entryLimit: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setContractModeIsActive(
-      contractModeId: BigNumberish,
-      isActive: boolean,
+      contractModeId: PromiseOrValue<BigNumberish>,
+      isActive: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setContractModeMinMax(
-      contractModeId: BigNumberish,
-      minAmount: BigNumberish,
-      maxAmount: BigNumberish,
+      contractModeId: PromiseOrValue<BigNumberish>,
+      minAmount: PromiseOrValue<BigNumberish>,
+      maxAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setFareToken(
-      _fareTokenAddress: string,
+      _fareTokenAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setPauseContract(paused: boolean, overrides?: CallOverrides): Promise<void>;
+    setPauseContract(
+      paused: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     setRewardsAddress(
-      _rewardsAddress: string,
+      _rewardsAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setRewardsMint(
-      percent: BigNumberish,
+      percent: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setRoundPaused(paused: boolean, overrides?: CallOverrides): Promise<void>;
+    setRoundPaused(
+      paused: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     settleBatchEntry(
-      roundId: BigNumberish,
-      user: string,
+      roundId: PromiseOrValue<BigNumberish>,
+      user: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     testConcludeRound(
-      vrfRequestId: BytesLike,
+      vrfRequestId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     testFulfillRandomness(
-      vrfRequestId: BytesLike,
-      randomness: BigNumberish,
+      vrfRequestId: PromiseOrValue<BytesLike>,
+      randomness: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1201,62 +1214,62 @@ export interface FareSpin extends BaseContract {
 
   filters: {
     "ContractModeUpdated(uint256)"(
-      contractModeId?: BigNumberish | null
+      contractModeId?: PromiseOrValue<BigNumberish> | null
     ): ContractModeUpdatedEventFilter;
     ContractModeUpdated(
-      contractModeId?: BigNumberish | null
+      contractModeId?: PromiseOrValue<BigNumberish> | null
     ): ContractModeUpdatedEventFilter;
 
     "EntrySettled(uint256,address,bool)"(
-      roundId?: BigNumberish | null,
-      user?: string | null,
+      roundId?: PromiseOrValue<BigNumberish> | null,
+      user?: PromiseOrValue<string> | null,
       hasMinted?: null
     ): EntrySettledEventFilter;
     EntrySettled(
-      roundId?: BigNumberish | null,
-      user?: string | null,
+      roundId?: PromiseOrValue<BigNumberish> | null,
+      user?: PromiseOrValue<string> | null,
       hasMinted?: null
     ): EntrySettledEventFilter;
 
     "EntrySubmitted(uint256,uint256,address)"(
-      roundId?: BigNumberish | null,
-      batchId?: BigNumberish | null,
-      user?: string | null
+      roundId?: PromiseOrValue<BigNumberish> | null,
+      batchId?: PromiseOrValue<BigNumberish> | null,
+      user?: PromiseOrValue<string> | null
     ): EntrySubmittedEventFilter;
     EntrySubmitted(
-      roundId?: BigNumberish | null,
-      batchId?: BigNumberish | null,
-      user?: string | null
+      roundId?: PromiseOrValue<BigNumberish> | null,
+      batchId?: PromiseOrValue<BigNumberish> | null,
+      user?: PromiseOrValue<string> | null
     ): EntrySubmittedEventFilter;
 
     "NFTMint(uint256,address)"(
-      roundId?: BigNumberish | null,
-      user?: string | null
+      roundId?: PromiseOrValue<BigNumberish> | null,
+      user?: PromiseOrValue<string> | null
     ): NFTMintEventFilter;
     NFTMint(
-      roundId?: BigNumberish | null,
-      user?: string | null
+      roundId?: PromiseOrValue<BigNumberish> | null,
+      user?: PromiseOrValue<string> | null
     ): NFTMintEventFilter;
 
     "Paused(address)"(account?: null): PausedEventFilter;
     Paused(account?: null): PausedEventFilter;
 
     "RandomNumberRequested(bytes32)"(
-      vrfRequestId?: BytesLike | null
+      vrfRequestId?: PromiseOrValue<BytesLike> | null
     ): RandomNumberRequestedEventFilter;
     RandomNumberRequested(
-      vrfRequestId?: BytesLike | null
+      vrfRequestId?: PromiseOrValue<BytesLike> | null
     ): RandomNumberRequestedEventFilter;
 
     "RoundConcluded(uint256,bytes32,uint256,uint256)"(
-      roundId?: BigNumberish | null,
-      vrfRequestId?: BytesLike | null,
+      roundId?: PromiseOrValue<BigNumberish> | null,
+      vrfRequestId?: PromiseOrValue<BytesLike> | null,
       randomNum?: null,
       randomEliminator?: null
     ): RoundConcludedEventFilter;
     RoundConcluded(
-      roundId?: BigNumberish | null,
-      vrfRequestId?: BytesLike | null,
+      roundId?: PromiseOrValue<BigNumberish> | null,
+      vrfRequestId?: PromiseOrValue<BytesLike> | null,
       randomNum?: null,
       randomEliminator?: null
     ): RoundConcludedEventFilter;
@@ -1276,23 +1289,23 @@ export interface FareSpin extends BaseContract {
     REWARDS_MINT_CAP(overrides?: CallOverrides): Promise<BigNumber>;
 
     batchEntryMap(
-      arg0: BigNumberish,
-      arg1: string,
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     contractModes(
-      arg0: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getAllUsersByRoundId(
-      roundId: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getBatchEntryCount(
-      roundId: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1301,34 +1314,34 @@ export interface FareSpin extends BaseContract {
     getCurrentRoundId(overrides?: CallOverrides): Promise<BigNumber>;
 
     getEliminatorsByRoundId(
-      roundId: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getEntriesByRoundUser(
-      roundId: BigNumberish,
-      user: string,
+      roundId: PromiseOrValue<BigNumberish>,
+      user: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getEntryByIndex(
-      roundId: BigNumberish,
-      user: string,
-      entryIdx: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
+      user: PromiseOrValue<string>,
+      entryIdx: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getEntryCount(
-      roundId: BigNumberish,
-      user: string,
+      roundId: PromiseOrValue<BigNumberish>,
+      user: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getFareTokenAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
     getIsEliminator(
-      roundId: BigNumberish,
-      contractModeId: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
+      contractModeId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1340,100 +1353,103 @@ export interface FareSpin extends BaseContract {
 
     placeBatchEntry(
       entries: FareSpin.EntryStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     rawFulfillRandomness(
-      requestId: BytesLike,
-      randomness: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      requestId: PromiseOrValue<BytesLike>,
+      randomness: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     requestRandomNumber(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     rewardsAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
     rewardsMint(overrides?: CallOverrides): Promise<BigNumber>;
 
-    rounds(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+    rounds(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     setContractExpectedValueFloor(
-      contractModeId: BigNumberish,
-      _contractExpectedValueFloor: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      contractModeId: PromiseOrValue<BigNumberish>,
+      _contractExpectedValueFloor: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setContractMode(
-      cardinality: BigNumberish,
-      contractExpectedValueFloor: BigNumberish,
-      mintMultiplier: BigNumberish,
-      minAmount: BigNumberish,
-      maxAmount: BigNumberish,
-      entryLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      cardinality: PromiseOrValue<BigNumberish>,
+      contractExpectedValueFloor: PromiseOrValue<BigNumberish>,
+      mintMultiplier: PromiseOrValue<BigNumberish>,
+      minAmount: PromiseOrValue<BigNumberish>,
+      maxAmount: PromiseOrValue<BigNumberish>,
+      entryLimit: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setContractModeEntryLimit(
-      contractModeId: BigNumberish,
-      entryLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      contractModeId: PromiseOrValue<BigNumberish>,
+      entryLimit: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setContractModeIsActive(
-      contractModeId: BigNumberish,
-      isActive: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      contractModeId: PromiseOrValue<BigNumberish>,
+      isActive: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setContractModeMinMax(
-      contractModeId: BigNumberish,
-      minAmount: BigNumberish,
-      maxAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      contractModeId: PromiseOrValue<BigNumberish>,
+      minAmount: PromiseOrValue<BigNumberish>,
+      maxAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setFareToken(
-      _fareTokenAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      _fareTokenAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setPauseContract(
-      paused: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      paused: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setRewardsAddress(
-      _rewardsAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      _rewardsAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setRewardsMint(
-      percent: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      percent: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setRoundPaused(
-      paused: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      paused: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     settleBatchEntry(
-      roundId: BigNumberish,
-      user: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      roundId: PromiseOrValue<BigNumberish>,
+      user: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     testConcludeRound(
-      vrfRequestId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      vrfRequestId: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     testFulfillRandomness(
-      vrfRequestId: BytesLike,
-      randomness: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      vrfRequestId: PromiseOrValue<BytesLike>,
+      randomness: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     vrfCoordinator(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1447,23 +1463,23 @@ export interface FareSpin extends BaseContract {
     REWARDS_MINT_CAP(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     batchEntryMap(
-      arg0: BigNumberish,
-      arg1: string,
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     contractModes(
-      arg0: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getAllUsersByRoundId(
-      roundId: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getBatchEntryCount(
-      roundId: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1474,26 +1490,26 @@ export interface FareSpin extends BaseContract {
     getCurrentRoundId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getEliminatorsByRoundId(
-      roundId: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getEntriesByRoundUser(
-      roundId: BigNumberish,
-      user: string,
+      roundId: PromiseOrValue<BigNumberish>,
+      user: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getEntryByIndex(
-      roundId: BigNumberish,
-      user: string,
-      entryIdx: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
+      user: PromiseOrValue<string>,
+      entryIdx: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getEntryCount(
-      roundId: BigNumberish,
-      user: string,
+      roundId: PromiseOrValue<BigNumberish>,
+      user: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1502,8 +1518,8 @@ export interface FareSpin extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getIsEliminator(
-      roundId: BigNumberish,
-      contractModeId: BigNumberish,
+      roundId: PromiseOrValue<BigNumberish>,
+      contractModeId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1515,17 +1531,17 @@ export interface FareSpin extends BaseContract {
 
     placeBatchEntry(
       entries: FareSpin.EntryStruct[],
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     rawFulfillRandomness(
-      requestId: BytesLike,
-      randomness: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      requestId: PromiseOrValue<BytesLike>,
+      randomness: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     requestRandomNumber(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     rewardsAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1533,85 +1549,85 @@ export interface FareSpin extends BaseContract {
     rewardsMint(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     rounds(
-      arg0: BigNumberish,
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     setContractExpectedValueFloor(
-      contractModeId: BigNumberish,
-      _contractExpectedValueFloor: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      contractModeId: PromiseOrValue<BigNumberish>,
+      _contractExpectedValueFloor: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setContractMode(
-      cardinality: BigNumberish,
-      contractExpectedValueFloor: BigNumberish,
-      mintMultiplier: BigNumberish,
-      minAmount: BigNumberish,
-      maxAmount: BigNumberish,
-      entryLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      cardinality: PromiseOrValue<BigNumberish>,
+      contractExpectedValueFloor: PromiseOrValue<BigNumberish>,
+      mintMultiplier: PromiseOrValue<BigNumberish>,
+      minAmount: PromiseOrValue<BigNumberish>,
+      maxAmount: PromiseOrValue<BigNumberish>,
+      entryLimit: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setContractModeEntryLimit(
-      contractModeId: BigNumberish,
-      entryLimit: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      contractModeId: PromiseOrValue<BigNumberish>,
+      entryLimit: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setContractModeIsActive(
-      contractModeId: BigNumberish,
-      isActive: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      contractModeId: PromiseOrValue<BigNumberish>,
+      isActive: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setContractModeMinMax(
-      contractModeId: BigNumberish,
-      minAmount: BigNumberish,
-      maxAmount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      contractModeId: PromiseOrValue<BigNumberish>,
+      minAmount: PromiseOrValue<BigNumberish>,
+      maxAmount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setFareToken(
-      _fareTokenAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      _fareTokenAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setPauseContract(
-      paused: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      paused: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setRewardsAddress(
-      _rewardsAddress: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      _rewardsAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setRewardsMint(
-      percent: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      percent: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setRoundPaused(
-      paused: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      paused: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     settleBatchEntry(
-      roundId: BigNumberish,
-      user: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      roundId: PromiseOrValue<BigNumberish>,
+      user: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     testConcludeRound(
-      vrfRequestId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      vrfRequestId: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     testFulfillRandomness(
-      vrfRequestId: BytesLike,
-      randomness: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      vrfRequestId: PromiseOrValue<BytesLike>,
+      randomness: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     vrfCoordinator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
