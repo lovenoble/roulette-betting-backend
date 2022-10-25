@@ -2,7 +2,7 @@
 
 echo $CI_PROJECT_DIR
 echo $envRequiredFile
-envRequiredFile="$CI_PROJECT_DIR/server/.env.required_vars"
+envRequiredFile="$CI_PROJECT_DIR/.env.required_vars"
 while read -r line
 do
     if [[ "$line" != \#* ]]; then
