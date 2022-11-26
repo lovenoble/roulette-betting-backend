@@ -7,7 +7,7 @@ HealthController.http.health = HTTPRoute((res, req) => {
 	logger.info(`HTTP --> GET HealthCheck requested: ${req.getUrl()}`)
 	res.writeStatus('200 OK')
 		.writeHeader('HealthCheck', 'Active')
-		.end('[PearServer]: HealthCheck successful')
+		.end('[FarePlayServer]: HealthCheck successful')
 })
 
 // WS Routes

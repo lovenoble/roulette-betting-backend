@@ -23,7 +23,7 @@ const defaultPearOptions: IPearOptions = {
 	mongoAuthSource: MONGO_ROOT_USERNAME,
 }
 
-export class PearServer {
+export class FareServer {
 	server!: Server
 	rooms!: Rooms
 	#isStarted = false
@@ -92,4 +92,4 @@ export class PearServer {
 	// @NOTE: Add match making, room handles, event handlers here
 }
 
-export default new PearServer()
+export default new FareServer()
