@@ -17,7 +17,6 @@ import {
 	OnResetRound,
 	OnBalanceUpdate,
 	// OnFareTransfer,
-	// OnBatchEntrySettled,
 } from '../commands'
 import { SpinState } from '../state/SpinState'
 import { logger } from '../utils'
@@ -85,12 +84,12 @@ class SpinContract extends Room<SpinState> {
 				logger.info(`New client action from ${client.sessionId} - ${type} - ${message}`)
 			})
 
-			this.onMessage('heartbeat', client => {
+			this.onMessage('Heartbeat', client => {
 				console.log('Heartbeat', client.sessionId)
 			})
 
 			this.delayedInterval = this.clock.setInterval(() => {
-				this.broadcast('heartbeat', 'heartbeat')
+				this.broadcast('Heartbeat', 'Heartbeat')
 			}, 3000)
 
 			this.onMessage(SpinEvent.NewChatMessage, (client, text: string) => {
@@ -117,13 +116,11 @@ class SpinContract extends Room<SpinState> {
 
 			// New BatchEntry + Entry[]
 			PubSub.sub('spin-state', 'batch-entry').listen<'batch-entry'>(data => {
-				console.log('batchEntry', data)
 				this.dispatcher.dispatch(new OnBatchEntry(), data)
 			})
 
 			// Spin Round has concluded (increment round)
 			PubSub.sub('spin-state', 'round-concluded').listen<'round-concluded'>(data => {
-				console.log('round', this.state.round)
 				this.dispatcher.dispatch(new OnRoundConcluded(), data)
 			})
 

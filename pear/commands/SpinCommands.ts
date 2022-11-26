@@ -5,12 +5,7 @@ import numeral from 'numeral'
 import shortId from 'shortid'
 
 import type { SpinRoom } from '../types'
-import type {
-	FareTransferArgs,
-	BatchEntryMsgArgs,
-	SettledRound,
-	SettledBatchEntryArgs,
-} from '../../pubsub/types'
+import type { FareTransferArgs, BatchEntryMsgArgs, SettledRound } from '../../pubsub/types'
 
 import store from '../../store'
 import { SpinEvent, MAX_CHAT_MESSAGE_LENGTH, WebSocketCustomCodes } from '../constants'
@@ -125,38 +120,36 @@ export class OnInitSpinRoom extends Command<SpinRoom, void> {
 		this.state.currentRoundId = Number(await store.service.round.getCachedCurrentRoundId())
 		this.state.isRoundPaused = await store.service.round.getCachedSpinRoundPaused()
 
-		// @NOTE: Commenting out for the metaverse demo
-		// @NOTE: We'll need to reimplement this during production demo
-		// const roundData = await store.service.batchEntry.getCurrentRoundBatchEntries()
+		const roundData = await store.service.batchEntry.getCurrentRoundBatchEntries()
 
-		// roundData.forEach(({ batchEntry, entries }) => {
-		// 	const batchEntryState = new BatchEntry()
-		// 	batchEntryState.roundId = batchEntry.roundId
-		// 	batchEntryState.batchEntryId = batchEntry.batchEntryId
-		// 	batchEntryState.player = batchEntry.player
-		// 	batchEntryState.settled = batchEntry.settled
-		// 	batchEntryState.totalEntryAmount = batchEntry.totalEntryAmount
-		// 	batchEntryState.totalMintAmount = batchEntry.totalMintAmount
-		// 	batchEntryState.timestamp = batchEntry.timestamp
-		// 	batchEntryState.isBurn = false
+		roundData.forEach(({ batchEntry, entries }) => {
+			const batchEntryState = new BatchEntry()
+			batchEntryState.roundId = batchEntry.roundId
+			batchEntryState.batchEntryId = batchEntry.batchEntryId
+			batchEntryState.player = batchEntry.player
+			batchEntryState.settled = batchEntry.settled
+			batchEntryState.totalEntryAmount = batchEntry.totalEntryAmount
+			batchEntryState.totalMintAmount = batchEntry.totalMintAmount
+			batchEntryState.timestamp = batchEntry.timestamp
+			batchEntryState.isBurn = false
 
-		// 	entries.forEach(entry => {
-		// 		const entryState = new Entry()
+			entries.forEach(entry => {
+				const entryState = new Entry()
 
-		// 		entryState.amount = entry.amount
-		// 		entryState.roundId = entry.roundId
-		// 		entryState.contractModeId = entry.contractModeId
-		// 		entryState.pickedNumber = entry.pickedNumber
-		// 		entryState.entryIdx = entry.entryIdx
-		// 		entryState.mintAmount = entry.mintAmount
-		// 		entryState.settled = entry.settled
-		// 		entryState.isBurn = false
+				entryState.amount = entry.amount
+				entryState.roundId = entry.roundId
+				entryState.contractModeId = entry.contractModeId
+				entryState.pickedNumber = entry.pickedNumber
+				entryState.entryIdx = entry.entryIdx
+				entryState.mintAmount = entry.mintAmount
+				entryState.settled = entry.settled
+				entryState.isBurn = false
 
-		// 		batchEntryState.entries.push(entryState)
-		// 	})
+				batchEntryState.entries.push(entryState)
+			})
 
-		// 	this.state.batchEntries.set(batchEntryState.player, batchEntryState)
-		// })
+			this.state.batchEntries.set(batchEntryState.player, batchEntryState)
+		})
 	}
 }
 
@@ -174,6 +167,7 @@ export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
 			if (!batchEntry || !entries || !batchEntry.player) {
 				return
 			}
+
 			logger.info(
 				`OnBatchEntry -> ${batchEntry.player.substring(0, 11)} - Amount: ${numeral(
 					batchEntry.totalEntryAmount,
@@ -212,17 +206,6 @@ export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
 	}
 }
 
-// @NOTE: Probably don't need this since OnRoundConcluded can handle updating state for specific user
-export class OnBatchEntrySettled extends Command<SpinRoom, SettledBatchEntryArgs> {
-	execute({ batchEntry, entries }: SettledBatchEntryArgs) {
-		// const be = this.state.batchEntries.get(batchEntry.entityId)
-
-		// be.settled = true
-		// be.totalMintAmount = batchEntry.totalMintAmount
-		logger.info(`OnBatchEntry: batch entry --> ${batchEntry},\n entries --> ${entries}`)
-	}
-}
-
 export class OnResetRound extends Command<SpinRoom, void> {
 	execute() {
 		const keys = this.state.batchEntries.keys()
@@ -235,8 +218,6 @@ export class OnResetRound extends Command<SpinRoom, void> {
 
 export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
 	execute(roundData: SettledRound) {
-		// Set round info
-
 		const round = new Round()
 		round.roundId = roundData.roundId
 		round.vrfRequestId = roundData.vrfRequestId
@@ -267,7 +248,8 @@ export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
 			}
 		})
 
-		this.state.round.set(roundData.roundId.toString(), round)
+		this.state.round.set(String(roundData.roundId), round)
+		this.state.round.delete(String(this.state.currentRoundId - 1))
 
 		this.state.currentRoundId += 1
 	}
