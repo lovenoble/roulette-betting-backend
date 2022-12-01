@@ -27,7 +27,7 @@ import type {
   PromiseOrValue,
 } from "./common";
 
-export declare namespace FareSpinTestnet {
+export declare namespace FareSpinOld {
   export type EliminatorStruct = {
     contractModeId: PromiseOrValue<BigNumberish>;
     recordedExpectedValueFloor: PromiseOrValue<BigNumberish>;
@@ -53,13 +53,11 @@ export declare namespace FareSpinTestnet {
   };
 }
 
-export interface FareSpinTestnetInterface extends utils.Interface {
+export interface FareSpinOldInterface extends utils.Interface {
   functions: {
     "CONTRACT_EXPECTED_VALUE_CEILING()": FunctionFragment;
     "REWARDS_MINT_CAP()": FunctionFragment;
     "batchEntryMap(uint256,address)": FunctionFragment;
-    "batchSettleEntries(uint256[],address)": FunctionFragment;
-    "concludeRound(bytes32,uint256)": FunctionFragment;
     "contractModes(uint256)": FunctionFragment;
     "getAllUsersByRoundId(uint256)": FunctionFragment;
     "getBatchEntryCount(uint256)": FunctionFragment;
@@ -75,7 +73,8 @@ export interface FareSpinTestnetInterface extends utils.Interface {
     "owner()": FunctionFragment;
     "paused()": FunctionFragment;
     "placeBatchEntry((uint256,uint256,uint256)[])": FunctionFragment;
-    "randomHashMap(uint256)": FunctionFragment;
+    "rawFulfillRandomness(bytes32,uint256)": FunctionFragment;
+    "requestRandomNumber()": FunctionFragment;
     "rewardsAddress()": FunctionFragment;
     "rewardsMint()": FunctionFragment;
     "rounds(uint256)": FunctionFragment;
@@ -90,9 +89,9 @@ export interface FareSpinTestnetInterface extends utils.Interface {
     "setRewardsMint(uint256)": FunctionFragment;
     "setRoundPaused(bool)": FunctionFragment;
     "settleBatchEntry(uint256,address)": FunctionFragment;
-    "startNewRound(bytes32)": FunctionFragment;
-    "withdrawalBatchEntry()": FunctionFragment;
-    "withdrawalPeriod()": FunctionFragment;
+    "testConcludeRound(bytes32)": FunctionFragment;
+    "testFulfillRandomness(bytes32,uint256)": FunctionFragment;
+    "vrfCoordinator()": FunctionFragment;
   };
 
   getFunction(
@@ -100,8 +99,6 @@ export interface FareSpinTestnetInterface extends utils.Interface {
       | "CONTRACT_EXPECTED_VALUE_CEILING"
       | "REWARDS_MINT_CAP"
       | "batchEntryMap"
-      | "batchSettleEntries"
-      | "concludeRound"
       | "contractModes"
       | "getAllUsersByRoundId"
       | "getBatchEntryCount"
@@ -117,7 +114,8 @@ export interface FareSpinTestnetInterface extends utils.Interface {
       | "owner"
       | "paused"
       | "placeBatchEntry"
-      | "randomHashMap"
+      | "rawFulfillRandomness"
+      | "requestRandomNumber"
       | "rewardsAddress"
       | "rewardsMint"
       | "rounds"
@@ -132,9 +130,9 @@ export interface FareSpinTestnetInterface extends utils.Interface {
       | "setRewardsMint"
       | "setRoundPaused"
       | "settleBatchEntry"
-      | "startNewRound"
-      | "withdrawalBatchEntry"
-      | "withdrawalPeriod"
+      | "testConcludeRound"
+      | "testFulfillRandomness"
+      | "vrfCoordinator"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -148,14 +146,6 @@ export interface FareSpinTestnetInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "batchEntryMap",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "batchSettleEntries",
-    values: [PromiseOrValue<BigNumberish>[], PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "concludeRound",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "contractModes",
@@ -213,11 +203,15 @@ export interface FareSpinTestnetInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "paused", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "placeBatchEntry",
-    values: [FareSpinTestnet.EntryStruct[]]
+    values: [FareSpinOld.EntryStruct[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "randomHashMap",
-    values: [PromiseOrValue<BigNumberish>]
+    functionFragment: "rawFulfillRandomness",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "requestRandomNumber",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "rewardsAddress",
@@ -287,15 +281,15 @@ export interface FareSpinTestnetInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "startNewRound",
+    functionFragment: "testConcludeRound",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "withdrawalBatchEntry",
-    values?: undefined
+    functionFragment: "testFulfillRandomness",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "withdrawalPeriod",
+    functionFragment: "vrfCoordinator",
     values?: undefined
   ): string;
 
@@ -309,14 +303,6 @@ export interface FareSpinTestnetInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "batchEntryMap",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "batchSettleEntries",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "concludeRound",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -374,7 +360,11 @@ export interface FareSpinTestnetInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "randomHashMap",
+    functionFragment: "rawFulfillRandomness",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "requestRandomNumber",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -431,54 +421,40 @@ export interface FareSpinTestnetInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "startNewRound",
+    functionFragment: "testConcludeRound",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "withdrawalBatchEntry",
+    functionFragment: "testFulfillRandomness",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "withdrawalPeriod",
+    functionFragment: "vrfCoordinator",
     data: BytesLike
   ): Result;
 
   events: {
-    "BatchEntriesSettled(address,uint256[])": EventFragment;
     "ContractModeUpdated(uint256)": EventFragment;
     "EntrySettled(uint256,address,bool)": EventFragment;
     "EntrySubmitted(uint256,uint256,address)": EventFragment;
     "NFTMint(uint256,address)": EventFragment;
-    "NewRoundStarted(uint256,bytes32,uint256,uint256)": EventFragment;
     "Paused(address)": EventFragment;
-    "RoundConcluded(uint256,bytes32,uint256,uint256,uint256)": EventFragment;
+    "RandomNumberRequested(bytes32)": EventFragment;
+    "RoundConcluded(uint256,bytes32,uint256,uint256)": EventFragment;
     "RoundPausedChanged(bool)": EventFragment;
     "Unpaused(address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "BatchEntriesSettled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContractModeUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "EntrySettled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "EntrySubmitted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NFTMint"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "NewRoundStarted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RandomNumberRequested"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoundConcluded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoundPausedChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
 }
-
-export interface BatchEntriesSettledEventObject {
-  user: string;
-  roundIds: BigNumber[];
-}
-export type BatchEntriesSettledEvent = TypedEvent<
-  [string, BigNumber[]],
-  BatchEntriesSettledEventObject
->;
-
-export type BatchEntriesSettledEventFilter =
-  TypedEventFilter<BatchEntriesSettledEvent>;
 
 export interface ContractModeUpdatedEventObject {
   contractModeId: BigNumber;
@@ -523,19 +499,6 @@ export type NFTMintEvent = TypedEvent<[BigNumber, string], NFTMintEventObject>;
 
 export type NFTMintEventFilter = TypedEventFilter<NFTMintEvent>;
 
-export interface NewRoundStartedEventObject {
-  roundId: BigNumber;
-  randomHash: string;
-  randomNum: BigNumber;
-  randomEliminator: BigNumber;
-}
-export type NewRoundStartedEvent = TypedEvent<
-  [BigNumber, string, BigNumber, BigNumber],
-  NewRoundStartedEventObject
->;
-
-export type NewRoundStartedEventFilter = TypedEventFilter<NewRoundStartedEvent>;
-
 export interface PausedEventObject {
   account: string;
 }
@@ -543,15 +506,25 @@ export type PausedEvent = TypedEvent<[string], PausedEventObject>;
 
 export type PausedEventFilter = TypedEventFilter<PausedEvent>;
 
+export interface RandomNumberRequestedEventObject {
+  vrfRequestId: string;
+}
+export type RandomNumberRequestedEvent = TypedEvent<
+  [string],
+  RandomNumberRequestedEventObject
+>;
+
+export type RandomNumberRequestedEventFilter =
+  TypedEventFilter<RandomNumberRequestedEvent>;
+
 export interface RoundConcludedEventObject {
   roundId: BigNumber;
-  revealKey: string;
-  fullRandomNum: BigNumber;
+  vrfRequestId: string;
   randomNum: BigNumber;
   randomEliminator: BigNumber;
 }
 export type RoundConcludedEvent = TypedEvent<
-  [BigNumber, string, BigNumber, BigNumber, BigNumber],
+  [BigNumber, string, BigNumber, BigNumber],
   RoundConcludedEventObject
 >;
 
@@ -575,14 +548,14 @@ export type UnpausedEvent = TypedEvent<[string], UnpausedEventObject>;
 
 export type UnpausedEventFilter = TypedEventFilter<UnpausedEvent>;
 
-export interface FareSpinTestnet extends BaseContract {
-  contractName: "FareSpinTestnet";
+export interface FareSpinOld extends BaseContract {
+  contractName: "FareSpinOld";
 
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: FareSpinTestnetInterface;
+  interface: FareSpinOldInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -615,38 +588,14 @@ export interface FareSpinTestnet extends BaseContract {
       arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
-      [
-        BigNumber,
-        string,
-        boolean,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber
-      ] & {
+      [BigNumber, string, boolean, BigNumber, BigNumber] & {
         batchEntryId: BigNumber;
         user: string;
         settled: boolean;
-        settledAt: BigNumber;
         totalEntryAmount: BigNumber;
         totalMintAmount: BigNumber;
-        placedAt: BigNumber;
-        withdrewAt: BigNumber;
       }
     >;
-
-    batchSettleEntries(
-      roundIds: PromiseOrValue<BigNumberish>[],
-      user: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    concludeRound(
-      revealKey: PromiseOrValue<BytesLike>,
-      fullRandomNum: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     contractModes(
       arg0: PromiseOrValue<BigNumberish>,
@@ -695,8 +644,8 @@ export interface FareSpinTestnet extends BaseContract {
       roundId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
-      [FareSpinTestnet.EliminatorStructOutput[]] & {
-        eliminators: FareSpinTestnet.EliminatorStructOutput[];
+      [FareSpinOld.EliminatorStructOutput[]] & {
+        eliminators: FareSpinOld.EliminatorStructOutput[];
       }
     >;
 
@@ -704,14 +653,14 @@ export interface FareSpinTestnet extends BaseContract {
       roundId: PromiseOrValue<BigNumberish>,
       user: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<[FareSpinTestnet.EntryStructOutput[]]>;
+    ): Promise<[FareSpinOld.EntryStructOutput[]]>;
 
     getEntryByIndex(
       roundId: PromiseOrValue<BigNumberish>,
       user: PromiseOrValue<string>,
       entryIdx: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[FareSpinTestnet.EntryStructOutput]>;
+    ): Promise<[FareSpinOld.EntryStructOutput]>;
 
     getEntryCount(
       roundId: PromiseOrValue<BigNumberish>,
@@ -736,14 +685,19 @@ export interface FareSpinTestnet extends BaseContract {
     paused(overrides?: CallOverrides): Promise<[boolean]>;
 
     placeBatchEntry(
-      entries: FareSpinTestnet.EntryStruct[],
+      entries: FareSpinOld.EntryStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    randomHashMap(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+    rawFulfillRandomness(
+      requestId: PromiseOrValue<BytesLike>,
+      randomness: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    requestRandomNumber(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     rewardsAddress(overrides?: CallOverrides): Promise<[string]>;
 
@@ -753,24 +707,12 @@ export interface FareSpinTestnet extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
-      [
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        string,
-        string,
-        BigNumber,
-        BigNumber,
-        BigNumber
-      ] & {
+      [BigNumber, BigNumber, BigNumber, string, BigNumber] & {
         id: BigNumber;
-        startedAt: BigNumber;
-        endedAt: BigNumber;
-        randomHash: string;
-        revealKey: string;
-        fullRandomNum: BigNumber;
         randomNum: BigNumber;
         randomEliminator: BigNumber;
+        vrfRequestId: string;
+        vrfNum: BigNumber;
       }
     >;
 
@@ -840,16 +782,18 @@ export interface FareSpinTestnet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    startNewRound(
-      randomHash: PromiseOrValue<BytesLike>,
+    testConcludeRound(
+      vrfRequestId: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    withdrawalBatchEntry(
+    testFulfillRandomness(
+      vrfRequestId: PromiseOrValue<BytesLike>,
+      randomness: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    withdrawalPeriod(overrides?: CallOverrides): Promise<[BigNumber]>;
+    vrfCoordinator(overrides?: CallOverrides): Promise<[string]>;
   };
 
   CONTRACT_EXPECTED_VALUE_CEILING(
@@ -863,38 +807,14 @@ export interface FareSpinTestnet extends BaseContract {
     arg1: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<
-    [
-      BigNumber,
-      string,
-      boolean,
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber
-    ] & {
+    [BigNumber, string, boolean, BigNumber, BigNumber] & {
       batchEntryId: BigNumber;
       user: string;
       settled: boolean;
-      settledAt: BigNumber;
       totalEntryAmount: BigNumber;
       totalMintAmount: BigNumber;
-      placedAt: BigNumber;
-      withdrewAt: BigNumber;
     }
   >;
-
-  batchSettleEntries(
-    roundIds: PromiseOrValue<BigNumberish>[],
-    user: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  concludeRound(
-    revealKey: PromiseOrValue<BytesLike>,
-    fullRandomNum: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   contractModes(
     arg0: PromiseOrValue<BigNumberish>,
@@ -938,20 +858,20 @@ export interface FareSpinTestnet extends BaseContract {
   getEliminatorsByRoundId(
     roundId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
-  ): Promise<FareSpinTestnet.EliminatorStructOutput[]>;
+  ): Promise<FareSpinOld.EliminatorStructOutput[]>;
 
   getEntriesByRoundUser(
     roundId: PromiseOrValue<BigNumberish>,
     user: PromiseOrValue<string>,
     overrides?: CallOverrides
-  ): Promise<FareSpinTestnet.EntryStructOutput[]>;
+  ): Promise<FareSpinOld.EntryStructOutput[]>;
 
   getEntryByIndex(
     roundId: PromiseOrValue<BigNumberish>,
     user: PromiseOrValue<string>,
     entryIdx: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
-  ): Promise<FareSpinTestnet.EntryStructOutput>;
+  ): Promise<FareSpinOld.EntryStructOutput>;
 
   getEntryCount(
     roundId: PromiseOrValue<BigNumberish>,
@@ -974,14 +894,19 @@ export interface FareSpinTestnet extends BaseContract {
   paused(overrides?: CallOverrides): Promise<boolean>;
 
   placeBatchEntry(
-    entries: FareSpinTestnet.EntryStruct[],
+    entries: FareSpinOld.EntryStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  randomHashMap(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<string>;
+  rawFulfillRandomness(
+    requestId: PromiseOrValue<BytesLike>,
+    randomness: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  requestRandomNumber(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   rewardsAddress(overrides?: CallOverrides): Promise<string>;
 
@@ -991,24 +916,12 @@ export interface FareSpinTestnet extends BaseContract {
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<
-    [
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      string,
-      string,
-      BigNumber,
-      BigNumber,
-      BigNumber
-    ] & {
+    [BigNumber, BigNumber, BigNumber, string, BigNumber] & {
       id: BigNumber;
-      startedAt: BigNumber;
-      endedAt: BigNumber;
-      randomHash: string;
-      revealKey: string;
-      fullRandomNum: BigNumber;
       randomNum: BigNumber;
       randomEliminator: BigNumber;
+      vrfRequestId: string;
+      vrfNum: BigNumber;
     }
   >;
 
@@ -1078,16 +991,18 @@ export interface FareSpinTestnet extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  startNewRound(
-    randomHash: PromiseOrValue<BytesLike>,
+  testConcludeRound(
+    vrfRequestId: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  withdrawalBatchEntry(
+  testFulfillRandomness(
+    vrfRequestId: PromiseOrValue<BytesLike>,
+    randomness: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  withdrawalPeriod(overrides?: CallOverrides): Promise<BigNumber>;
+  vrfCoordinator(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     CONTRACT_EXPECTED_VALUE_CEILING(
@@ -1101,38 +1016,14 @@ export interface FareSpinTestnet extends BaseContract {
       arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
-      [
-        BigNumber,
-        string,
-        boolean,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        BigNumber
-      ] & {
+      [BigNumber, string, boolean, BigNumber, BigNumber] & {
         batchEntryId: BigNumber;
         user: string;
         settled: boolean;
-        settledAt: BigNumber;
         totalEntryAmount: BigNumber;
         totalMintAmount: BigNumber;
-        placedAt: BigNumber;
-        withdrewAt: BigNumber;
       }
     >;
-
-    batchSettleEntries(
-      roundIds: PromiseOrValue<BigNumberish>[],
-      user: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    concludeRound(
-      revealKey: PromiseOrValue<BytesLike>,
-      fullRandomNum: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     contractModes(
       arg0: PromiseOrValue<BigNumberish>,
@@ -1176,20 +1067,20 @@ export interface FareSpinTestnet extends BaseContract {
     getEliminatorsByRoundId(
       roundId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<FareSpinTestnet.EliminatorStructOutput[]>;
+    ): Promise<FareSpinOld.EliminatorStructOutput[]>;
 
     getEntriesByRoundUser(
       roundId: PromiseOrValue<BigNumberish>,
       user: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<FareSpinTestnet.EntryStructOutput[]>;
+    ): Promise<FareSpinOld.EntryStructOutput[]>;
 
     getEntryByIndex(
       roundId: PromiseOrValue<BigNumberish>,
       user: PromiseOrValue<string>,
       entryIdx: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<FareSpinTestnet.EntryStructOutput>;
+    ): Promise<FareSpinOld.EntryStructOutput>;
 
     getEntryCount(
       roundId: PromiseOrValue<BigNumberish>,
@@ -1212,14 +1103,17 @@ export interface FareSpinTestnet extends BaseContract {
     paused(overrides?: CallOverrides): Promise<boolean>;
 
     placeBatchEntry(
-      entries: FareSpinTestnet.EntryStruct[],
+      entries: FareSpinOld.EntryStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
 
-    randomHashMap(
-      arg0: PromiseOrValue<BigNumberish>,
+    rawFulfillRandomness(
+      requestId: PromiseOrValue<BytesLike>,
+      randomness: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<void>;
+
+    requestRandomNumber(overrides?: CallOverrides): Promise<string>;
 
     rewardsAddress(overrides?: CallOverrides): Promise<string>;
 
@@ -1229,24 +1123,12 @@ export interface FareSpinTestnet extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
-      [
-        BigNumber,
-        BigNumber,
-        BigNumber,
-        string,
-        string,
-        BigNumber,
-        BigNumber,
-        BigNumber
-      ] & {
+      [BigNumber, BigNumber, BigNumber, string, BigNumber] & {
         id: BigNumber;
-        startedAt: BigNumber;
-        endedAt: BigNumber;
-        randomHash: string;
-        revealKey: string;
-        fullRandomNum: BigNumber;
         randomNum: BigNumber;
         randomEliminator: BigNumber;
+        vrfRequestId: string;
+        vrfNum: BigNumber;
       }
     >;
 
@@ -1316,26 +1198,21 @@ export interface FareSpinTestnet extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    startNewRound(
-      randomHash: PromiseOrValue<BytesLike>,
+    testConcludeRound(
+      vrfRequestId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    withdrawalBatchEntry(overrides?: CallOverrides): Promise<void>;
+    testFulfillRandomness(
+      vrfRequestId: PromiseOrValue<BytesLike>,
+      randomness: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    withdrawalPeriod(overrides?: CallOverrides): Promise<BigNumber>;
+    vrfCoordinator(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {
-    "BatchEntriesSettled(address,uint256[])"(
-      user?: PromiseOrValue<string> | null,
-      roundIds?: null
-    ): BatchEntriesSettledEventFilter;
-    BatchEntriesSettled(
-      user?: PromiseOrValue<string> | null,
-      roundIds?: null
-    ): BatchEntriesSettledEventFilter;
-
     "ContractModeUpdated(uint256)"(
       contractModeId?: PromiseOrValue<BigNumberish> | null
     ): ContractModeUpdatedEventFilter;
@@ -1374,33 +1251,25 @@ export interface FareSpinTestnet extends BaseContract {
       user?: PromiseOrValue<string> | null
     ): NFTMintEventFilter;
 
-    "NewRoundStarted(uint256,bytes32,uint256,uint256)"(
-      roundId?: PromiseOrValue<BigNumberish> | null,
-      randomHash?: PromiseOrValue<BytesLike> | null,
-      randomNum?: null,
-      randomEliminator?: null
-    ): NewRoundStartedEventFilter;
-    NewRoundStarted(
-      roundId?: PromiseOrValue<BigNumberish> | null,
-      randomHash?: PromiseOrValue<BytesLike> | null,
-      randomNum?: null,
-      randomEliminator?: null
-    ): NewRoundStartedEventFilter;
-
     "Paused(address)"(account?: null): PausedEventFilter;
     Paused(account?: null): PausedEventFilter;
 
-    "RoundConcluded(uint256,bytes32,uint256,uint256,uint256)"(
+    "RandomNumberRequested(bytes32)"(
+      vrfRequestId?: PromiseOrValue<BytesLike> | null
+    ): RandomNumberRequestedEventFilter;
+    RandomNumberRequested(
+      vrfRequestId?: PromiseOrValue<BytesLike> | null
+    ): RandomNumberRequestedEventFilter;
+
+    "RoundConcluded(uint256,bytes32,uint256,uint256)"(
       roundId?: PromiseOrValue<BigNumberish> | null,
-      revealKey?: PromiseOrValue<BytesLike> | null,
-      fullRandomNum?: null,
+      vrfRequestId?: PromiseOrValue<BytesLike> | null,
       randomNum?: null,
       randomEliminator?: null
     ): RoundConcludedEventFilter;
     RoundConcluded(
       roundId?: PromiseOrValue<BigNumberish> | null,
-      revealKey?: PromiseOrValue<BytesLike> | null,
-      fullRandomNum?: null,
+      vrfRequestId?: PromiseOrValue<BytesLike> | null,
       randomNum?: null,
       randomEliminator?: null
     ): RoundConcludedEventFilter;
@@ -1423,18 +1292,6 @@ export interface FareSpinTestnet extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    batchSettleEntries(
-      roundIds: PromiseOrValue<BigNumberish>[],
-      user: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    concludeRound(
-      revealKey: PromiseOrValue<BytesLike>,
-      fullRandomNum: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     contractModes(
@@ -1495,13 +1352,18 @@ export interface FareSpinTestnet extends BaseContract {
     paused(overrides?: CallOverrides): Promise<BigNumber>;
 
     placeBatchEntry(
-      entries: FareSpinTestnet.EntryStruct[],
+      entries: FareSpinOld.EntryStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    randomHashMap(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+    rawFulfillRandomness(
+      requestId: PromiseOrValue<BytesLike>,
+      randomness: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    requestRandomNumber(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     rewardsAddress(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1579,16 +1441,18 @@ export interface FareSpinTestnet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    startNewRound(
-      randomHash: PromiseOrValue<BytesLike>,
+    testConcludeRound(
+      vrfRequestId: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    withdrawalBatchEntry(
+    testFulfillRandomness(
+      vrfRequestId: PromiseOrValue<BytesLike>,
+      randomness: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    withdrawalPeriod(overrides?: CallOverrides): Promise<BigNumber>;
+    vrfCoordinator(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1602,18 +1466,6 @@ export interface FareSpinTestnet extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    batchSettleEntries(
-      roundIds: PromiseOrValue<BigNumberish>[],
-      user: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    concludeRound(
-      revealKey: PromiseOrValue<BytesLike>,
-      fullRandomNum: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     contractModes(
@@ -1678,13 +1530,18 @@ export interface FareSpinTestnet extends BaseContract {
     paused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     placeBatchEntry(
-      entries: FareSpinTestnet.EntryStruct[],
+      entries: FareSpinOld.EntryStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    randomHashMap(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+    rawFulfillRandomness(
+      requestId: PromiseOrValue<BytesLike>,
+      randomness: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    requestRandomNumber(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     rewardsAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1762,15 +1619,17 @@ export interface FareSpinTestnet extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    startNewRound(
-      randomHash: PromiseOrValue<BytesLike>,
+    testConcludeRound(
+      vrfRequestId: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    withdrawalBatchEntry(
+    testFulfillRandomness(
+      vrfRequestId: PromiseOrValue<BytesLike>,
+      randomness: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    withdrawalPeriod(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    vrfCoordinator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

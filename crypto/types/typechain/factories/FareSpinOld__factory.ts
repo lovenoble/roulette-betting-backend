@@ -4,10 +4,7 @@
 
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
-import type {
-  FareSpinTestnet,
-  FareSpinTestnetInterface,
-} from "../FareSpinTestnet";
+import type { FareSpinOld, FareSpinOldInterface } from "../FareSpinOld";
 
 const _abi = [
   {
@@ -19,31 +16,32 @@ const _abi = [
       },
       {
         internalType: "address",
+        name: "_vrfCoordinator",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "linkTokenAddress",
+        type: "address",
+      },
+      {
+        internalType: "bytes32",
+        name: "_keyHash",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "_vrfLinkFee",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
         name: "_rewardsAddress",
         type: "address",
       },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256[]",
-        name: "roundIds",
-        type: "uint256[]",
-      },
-    ],
-    name: "BatchEntriesSettled",
-    type: "event",
   },
   {
     anonymous: false,
@@ -131,37 +129,6 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: "uint256",
-        name: "roundId",
-        type: "uint256",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "randomHash",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "randomNum",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "randomEliminator",
-        type: "uint256",
-      },
-    ],
-    name: "NewRoundStarted",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
         indexed: false,
         internalType: "address",
         name: "account",
@@ -176,6 +143,19 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "bytes32",
+        name: "vrfRequestId",
+        type: "bytes32",
+      },
+    ],
+    name: "RandomNumberRequested",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
         internalType: "uint256",
         name: "roundId",
         type: "uint256",
@@ -183,14 +163,8 @@ const _abi = [
       {
         indexed: true,
         internalType: "bytes32",
-        name: "revealKey",
+        name: "vrfRequestId",
         type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "fullRandomNum",
-        type: "uint256",
       },
       {
         indexed: false,
@@ -292,11 +266,6 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "settledAt",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
         name: "totalEntryAmount",
         type: "uint256",
       },
@@ -305,54 +274,8 @@ const _abi = [
         name: "totalMintAmount",
         type: "uint256",
       },
-      {
-        internalType: "uint256",
-        name: "placedAt",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "withdrewAt",
-        type: "uint256",
-      },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256[]",
-        name: "roundIds",
-        type: "uint256[]",
-      },
-      {
-        internalType: "address",
-        name: "user",
-        type: "address",
-      },
-    ],
-    name: "batchSettleEntries",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "revealKey",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint256",
-        name: "fullRandomNum",
-        type: "uint256",
-      },
-    ],
-    name: "concludeRound",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -501,7 +424,7 @@ const _abi = [
             type: "bool",
           },
         ],
-        internalType: "struct FareSpinTestnet.Eliminator[]",
+        internalType: "struct FareSpinOld.Eliminator[]",
         name: "eliminators",
         type: "tuple[]",
       },
@@ -542,7 +465,7 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct FareSpinTestnet.Entry[]",
+        internalType: "struct FareSpinOld.Entry[]",
         name: "",
         type: "tuple[]",
       },
@@ -588,7 +511,7 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct FareSpinTestnet.Entry",
+        internalType: "struct FareSpinOld.Entry",
         name: "",
         type: "tuple",
       },
@@ -716,7 +639,7 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct FareSpinTestnet.Entry[]",
+        internalType: "struct FareSpinOld.Entry[]",
         name: "entries",
         type: "tuple[]",
       },
@@ -729,20 +652,32 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "requestId",
+        type: "bytes32",
+      },
+      {
         internalType: "uint256",
-        name: "",
+        name: "randomness",
         type: "uint256",
       },
     ],
-    name: "randomHashMap",
+    name: "rawFulfillRandomness",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "requestRandomNumber",
     outputs: [
       {
         internalType: "bytes32",
-        name: "",
+        name: "requestId",
         type: "bytes32",
       },
     ],
-    stateMutability: "view",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -788,37 +723,22 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "startedAt",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "endedAt",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes32",
-        name: "randomHash",
-        type: "bytes32",
-      },
-      {
-        internalType: "bytes32",
-        name: "revealKey",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint256",
-        name: "fullRandomNum",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
         name: "randomNum",
         type: "uint256",
       },
       {
         internalType: "uint256",
         name: "randomEliminator",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes32",
+        name: "vrfRequestId",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "vrfNum",
         type: "uint256",
       },
     ],
@@ -1027,30 +947,41 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "randomHash",
+        name: "vrfRequestId",
         type: "bytes32",
       },
     ],
-    name: "startNewRound",
+    name: "testConcludeRound",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
-    inputs: [],
-    name: "withdrawalBatchEntry",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "withdrawalPeriod",
-    outputs: [
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "vrfRequestId",
+        type: "bytes32",
+      },
       {
         internalType: "uint256",
-        name: "",
+        name: "randomness",
         type: "uint256",
+      },
+    ],
+    name: "testFulfillRandomness",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "vrfCoordinator",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -1058,15 +989,15 @@ const _abi = [
   },
 ];
 
-export class FareSpinTestnet__factory {
+export class FareSpinOld__factory {
   static readonly abi = _abi;
-  static createInterface(): FareSpinTestnetInterface {
-    return new utils.Interface(_abi) as FareSpinTestnetInterface;
+  static createInterface(): FareSpinOldInterface {
+    return new utils.Interface(_abi) as FareSpinOldInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): FareSpinTestnet {
-    return new Contract(address, _abi, signerOrProvider) as FareSpinTestnet;
+  ): FareSpinOld {
+    return new Contract(address, _abi, signerOrProvider) as FareSpinOld;
   }
 }

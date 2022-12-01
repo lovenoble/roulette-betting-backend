@@ -1,32 +1,35 @@
 export enum ContractNames {
-	FareToken = 'FareToken',
-	FareSpin = 'FareSpin',
+  FareToken = 'FareToken',
+  FareSpin = 'FareSpin',
 }
 
 export enum EventNames {
-	Transfer = 'Transfer',
-	EnsureBalance = 'EnsureBalance',
-	ContractModeUpdated = 'ContractModeUpdated',
-	EntrySubmitted = 'EntrySubmitted',
-	EntrySettled = 'EntrySettled',
-	RoundPausedChanged = 'RoundPausedChanged',
-	RoundConcluded = 'RoundConcluded',
-	RandomNumberRequested = 'RandomNumberRequested',
-	NFTMint = 'NFTMint',
+  Transfer = 'Transfer',
+  EnsureBalance = 'EnsureBalance',
+  ContractModeUpdated = 'ContractModeUpdated',
+  EntrySubmitted = 'EntrySubmitted',
+  BatchEntriesSettled = 'BatchEntriesSettled',
+  BatchEntryWithdraw = 'BatchEntryWithdraw',
+  NewRoundStarted = 'NewRoundStarted',
+  EntrySettled = 'EntrySettled',
+  RoundPausedChanged = 'RoundPausedChanged',
+  RoundConcluded = 'RoundConcluded',
+  RandomNumberRequested = 'RandomNumberRequested',
+  NFTMint = 'NFTMint',
 }
 
 export enum QueueNames {
-	FareContractEvent = 'FareContractEvent',
-	SpinContractEvent = 'SpinContractEvent',
-	User = 'User',
+  FareContractEvent = 'FareContractEvent',
+  SpinContractEvent = 'SpinContractEvent',
+  User = 'User',
 }
 
 export enum GlobalRedisKey {
-	FareTotalSupply = 'FareTotalSupply',
-	CurrentRoundId = 'CurrentRoundId',
-	IsSpinRoundPaused = 'IsSpinRoundPaused',
-	SpinCountdownTimer = 'SpinCountdownTimer',
-	SpinRoomStatus = 'SpinRoomStatus',
+  FareTotalSupply = 'FareTotalSupply',
+  CurrentRoundId = 'CurrentRoundId',
+  IsSpinRoundPaused = 'IsSpinRoundPaused',
+  SpinCountdownTimer = 'SpinCountdownTimer',
+  SpinRoomStatus = 'SpinRoomStatus',
 }
 
 export const SIGNING_MESSAGE_TEXT = `Fareplay.io would like to authenticate your account.

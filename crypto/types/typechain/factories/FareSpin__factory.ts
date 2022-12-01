@@ -16,32 +16,50 @@ const _abi = [
       },
       {
         internalType: "address",
-        name: "_vrfCoordinator",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "linkTokenAddress",
-        type: "address",
-      },
-      {
-        internalType: "bytes32",
-        name: "_keyHash",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint256",
-        name: "_vrfLinkFee",
-        type: "uint256",
-      },
-      {
-        internalType: "address",
         name: "_rewardsAddress",
         type: "address",
       },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256[]",
+        name: "roundIds",
+        type: "uint256[]",
+      },
+    ],
+    name: "BatchEntriesSettled",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "roundId",
+        type: "uint256",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "BatchEntryWithdraw",
+    type: "event",
   },
   {
     anonymous: false,
@@ -129,6 +147,31 @@ const _abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "uint256",
+        name: "roundId",
+        type: "uint256",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "randomHash",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "startedAt",
+        type: "uint256",
+      },
+    ],
+    name: "NewRoundStarted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: false,
         internalType: "address",
         name: "account",
@@ -143,19 +186,6 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "bytes32",
-        name: "vrfRequestId",
-        type: "bytes32",
-      },
-    ],
-    name: "RandomNumberRequested",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
         internalType: "uint256",
         name: "roundId",
         type: "uint256",
@@ -163,8 +193,14 @@ const _abi = [
       {
         indexed: true,
         internalType: "bytes32",
-        name: "vrfRequestId",
+        name: "revealKey",
         type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "fullRandomNum",
+        type: "uint256",
       },
       {
         indexed: false,
@@ -266,6 +302,11 @@ const _abi = [
       },
       {
         internalType: "uint256",
+        name: "settledAt",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
         name: "totalEntryAmount",
         type: "uint256",
       },
@@ -274,8 +315,54 @@ const _abi = [
         name: "totalMintAmount",
         type: "uint256",
       },
+      {
+        internalType: "uint256",
+        name: "placedAt",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "withdrewAt",
+        type: "uint256",
+      },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256[]",
+        name: "roundIds",
+        type: "uint256[]",
+      },
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "batchSettleEntries",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "revealKey",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "fullRandomNum",
+        type: "uint256",
+      },
+    ],
+    name: "concludeRound",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -652,32 +739,20 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes32",
-        name: "requestId",
-        type: "bytes32",
-      },
-      {
         internalType: "uint256",
-        name: "randomness",
+        name: "",
         type: "uint256",
       },
     ],
-    name: "rawFulfillRandomness",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "requestRandomNumber",
+    name: "randomHashMap",
     outputs: [
       {
         internalType: "bytes32",
-        name: "requestId",
+        name: "",
         type: "bytes32",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -723,22 +798,37 @@ const _abi = [
       },
       {
         internalType: "uint256",
+        name: "startedAt",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "endedAt",
+        type: "uint256",
+      },
+      {
+        internalType: "bytes32",
+        name: "randomHash",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "revealKey",
+        type: "bytes32",
+      },
+      {
+        internalType: "uint256",
+        name: "fullRandomNum",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
         name: "randomNum",
         type: "uint256",
       },
       {
         internalType: "uint256",
         name: "randomEliminator",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes32",
-        name: "vrfRequestId",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint256",
-        name: "vrfNum",
         type: "uint256",
       },
     ],
@@ -947,41 +1037,30 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "vrfRequestId",
+        name: "randomHash",
         type: "bytes32",
       },
     ],
-    name: "testConcludeRound",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "vrfRequestId",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint256",
-        name: "randomness",
-        type: "uint256",
-      },
-    ],
-    name: "testFulfillRandomness",
+    name: "startNewRound",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
     inputs: [],
-    name: "vrfCoordinator",
+    name: "withdrawalBatchEntry",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "withdrawalPeriod",
     outputs: [
       {
-        internalType: "address",
+        internalType: "uint256",
         name: "",
-        type: "address",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
