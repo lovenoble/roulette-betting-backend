@@ -138,8 +138,12 @@ export default class UserService extends ServiceBase<User> {
 
         if (!userEntity) throw new Error('User does not exist.')
 
-        if (!isEmpty(email) && !isEmail(email)) throw new Error('Invalid email address')
-        if (!isEmpty(_username)) {
+        if (email) {
+            if (!isEmail(email)) {
+                throw new Error('Invalid email address')
+            }
+        }
+        if (_username) {
             const username = _username.trim()
             if (!isValidUsername(username)) {
                 throw new Error(
@@ -152,9 +156,9 @@ export default class UserService extends ServiceBase<User> {
             userEntity.username = username
         }
 
-        // if (colorTheme !== 'UNRECOGNIZED') {
-        userEntity.colorTheme = colorTheme
-        // }
+        if (colorTheme) {
+            userEntity.colorTheme = colorTheme
+        }
 
         userEntity.email = email || userEntity.email
 

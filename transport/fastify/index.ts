@@ -1,5 +1,6 @@
 import Fastify from 'fastify'
 import { utils } from 'ethers'
+import fastifyCors from '@fastify/cors'
 import store from '../../store'
 import { EventNames } from '../../store/constants'
 import { PearHash } from '../../store/utils'
@@ -7,6 +8,7 @@ import { PearHash } from '../../store/utils'
 const fast = Fastify({
     logger: true,
 })
+await fast.register(fastifyCors, {})
 
 fast.post<{ Body: { publicAddress: string } }>('/auth/generate-nonce', async req => {
     const { publicAddress } = req.body
@@ -89,8 +91,8 @@ fast.post<{ Headers: { token: string }; Body: { username: string; colorTheme: st
     },
 )
 
-fast.post<{ Body: { token: string } }>('/logout', async req => {
-    const { token } = req.body
+fast.post<{ Headers: { token: string } }>('/auth/logout', async req => {
+    const { token } = req.headers
     const decodedToken = PearHash.decodeJwt(token)
     // @NOTE: Need to check if token is expired here
     // @NOTE: If token is invalid or expired send a message to client to clear out token in localStorage

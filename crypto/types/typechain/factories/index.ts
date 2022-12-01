@@ -5,4 +5,5 @@ export { FareItems__factory } from "./FareItems__factory";
 export { FareNFTLootBox__factory } from "./FareNFTLootBox__factory";
 export { FareNFTLootBoxController__factory } from "./FareNFTLootBoxController__factory";
 export { FareSpin__factory } from "./FareSpin__factory";
+export { FareSpinTestnet__factory } from "./FareSpinTestnet__factory";
 export { FareToken__factory } from "./FareToken__factory";
