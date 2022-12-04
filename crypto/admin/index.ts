@@ -1,11 +1,4 @@
-import {
-  Wallet,
-  providers,
-  ContractTransaction,
-  ContractReceipt,
-  ethers,
-  Transaction,
-} from 'ethers'
+import { Wallet, providers, ContractTransaction, ContractReceipt, ethers } from 'ethers'
 import { Clock, Delayed } from '@colyseus/core'
 
 import { RandomTag } from '../../store/schema/randomness'
@@ -13,7 +6,7 @@ import { FareSpin, FareSpin__factory, FareToken, FareToken__factory, FlatEntry }
 import CryptoToken from './token'
 import CryptoSeed from './seed'
 import cryptoConfig from '../../config/crypto.config'
-import { logger, createBatchEntry, randomHexString } from './utils'
+import { logger, createBatchEntry } from './utils'
 import { randomizer } from '../../utils'
 import store from '../../store'
 import {
@@ -27,6 +20,7 @@ import {
   ContractModes,
 } from '../constants'
 import fareRandomness from '../utils/FareRandomness'
+import PubSub from '../../pubsub'
 
 const { blockchainRpcUrl, privateKey, fareTokenAddress, fareSpinAddress } = cryptoConfig
 
@@ -50,6 +44,8 @@ class CryptoAdmin {
   currentUserIdx = 0
   currentRoundId = 0
   placedUserIdxs: number[] = []
+  failThreshold = 0
+  targetTick: number
 
   async init() {
     logger.warn(
@@ -156,8 +152,8 @@ class CryptoAdmin {
     return batchEntry
   }
 
+  // Reset currentUserIdx if current seed accounts is exceeded
   async submitRandomBatchEntry() {
-    // Reset currentUserIdx if current seed accounts is exceeded
     if (this.currentUserIdx > this.seed.publicKeys.length - 1) {
       this.currentUserIdx = 0
     }
@@ -168,11 +164,15 @@ class CryptoAdmin {
       logger.info(`Submitted batchEntry for userIdx(${this.currentUserIdx})`)
       logger.info(JSON.stringify(batchEntryParams))
       this.currentUserIdx += 1 // Increment currentUserIdx
+      this.failThreshold = 0
     } catch (err) {
+      if (this.failThreshold >= this.seed.publicKeys.length) return
+
       this.currentUserIdx += 1 // Increment currentUserIdx
       logger.warn(
         `Seed userIdx(${this.currentUserIdx}) has already entered into the round. Trying the next userIdx...`,
       )
+      this.failThreshold += 1
       return this.submitRandomBatchEntry()
     }
   }
@@ -195,11 +195,11 @@ class CryptoAdmin {
     this.currentRoundId = roundId
     const randomness = await this.generateAndSaveRandomness(roundId)
     let resp: ContractTransaction
-    let receipt: ContractReceipt
     try {
       resp = await this.spin.startNewRound(randomness.randomHash)
-      receipt = await resp.wait()
+      await resp.wait()
     } catch (err: any) {
+      logger.warn(String(err))
       // const code = err.data.replace('Reverted ', '')
       // console.log({ err })
       // let reason = utils.toUtf8String('0x' + code.substr(138))
@@ -222,6 +222,7 @@ class CryptoAdmin {
       timestamp: Date.now(),
     }
     const returnedRandomness = await store.service.randomness.createOrReturn(parsedRandomness)
+    this.targetTick = Number(BigInt(returnedRandomness.fullRandomNum) % BigInt(100))
 
     return returnedRandomness || parsedRandomness
   }
@@ -240,69 +241,62 @@ class CryptoAdmin {
   }
 
   async startCountdown(_countdown: number) {
+    store.service.round.setSpinRoomStatus('starting')
     await this.startNewRound()
+    await store.service.round.setSpinRoomStatus('countdown')
     this.clock.start()
     this.countdown = _countdown
 
-    // @NOTE: Every 15 seconds check if player threshold has been met
-    store.service.round.setSpinRoomStatus('countdown')
     this.delayedInterval = this.clock.setInterval(() => {
       if (this.countdown <= 0) {
-        // Emit countdown hit 0 pubsub event
-        this.delayedInterval.clear()
-        this.preSpinPause()
+        this.logCountdown('COUNTDOWN')
+        this.setCountdown(this.countdown).then(() => {
+          this.delayedInterval.clear()
+          this.preSpinPause()
+        })
         return
       }
-
-      if (this.countdown % SEED_USER_SUBMIT_FEQUENCY === 0) {
-        ;(async () => {
-          try {
-            await this.submitRandomBatchEntry() // Submit seed user random batch entry
-          } catch (err) {
-            logger.error(err)
-          }
-        })()
-      }
-
-      // @NOTE: Probably do this every 15 seconds
       this.logCountdown('COUNTDOWN')
       this.setCountdown(this.countdown)
       this.countdown -= SEC_MS
-    }, 1000)
+
+      if (this.countdown % SEED_USER_SUBMIT_FEQUENCY === 0) {
+        this.submitRandomBatchEntry().catch(logger.error)
+      }
+    }, 1_000)
   }
 
-  preSpinPause() {
+  async preSpinPause() {
     // Pause round - Prevents batch entries from being submitted
-    ;(async () => {
-      try {
-        logger.info(`Pausing spin round...`)
-        await this.pauseSpinRound(true)
-        logger.info('Spin round was successfully paused')
-      } catch (err) {
-        // @NOTE: Need Slack alerts/notifications here
-        logger.error(err)
-        throw err
-      }
-    })()
+    logger.info(`Pausing spin round...`)
+    await store.service.round.setSpinRoomStatus('pausing')
+    await this.pauseSpinRound(true)
+    logger.info('Spin round was successfully paused')
+    this.spinWheel()
 
     // Round paused and wheel spin about to start
-    store.service.round.setSpinRoomStatus('starting')
-    this.delayedInterval = this.clock.setInterval(() => {
-      if (this.countdown < 0) {
-        this.delayedInterval.clear()
-        this.spinAndConcludeRound()
-        return
-      }
+    // this.delayedInterval = this.clock.setInterval(() => {
+    //   if (this.countdown < 0) {
+    //     this.delayedInterval.clear()
+    //     // this.spinAndConcludeRound()
+    //     this.spinWheel()
+    //     return
+    //   }
 
-      this.logCountdown('PRE-SPIN')
-      this.setCountdown(this.countdown)
-      this.countdown -= SEC_MS
-    }, PRE_SPIN_DURATION)
+    //   this.logCountdown('PRE-SPIN')
+    //   this.setCountdown(this.countdown)
+    //   this.countdown -= SEC_MS
+    // }, PRE_SPIN_DURATION)
   }
 
-  spinAndConcludeRound() {
+  async spinWheel() {
+    await store.service.round.setSpinRoomStatus('spinning', this.targetTick)
+  }
+
+  async spinAndConcludeRound() {
     // Start spinning wheel
-    store.service.round.setSpinRoomStatus('spinning')
+    // store.service.round.setSpinRoomStatus('spinning')
+    await this.spinWheel()
     logger.info('Wheel spin has begun!')
     this.delayedTimeout = this.clock.setTimeout(async () => {
       logger.info('Spin round is concluding. Fetching randomness...')
@@ -377,6 +371,11 @@ class CryptoAdmin {
        * 3. spinAndConcludeRound - Runs concludeRound (fetches random number), slows down wheel, lands on a color
        * 4. resetRound - Reset countdown timer and starts back at event #1
        */
+
+      PubSub.sub('spin-state', 'round-finished', opts => {
+        console.log('round finished', opts)
+      })
+
       this.startCountdown(this.countdown)
     } catch (err) {
       clearInterval(this.eventLoopIntervalId)

@@ -47,4 +47,4 @@ export interface IServiceObj {
   randomness?: RandomnessService
 }
 
-export type SpinRoomStatus = 'countdown' | 'starting' | 'spinning' | 'finished'
+export type SpinRoomStatus = 'starting' | 'countdown' | 'pausing' | 'spinning' | 'finished'

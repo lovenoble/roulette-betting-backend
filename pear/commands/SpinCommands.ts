@@ -4,6 +4,7 @@ import { utils } from 'ethers'
 import numeral from 'numeral'
 import shortId from 'shortid'
 
+import { ENTRIES_OPEN_COUNTDOWN_DURATION } from '../../crypto/constants'
 import type { SpinRoom } from '../types'
 import type { FareTransferArgs, BatchEntryMsgArgs, SettledRound } from '../../pubsub/types'
 
@@ -117,12 +118,14 @@ export class OnInitSpinRoom extends Command<SpinRoom, void> {
     this.state.fareTotalSupply = await store.service.fareTransfer.getCachedTotalSupply()
     this.state.currentRoundId = Number(await store.service.round.getCachedCurrentRoundId())
     this.state.isRoundPaused = await store.service.round.getCachedSpinRoundPaused()
-
+    this.state.countdownTotal = ENTRIES_OPEN_COUNTDOWN_DURATION / 1000
     const roundData = await store.service.batchEntry.getCurrentRoundBatchEntries()
 
     roundData.forEach(({ batchEntry, entries }) => {
       const batchEntryState = new BatchEntry()
       batchEntryState.roundId = batchEntry.roundId
+      batchEntryState.placedAt = batchEntry.placedAt
+      batchEntryState.placedTxHash = batchEntry.placedTxHash
       batchEntryState.batchEntryId = batchEntry.batchEntryId
       batchEntryState.player = batchEntry.player
       batchEntryState.settled = batchEntry.settled
@@ -175,6 +178,7 @@ export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
       const batchEntryState = new BatchEntry()
       batchEntryState.roundId = batchEntry.roundId
       batchEntryState.placedAt = batchEntry.placedAt
+      batchEntryState.placedTxHash = batchEntry.placedTxHash
       batchEntryState.batchEntryId = batchEntry.batchEntryId
       batchEntryState.player = batchEntry.player
       batchEntryState.settled = batchEntry.settled

@@ -45,6 +45,11 @@ export interface INewRoundStarted {
   roundId: number
 }
 
+export interface IRoundFinished {
+  endedAt: number
+  randomNum: number
+}
+
 export type SettledRound = {
   settledData: SettledBatchEntryArgs[]
 } & Omit<IRound, 'isEliminator'> &
@@ -61,9 +66,13 @@ export interface MessageListener {
   'new-round-started': (round: INewRoundStarted, ...args: any[]) => void
   'batch-entry-settled': (settledData: SettledBatchEntryArgs, ...args: any[]) => void
   'start-round': (roundId: number, ...args: any[]) => void
+  'round-finished': (opts: IRoundFinished, ...args: any[]) => void
   'countdown-updated': (countdown: number, ...args: any[]) => void
   'spin-round-pause': (opts: { isPaused: boolean; countdown: number }, ...args: any[]) => void
-  'spin-room-status': (opts: { status: SpinRoomStatus }, ...args: any[]) => void
+  'spin-room-status': (
+    opts: { status: SpinRoomStatus; targetTick?: number },
+    ...args: any[]
+  ) => void
   'reset-spin-round': (opts: { message: string }, ...args: any[]) => void
 }
 

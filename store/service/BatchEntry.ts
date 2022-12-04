@@ -65,7 +65,7 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
     jobId: string = null,
     placedAt: number,
     timestamp = Date.now(),
-    startedTxHash: string,
+    placedTxHash: string,
   ) {
     const entries = await this.entryService.populateEntriesFromBatchEntryId(
       eventLogId,
@@ -89,7 +89,7 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
       totalMintAmount: formatETH(totalMintAmount),
       timestamp,
       jobId,
-      startedTxHash,
+      placedTxHash,
     }
 
     await this.repo.createAndSave(batchEntry)

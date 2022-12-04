@@ -22,6 +22,8 @@ export interface IRound {
   randomEliminator: string
   revealKey: string
   randomHash: string
+  startedTxHash: string
+  endedTxHash: string
   startedAt: number
   endedAt: number
   fullRandomNum: string
@@ -42,6 +44,8 @@ export class Round extends Schema implements IRound {
   @type('number') startedAt: number
   @type('number') endedAt: number
   @type('string') randomEliminator: string
+  @type('string') startedTxHash: string
+  @type('string') endedTxHash: string
   @type('string') revealKey: string
   @type('string') randomHash: string
   @type('string') fullRandomNum: string

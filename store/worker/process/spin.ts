@@ -15,6 +15,8 @@ import { ContractNames, EventNames } from '../../constants'
 import { spinAPI } from '../../../crypto'
 import { formatETH, toEth, workerLogger as logger } from '../../utils'
 
+let startedAtHashTx = ''
+
 const createSpinJobProcesses = (service: IServiceObj) => {
   async function contractModeUpdated<T>(
     queueData: IContractModeUpdatedQueue,
@@ -76,6 +78,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
       timestamp,
       endedTxHash,
     } = queueData
+    console.log('concluded round', roundId)
 
     const eventLogId = await service.eventLog.process(event, ContractNames.FareSpin)
     if (!eventLogId) return null
@@ -130,6 +133,9 @@ const createSpinJobProcesses = (service: IServiceObj) => {
       settledData,
       startedAt,
       endedAt,
+      // startedTxHash: round.startedTxHash,
+      startedTxHash: startedAtHashTx,
+      endedTxHash,
       ...eliminators,
     })
 
@@ -148,6 +154,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
         startedAt,
         endedAt,
         timestamp,
+        startedTxHash: startedAtHashTx,
         jobId,
         endedTxHash,
       })
@@ -244,16 +251,34 @@ const createSpinJobProcesses = (service: IServiceObj) => {
   }
 
   async function newRoundStarted(queueData: INewRoundStartedQueue, _jobId: string = null) {
-    const { roundId, startedAt, randomHash, event, timestamp: _timestamp } = queueData
-
-    const eventLogId = await service.eventLog.process(event, ContractNames.FareSpin)
-    if (!eventLogId) return null
-
-    await PubSub.pub<'new-round-started'>('spin-state', 'new-round-started', {
+    const {
+      startedTxHash,
+      roundId,
       startedAt,
       randomHash,
-      roundId,
-    })
+      event,
+      timestamp: _timestamp,
+    } = queueData
+
+    startedAtHashTx = startedTxHash
+
+    // const eventLogId = await service.eventLog.process(event, ContractNames.FareSpin)
+    // if (!eventLogId) return null
+
+    // await service.round.repo.createAndSave({
+    //   eventLogId,
+    //   jobId: _jobId,
+    //   roundId,
+    //   randomHash,
+    //   startedAt,
+    //   startedTxHash,
+    // })
+
+    // await PubSub.pub<'new-round-started'>('spin-state', 'new-round-started', {
+    //   startedAt,
+    //   randomHash,
+    //   roundId,
+    // })
   }
 
   return {

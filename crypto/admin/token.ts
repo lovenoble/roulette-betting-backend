@@ -4,7 +4,12 @@ import { Wallet, providers, BigNumber, utils } from 'ethers'
 import { FareSpin, FareSpin__factory, FareToken, FareToken__factory } from '../types'
 import cryptoConfig from '../../config/crypto.config'
 import { logger } from '../utils'
-import { AVAX_FLOOR, AVAX_FAUCET_AMOUNT, FARE_FLOOR, FARE_FAUCET_AMOUNT } from '../constants'
+import {
+  AVAX_FLOOR,
+  SEED_AVAX_FAUCET_AMOUNT,
+  FARE_FLOOR,
+  SEED_FARE_FAUCET_AMOUNT,
+} from '../constants'
 
 const { blockchainRpcUrl, privateKey, fareTokenAddress, fareSpinAddress } = cryptoConfig
 
@@ -46,14 +51,14 @@ export default class CryptoToken {
 
     switch (transferType) {
       case 'avax':
-        await this.transferAvaxTo(address, AVAX_FAUCET_AMOUNT)
+        await this.transferAvaxTo(address, SEED_AVAX_FAUCET_AMOUNT)
         break
       case 'fare':
-        await this.transferFareTo(address, FARE_FAUCET_AMOUNT)
+        await this.transferFareTo(address, SEED_FARE_FAUCET_AMOUNT)
         break
       case 'both':
-        await this.transferFareTo(address, FARE_FAUCET_AMOUNT)
-        await this.transferAvaxTo(address, AVAX_FAUCET_AMOUNT)
+        await this.transferFareTo(address, SEED_FARE_FAUCET_AMOUNT)
+        await this.transferAvaxTo(address, SEED_AVAX_FAUCET_AMOUNT)
         break
       case 'none':
         break

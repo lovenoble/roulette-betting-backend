@@ -11,6 +11,7 @@ export interface IBatchEntry {
   player: string // Public address of player
   settled: boolean // Determines if a player has submitted an batchEntrySettled transaction to claim token
   placedAt: number
+  placedTxHash: string
   totalEntryAmount: string // Amount(sum of all entries) won when round is over
   totalMintAmount?: string // Amount(sum of all minting entries) won when round is over
   timestamp: number
@@ -24,6 +25,7 @@ export class BatchEntry extends Schema implements IBatchEntry {
   @type('number') roundId: number
   @type('number') batchEntryId: number
   @type('string') player: string
+  @type('string') placedTxHash: string
   @type('boolean') settled = false
   @type('string') totalEntryAmount: string
   @type('string') totalMintAmount?: string // Updated when round is over
