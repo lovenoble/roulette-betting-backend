@@ -48,12 +48,12 @@ export default class StoreWorker {
   }
 
   // #region Job Handlers
-  async handleUserJob(job: Job) {
+  handleUserJob(job: Job) {
     try {
       logger.info(`Process started: ${job.name} - ${Date.now()}`)
       switch (job.name) {
         case EventNames.EnsureBalance:
-          return await this.process.ensureUserHasAvaxFare(job.data)
+          return this.process.ensureUserHasAvaxFare(job.data)
         default:
           throw new Error(`[Worker]: Invalid eventName ${job.name}`)
       }
@@ -63,12 +63,12 @@ export default class StoreWorker {
     }
   }
 
-  async handleFareContractJob(job: Job) {
+  handleFareContractJob(job: Job) {
     try {
       logger.info(`Process started: ${job.name} - ${Date.now()}`)
       switch (job.name) {
         case EventNames.Transfer:
-          return await this.process.fareTransfer(job.data, job.id)
+          return this.process.fareTransfer(job.data, job.id)
         default:
           throw new Error(`[Worker]: Invalid eventName ${job.name}`)
       }
@@ -78,22 +78,22 @@ export default class StoreWorker {
     }
   }
 
-  async handleSpinContractJob(job: Job) {
+  handleSpinContractJob(job: Job) {
     try {
       logger.info(`Process started: ${job.name} - ${Date.now()}`)
       switch (job.name) {
         case EventNames.ContractModeUpdated:
-          return await this.process.contractModeUpdated(job.data, job.id)
+          return this.process.contractModeUpdated(job.data, job.id)
         case EventNames.EntrySubmitted:
-          return await this.process.entrySubmitted(job.data, job.id)
+          return this.process.entrySubmitted(job.data, job.id)
         case EventNames.RoundConcluded:
-          return await this.process.roundConcluded(job.data, job.id)
+          return this.process.roundConcluded(job.data, job.id)
         case EventNames.EntrySettled:
-          return await this.process.entrySettled(job.data, job.id)
+          return this.process.entrySettled(job.data, job.id)
         case EventNames.NewRoundStarted:
-          return await this.process.newRoundStarted(job.data, job.id)
+          return this.process.newRoundStarted(job.data, job.id)
         case EventNames.BatchEntriesSettled:
-          return await this.process.batchEntriesSettled(job.data, job.id)
+          return this.process.batchEntriesSettled(job.data, job.id)
         default:
           throw new Error(`[Worker]: Invalid eventName ${job.name}`)
       }

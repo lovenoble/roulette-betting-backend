@@ -346,6 +346,7 @@ class CryptoAdmin {
       this.clock.clear()
 
       this.countdown = await store.service.round.getSpinCountdownTimer()
+
       if (shouldResetCountdown) {
         await this.setCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION)
         this.countdown = ENTRIES_OPEN_COUNTDOWN_DURATION
@@ -362,17 +363,16 @@ class CryptoAdmin {
       // Ensure batch entries can be submitted
       await this.pauseSpinRound(false)
 
-      // Bind subs
-      PubSub.sub('spin-state', 'round-finished').listen((opts: any) => {
-        console.log('round finished', opts)
-      })
-
       /* Start spin event loop
        * 1. startCountdown - Start countdown from existing countdown number in Redis
        * 2. preSpinPause - Pauses batchEntries, starts 30 second timer for about to spin
        * 3. spinAndConcludeRound - Runs concludeRound (fetches random number), slows down wheel, lands on a color
        * 4. resetRound - Reset countdown timer and starts back at event #1
        */
+
+      PubSub.sub('spin-state', 'round-finished', opts => {
+        console.log('round finished', opts)
+      })
 
       this.startCountdown(this.countdown)
     } catch (err) {
@@ -382,7 +382,5 @@ class CryptoAdmin {
   }
 }
 
-const cryptoAdmin = new CryptoAdmin()
-
 /** Used to run admin level smart contract functions */
-export default cryptoAdmin
+export default new CryptoAdmin()

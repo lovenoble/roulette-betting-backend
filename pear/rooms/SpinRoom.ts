@@ -2,6 +2,7 @@ import type { Client } from '@colyseus/core'
 import { Room, ServerError, Delayed } from '@colyseus/core'
 import { Dispatcher } from '@colyseus/command'
 import shortId from 'shortid'
+import { randomizer } from '../../utils'
 
 import type { IDefaultRoomOptions, ICreateSpinRoomOptions } from '../types'
 import { HttpStatusCode, SpinEvent, MAX_SPIN_CLIENTS, WebSocketCloseCode } from '../constants'
@@ -27,6 +28,7 @@ class SpinContract extends Room<SpinState> {
   #name: string
   #desc: string
   #password: string | null = null
+  spinTick = 0
 
   maxClients = MAX_SPIN_CLIENTS // @NOTE: Need to determine the number of clients where performance begins to fall off
   autoDispose = false
@@ -130,7 +132,6 @@ class SpinContract extends Room<SpinState> {
       })
 
       PubSub.sub('spin-state', 'spin-room-status').listen<'spin-room-status'>(opt => {
-        console.log(opt)
         this.state.roomStatus = opt.status
         if (opt.status === 'spinning') {
           setTimeout(() => this.spinWheelTicks(opt.targetTick), 3_000)
@@ -157,86 +158,74 @@ class SpinContract extends Room<SpinState> {
     }
   }
 
-  async spinWheelTicks(selectedTick: number) {
-    let spinTick = 0
-    const incrementWheelTick = () => {
-      spinTick += 1
-      if (spinTick >= 100) {
-        spinTick = 0
-      }
-      this.broadcast('SpinTick', spinTick)
+  incrementWheelTick() {
+    this.spinTick += 1
+    if (this.spinTick >= 100) {
+      this.spinTick = 0
     }
-    // let eventLoopIntervalId = setInterval(() => {
-    //   this.clock.tick()
-    // }, 1000 / 60) // 60fps (16.66ms)
-    // let delayedClockInterval = this.clock.setInterval(() => {
-    //   spinTick += 1
-    //   if (spinTick >= 100) {
-    //     spinTick = 0
-    //   }
-    //   this.broadcast('SpinTick', spinTick)
-    // }, 25)
-    let intervalId: NodeJS.Timer
-    let timeoutId: NodeJS.Timer
-
-    intervalId = setInterval(incrementWheelTick, 20)
-    timeoutId = setTimeout(() => {
-      clearInterval(intervalId)
-      intervalId = setInterval(incrementWheelTick, 30)
-    }, 12_000)
-    timeoutId = setTimeout(() => {
-      clearInterval(intervalId)
-      intervalId = setInterval(incrementWheelTick, 35)
-    }, 16_500)
-    timeoutId = setTimeout(() => {
-      clearInterval(intervalId)
-      intervalId = setInterval(incrementWheelTick, 40)
-    }, 21_000)
-    timeoutId = setTimeout(() => {
-      clearInterval(intervalId)
-      intervalId = setInterval(incrementWheelTick, 50)
-    }, 24_500)
-    timeoutId = setTimeout(() => {
-      clearInterval(intervalId)
-      intervalId = setInterval(incrementWheelTick, 70)
-    }, 27_000)
-    timeoutId = setTimeout(() => {
-      clearInterval(intervalId)
-      intervalId = setInterval(incrementWheelTick, 90)
-    }, 31_500)
-    timeoutId = setTimeout(() => {
-      clearInterval(intervalId)
-      intervalId = setInterval(() => {
-        incrementWheelTick()
-        console.log(Math.abs(spinTick - selectedTick))
-        if (Math.abs(spinTick - selectedTick) >= 12) {
-          clearInterval(intervalId)
-          setInterval(() => {
-            if (spinTick === selectedTick) {
-              clearInterval(intervalId)
-            }
-          }, 150)
-        }
-      }, 110)
-    }, 37_000)
-
-    // let spinEndTimeout = this.clock.setTimeout(() => {
-    //   // delayedClockInterval.clear()
-    //   clearInterval(intervalId)
-    //   PubSub.pub('spin-state', 'round-finished', { endedAt: Date.now(), randomNum: selectedTick })
-    // }, 15_000)
-
-    // return () => delayedClockInterval.clear()
+    this.broadcast('SpinTick', this.spinTick)
   }
 
-  incrementWheelTick(broadcast) {
-    let spinTick = 0
-    spinTick += 1
-    if (spinTick >= 100) {
-      spinTick = 0
-    }
-    broadcast('SpinTick', spinTick)
-    return spinTick
+  slowTick(selectedTick: number) {
+    this.clock.setInterval(() => {
+      this.incrementWheelTick()
+      if (this.spinTick === selectedTick) {
+        this.clock.stop()
+        this.clock.clear()
+        PubSub.pub('spin-state', 'round-finished', {
+          endedAt: Date.now(),
+          randomNum: selectedTick,
+        })
+      }
+    }, 125)
+  }
+  intervalWheelTick(
+    intervalMs: number,
+    timeoutMs: number,
+    delayedInterval: Delayed,
+    selectedTick?: number,
+  ) {
+    this.clock.setTimeout(() => {
+      const randomTickSlowdown = randomizer(-18, -6)
+      if (selectedTick) {
+        delayedInterval.clear()
+        delayedInterval = this.clock.setInterval(() => {
+          this.incrementWheelTick()
+          const tickDiff = this.spinTick - selectedTick
+          // if (tickDiff >= -12 && tickDiff <= 0) {
+          if (tickDiff >= randomTickSlowdown && tickDiff <= 0) {
+            // if (Math.abs(tickDiff) <= 12) {
+            delayedInterval.clear()
+            this.slowTick(selectedTick)
+          }
+        }, 110)
+        return
+      }
+
+      delayedInterval.pause()
+      delayedInterval.time = intervalMs
+      delayedInterval.resume()
+    }, timeoutMs)
+  }
+
+  async spinWheelTicks(selectedTick: number) {
+    this.clock.stop()
+    this.clock.clear()
+    this.clock.start(true)
+
+    let delayedInterval = this.clock.setInterval(() => this.incrementWheelTick(), 25)
+    this.intervalWheelTick(30, 7_000, delayedInterval)
+    this.intervalWheelTick(35, 9_000, delayedInterval)
+    this.intervalWheelTick(40, 11_000, delayedInterval)
+    this.intervalWheelTick(45, 12_000, delayedInterval)
+    this.intervalWheelTick(50, 13_000, delayedInterval)
+    this.intervalWheelTick(55, 14_000, delayedInterval)
+    this.intervalWheelTick(60, 16_000, delayedInterval)
+    this.intervalWheelTick(65, 17_000, delayedInterval)
+    this.intervalWheelTick(70, 18_000, delayedInterval)
+    this.intervalWheelTick(85, 20_000, delayedInterval)
+    this.intervalWheelTick(100, 22_000, delayedInterval)
+    this.intervalWheelTick(110, 24_000, delayedInterval, selectedTick)
   }
 
   async onAuth(client: Client, options: IDefaultRoomOptions = {}) {
