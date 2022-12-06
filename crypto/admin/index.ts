@@ -290,52 +290,32 @@ class CryptoAdmin {
     await store.service.round.setSpinRoomStatus('spinning', this.targetTick)
   }
 
-  async spinAndConcludeRound() {
-    // Start spinning wheel
-    // store.service.round.setSpinRoomStatus('spinning')
-    await this.spinWheel()
-    logger.info('Wheel spin has begun!')
-    this.delayedTimeout = this.clock.setTimeout(async () => {
-      logger.info('Spin round is concluding. Fetching randomness...')
-      await this.concludeRound()
-      logger.info('Spin round has successfully concluded!')
-
-      await this.settleAllPlacedEntries()
-
-      // Mint/Burn screens event
-      this.delayedTimeout = this.clock.setTimeout(async () => {
-        // Pubsub new round started
-        // Allow batchEntries
-        // Reset countdown timer
-        logger.info('Spin round is resetting. Starting spin countdown...')
-        store.service.round.setSpinRoomStatus('finished')
-        this.delayedTimeout.clear()
-        this.resetRound()
-      }, RESULT_SCREEN_DURATION) // Time for round to conclude and begin next timer
-    }, WHEEL_SPINNING_DURATION) // Time wheel is spinning
+  async spinEnded() {
+    logger.info('Spin round is concluding.')
+    await this.concludeRound()
+    logger.info('Spin round has successfully concluded!')
+    this.settleAllPlacedEntries()
+    store.service.round.setSpinRoomStatus('finished')
+    this.resetRound()
   }
 
   async resetRound() {
     this.countdown = RESULT_SCREEN_DURATION // Time duration before spin round is reset
     // PubSub countdown update
     await this.setCountdown(this.countdown)
-
     this.delayedInterval = this.clock.setInterval(() => {
+      this.logCountdown('RESETTING ROUND')
+      this.setCountdown(this.countdown)
+      this.countdown -= SEC_MS
       if (this.countdown <= 0) {
         // @NOTE: commented out because FareSpin concludeRound now handles unpausing the round
         // this.pauseSpinRound(false)
         this.clock.stop()
         this.clock.clear()
         this.delayedInterval.clear()
-        this.delayedTimeout.clear()
         store.service.round.resetPearStateRound()
         this.startCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION)
-        return
       }
-
-      this.logCountdown('RESETTING ROUND')
-      this.setCountdown(this.countdown)
-      this.countdown -= SEC_MS
     }, 1000)
   }
 
@@ -365,6 +345,7 @@ class CryptoAdmin {
       // Bind subs
       PubSub.sub('spin-state', 'round-finished').listen((opts: any) => {
         console.log('round finished', opts)
+        this.spinEnded()
       })
 
       /* Start spin event loop

@@ -119,9 +119,28 @@ export class OnInitSpinRoom extends Command<SpinRoom, void> {
     this.state.currentRoundId = Number(await store.service.round.getCachedCurrentRoundId())
     this.state.isRoundPaused = await store.service.round.getCachedSpinRoundPaused()
     this.state.countdownTotal = ENTRIES_OPEN_COUNTDOWN_DURATION / 1000
-    const roundData = await store.service.batchEntry.getCurrentRoundBatchEntries()
+    const batchEntryData = await store.service.batchEntry.getCurrentRoundBatchEntries()
+    const roundData =
+      this.state.currentRoundId !== 0
+        ? await store.service.round.fetch(this.state.currentRoundId - 1)
+        : null
 
-    roundData.forEach(({ batchEntry, entries }) => {
+    if (roundData) {
+      const round = new Round()
+      round.roundId = roundData.roundId
+      round.randomHash = roundData.randomHash
+      round.revealKey = roundData.revealKey
+      round.fullRandomNum = roundData.fullRandomNum
+      round.startedAt = new Date(roundData.startedAt).getTime()
+      round.endedAt = new Date(roundData.endedAt).getTime()
+      round.randomHash = roundData.randomHash
+      round.randomNum = roundData.randomNum
+      round.randomEliminator = roundData.randomEliminator
+
+      this.state.round.set(String(this.state.currentRoundId - 1), round)
+    }
+
+    batchEntryData.forEach(({ batchEntry, entries }) => {
       const batchEntryState = new BatchEntry()
       batchEntryState.roundId = batchEntry.roundId
       batchEntryState.placedAt = batchEntry.placedAt
@@ -232,6 +251,16 @@ export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
     round.randomNum = roundData.randomNum
     round.randomEliminator = roundData.randomEliminator
 
+    // round.roundId = roundData.roundId
+    // round.randomHash = roundData.randomHash
+    // round.revealKey = roundData.revealKey
+    // round.fullRandomNum = roundData.fullRandomNum
+    // round.startedAt = new Date(roundData.startedAt).getTime()
+    // round.endedAt = new Date(roundData.endedAt).getTime()
+    // round.randomHash = roundData.randomHash
+    // round.randomNum = roundData.randomNum
+    // round.randomEliminator = roundData.randomEliminator
+
     // Set eliminator results
     round.isTwoXElim = roundData.isTwoXElim
     round.isTenXElim = roundData.isTenXElim
@@ -256,9 +285,12 @@ export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
       }
     })
 
-    this.state.round.set(String(roundData.roundId), round)
-    this.state.round.delete(String(this.state.currentRoundId - 1))
+    console.log(roundData)
+    console.log(round)
 
+    this.state.round.set(String(roundData.roundId), round)
     this.state.currentRoundId += 1
+
+    this.state.round.delete(String(this.state.currentRoundId - 1))
   }
 }

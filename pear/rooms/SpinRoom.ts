@@ -134,7 +134,25 @@ class SpinContract extends Room<SpinState> {
       PubSub.sub('spin-state', 'spin-room-status').listen<'spin-room-status'>(opt => {
         this.state.roomStatus = opt.status
         if (opt.status === 'spinning') {
-          setTimeout(() => this.spinWheelTicks(opt.targetTick), 3_000)
+          setTimeout(() => this.decrementWheelTick(), 1_200)
+          setTimeout(() => this.decrementWheelTick(), 1_350)
+          setTimeout(() => this.decrementWheelTick(), 1_450)
+          setTimeout(() => this.decrementWheelTick(), 1_600)
+          setTimeout(() => this.decrementWheelTick(), 1_750)
+          setTimeout(() => this.decrementWheelTick(), 1_900)
+          setTimeout(() => this.decrementWheelTick(), 2_000)
+          setTimeout(() => this.decrementWheelTick(), 2_100)
+          setTimeout(() => this.decrementWheelTick(), 2_150)
+          setTimeout(() => this.decrementWheelTick(), 2_200)
+          setTimeout(() => this.decrementWheelTick(), 2_225)
+          setTimeout(() => this.decrementWheelTick(), 2_250)
+          setTimeout(() => this.decrementWheelTick(), 2_275)
+          setTimeout(() => this.decrementWheelTick(), 2_300)
+          setTimeout(() => this.decrementWheelTick(), 2_325)
+          setTimeout(() => this.decrementWheelTick(), 2_350)
+          setTimeout(() => this.decrementWheelTick(), 2_375)
+          setTimeout(() => this.decrementWheelTick(), 2_400)
+          setTimeout(() => this.spinWheelTicks(opt.targetTick), 2_500)
         }
       })
 
@@ -166,6 +184,15 @@ class SpinContract extends Room<SpinState> {
     this.broadcast('SpinTick', this.spinTick)
   }
 
+  decrementWheelTick() {
+    if (this.spinTick === 0) {
+      this.spinTick = 99
+    } else {
+      this.spinTick -= 1
+    }
+    this.broadcast('SpinTick', this.spinTick)
+  }
+
   slowTick(selectedTick: number) {
     this.clock.setInterval(() => {
       this.incrementWheelTick()
@@ -177,8 +204,9 @@ class SpinContract extends Room<SpinState> {
           randomNum: selectedTick,
         })
       }
-    }, 125)
+    }, 130)
   }
+
   intervalWheelTick(
     intervalMs: number,
     timeoutMs: number,
@@ -186,19 +214,19 @@ class SpinContract extends Room<SpinState> {
     selectedTick?: number,
   ) {
     this.clock.setTimeout(() => {
-      const randomTickSlowdown = randomizer(-18, -6)
+      // const randomTickSlowdown = randomizer(-18, -6)
       if (selectedTick) {
         delayedInterval.clear()
         delayedInterval = this.clock.setInterval(() => {
           this.incrementWheelTick()
           const tickDiff = this.spinTick - selectedTick
-          // if (tickDiff >= -12 && tickDiff <= 0) {
-          if (tickDiff >= randomTickSlowdown && tickDiff <= 0) {
+          if (tickDiff >= -12 && tickDiff <= 0) {
+            // if (tickDiff >= randomTickSlowdown && tickDiff <= 0) {
             // if (Math.abs(tickDiff) <= 12) {
             delayedInterval.clear()
             this.slowTick(selectedTick)
           }
-        }, 110)
+        }, 120)
         return
       }
 
@@ -213,19 +241,90 @@ class SpinContract extends Room<SpinState> {
     this.clock.clear()
     this.clock.start(true)
 
-    let delayedInterval = this.clock.setInterval(() => this.incrementWheelTick(), 25)
-    this.intervalWheelTick(30, 7_000, delayedInterval)
-    this.intervalWheelTick(35, 9_000, delayedInterval)
-    this.intervalWheelTick(40, 11_000, delayedInterval)
-    this.intervalWheelTick(45, 12_000, delayedInterval)
-    this.intervalWheelTick(50, 13_000, delayedInterval)
-    this.intervalWheelTick(55, 14_000, delayedInterval)
-    this.intervalWheelTick(60, 16_000, delayedInterval)
-    this.intervalWheelTick(65, 17_000, delayedInterval)
-    this.intervalWheelTick(70, 18_000, delayedInterval)
-    this.intervalWheelTick(85, 20_000, delayedInterval)
-    this.intervalWheelTick(100, 22_000, delayedInterval)
-    this.intervalWheelTick(110, 24_000, delayedInterval, selectedTick)
+    const runInterval = (
+      totalTime: number,
+      holdTime: number,
+      slowTime: number,
+      intervalCallback: () => void,
+    ) => {
+      // Convert total time and hold time from seconds to milliseconds
+      totalTime *= 1000
+      holdTime *= 1000
+      slowTime *= 1000
+
+      // Check if total time is valid (not negative)
+      if (totalTime < 0) {
+        throw new Error('Total time must be a non-negative number')
+      }
+
+      // Hard-code start and end interval times
+      const startInterval = 25
+      let endInterval = 80
+      let startSlowDown = false
+
+      const interpolate = (start: number, end: number, time: number, total: number) => {
+        const num = start + (end - start) * (time / total)
+        return num <= end ? num : end
+      }
+
+      let time = 0
+      let slowTimeElasped = 0
+      let intervalTime = startInterval
+      const run = () => {
+        const tickDiff = Math.abs(selectedTick + this.spinTick - 100)
+        if (!startSlowDown && tickDiff <= 24 && time - holdTime >= totalTime) {
+          startSlowDown = true
+        }
+
+        if (startSlowDown) {
+          slowTimeElasped += intervalTime
+          intervalTime = interpolate(80, 120, slowTimeElasped, slowTime)
+        } else {
+          time += intervalTime
+
+          intervalTime =
+            time < holdTime
+              ? startInterval
+              : interpolate(startInterval, endInterval, time - holdTime, totalTime)
+        }
+
+        // Call the interval callback function with the updated interval time
+        intervalCallback()
+
+        if (time - holdTime <= totalTime) {
+          // If the total time has not elapsed, run the function again after the specified interval time
+          setTimeout(run, intervalTime)
+        } else if (startSlowDown && this.spinTick === selectedTick) {
+          setTimeout(() => {
+            PubSub.pub('spin-state', 'round-finished', {
+              endedAt: Date.now(),
+              randomNum: selectedTick,
+            })
+          }, 3000)
+          console.log('landed on tick', selectedTick, this.spinTick)
+        } else {
+          setTimeout(run, intervalTime)
+        }
+      }
+
+      // Start running the interval
+      run()
+    }
+    runInterval(6, 6, 3, () => this.incrementWheelTick())
+
+    // let delayedInterval = this.clock.setInterval(() => this.incrementWheelTick(), 25)
+    // this.intervalWheelTick(30, 7_000, delayedInterval)
+    // this.intervalWheelTick(35, 9_000, delayedInterval)
+    // this.intervalWheelTick(40, 11_000, delayedInterval)
+    // this.intervalWheelTick(45, 12_000, delayedInterval)
+    // this.intervalWheelTick(50, 13_000, delayedInterval)
+    // this.intervalWheelTick(55, 14_000, delayedInterval)
+    // this.intervalWheelTick(60, 16_000, delayedInterval)
+    // this.intervalWheelTick(65, 17_000, delayedInterval)
+    // this.intervalWheelTick(70, 18_000, delayedInterval)
+    // this.intervalWheelTick(85, 20_000, delayedInterval)
+    // this.intervalWheelTick(100, 22_000, delayedInterval)
+    // this.intervalWheelTick(110, 24_000, delayedInterval, selectedTick)
   }
 
   async onAuth(client: Client, options: IDefaultRoomOptions = {}) {
