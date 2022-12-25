@@ -5,8 +5,14 @@ import numeral from 'numeral'
 import shortId from 'shortid'
 
 import { ENTRIES_OPEN_COUNTDOWN_DURATION } from '../../crypto/constants'
-import type { SpinRoom } from '../types'
-import type { FareTransferArgs, BatchEntryMsgArgs, SettledRound } from '../../pubsub/types'
+// import type { SpinRoom } from '../types'
+import type { SpinRoom } from '../rooms/SpinRoom'
+import type {
+  FareTransferArgs,
+  BatchEntryMsgArgs,
+  SettledRound,
+  INewRoundStarted,
+} from '../../pubsub/types'
 
 import store from '../../store'
 import { SpinEvent, MAX_CHAT_MESSAGE_LENGTH, WebSocketCustomCodes } from '../constants'
@@ -120,10 +126,11 @@ export class OnInitSpinRoom extends Command<SpinRoom, void> {
     this.state.isRoundPaused = await store.service.round.getCachedSpinRoundPaused()
     this.state.countdownTotal = ENTRIES_OPEN_COUNTDOWN_DURATION / 1000
     const batchEntryData = await store.service.batchEntry.getCurrentRoundBatchEntries()
-    const roundData =
-      this.state.currentRoundId !== 0
-        ? await store.service.round.fetch(this.state.currentRoundId - 1)
-        : null
+    const roundData = await store.service.round.fetch(this.state.currentRoundId)
+    // const roundData =
+    //   this.state.currentRoundId !== 0
+    //     ? await store.service.round.fetch(this.state.currentRoundId - 1)
+    //     : null
 
     if (roundData) {
       const round = new Round()
@@ -136,6 +143,8 @@ export class OnInitSpinRoom extends Command<SpinRoom, void> {
       round.randomHash = roundData.randomHash
       round.randomNum = roundData.randomNum
       round.randomEliminator = roundData.randomEliminator
+      this.room.spinTick = round.randomNum || 0
+      this.state.spinTick = round.randomNum || 0
 
       this.state.round.set(String(this.state.currentRoundId - 1), round)
     }
@@ -222,6 +231,13 @@ export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
       })
 
       this.state.batchEntries.set(batchEntryState.player, batchEntryState)
+
+      // If player is actively in room ensure their state is set to isInRound
+      store.service.user.getUserByAddress(batchEntry.player).then(user => {
+        if (user) {
+          this.state.users.get(user.sessionId).isInRound = true
+        }
+      })
     } catch (err) {
       logger.error(new Error(err.toString()))
     }
@@ -240,7 +256,8 @@ export class OnResetRound extends Command<SpinRoom, void> {
 
 export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
   execute(roundData: SettledRound) {
-    const round = new Round()
+    // const round = new Round()
+    const round = this.state.round.get(String(this.state.currentRoundId))
     round.roundId = roundData.roundId
     round.randomHash = roundData.randomHash
     round.revealKey = roundData.revealKey
@@ -250,16 +267,6 @@ export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
     round.randomHash = roundData.randomHash
     round.randomNum = roundData.randomNum
     round.randomEliminator = roundData.randomEliminator
-
-    // round.roundId = roundData.roundId
-    // round.randomHash = roundData.randomHash
-    // round.revealKey = roundData.revealKey
-    // round.fullRandomNum = roundData.fullRandomNum
-    // round.startedAt = new Date(roundData.startedAt).getTime()
-    // round.endedAt = new Date(roundData.endedAt).getTime()
-    // round.randomHash = roundData.randomHash
-    // round.randomNum = roundData.randomNum
-    // round.randomEliminator = roundData.randomEliminator
 
     // Set eliminator results
     round.isTwoXElim = roundData.isTwoXElim
@@ -271,26 +278,36 @@ export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
       const be = this.state.batchEntries.get(batchEntry.player)
       if (!be) return
 
-      if (batchEntry.totalMintAmount) {
-        be.totalMintAmount = batchEntry.totalMintAmount
-        be.entries.forEach((e, idx) => {
-          if (entries[idx].mintAmount) {
-            e.mintAmount = entries[idx].mintAmount
-          } else {
-            e.isBurn = true
-          }
-        })
-      } else {
+      const deltaAmount = Number(batchEntry.totalMintAmount) - Number(be.totalEntryAmount)
+      if (deltaAmount < Number(be.totalEntryAmount)) {
         be.isBurn = true
       }
+
+      be.totalMintAmount = batchEntry.totalMintAmount
+      be.settled = true
+
+      be.entries.forEach((e, idx) => {
+        if (entries[idx].mintAmount) {
+          e.mintAmount = entries[idx].mintAmount
+        } else {
+          e.isBurn = true
+        }
+      })
     })
 
-    console.log(roundData)
-    console.log(round)
-
     this.state.round.set(String(roundData.roundId), round)
-    this.state.currentRoundId += 1
+    this.state.round.delete(String(this.state.currentRoundId - 2)) // Remove rounds older than 3 rounds ago
 
-    this.state.round.delete(String(this.state.currentRoundId - 1))
+    this.state.currentRoundId += 1
+  }
+}
+
+export class OnNewRoundStarted extends Command<SpinRoom, INewRoundStarted> {
+  execute(roundData: INewRoundStarted) {
+    const round = new Round()
+    round.roundId = roundData.roundId
+    round.randomHash = roundData.randomHash
+    round.startedAt = roundData.startedAt
+    this.state.round.set(String(roundData.roundId), round)
   }
 }

@@ -36,6 +36,20 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
     return this.repo.search().where('roundId').equal(roundId).sortAsc('batchEntryId').returnAll()
   }
 
+  public async fetchClaimableRewards(publicAddress: string) {
+    let records = await this.repo
+      .search()
+      .where('player')
+      .eq(publicAddress)
+      .and('settled')
+      .eq(false)
+      .returnAll()
+
+    records = records.filter(record => Number(record.totalMintAmount))
+
+    return records
+  }
+
   public async getCurrentRoundBatchEntries(): Promise<ICurrentBatchEntries[]> {
     const currentRoundId = await spinAPI.getCurrentRoundId()
     const batchEntries = await this.fetchBatchEntriesByRoundId(currentRoundId)

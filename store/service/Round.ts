@@ -78,7 +78,7 @@ export default class RoundService extends ServiceBase<Round> {
     return this.client.set(`Global:${GlobalRedisKey.SpinRoomStatus}`, status)
   }
 
-  public async resetPearStateRound(message = 'Resetting round') {
+  public async resetFareSpinStateRound(message = 'Resetting round') {
     await PubSub.pub<'reset-spin-round'>('spin-state', 'reset-spin-round', { message })
   }
 
@@ -144,9 +144,9 @@ export default class RoundService extends ServiceBase<Round> {
             logger.warn('@NOTE: ELIMINATOR ROUND: NFT LOOTBOXES SHOULD BE MINTED')
           } else {
             let rng = randomNum
-            if (gm.cardinality.eq('10')) {
-              rng = BN(Math.floor(rng.toNumber() / 10).toString())
-            }
+            // if (gm.cardinality.eq('10')) {
+            //   rng = BN(Math.floor(rng.toNumber() / 10).toString())
+            // }
 
             if (rng.mod(gm.cardinality).eq(entry.pickedNumber)) {
               entry.mintAmount = formatETH(gm.mintMultiplier.mul(toEth(entry.amount)))

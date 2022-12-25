@@ -78,7 +78,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
       timestamp,
       endedTxHash,
     } = queueData
-    console.log('concluded round', roundId)
+    logger.info(`Concluded round: ${roundId}`)
 
     const eventLogId = await service.eventLog.process(event, ContractNames.FareSpin)
     if (!eventLogId) return null
@@ -142,23 +142,43 @@ const createSpinJobProcesses = (service: IServiceObj) => {
     // Increment cached roundId in Redis
     await service.round.updateCurrentRoundId((roundId + 1).toString())
 
-    const data = (
-      await service.round.repo.createAndSave({
-        eventLogId,
-        roundId,
-        randomNum,
-        randomEliminator,
-        randomHash,
-        revealKey,
-        fullRandomNum,
-        startedAt,
-        endedAt,
-        timestamp,
-        startedTxHash: startedAtHashTx,
-        jobId,
-        endedTxHash,
-      })
-    ).toRedisJson()
+    const roundData = await service.round.repo.search().where('roundId').eq(roundId).returnFirst()
+
+    roundData.eventLogId = eventLogId
+    roundData.roundId = roundId
+    roundData.randomNum = randomNum
+    roundData.randomEliminator = randomEliminator
+    roundData.randomHash = randomHash
+    roundData.revealKey = revealKey
+    roundData.fullRandomNum = fullRandomNum
+    roundData.startedAt = startedAt
+    roundData.endedAt = endedAt
+    roundData.timestamp = timestamp
+    roundData.startedTxHash = startedAtHashTx
+    roundData.jobId = jobId
+    roundData.endedTxHash = endedTxHash
+
+    service.round.repo.save(roundData)
+
+    const data = roundData.toRedisJson()
+
+    // const data = (
+    //   await service.round.repo.createAndSave({
+    //     eventLogId,
+    //     roundId,
+    //     randomNum,
+    //     randomEliminator,
+    //     randomHash,
+    //     revealKey,
+    //     fullRandomNum,
+    //     startedAt,
+    //     endedAt,
+    //     timestamp,
+    //     startedTxHash: startedAtHashTx,
+    //     jobId,
+    //     endedTxHash,
+    //   })
+    // ).toRedisJson()
 
     return JSON.stringify({
       eventName: EventNames.RoundConcluded,
@@ -208,8 +228,8 @@ const createSpinJobProcesses = (service: IServiceObj) => {
     roundId: number,
     player: string,
     timestamp: number,
-    jobId: string = null,
     settledTxHash: string,
+    jobId: string = null,
   ) {
     // const [_entryId, _player, _settled, _totalEntryAmount, _totalMintAmount] =
     const { settledAt, totalMintAmount } = await spinAPI.contract.batchEntryMap(roundId, player)
@@ -225,6 +245,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
     // @NOTE: Ensure blockchain totalMintAmount and calculated Redis totalMintAmount is correct
     // @NOTE: We need to log to our analytics if these numbers do not match
     if (!toEth(batchEntryEntity.totalMintAmount).eq(totalMintAmount)) {
+      console.log(batchEntryEntity.totalMintAmount, totalMintAmount)
       logger.warn('------------------------------------------')
       logger.warn(
         '!IMPORTANT - Redis totalMintAmount and smart contract totalMintAmount do not match.',
@@ -244,7 +265,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
     if (!eventLogId) return null
 
     const promiseList = roundIds.map(rid =>
-      batchEntrySettler(rid, player, timestamp, jobId, settledTxHash),
+      batchEntrySettler(rid, player, timestamp, settledTxHash, jobId),
     )
 
     await Promise.all(promiseList)
@@ -256,7 +277,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
       roundId,
       startedAt,
       randomHash,
-      event,
+      event: _event,
       timestamp: _timestamp,
     } = queueData
 
@@ -265,20 +286,20 @@ const createSpinJobProcesses = (service: IServiceObj) => {
     // const eventLogId = await service.eventLog.process(event, ContractNames.FareSpin)
     // if (!eventLogId) return null
 
-    // await service.round.repo.createAndSave({
-    //   eventLogId,
-    //   jobId: _jobId,
-    //   roundId,
-    //   randomHash,
-    //   startedAt,
-    //   startedTxHash,
-    // })
+    await service.round.repo.createAndSave({
+      // eventLogId,
+      // jobId: _jobId,
+      roundId,
+      randomHash,
+      startedAt,
+      startedTxHash,
+    })
 
-    // await PubSub.pub<'new-round-started'>('spin-state', 'new-round-started', {
-    //   startedAt,
-    //   randomHash,
-    //   roundId,
-    // })
+    await PubSub.pub<'new-round-started'>('spin-state', 'new-round-started', {
+      startedAt,
+      randomHash,
+      roundId,
+    })
   }
 
   return {

@@ -5,9 +5,9 @@ import type { Server } from 'http'
 
 import type { ITransportOptions } from './types'
 import {
-    transportOptions as defaultTransportOptions,
-    appOptions as defaultAppOptions,
-    pearMonitorPort as defaultPearMonitorPort,
+  transportOptions as defaultTransportOptions,
+  appOptions as defaultAppOptions,
+  pearMonitorPort as defaultPearMonitorPort,
 } from '../config/transport.config'
 import { logger } from './utils'
 import createRoutes from './routes'
@@ -19,73 +19,73 @@ import fast from './fastify'
  * Additionally, handles general HTTP and WS requests defined in `server/transport/routes.ts`
  */
 export class Transport {
-    instance!: uWebSocketsTransport
-    app!: TemplatedApp
-    #pearMonitor: ReturnType<typeof createMonitorDashboard>
-    pearMonitorPort = defaultPearMonitorPort
-    pearMonitorServer?: Server
-    logger = logger
+  instance!: uWebSocketsTransport
+  app!: TemplatedApp
+  #pearMonitor: ReturnType<typeof createMonitorDashboard>
+  pearMonitorPort = defaultPearMonitorPort
+  pearMonitorServer?: Server
+  logger = logger
 
-    constructor({
-        transportOpts = defaultTransportOptions,
-        appOpts = defaultAppOptions,
-        pearMonitorPort = defaultPearMonitorPort,
-    }: ITransportOptions) {
-        // Create new uWebSocketsTransport instance
-        this.instance = new uWebSocketsTransport(transportOpts, appOpts)
-        this.app = this.instance.app
-        this.pearMonitorPort = pearMonitorPort
+  constructor({
+    transportOpts = defaultTransportOptions,
+    appOpts = defaultAppOptions,
+    pearMonitorPort = defaultPearMonitorPort,
+  }: ITransportOptions) {
+    // Create new uWebSocketsTransport instance
+    this.instance = new uWebSocketsTransport(transportOpts, appOpts)
+    this.app = this.instance.app
+    this.pearMonitorPort = pearMonitorPort
 
-        // Create routes from transport instance
-        createRoutes(this.app)
-        logger.info(`Created (HTTP/WS) routes for transport`)
-    }
+    // Create routes from transport instance
+    createRoutes(this.app)
+    logger.info(`Created (HTTP/WS) routes for transport`)
+  }
 
-    async startMonitorDashboard(newPearMonitorPort?: number): Promise<Express> {
-        return new Promise((resolve, reject) => {
-            this.pearMonitorPort = newPearMonitorPort || this.pearMonitorPort
-            this.#pearMonitor = createMonitorDashboard()
-            this.pearMonitorServer = this.#pearMonitor
-                .listen(this.pearMonitorPort, () => {
-                    logger.info(`Pear monitor dashboard running on port ${this.pearMonitorPort}...`)
-                    resolve(this.#pearMonitor)
-                })
-                .on('error', reject)
+  async startMonitorDashboard(newPearMonitorPort?: number): Promise<Express> {
+    return new Promise((resolve, reject) => {
+      this.pearMonitorPort = newPearMonitorPort || this.pearMonitorPort
+      this.#pearMonitor = createMonitorDashboard()
+      this.pearMonitorServer = this.#pearMonitor
+        .listen(this.pearMonitorPort, () => {
+          logger.info(`Pear monitor dashboard running on port ${this.pearMonitorPort}...`)
+          resolve(this.#pearMonitor)
         })
-    }
+        .on('error', reject)
+    })
+  }
 
-    async stopMonitorDashboard() {
-        return new Promise((resolve, reject) => {
-            if (this.pearMonitorServer) {
-                this.pearMonitorServer.close(err => {
-                    if (err) reject(err)
-                    const successMsg = `Pear monitor dashboard closed (port: ${this.pearMonitorPort})`
-                    logger.info(successMsg)
-                    resolve(successMsg)
-                })
-            }
+  async stopMonitorDashboard() {
+    return new Promise((resolve, reject) => {
+      if (this.pearMonitorServer) {
+        this.pearMonitorServer.close(err => {
+          if (err) reject(err)
+          const successMsg = `Pear monitor dashboard closed (port: ${this.pearMonitorPort})`
+          logger.info(successMsg)
+          resolve(successMsg)
         })
-    }
+      }
+    })
+  }
 
-    async stopAll() {
-        if (this.instance) {
-            await this.stopMonitorDashboard()
-            this.instance.shutdown()
-            this.logger.info('Transport server has been stopped.')
-        }
+  async stopAll() {
+    if (this.instance) {
+      await this.stopMonitorDashboard()
+      this.instance.shutdown()
+      this.logger.info('Transport server has been stopped.')
     }
+  }
 }
 
 fast.listen({ port: Number(process.env.FAST_SERVER_PORT || 3200) }, err => {
-    if (err) {
-        logger.error(err)
-        return
-    }
-    logger.info(`Fast server started on port ${process.env.FAST_SERVER_PORT}`)
+  if (err) {
+    logger.error(err)
+    return
+  }
+  logger.info(`Fast server started on port ${process.env.FAST_SERVER_PORT}`)
 })
 
 export default new Transport({
-    transportOpts: {
-        idleTimeout: 0,
-    },
+  transportOpts: {
+    idleTimeout: 0,
+  },
 })

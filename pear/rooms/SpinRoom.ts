@@ -2,7 +2,6 @@ import type { Client } from '@colyseus/core'
 import { Room, ServerError, Delayed } from '@colyseus/core'
 import { Dispatcher } from '@colyseus/command'
 import shortId from 'shortid'
-import { randomizer } from '../../utils'
 
 import type { IDefaultRoomOptions, ICreateSpinRoomOptions } from '../types'
 import { HttpStatusCode, SpinEvent, MAX_SPIN_CLIENTS, WebSocketCloseCode } from '../constants'
@@ -17,6 +16,7 @@ import {
   OnNewChatMessage,
   OnResetRound,
   OnBalanceUpdate,
+  OnNewRoundStarted,
   // OnFareTransfer,
 } from '../commands'
 import { SpinState } from '../state/SpinState'
@@ -24,7 +24,7 @@ import { logger } from '../utils'
 import store from '../../store'
 import PubSub from '../../pubsub'
 
-class SpinContract extends Room<SpinState> {
+export class SpinRoom extends Room<SpinState> {
   #name: string
   #desc: string
   #password: string | null = null
@@ -133,6 +133,7 @@ class SpinContract extends Room<SpinState> {
 
       PubSub.sub('spin-state', 'spin-room-status').listen<'spin-room-status'>(opt => {
         this.state.roomStatus = opt.status
+        // TODO: Refactor this code
         if (opt.status === 'spinning') {
           setTimeout(() => this.decrementWheelTick(), 1_200)
           setTimeout(() => this.decrementWheelTick(), 1_350)
@@ -156,9 +157,9 @@ class SpinContract extends Room<SpinState> {
         }
       })
 
-      // PubSub.sub('spin-state', 'round-finished', opts => {
-      //   console.log('round finished', opts)
-      // })
+      PubSub.sub('spin-state', 'new-round-started').listen<'new-round-started'>(roundData => {
+        this.dispatcher.dispatch(new OnNewRoundStarted(), roundData)
+      })
 
       PubSub.sub('spin-state', 'countdown-updated').listen<'countdown-updated'>(time => {
         this.broadcast(SpinEvent.TimerUpdated, time)
@@ -193,47 +194,75 @@ class SpinContract extends Room<SpinState> {
     this.broadcast('SpinTick', this.spinTick)
   }
 
-  slowTick(selectedTick: number) {
-    this.clock.setInterval(() => {
-      this.incrementWheelTick()
-      if (this.spinTick === selectedTick) {
-        this.clock.stop()
-        this.clock.clear()
-        PubSub.pub('spin-state', 'round-finished', {
-          endedAt: Date.now(),
-          randomNum: selectedTick,
-        })
-      }
-    }, 130)
-  }
+  runInterval({
+    totalTime = 6,
+    holdTime = 6,
+    slowTime = 3,
+    startCruiseSpeed = 20,
+    endCruiseSpeed = 80,
+    stopSpeed = 120,
+    selectedTick = 0,
+    tickDiffSlowdown = 24,
+    intervalCallback = () => console.log('internalCallback'),
+    onFinished = () => console.log('finished'),
+  }) {
+    // Check if total time is valid (not negative)
+    if (totalTime < 0) {
+      throw new Error('Total time must be a non-negative number')
+    }
 
-  intervalWheelTick(
-    intervalMs: number,
-    timeoutMs: number,
-    delayedInterval: Delayed,
-    selectedTick?: number,
-  ) {
-    this.clock.setTimeout(() => {
-      // const randomTickSlowdown = randomizer(-18, -6)
-      if (selectedTick) {
-        delayedInterval.clear()
-        delayedInterval = this.clock.setInterval(() => {
-          this.incrementWheelTick()
-          const tickDiff = this.spinTick - selectedTick
-          if (tickDiff >= -12 && tickDiff <= 0) {
-            // if (tickDiff >= randomTickSlowdown && tickDiff <= 0) {
-            // if (Math.abs(tickDiff) <= 12) {
-            delayedInterval.clear()
-            this.slowTick(selectedTick)
-          }
-        }, 120)
-        return
+    // Convert total time and hold time from seconds to milliseconds
+    totalTime *= 1000
+    holdTime *= 1000
+    slowTime *= 1000
+
+    // Internal variables
+    let startSlowDown = false
+    let cruiseTimeElasped = 0
+    let slowTimeElasped = 0
+    let intervalTime = startCruiseSpeed
+
+    // Linear intopolation functoin
+    const interpolate = (start: number, end: number, time: number, total: number) => {
+      const num = start + (end - start) * (time / total)
+      return num <= end ? num : end
+    }
+
+    // Recursive run functoin
+    const run = () => {
+      const tickDiff = Math.abs(selectedTick + this.spinTick - 100)
+      if (
+        !startSlowDown &&
+        tickDiff <= tickDiffSlowdown &&
+        cruiseTimeElasped - holdTime >= totalTime
+      ) {
+        startSlowDown = true
       }
 
-      delayedInterval.pause()
-      delayedInterval.time = intervalMs
-      delayedInterval.resume()
-    }, timeoutMs)
+      if (startSlowDown) {
+        slowTimeElasped += intervalTime
+        intervalTime = interpolate(endCruiseSpeed, stopSpeed, slowTimeElasped, slowTime)
+      } else {
+        cruiseTimeElasped += intervalTime
+
+        intervalTime =
+          cruiseTimeElasped < holdTime
+            ? startCruiseSpeed
+            : interpolate(startCruiseSpeed, endCruiseSpeed, cruiseTimeElasped - holdTime, totalTime)
+      }
+
+      // Call the interval callback function with the updated interval time
+      intervalCallback()
+
+      if (startSlowDown && this.spinTick === selectedTick) {
+        onFinished()
+      } else {
+        setTimeout(run, intervalTime)
+      }
+    }
+
+    // Start running the interval
+    run()
   }
 
   async spinWheelTicks(selectedTick: number) {
@@ -241,90 +270,29 @@ class SpinContract extends Room<SpinState> {
     this.clock.clear()
     this.clock.start(true)
 
-    const runInterval = (
-      totalTime: number,
-      holdTime: number,
-      slowTime: number,
-      intervalCallback: () => void,
-    ) => {
-      // Convert total time and hold time from seconds to milliseconds
-      totalTime *= 1000
-      holdTime *= 1000
-      slowTime *= 1000
+    this.runInterval({
+      totalTime: 6,
+      holdTime: 6,
+      slowTime: 3,
+      startCruiseSpeed: 20,
+      endCruiseSpeed: 80,
+      stopSpeed: 120,
+      selectedTick,
+      tickDiffSlowdown: 24,
+      intervalCallback: () => this.incrementWheelTick(),
+      onFinished: () => {
+        // Set spinTick on state
+        this.state.spinTick = this.spinTick
+        setTimeout(() => {
+          PubSub.pub('spin-state', 'round-finished', {
+            endedAt: Date.now(),
+            randomNum: selectedTick,
+          })
+        }, 3000)
+      },
+    })
 
-      // Check if total time is valid (not negative)
-      if (totalTime < 0) {
-        throw new Error('Total time must be a non-negative number')
-      }
-
-      // Hard-code start and end interval times
-      const startInterval = 25
-      let endInterval = 80
-      let startSlowDown = false
-
-      const interpolate = (start: number, end: number, time: number, total: number) => {
-        const num = start + (end - start) * (time / total)
-        return num <= end ? num : end
-      }
-
-      let time = 0
-      let slowTimeElasped = 0
-      let intervalTime = startInterval
-      const run = () => {
-        const tickDiff = Math.abs(selectedTick + this.spinTick - 100)
-        if (!startSlowDown && tickDiff <= 24 && time - holdTime >= totalTime) {
-          startSlowDown = true
-        }
-
-        if (startSlowDown) {
-          slowTimeElasped += intervalTime
-          intervalTime = interpolate(80, 120, slowTimeElasped, slowTime)
-        } else {
-          time += intervalTime
-
-          intervalTime =
-            time < holdTime
-              ? startInterval
-              : interpolate(startInterval, endInterval, time - holdTime, totalTime)
-        }
-
-        // Call the interval callback function with the updated interval time
-        intervalCallback()
-
-        if (time - holdTime <= totalTime) {
-          // If the total time has not elapsed, run the function again after the specified interval time
-          setTimeout(run, intervalTime)
-        } else if (startSlowDown && this.spinTick === selectedTick) {
-          setTimeout(() => {
-            PubSub.pub('spin-state', 'round-finished', {
-              endedAt: Date.now(),
-              randomNum: selectedTick,
-            })
-          }, 3000)
-          console.log('landed on tick', selectedTick, this.spinTick)
-        } else {
-          setTimeout(run, intervalTime)
-        }
-      }
-
-      // Start running the interval
-      run()
-    }
-    runInterval(6, 6, 3, () => this.incrementWheelTick())
-
-    // let delayedInterval = this.clock.setInterval(() => this.incrementWheelTick(), 25)
-    // this.intervalWheelTick(30, 7_000, delayedInterval)
-    // this.intervalWheelTick(35, 9_000, delayedInterval)
-    // this.intervalWheelTick(40, 11_000, delayedInterval)
-    // this.intervalWheelTick(45, 12_000, delayedInterval)
-    // this.intervalWheelTick(50, 13_000, delayedInterval)
-    // this.intervalWheelTick(55, 14_000, delayedInterval)
-    // this.intervalWheelTick(60, 16_000, delayedInterval)
-    // this.intervalWheelTick(65, 17_000, delayedInterval)
-    // this.intervalWheelTick(70, 18_000, delayedInterval)
-    // this.intervalWheelTick(85, 20_000, delayedInterval)
-    // this.intervalWheelTick(100, 22_000, delayedInterval)
-    // this.intervalWheelTick(110, 24_000, delayedInterval, selectedTick)
+    // runInterval(6, 6, 3, () => this.incrementWheelTick())
   }
 
   async onAuth(client: Client, options: IDefaultRoomOptions = {}) {
@@ -406,8 +374,8 @@ class SpinContract extends Room<SpinState> {
 
   onDispose() {
     this.dispatcher.stop()
-    logger.info('Disposing of SpinContract room...')
+    logger.info('Disposing of SpinRoom...')
   }
 }
 
-export default SpinContract
+export default SpinRoom
