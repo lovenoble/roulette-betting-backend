@@ -78,7 +78,10 @@ class CryptoAdmin {
       const signer = this.seed.signers[userIdx]
       if (!signer) throw new Error("Signer account doesn't exist")
 
-      tx = await this.spin.connect(signer).placeBatchEntry(params)
+      tx = await this.spin.connect(signer).placeBatchEntry(params, {
+        gasLimit: 8000000,
+        gasPrice: 50000000000,
+      })
       receipt = await tx.wait()
       logger.info(`Submitted batch entry for Player: (${signer.address.substring(0, 11)})`)
       this.placedUserIdxs.push(userIdx)
@@ -175,7 +178,10 @@ class CryptoAdmin {
   }
 
   async pauseSpinRound(isPaused: boolean) {
-    const tx = await this.spin.setRoundPaused(isPaused)
+    const tx = await this.spin.setRoundPaused(isPaused, {
+      gasLimit: 9000000,
+      gasPrice: 70000000000,
+    })
     const receipt = await tx.wait()
     return receipt
   }
@@ -183,7 +189,10 @@ class CryptoAdmin {
   async concludeRound() {
     const roundId = Number(await this.spin.getCurrentRoundId())
     const randomness = await store.service.randomness.getRandomess(roundId)
-    const resp = await this.spin.concludeRound(randomness.revealKey, randomness.fullRandomNum)
+    const resp = await this.spin.concludeRound(randomness.revealKey, randomness.fullRandomNum, {
+      gasLimit: 9000000,
+      gasPrice: 70000000000,
+    })
     await resp.wait()
   }
 
@@ -193,7 +202,10 @@ class CryptoAdmin {
     const randomness = await this.generateAndSaveRandomness(roundId)
     let resp: ContractTransaction
     try {
-      resp = await this.spin.startNewRound(randomness.randomHash)
+      resp = await this.spin.startNewRound(randomness.randomHash, {
+        gasLimit: 9000000,
+        gasPrice: 70000000000,
+      })
       await resp.wait()
     } catch (err: any) {
       logger.warn(String(err))

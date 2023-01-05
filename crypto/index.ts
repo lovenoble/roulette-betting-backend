@@ -40,8 +40,8 @@ export class Crypto {
   utils = utils
 
   constructor() {
-    console.log(blockchainRpcUrl)
-    this.provider = new providers.JsonRpcProvider(blockchainRpcUrl)
+    // this.provider = new providers.JsonRpcProvider(blockchainRpcUrl)
+    this.provider = new providers.WebSocketProvider(process.env.BLOCKCHAIN_ETH_URL_WS)
     this.signer = new Wallet(privateKey, this.provider)
     this.fare = FareToken__factory.connect(fareTokenAddress, this.signer)
     this.spin = FareSpin__factory.connect(fareSpinAddress, this.signer)

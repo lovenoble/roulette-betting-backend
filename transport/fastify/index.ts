@@ -19,7 +19,9 @@ import { PearHash } from '../../store/utils'
 const fast = Fastify({
   logger: true,
 })
-await fast.register(fastifyCors, {})
+await fast.register(fastifyCors, {
+  origin: true,
+})
 
 fast.post<{ Body: { publicAddress: string } }>('/auth/generate-nonce', async req => {
   const { publicAddress } = req.body
