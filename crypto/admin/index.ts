@@ -187,8 +187,9 @@ class CryptoAdmin {
   }
 
   async concludeRound() {
-    const roundId = Number(await this.spin.getCurrentRoundId())
-    const randomness = await store.service.randomness.getRandomess(roundId)
+    // const roundId = Number(await this.spin.getCurrentRoundId())
+    // const randomness = await store.service.randomness.getRandomess(roundId)
+    const randomness = await store.service.randomness.getRandomess(this.currentRoundId)
     const resp = await this.spin.concludeRound(randomness.revealKey, randomness.fullRandomNum, {
       gasLimit: 9000000,
       gasPrice: 70000000000,
