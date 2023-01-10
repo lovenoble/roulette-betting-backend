@@ -79,8 +79,8 @@ class CryptoAdmin {
       if (!signer) throw new Error("Signer account doesn't exist")
 
       tx = await this.spin.connect(signer).placeBatchEntry(params, {
-        gasLimit: 8000000,
-        gasPrice: 50000000000,
+        gasLimit: 2100000,
+        gasPrice: 70000000,
       })
       receipt = await tx.wait()
       logger.info(`Submitted batch entry for Player: (${signer.address.substring(0, 11)})`)
