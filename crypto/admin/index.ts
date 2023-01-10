@@ -178,23 +178,73 @@ class CryptoAdmin {
   }
 
   async pauseSpinRound(isPaused: boolean) {
-    const tx = await this.spin.setRoundPaused(isPaused, {
-      gasLimit: 9000000,
-      gasPrice: 70000000000,
-    })
-    const receipt = await tx.wait()
-    return receipt
+    try {
+      const tx = await this.spin.setRoundPaused(isPaused, {
+        gasLimit: 9000000,
+        gasPrice: 70000000000,
+      })
+      const receipt = await tx.wait()
+      return receipt
+    } catch (err) {
+      logger.warn(String(err))
+      try {
+        const tx = await this.spin.setRoundPaused(isPaused, {
+          gasLimit: 9000000,
+          gasPrice: 70000000000,
+        })
+        const receipt = await tx.wait()
+        return receipt
+      } catch (err1) {
+        logger.warn(String(err1))
+        try {
+          const tx = await this.spin.setRoundPaused(isPaused, {
+            gasLimit: 9000000,
+            gasPrice: 70000000000,
+          })
+          const receipt = await tx.wait()
+          return receipt
+        } catch (err2) {
+          logger.warn(String(err2))
+        }
+      }
+    }
   }
 
   async concludeRound() {
     // const roundId = Number(await this.spin.getCurrentRoundId())
     // const randomness = await store.service.randomness.getRandomess(roundId)
     const randomness = await store.service.randomness.getRandomess(this.currentRoundId)
-    const resp = await this.spin.concludeRound(randomness.revealKey, randomness.fullRandomNum, {
-      gasLimit: 9000000,
-      gasPrice: 70000000000,
-    })
-    await resp.wait()
+    try {
+      const resp = await this.spin.concludeRound(randomness.revealKey, randomness.fullRandomNum, {
+        gasLimit: 9000000,
+        gasPrice: 70000000000,
+      })
+      await resp.wait()
+    } catch (err) {
+      logger.warn(String(err))
+      try {
+        const resp = await this.spin.concludeRound(randomness.revealKey, randomness.fullRandomNum, {
+          gasLimit: 9000000,
+          gasPrice: 70000000000,
+        })
+        await resp.wait()
+      } catch (err2) {
+        logger.warn(String(err2))
+        try {
+          const resp = await this.spin.concludeRound(
+            randomness.revealKey,
+            randomness.fullRandomNum,
+            {
+              gasLimit: 9000000,
+              gasPrice: 70000000000,
+            },
+          )
+          await resp.wait()
+        } catch (err3) {
+          logger.warn(String(err3))
+        }
+      }
+    }
   }
 
   async startNewRound() {
@@ -210,10 +260,24 @@ class CryptoAdmin {
       await resp.wait()
     } catch (err: any) {
       logger.warn(String(err))
-      // const code = err.data.replace('Reverted ', '')
-      // console.log({ err })
-      // let reason = utils.toUtf8String('0x' + code.substr(138))
-      // console.log('revert reason:', reason)
+      try {
+        resp = await this.spin.startNewRound(randomness.randomHash, {
+          gasLimit: 9000000,
+          gasPrice: 70000000000,
+        })
+        await resp.wait()
+      } catch (errs: any) {
+        logger.warn(String(errs))
+        try {
+          resp = await this.spin.startNewRound(randomness.randomHash, {
+            gasLimit: 9000000,
+            gasPrice: 70000000000,
+          })
+          await resp.wait()
+        } catch (errs2: any) {
+          logger.warn(String(errs2))
+        }
+      }
     }
   }
 
