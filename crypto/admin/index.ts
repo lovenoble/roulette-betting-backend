@@ -6,7 +6,7 @@ import { FareSpin, FareSpin__factory, FareToken, FareToken__factory, FlatEntry }
 import CryptoToken from './token'
 import CryptoSeed from './seed'
 import cryptoConfig from '../../config/crypto.config'
-import { logger, createBatchEntry } from './utils'
+import { logger, createBatchEntry, retryPromise } from './utils'
 import { randomizer } from '../../utils'
 import store from '../../store'
 import {
@@ -43,6 +43,8 @@ class CryptoAdmin {
   placedUserIdxs: number[] = []
   failThreshold = 0
   targetTick: number
+  revealKey: string
+  fullRandomNum: string
 
   async init() {
     logger.warn(
@@ -159,6 +161,7 @@ class CryptoAdmin {
     }
 
     const batchEntryParams = this.createRandomBatchEntryParams()
+
     try {
       await this.createBatchEntry(this.currentUserIdx, batchEntryParams)
       logger.info(`Submitted batchEntry for userIdx(${this.currentUserIdx})`)
@@ -184,66 +187,30 @@ class CryptoAdmin {
         gasPrice: 70000000000,
       })
       const receipt = await tx.wait()
+      logger.info('Round paused successfully!')
       return receipt
     } catch (err) {
       logger.warn(String(err))
-      try {
-        const tx = await this.spin.setRoundPaused(isPaused, {
-          gasLimit: 9000000,
-          gasPrice: 70000000000,
-        })
-        const receipt = await tx.wait()
-        return receipt
-      } catch (err1) {
-        logger.warn(String(err1))
-        try {
-          const tx = await this.spin.setRoundPaused(isPaused, {
-            gasLimit: 9000000,
-            gasPrice: 70000000000,
-          })
-          const receipt = await tx.wait()
-          return receipt
-        } catch (err2) {
-          logger.warn(String(err2))
-        }
-      }
     }
   }
 
   async concludeRound() {
     // const roundId = Number(await this.spin.getCurrentRoundId())
     // const randomness = await store.service.randomness.getRandomess(roundId)
-    const randomness = await store.service.randomness.getRandomess(this.currentRoundId)
     try {
-      const resp = await this.spin.concludeRound(randomness.revealKey, randomness.fullRandomNum, {
-        gasLimit: 9000000,
-        gasPrice: 70000000000,
-      })
+      const randomness = await store.service.randomness.getRandomess(this.currentRoundId)
+      // const resp = await this.spin.concludeRound(randomness.revealKey, randomness.fullRandomNum, {
+      const resp = await this.spin.concludeRound(
+        this.revealKey || randomness.revealKey,
+        this.fullRandomNum || randomness.fullRandomNum,
+        {
+          gasLimit: 9000000,
+          gasPrice: 70000000000,
+        },
+      )
       await resp.wait()
     } catch (err) {
       logger.warn(String(err))
-      try {
-        const resp = await this.spin.concludeRound(randomness.revealKey, randomness.fullRandomNum, {
-          gasLimit: 9000000,
-          gasPrice: 70000000000,
-        })
-        await resp.wait()
-      } catch (err2) {
-        logger.warn(String(err2))
-        try {
-          const resp = await this.spin.concludeRound(
-            randomness.revealKey,
-            randomness.fullRandomNum,
-            {
-              gasLimit: 9000000,
-              gasPrice: 70000000000,
-            },
-          )
-          await resp.wait()
-        } catch (err3) {
-          logger.warn(String(err3))
-        }
-      }
     }
   }
 
@@ -297,6 +264,8 @@ class CryptoAdmin {
     }
     const returnedRandomness = await store.service.randomness.createOrReturn(parsedRandomness)
     this.targetTick = Number(BigInt(returnedRandomness.fullRandomNum) % BigInt(100))
+    this.revealKey = revealKey
+    this.fullRandomNum = fullRandomNum
 
     return returnedRandomness || parsedRandomness
   }
@@ -317,8 +286,9 @@ class CryptoAdmin {
   async startCountdown(_countdown: number, shouldSendStartTx = false) {
     // store.service.round.setSpinRoomStatus('starting')
     if (shouldSendStartTx) {
-      await this.startNewRound()
+      await retryPromise(() => this.startNewRound(), 5)
     }
+
     await store.service.round.setSpinRoomStatus('countdown')
     this.clock.start()
     this.countdown = _countdown
@@ -343,26 +313,15 @@ class CryptoAdmin {
   }
 
   async preSpinPause() {
-    // Pause round - Prevents batch entries from being submitted
-    logger.info(`Pausing spin round...`)
-    await store.service.round.setSpinRoomStatus('pausing')
-    await this.pauseSpinRound(true)
-    logger.info('Spin round was successfully paused')
-    this.spinWheel()
-
-    // Round paused and wheel spin about to start
-    // this.delayedInterval = this.clock.setInterval(() => {
-    //   if (this.countdown < 0) {
-    //     this.delayedInterval.clear()
-    //     // this.spinAndConcludeRound()
-    //     this.spinWheel()
-    //     return
-    //   }
-
-    //   this.logCountdown('PRE-SPIN')
-    //   this.setCountdown(this.countdown)
-    //   this.countdown -= SEC_MS
-    // }, PRE_SPIN_DURATION)
+    try {
+      // Pause round - Prevents batch entries from being submitted
+      logger.info(`Pausing spin round...`)
+      await store.service.round.setSpinRoomStatus('pausing')
+      await retryPromise(() => this.pauseSpinRound(true), 5)
+      this.spinWheel()
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   async spinWheel() {
@@ -371,7 +330,7 @@ class CryptoAdmin {
 
   async spinEnded() {
     logger.info('Spin round is concluding.')
-    await this.concludeRound()
+    await retryPromise(() => this.concludeRound(), 5)
     logger.info('Spin round has successfully concluded!')
     store.service.round.setSpinRoomStatus('finished')
     this.resetRound()
@@ -380,16 +339,16 @@ class CryptoAdmin {
   async resetRound() {
     logger.info('Sending startNewRound transaction to FareSpin contract...')
 
-    setTimeout(() => {
-      this.settleAllPlacedEntries().finally(() => {
-        this.startNewRound()
-          .then(async () => {
-            logger.info('New round started successfully!')
-            await store.service.round.resetFareSpinStateRound()
-            this.startCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION, false)
-          })
-          .catch(err => logger.error(err))
-      })
+    setTimeout(async () => {
+      // this.settleAllPlacedEntries().finally(() => {
+      this.startNewRound()
+        .then(async () => {
+          logger.info('New round started successfully!')
+          await store.service.round.resetFareSpinStateRound()
+          this.startCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION, false)
+        })
+        .catch(err => logger.error(err))
+      // })
     }, RESULT_SCREEN_DURATION)
 
     // this.countdown = RESULT_SCREEN_DURATION // Time duration before spin round is reset
