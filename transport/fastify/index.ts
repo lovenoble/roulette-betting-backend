@@ -41,7 +41,7 @@ fast.post<{ Body: { publicAddress: string; signature: string } }>(
     const addressFromSignature = utils.verifyMessage(signingMessage, signature)
 
     // Signature is valid
-    if (addressFromSignature === publicAddress) {
+    if (addressFromSignature.toLowerCase() === publicAddress.toLowerCase()) {
       const createdJwt = PearHash.generateJwt({
         publicAddress,
         nonce,
@@ -62,8 +62,10 @@ fast.post<{ Body: { publicAddress: string; signature: string } }>(
 
 fast.post<{ Headers: { token: string } }>('/auth/verify-token', async req => {
   const { token } = req.headers
+  console.log(token)
 
   const publicAddress = PearHash.getAddressFromToken(token)
+  console.log(publicAddress)
 
   // @NOTE: Need to check if token is expired here
   // @NOTE: If token is invalid or expired send a message to client to clear out token in localStorage
