@@ -270,6 +270,17 @@ class CryptoAdmin {
     return returnedRandomness || parsedRandomness
   }
 
+  async determineSubmitSeedBatchEntry() {
+    try {
+      const currentBatchEntries = await store.service.batchEntry.getCurrentRoundBatchEntries()
+      if (currentBatchEntries.length === 0) {
+        this.submitRandomBatchEntry().catch(logger.error)
+      }
+    } catch (err) {
+      logger.error(err)
+    }
+  }
+
   async setCountdown(ms: number) {
     const secs = ms / 1000 // Param passed in as miliseconds so we convert to seconds
     return store.service.round.setSpinCountdownTimer(secs)
@@ -306,9 +317,13 @@ class CryptoAdmin {
       this.setCountdown(this.countdown)
       this.countdown -= SEC_MS
 
-      if (this.countdown % SEED_USER_SUBMIT_FEQUENCY === 0) {
-        this.submitRandomBatchEntry().catch(logger.error)
+      if (this.countdown === 10_000) {
+        this.determineSubmitSeedBatchEntry().catch(logger.error)
       }
+
+      // if (this.countdown % SEED_USER_SUBMIT_FEQUENCY === 0) {
+      //   this.submitRandomBatchEntry().catch(logger.error)
+      // }
     }, 1_000)
   }
 
