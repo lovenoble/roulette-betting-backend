@@ -4,17 +4,6 @@ import fastifyCors from '@fastify/cors'
 import store from '../../store'
 import { EventNames } from '../../store/constants'
 import { PearHash } from '../../store/utils'
-// import { spinAPI } from '../../crypto'
-
-// setTimeout(async () => {
-//   const entries = await store.service.entry.fetchEntriesByRoundPlayer(
-//     0,
-//     '0x8db97C7cEcE249c2b98bDC0226Cc4C2A57BF52FC',
-//   )
-//   console.log(entries.map(en => en.toJSON()))
-//   const random = await spinAPI.contract.rounds(0)
-//   console.log(utils.formatUnits(random.randomNum, 0))
-// }, 3_000)
 
 const fast = Fastify({
   logger: true,
@@ -62,10 +51,7 @@ fast.post<{ Body: { publicAddress: string; signature: string } }>(
 
 fast.post<{ Headers: { token: string } }>('/auth/verify-token', async req => {
   const { token } = req.headers
-  console.log(token)
-
   const publicAddress = PearHash.getAddressFromToken(token)
-  console.log(publicAddress)
 
   // @NOTE: Need to check if token is expired here
   // @NOTE: If token is invalid or expired send a message to client to clear out token in localStorage

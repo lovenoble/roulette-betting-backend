@@ -334,7 +334,7 @@ class CryptoAdmin {
       await retryPromise(() => this.pauseSpinRound(true), 5)
       this.spinWheel()
     } catch (err) {
-      console.error(err)
+      logger.error(err)
     }
   }
 
@@ -409,7 +409,7 @@ class CryptoAdmin {
 
       // Bind subs
       PubSub.sub('spin-state', 'round-finished').listen((opts: any) => {
-        console.log('round finished', opts)
+        logger.info('Round finished:', opts)
         this.spinEnded()
       })
 

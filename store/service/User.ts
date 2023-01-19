@@ -122,7 +122,7 @@ export default class UserService extends ServiceBase<User> {
       const batchEntry = await spinAPI.contract.batchEntryMap(String(roundId), publicAddress)
       return batchEntry.placedAt.gt(0)
     } catch (err) {
-      console.log(err)
+      logger.error(err)
     }
   }
 

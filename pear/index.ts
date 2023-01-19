@@ -60,9 +60,8 @@ export class FareServer {
         driver: new MongooseDriver(this.#mongoUri),
       })
     } catch (error) {
-      console.error(error)
-      // prettier-ignore
-      throw (error)
+      logger.error(error)
+      throw error
     }
     logger.info(`Created Server instance!`)
     logger.info(`Created WebSocketTransport instance!`)

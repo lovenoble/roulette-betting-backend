@@ -75,8 +75,6 @@ export default class CryptoSeed {
 
   #ensureSeedFile(fileName = 'default') {
     const seedFilePath = `${this.seedPath}/${fileName}.seed`
-    console.log(seedFilePath)
-    console.log(!fs.existsSync(seedFilePath))
     if (!fs.existsSync(seedFilePath)) {
       fs.openSync(seedFilePath, 'w')
       fs.writeFileSync(seedFilePath, '')

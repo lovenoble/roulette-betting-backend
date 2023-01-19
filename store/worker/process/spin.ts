@@ -228,13 +228,18 @@ const createSpinJobProcesses = (service: IServiceObj) => {
     // @NOTE: Ensure blockchain totalMintAmount and calculated Redis totalMintAmount is correct
     // @NOTE: We need to log to our analytics if these numbers do not match
     if (!toEth(batchEntryEntity.totalMintAmount).eq(totalMintAmount)) {
-      console.log(batchEntryEntity.totalMintAmount, totalMintAmount)
       logger.warn('------------------------------------------')
       logger.warn(
         '!IMPORTANT - Redis totalMintAmount and smart contract totalMintAmount do not match.',
       )
       logger.warn('If you see this error report steps to reproduce!')
       logger.warn('Updating to reflect the amount fetched from the blockchain...')
+      logger.warn('PLAYER ADDRESS:', batchEntryEntity)
+      logger.warn(
+        `REDIS TOTAL MINT AMOUNT:${
+          batchEntryEntity.totalMintAmount
+        } || ACTUAL TOTAL MINT AMOUNT: ${totalMintAmount.toString()}`,
+      )
       logger.warn('------------------------------------------')
       batchEntryEntity.totalMintAmount = formatETH(totalMintAmount)
       await service.batchEntry.repo.save(batchEntryEntity)

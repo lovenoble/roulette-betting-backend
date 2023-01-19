@@ -3,7 +3,7 @@ import { utils, BigNumber } from 'ethers'
 import { Logger } from '../../../utils'
 import type { FlatEntry } from '../../types'
 
-export const logger = Logger.create({ logType: 'CryptoAdmin', theme: ['palePink'] })
+export const logger = Logger.create({ logType: 'CryptoAdmin', theme: ['mexicanBrown'] })
 
 export const BN = BigNumber.from
 

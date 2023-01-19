@@ -87,7 +87,7 @@ class SpinRoom extends Room<SpinState> {
       })
 
       this.onMessage('Heartbeat', client => {
-        console.log('Heartbeat', client.sessionId)
+        logger.info('Heartbeat', client.sessionId)
       })
 
       this.delayedInterval = this.clock.setInterval(() => {
@@ -203,8 +203,8 @@ class SpinRoom extends Room<SpinState> {
     stopSpeed = 120,
     selectedTick = 0,
     tickDiffSlowdown = 24,
-    intervalCallback = () => console.log('internalCallback'),
-    onFinished = () => console.log('finished'),
+    intervalCallback = () => {},
+    onFinished = () => {},
   }) {
     // Check if total time is valid (not negative)
     if (totalTime < 0) {

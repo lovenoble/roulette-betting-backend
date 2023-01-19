@@ -69,9 +69,9 @@ export const getRevertedReason = async (
     return code
   } catch (err: any) {
     const code = err.data.replace('Reverted ', '')
-    console.log({ err })
+    logger.error(err)
     let reason = utils.toUtf8String('0x' + code.substr(138))
-    console.log('revert reason:', reason)
+    logger.info('Revert reason:', reason)
     return reason
   }
 }

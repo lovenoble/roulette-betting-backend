@@ -1,5 +1,4 @@
 #!/bin/sh
-npm run build:protos
+pnpm run lint:fix
 rimraf dist
 tsc -b
-npm run copy-protos

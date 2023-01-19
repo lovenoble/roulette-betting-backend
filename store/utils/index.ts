@@ -32,7 +32,7 @@ export const BNToNumber = (bn: BigNumber) => {
   try {
     return bn.toNumber()
   } catch (err) {
-    console.error(err)
+    logger.error(err)
     return Number(formatBN(bn))
   }
 }
