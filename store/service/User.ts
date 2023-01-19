@@ -2,16 +2,13 @@ import { utils } from 'ethers'
 import validator from 'validator'
 
 import type { User } from '../types'
-import type { SetUserDataRequest } from '../../rpc/models/user'
 
 import ServiceBase from './ServiceBase'
-import { userColorThemeToJSON } from '../../rpc/models/user'
 import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from '../constants'
-import { Omit } from '../types'
 import { PearHash, logger, isValidUsername } from '../utils'
 import { spinAPI } from '../../crypto'
 
-const { isEmail, isEmpty } = validator
+const { isEmail } = validator
 
 export default class UserService extends ServiceBase<User> {
   // Fetch userEntity by publicAddress
@@ -131,7 +128,6 @@ export default class UserService extends ServiceBase<User> {
 
   public async setUserData(
     publicAddress: string,
-    // { username: _username, email, colorTheme: _colorTheme }: Omit<SetUserDataRequest, 'token'>,
     {
       username: _username,
       email,
@@ -139,7 +135,6 @@ export default class UserService extends ServiceBase<User> {
     }: { username?: string; email?: string; colorTheme?: string },
   ) {
     const userEntity = await this.getUserByAddress(publicAddress)
-    // const colorTheme = userColorThemeToJSON(_colorTheme)
     const colorTheme = _colorTheme
 
     if (!userEntity) throw new Error('User does not exist.')

@@ -1,15 +1,12 @@
-import { BigNumber, utils, Wallet } from 'ethers'
-import crypto from 'node:crypto'
-import bcrypt from 'bcrypt'
+import { BigNumber, utils } from 'ethers'
 import { exec } from 'node:child_process'
 import Chance from 'chance'
 import forge from 'node-forge'
-import { keccak256, sha256 } from 'ethers/lib/utils'
-import { i2osp, os2ip } from './cryptoUtils'
+import { keccak256 } from 'ethers/lib/utils'
+
+import { os2ip } from '.'
 
 const MAX_ETH_UINT_256 = 2 ** 256 - 1
-const OWNER_WALLET_SECRET = '0x33f40c4d65db5bf5beb44417300069e2146abf8b5598ae43c53e75bb07dd64ee'
-const ownerWallet = new Wallet(OWNER_WALLET_SECRET)
 
 export interface IFareVRFOptions {
   seed?: string

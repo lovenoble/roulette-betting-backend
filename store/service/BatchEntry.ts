@@ -76,10 +76,10 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
     roundId: number,
     batchEntryId: number,
     player: string,
-    jobId: string = null,
     placedAt: number,
-    timestamp = Date.now(),
     placedTxHash: string,
+    jobId: string = null,
+    timestamp = Date.now(),
   ) {
     const entries = await this.entryService.populateEntriesFromBatchEntryId(
       eventLogId,
@@ -118,9 +118,9 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
     roundId: number,
     player: string,
     settledAt: number,
-    settledOn = Date.now(),
-    jobId: string = null,
     settledTxHash: string,
+    jobId: string = null,
+    settledOn = Date.now(),
   ) {
     const batchEntryEntity = await this.fetch(roundId, player)
 

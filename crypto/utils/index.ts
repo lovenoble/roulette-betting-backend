@@ -75,3 +75,26 @@ export const getRevertedReason = async (
     return reason
   }
 }
+
+export function os2ip(X: Buffer) {
+  /*
+    OS2IP converts an octet string to a nonnegative integer.
+    Input:  X octet string to be converted
+    Output:  x corresponding nonnegative integer
+    Steps:
+      1.  Let X_1 X_2 ... X_xLen be the octets of X from first to last,
+          and let x_(xLen-i) be the integer value of the octet X_i for 1
+          <= i <= xLen.
+      2.  Let x = x_(xLen-1) 256^(xLen-1) + x_(xLen-2) 256^(xLen-2) +
+          ...  + x_1 256 + x_0.
+      3.  Output x.
+  */
+
+  const x = Buffer.from(X)
+    .reverse()
+    .reduce(
+      (total, value, index) => (total += BigInt(value) * BigInt(256) ** BigInt(index)),
+      BigInt(0),
+    )
+  return x
+}

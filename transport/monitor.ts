@@ -9,19 +9,19 @@ import { pearMonitorPassword } from '../config/transport.config'
  * This is for development and debugging locally
  */
 export default function createMonitorDashboard() {
-	const pearMonitor = express()
+  const pearMonitor = express()
 
-	const basicAuthMiddleware = basicAuth({
-		users: {
-			// Schema - [username]: password
-			admin: pearMonitorPassword,
-			bradford: pearMonitorPassword,
-		},
-		challenge: true,
-	})
+  const basicAuthMiddleware = basicAuth({
+    users: {
+      // Schema - [username]: password
+      admin: pearMonitorPassword,
+      bradford: pearMonitorPassword,
+    },
+    challenge: true,
+  })
 
-	// Middleware
-	pearMonitor.use('/fare-state', basicAuthMiddleware, monitor())
+  // Middleware
+  pearMonitor.use('/fare-state', basicAuthMiddleware, monitor())
 
-	return pearMonitor
+  return pearMonitor
 }

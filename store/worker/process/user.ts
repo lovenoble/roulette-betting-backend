@@ -5,16 +5,14 @@ import { workerLogger as logger } from '../../utils'
 const fund = new CryptoToken({})
 
 const createUserJobProcess = (_service: IServiceObj) => {
-	async function ensureUserHasAvaxFare(address: string) {
-		const transferType = await fund.ensureBalance(address)
-		logger.info(
-			`Ensured balance for ${address.substring(0, 11)} --- transferType(${transferType})`,
-		)
-	}
+  async function ensureUserHasAvaxFare(address: string) {
+    const transferType = await fund.ensureBalance(address)
+    logger.info(`Ensured balance for ${address.substring(0, 11)} --- transferType(${transferType})`)
+  }
 
-	return {
-		ensureUserHasAvaxFare,
-	}
+  return {
+    ensureUserHasAvaxFare,
+  }
 }
 
 export default createUserJobProcess

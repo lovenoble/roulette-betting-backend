@@ -49,10 +49,10 @@ const createSpinJobProcesses = (service: IServiceObj) => {
       roundId,
       batchEntryId,
       player,
-      jobId,
       placedAt,
-      timestamp,
       txHash,
+      jobId,
+      timestamp,
     )
 
     PubSub.pub<'batch-entry'>('spin-state', 'batch-entry', {
@@ -162,24 +162,6 @@ const createSpinJobProcesses = (service: IServiceObj) => {
 
     const data = roundData.toRedisJson()
 
-    // const data = (
-    //   await service.round.repo.createAndSave({
-    //     eventLogId,
-    //     roundId,
-    //     randomNum,
-    //     randomEliminator,
-    //     randomHash,
-    //     revealKey,
-    //     fullRandomNum,
-    //     startedAt,
-    //     endedAt,
-    //     timestamp,
-    //     startedTxHash: startedAtHashTx,
-    //     jobId,
-    //     endedTxHash,
-    //   })
-    // ).toRedisJson()
-
     return JSON.stringify({
       eventName: EventNames.RoundConcluded,
       data,
@@ -198,9 +180,9 @@ const createSpinJobProcesses = (service: IServiceObj) => {
       roundId,
       player,
       settledAt.toNumber(),
-      timestamp,
-      jobId,
       settledTxHash,
+      jobId,
+      timestamp,
     )
 
     // @NOTE: Ensure blockchain totalMintAmount and calculated Redis totalMintAmount is correct
@@ -233,13 +215,14 @@ const createSpinJobProcesses = (service: IServiceObj) => {
   ) {
     // const [_entryId, _player, _settled, _totalEntryAmount, _totalMintAmount] =
     const { settledAt, totalMintAmount } = await spinAPI.contract.batchEntryMap(roundId, player)
+
     const batchEntryEntity = await service.batchEntry.settle(
       roundId,
       player,
       settledAt.toNumber(),
-      timestamp,
-      jobId,
       settledTxHash,
+      jobId,
+      timestamp,
     )
 
     // @NOTE: Ensure blockchain totalMintAmount and calculated Redis totalMintAmount is correct

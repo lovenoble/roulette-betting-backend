@@ -24,7 +24,7 @@ import { logger } from '../utils'
 import store from '../../store'
 import PubSub from '../../pubsub'
 
-export class SpinRoom extends Room<SpinState> {
+class SpinRoom extends Room<SpinState> {
   #name: string
   #desc: string
   #password: string | null = null

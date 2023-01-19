@@ -13,10 +13,10 @@ import {
   ENTRIES_OPEN_COUNTDOWN_DURATION,
   // PRE_SPIN_DURATION,
   // WHEEL_SPINNING_DURATION,
+  // SEED_USER_SUBMIT_FEQUENCY,
   RESULT_SCREEN_DURATION,
   SEC_MS,
   DEFAULT_SIMULATION_INTERVAL,
-  SEED_USER_SUBMIT_FEQUENCY,
   ContractModes,
 } from '../constants'
 import fareRandomness from '../utils/FareRandomness'

@@ -1,4 +1,4 @@
 export type JWTDecodedData = {
-	publicAddress: string
-	nonce: string
+  publicAddress: string
+  nonce: string
 }
