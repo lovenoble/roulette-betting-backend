@@ -5,8 +5,7 @@ import numeral from 'numeral'
 import shortId from 'shortid'
 
 import { ENTRIES_OPEN_COUNTDOWN_DURATION } from '../../crypto/constants'
-// import type { SpinRoom } from '../types'
-import type { SpinRoom } from '../rooms/SpinRoom'
+import type SpinRoom from '../rooms/SpinRoom'
 import type {
   FareTransferArgs,
   BatchEntryMsgArgs,

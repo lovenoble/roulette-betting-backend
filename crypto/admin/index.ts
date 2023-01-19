@@ -59,7 +59,6 @@ class CryptoAdmin {
         fare: this.fare,
         spin: this.spin,
       })
-      console.log(await this.spin.contractModes('0'))
 
       await this.seed.init()
 
