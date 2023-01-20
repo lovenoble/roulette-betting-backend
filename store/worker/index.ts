@@ -1,7 +1,7 @@
 import { Worker } from 'bullmq'
 import type { Job } from 'bullmq'
 
-import type { IServiceObj } from 'store/types'
+import type { IServiceObj } from '../types'
 import { QueueNames, EventNames } from '../constants'
 import { workerDefaultOpts } from '../../config/redis.config'
 import { sleep, workerLogger as logger } from '../utils'
