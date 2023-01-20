@@ -57,7 +57,7 @@ export const createSlackCommands = (slackBot: ISlackBot) => {
     const fileReadBuffer = await fs.readFile(`${process.cwd()}/logs/global.log`)
 
     await client.files.upload({
-      channels: slackBot.metaverseLogChannelId,
+      channels: slackBot.demoTestnetChannelId,
       title: 'Global Logs',
       initial_comment: 'Output:',
       content: 'global-logs.json',
@@ -74,7 +74,7 @@ export const createSlackCommands = (slackBot: ISlackBot) => {
     const fileReadBuffer = await fs.readFile(`${process.cwd()}/logs/global-error.log`)
 
     await client.files.upload({
-      channels: slackBot.metaverseLogChannelId,
+      channels: slackBot.demoTestnetChannelId,
       title: 'Global Error Logs',
       initial_comment: 'Output:',
       content: 'global-error-logs.json',

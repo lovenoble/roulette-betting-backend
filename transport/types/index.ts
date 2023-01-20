@@ -16,7 +16,7 @@ export interface IRouteController {
     [routeName: string]: RouteHandler
   }
   ws?: {
-    [routeName: string]: WebSocketBehavior
+    [routeName: string]: WebSocketBehavior<{}>
   }
 }
 
@@ -26,4 +26,4 @@ export interface ITransportOptions {
   pearMonitorPort?: number | string
 }
 
-export type WSHandler = (ws: WebSocket, message: ArrayBuffer, isBinary: boolean) => void
+export type WSHandler = (ws: WebSocket<{}>, message: ArrayBuffer, isBinary: boolean) => void

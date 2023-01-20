@@ -20,8 +20,12 @@ async function init() {
   try {
     // Initialize slack bot and dependency inject logger
     if (process.env.NODE_ENV === 'production') {
-      slackBotServer.setLogger(logger)
-      await slackBotServer.initServer()
+      try {
+        slackBotServer.setLogger(logger)
+        await slackBotServer.initServer()
+      } catch (err) {
+        logger.error(err)
+      }
     }
 
     // If running multiple processes, ensures only one RPC server and RedisStore instance is created

@@ -1,14 +1,14 @@
-/* eslint-disable import/no-internal-modules */
 import SlackBolt from '@slack/bolt'
 import { Logger } from 'winston'
 
 import { createSlackCommands } from './commands'
-// import { createSlackEvents } from './events'
 import { SlackBoltApp, ISlackBot, SlackChannels } from './types'
+// import { createSlackEvents } from './events'
 
 const {
   SLACK_OAUTH_TOKEN: token,
   SLACK_APP_TOKEN: appToken,
+  SLACK_SIGNING_SECRET: signingSecret,
   SLACK_BOT_PORT: port = 4255,
 } = process.env
 
@@ -32,12 +32,17 @@ class SlackBot implements ISlackBot {
     return this.channelIdMap.get(SlackChannels.MetaverseEnvLogs)
   }
 
+  get demoTestnetChannelId() {
+    return this.channelIdMap.get(SlackChannels.DemoTestnet)
+  }
+
   constructor() {
     if (process.env.NODE_ENV === 'production') {
       this.#server = new App({
         token,
         appToken,
         socketMode: true,
+        signingSecret,
         logLevel: SlackBolt.LogLevel.WARN,
       })
     }
@@ -71,8 +76,8 @@ class SlackBot implements ISlackBot {
 
       return this.#server
     } catch (err) {
-      this.isConnected = false
       this.logger.error(err)
+      this.isConnected = false
     }
   }
 
@@ -96,7 +101,7 @@ class SlackBot implements ISlackBot {
 
   async sendChannelMessage(
     text: string,
-    channelName: string | SlackChannels = SlackChannels.MetaverseEnvLogs,
+    channelName: string | SlackChannels = SlackChannels.DemoTestnet,
   ) {
     try {
       const channel = this.channelIdMap.get(channelName)
@@ -121,7 +126,7 @@ class SlackBot implements ISlackBot {
         fileBuffer = Buffer.from(buf as string, 'utf8')
       }
       await this.server.client.files.upload({
-        channels: this.metaverseLogChannelId,
+        channels: this.demoTestnetChannelId,
         title: 'Error Message',
         initial_comment: 'Error output:',
         content: `${fileName}.json`,

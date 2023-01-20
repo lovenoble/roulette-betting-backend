@@ -26,9 +26,10 @@ const isDev = NODE_ENV === 'development'
 // General config
 export const redisHost = REDIS_HOST || 'localhost'
 export const redisPort = Number(REDIS_PORT) || 6379
-export const redisUri = isDev
-  ? `redis://${REDIS_HOST}:${REDIS_PORT}`
-  : `redis://${REDIS_USERNAME}:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}`
+export const redisUri = `redis://${REDIS_HOST}:${REDIS_PORT}`
+// export const redisUri = isDev
+//   ? `redis://${REDIS_HOST}:${REDIS_PORT}`
+//   : `redis://${REDIS_USERNAME}:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}`
 
 // RedisStore config
 export const redisStoreUri = `${redisUri}/${RedisDBIndex.Default}`
