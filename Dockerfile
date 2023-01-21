@@ -13,7 +13,7 @@ RUN pnpm run build:docker
 FROM base as deploy
 
 WORKDIR /usr/src/app
-COPY --from=build . ./
+COPY --from=build /usr/src/app ./
 # COPY --from=build /usr/src/app/dist ./dist/
 # COPY --from=build /usr/src/app/node_modules ./node_modules/
 # COPY .npmrc package.json pnpm-lock.yaml ./
