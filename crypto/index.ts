@@ -49,7 +49,7 @@ export class Crypto {
     this.lootbox = FareNFTLootBox__factory.connect(fareNftLootboxAddress, this.signer)
     this.lootboxCtrl = FareNFTLootBoxController__factory.connect(
       fareNftLootboxControllerAddress,
-      this.signer,
+      this.signer
     )
   }
 

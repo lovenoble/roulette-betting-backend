@@ -23,5 +23,5 @@ export default new Schema(
     isEliminator: { type: 'boolean' },
     timestamp: { type: 'date' },
   },
-  { dataStructure: 'JSON' },
+  { dataStructure: 'JSON' }
 )

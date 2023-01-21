@@ -37,7 +37,7 @@ export default class CryptoToken {
 
     if (transferType !== 'none') {
       logger.info(
-        `Balance(s) low. Transfering transferType(${transferType}) to ${address.substring(0, 11)}`,
+        `Balance(s) low. Transfering transferType(${transferType}) to ${address.substring(0, 11)}`
       )
     }
 
@@ -69,8 +69,8 @@ export default class CryptoToken {
       logger.info(
         `Submitting allow mint/burn transaction to FareSpin for ${signerWallet.address.substring(
           0,
-          7,
-        )}`,
+          7
+        )}`
       )
       // "gasLimit": 8000000,
       // "targetBlockRate": 2,
@@ -121,8 +121,8 @@ export default class CryptoToken {
 
     logger.info(
       `Seed Player(${address.substring(0, 11)}) balances: AVAX(${this.prettyBN(
-        avaxBalance,
-      )}) -- FARE(${this.prettyBN(fareBalance)})`,
+        avaxBalance
+      )}) -- FARE(${this.prettyBN(fareBalance)})`
     )
 
     if (shouldTransferAvax && shouldTransferFare) {

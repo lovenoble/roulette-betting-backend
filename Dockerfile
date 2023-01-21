@@ -1,7 +1,7 @@
 FROM node:16.19.0 as base
 
-# RUN npm install -g pnpm
-RUN curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
+RUN npm install -g pnpm
+# RUN curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
 
 FROM base as dependencies
 
@@ -28,5 +28,6 @@ COPY --from=build /usr/src/app/node_modules ./node_modules
 COPY .npmrc package.json pnpm-lock.yaml ./
 EXPOSE 3100
 EXPOSE 3200
+EXPOSE 4200
 CMD ["node", "--experimental-specifier-resolution=node", "-r", "dotenv/config", "/usr/src/app/dist/index.js"]
 

@@ -96,7 +96,7 @@ class ChatRoom extends Room<ChatState> {
         this.dispatcher.dispatch(new OnGuestChatUserJoined(), { sessionId, guestId })
       } else if (publicAddress) {
         logger.info(
-          `Updated users sessionId: public address --> ${publicAddress},\n session id --> ${sessionId}`,
+          `Updated users sessionId: public address --> ${publicAddress},\n session id --> ${sessionId}`
         )
         this.dispatcher.dispatch(new OnChatUserJoined(), {
           publicAddress,

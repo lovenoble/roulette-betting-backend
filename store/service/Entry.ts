@@ -24,7 +24,7 @@ export default class EntryService extends ServiceBase<Entry> {
     roundId: number,
     player: string,
     jobId: string = null,
-    timestamp = Date.now(),
+    timestamp = Date.now()
   ): Promise<Entry[]> {
     const entries = await spinAPI.contract.getEntriesByRoundUser(roundId, player)
 

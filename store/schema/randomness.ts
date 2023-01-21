@@ -25,5 +25,5 @@ export default new Schema(
     timestamp: { type: 'number' },
     tag: { type: 'string' },
   },
-  { dataStructure: 'JSON' },
+  { dataStructure: 'JSON' }
 )

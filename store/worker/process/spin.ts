@@ -20,7 +20,7 @@ let startedAtHashTx = ''
 const createSpinJobProcesses = (service: IServiceObj) => {
   async function contractModeUpdated<T>(
     queueData: IContractModeUpdatedQueue,
-    jobId: string = null,
+    jobId: string = null
   ) {
     const { event, contractModeId, timestamp } = queueData
 
@@ -52,7 +52,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
       placedAt,
       txHash,
       jobId,
-      timestamp,
+      timestamp
     )
 
     PubSub.pub<'batch-entry'>('spin-state', 'batch-entry', {
@@ -86,7 +86,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
     const settledData = await service.round.updateRoundBatchEntries(
       roundId,
       randomNum,
-      randomEliminator,
+      randomEliminator
     )
 
     // Get and set eliminator data from blockchain
@@ -94,7 +94,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
       jobId,
       eventLogId,
       roundId,
-      timestamp,
+      timestamp
     )
 
     const eliminators: IRoundEliminators = {
@@ -182,7 +182,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
       settledAt.toNumber(),
       settledTxHash,
       jobId,
-      timestamp,
+      timestamp
     )
 
     // @NOTE: Ensure blockchain totalMintAmount and calculated Redis totalMintAmount is correct
@@ -190,7 +190,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
     if (hasWon && !toEth(batchEntryEntity.totalMintAmount).eq(totalMintAmount)) {
       logger.warn('------------------------------------------')
       logger.warn(
-        '!IMPORTANT - Redis totalMintAmount and smart contract totalMintAmount do not match.',
+        '!IMPORTANT - Redis totalMintAmount and smart contract totalMintAmount do not match.'
       )
       logger.warn('If you see this error report steps to reproduce!')
       logger.warn('Updating to reflect the amount fetched from the blockchain...')
@@ -211,7 +211,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
     player: string,
     timestamp: number,
     settledTxHash: string,
-    jobId: string = null,
+    jobId: string = null
   ) {
     // const [_entryId, _player, _settled, _totalEntryAmount, _totalMintAmount] =
     const { settledAt, totalMintAmount } = await spinAPI.contract.batchEntryMap(roundId, player)
@@ -222,7 +222,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
       settledAt.toNumber(),
       settledTxHash,
       jobId,
-      timestamp,
+      timestamp
     )
 
     // @NOTE: Ensure blockchain totalMintAmount and calculated Redis totalMintAmount is correct
@@ -230,7 +230,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
     if (!toEth(batchEntryEntity.totalMintAmount).eq(totalMintAmount)) {
       logger.warn('------------------------------------------')
       logger.warn(
-        '!IMPORTANT - Redis totalMintAmount and smart contract totalMintAmount do not match.',
+        '!IMPORTANT - Redis totalMintAmount and smart contract totalMintAmount do not match.'
       )
       logger.warn('If you see this error report steps to reproduce!')
       logger.warn('Updating to reflect the amount fetched from the blockchain...')
@@ -238,7 +238,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
       logger.warn(
         `REDIS TOTAL MINT AMOUNT:${
           batchEntryEntity.totalMintAmount
-        } || ACTUAL TOTAL MINT AMOUNT: ${totalMintAmount.toString()}`,
+        } || ACTUAL TOTAL MINT AMOUNT: ${totalMintAmount.toString()}`
       )
       logger.warn('------------------------------------------')
       batchEntryEntity.totalMintAmount = formatETH(totalMintAmount)
@@ -253,7 +253,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
     if (!eventLogId) return null
 
     const promiseList = roundIds.map(rid =>
-      batchEntrySettler(rid, player, timestamp, settledTxHash, jobId),
+      batchEntrySettler(rid, player, timestamp, settledTxHash, jobId)
     )
 
     await Promise.all(promiseList)

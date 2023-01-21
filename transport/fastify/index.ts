@@ -46,7 +46,7 @@ fast.post<{ Body: { publicAddress: string; signature: string } }>(
 
       return { token: createdJwt }
     }
-  },
+  }
 )
 
 fast.post<{ Headers: { token: string } }>('/auth/verify-token', async req => {
@@ -89,7 +89,7 @@ fast.post<{ Headers: { token: string }; Body: { username: string; colorTheme: st
     })
 
     return { message: 'User data was updated!' }
-  },
+  }
 )
 
 fast.post<{ Headers: { token: string } }>('/auth/logout', async req => {

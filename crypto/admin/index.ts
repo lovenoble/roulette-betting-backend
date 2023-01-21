@@ -48,7 +48,7 @@ class CryptoAdmin {
 
   async init() {
     logger.warn(
-      'CryptoAdmin should only be used in a development or test environment. Do not use in production.',
+      'CryptoAdmin should only be used in a development or test environment. Do not use in production.'
     )
 
     try {
@@ -136,8 +136,8 @@ class CryptoAdmin {
         randomPickedNumber = Number(
           ethers.utils.formatUnits(
             ethers.BigNumber.from(ethers.utils.randomBytes(32)).mod(contractMode.cardinality),
-            0,
-          ),
+            0
+          )
         )
 
         if (entryMemoryMap[`${randomContractMode}`].indexOf(randomPickedNumber) === -1) {
@@ -172,7 +172,7 @@ class CryptoAdmin {
 
       this.currentUserIdx += 1 // Increment currentUserIdx
       logger.warn(
-        `Seed userIdx(${this.currentUserIdx}) has already entered into the round. Trying the next userIdx...`,
+        `Seed userIdx(${this.currentUserIdx}) has already entered into the round. Trying the next userIdx...`
       )
       this.failThreshold += 1
       return this.submitRandomBatchEntry()
@@ -205,7 +205,7 @@ class CryptoAdmin {
         {
           gasLimit: 9000000,
           gasPrice: 70000000000,
-        },
+        }
       )
       await resp.wait()
     } catch (err) {
@@ -289,7 +289,7 @@ class CryptoAdmin {
     logger.info(
       `[${title}]: countdown(${this.countdown} secs), deltaTime(${
         this.clock.deltaTime
-      } ms), elaspedTime(${this.clock.elapsedTime / 1000} secs)`,
+      } ms), elaspedTime(${this.clock.elapsedTime / 1000} secs)`
     )
   }
 

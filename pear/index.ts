@@ -45,7 +45,7 @@ export class FareServer {
   constructor(options = defaultPearOptions) {
     const { presenceOpts, mongoBaseUri, mongoAuthSource } = Object.assign(
       defaultPearOptions,
-      options,
+      options
     )
 
     this.#mongoUri = mongoBaseUri

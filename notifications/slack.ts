@@ -57,7 +57,7 @@ class SlackBot implements ISlackBot {
       this.logger.info('Initializing Slack Server Bot...')
       if (!token || !appToken) {
         this.logger.info(
-          'No SLACK_BOT_TOKEN or SLACK_BOT_SIGNING_SECRET present. Stopping initialization.',
+          'No SLACK_BOT_TOKEN or SLACK_BOT_SIGNING_SECRET present. Stopping initialization.'
         )
         return
       }
@@ -101,7 +101,7 @@ class SlackBot implements ISlackBot {
 
   async sendChannelMessage(
     text: string,
-    channelName: string | SlackChannels = SlackChannels.DemoTestnet,
+    channelName: string | SlackChannels = SlackChannels.DemoTestnet
   ) {
     try {
       const channel = this.channelIdMap.get(channelName)

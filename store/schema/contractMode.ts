@@ -61,5 +61,5 @@ export default new Schema(
     isActive: { type: 'boolean' },
     timestamp: { type: 'date' },
   },
-  { dataStructure: 'JSON' },
+  { dataStructure: 'JSON' }
 )

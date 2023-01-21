@@ -80,8 +80,8 @@ export default class FareTransferService extends ServiceBase<FareTransfer> {
     const newTotalSupply = formatETH(previousSupplyBN[mathKey](bnAmount))
     logger.info(
       `transferType: ${transferType} --- previousSupply: ${prettyNum(
-        formatETH(previousSupplyBN),
-      )} --- newSupply: ${prettyNum(newTotalSupply)}`,
+        formatETH(previousSupplyBN)
+      )} --- newSupply: ${prettyNum(newTotalSupply)}`
     )
     await this.updateTotalSupply(newTotalSupply)
   }

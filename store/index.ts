@@ -99,7 +99,7 @@ export class RedisStore {
     this.service.round = new RoundService(
       this.service.contractMode,
       this.service.batchEntry,
-      this.service.entry,
+      this.service.entry
     )
     this.service.user = new UserService()
     this.service.randomness = new RandomnessService()
@@ -127,8 +127,8 @@ export class RedisStore {
     } catch (err) {
       logger.error(
         new Error(
-          `Smart contract listeners failed to connnect RPC blockchain node: ${err.toString}`,
-        ),
+          `Smart contract listeners failed to connnect RPC blockchain node: ${err.toString}`
+        )
       )
     }
   }

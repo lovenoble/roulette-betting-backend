@@ -113,7 +113,7 @@ class SpinRoom extends Room<SpinState> {
       PubSub.sub('fare', 'fare-total-supply-updated').listen<'fare-total-supply-updated'>(
         ({ totalSupply }) => {
           this.dispatcher.dispatch(new OnFareTotalSupplyUpdated(), totalSupply)
-        },
+        }
       )
 
       // New BatchEntry + Entry[]
@@ -306,7 +306,7 @@ class SpinRoom extends Room<SpinState> {
           logger.error(new Error('Invalid authToken. Please reauthenticate and try again.'))
           throw new ServerError(
             HttpStatusCode.UNAUTHORIZED,
-            'Invalid authToken. Please reauthenticate and try again.',
+            'Invalid authToken. Please reauthenticate and try again.'
           )
         }
 

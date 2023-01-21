@@ -47,13 +47,13 @@ export class OnUserJoined extends Command<SpinRoom, IUser & { client: Client }> 
         const prevClient = findClientBySessionId(previousSessionId, this.room.clients)
         if (prevClient) {
           logger.info(
-            `User already in room. Disconnecting previous client: sessionId(${previousSessionId}) publicAddress(${publicAddress})`,
+            `User already in room. Disconnecting previous client: sessionId(${previousSessionId}) publicAddress(${publicAddress})`
           )
 
           // Throw error to client so frontend app can handle redirection and popup message
           prevClient.error(
             WebSocketCloseCode.NEW_CONNECTION_SESSION,
-            'Client with same publicAddress connected. Only one client can connect per publicAddress.',
+            'Client with same publicAddress connected. Only one client can connect per publicAddress.'
           )
 
           // Disconnect client from room session
@@ -79,7 +79,7 @@ export class OnUserJoined extends Command<SpinRoom, IUser & { client: Client }> 
 
       const isInRound = await store.service.user.isUserInSpinRound(
         publicAddress,
-        this.state.currentRoundId,
+        this.state.currentRoundId
       )
 
       if (!isInRound) {

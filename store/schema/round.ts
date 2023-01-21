@@ -35,5 +35,5 @@ export default new Schema(
     fullRandomNum: { type: 'string' },
     revealKey: { type: 'string' },
   },
-  { dataStructure: 'JSON' },
+  { dataStructure: 'JSON' }
 )

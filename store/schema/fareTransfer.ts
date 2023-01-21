@@ -23,5 +23,5 @@ export default new Schema(
     transferType: { type: 'string' },
     timestamp: { type: 'date' },
   },
-  { dataStructure: 'JSON' },
+  { dataStructure: 'JSON' }
 )

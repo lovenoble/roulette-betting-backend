@@ -79,14 +79,14 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
     placedAt: number,
     placedTxHash: string,
     jobId: string = null,
-    timestamp = Date.now(),
+    timestamp = Date.now()
   ) {
     const entries = await this.entryService.populateEntriesFromBatchEntryId(
       eventLogId,
       roundId,
       player,
       jobId,
-      timestamp,
+      timestamp
     )
 
     const be = await spinAPI.contract.batchEntryMap(roundId, player)
@@ -120,7 +120,7 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
     settledAt: number,
     settledTxHash: string,
     jobId: string = null,
-    settledOn = Date.now(),
+    settledOn = Date.now()
   ) {
     const batchEntryEntity = await this.fetch(roundId, player)
 
@@ -129,7 +129,7 @@ export default class BatchEntryService extends ServiceBase<BatchEntry> {
       // @NOTE: Push to queue to wait retry again in 10 seconds.
       // @NOTE: Problem occurs because settleBatchEntry and entrySubmitted even are fired off on connection
       logger.warn(
-        '@NOTE: NEED TO RACE CONDITION TO CREATE BATCH ENTRY AND ENTRIES SINCE IT IS NULL!!!',
+        '@NOTE: NEED TO RACE CONDITION TO CREATE BATCH ENTRY AND ENTRIES SINCE IT IS NULL!!!'
       )
     }
 

@@ -62,5 +62,5 @@ export default new Schema(
     withdrewAt: { type: 'date' },
     settledOn: { type: 'date' },
   },
-  { dataStructure: 'JSON' },
+  { dataStructure: 'JSON' }
 )

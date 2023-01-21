@@ -31,7 +31,7 @@ const createSpinContractListener = (service: IServiceObj, storeQueue: StoreQueue
     roundId: BigNumber,
     batchEntryId: BigNumber,
     player: string,
-    event: Event,
+    event: Event
   ) => {
     const block = await event.getBlock()
 
@@ -54,7 +54,7 @@ const createSpinContractListener = (service: IServiceObj, storeQueue: StoreQueue
     fullRandomNumber: BigNumber,
     randomNum: BigNumber,
     randomEliminator: BigNumber,
-    event: Event,
+    event: Event
   ) => {
     const block = await event.getBlock()
 
@@ -77,7 +77,7 @@ const createSpinContractListener = (service: IServiceObj, storeQueue: StoreQueue
     roundId: BigNumber,
     player: string,
     hasWon: boolean,
-    event: Event,
+    event: Event
   ) => {
     const block = await event.getBlock()
 
@@ -123,7 +123,7 @@ const createSpinContractListener = (service: IServiceObj, storeQueue: StoreQueue
     roundId: BigNumber,
     randomHash: string,
     startedAt: BigNumber,
-    event: Event,
+    event: Event
   ) => {
     const queueData: INewRoundStartedQueue = {
       startedTxHash: event.transactionHash,

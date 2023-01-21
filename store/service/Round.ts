@@ -21,7 +21,7 @@ export default class RoundService extends ServiceBase<Round> {
   constructor(
     ContractModeService: ContractModeService,
     batchEntryService: BatchEntryService,
-    entryService: EntryService,
+    entryService: EntryService
   ) {
     super()
 
@@ -96,7 +96,7 @@ export default class RoundService extends ServiceBase<Round> {
   public async updateRoundBatchEntries(
     roundId: number,
     _randomNum: number,
-    _randomEliminator: string,
+    _randomEliminator: string
   ) {
     const randomNum = BN(_randomNum)
     const randomEliminator = BN(_randomEliminator)
@@ -171,7 +171,7 @@ export default class RoundService extends ServiceBase<Round> {
           } as SettledBatchEntry,
           entries: updatedEntries,
         }
-      },
+      }
     )
 
     return Promise.all(promiseList)
