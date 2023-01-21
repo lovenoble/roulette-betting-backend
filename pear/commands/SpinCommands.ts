@@ -40,7 +40,7 @@ export class OnFareTransfer extends Command<SpinRoom, FareTransferArgs> {
         fromUser.balance.fare = utils.formatEther(bnBalance.sub(bnAmount))
       }
     } catch (err) {
-      logger.error(new Error(err.toString()))
+      logger.error(err)
     }
   }
 }
@@ -238,7 +238,7 @@ export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
         }
       })
     } catch (err) {
-      logger.error(new Error(err.toString()))
+      logger.error(err)
     }
   }
 }

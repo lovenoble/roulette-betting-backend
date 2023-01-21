@@ -52,7 +52,7 @@ class ChatRoom extends Room<ChatState> {
         })
       })
     } catch (err) {
-      logger.error(new Error(err.toString()))
+      logger.error(err)
       throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
     }
   }
@@ -80,7 +80,7 @@ class ChatRoom extends Room<ChatState> {
 
       return `guest:${guestId}`
     } catch (err: any) {
-      logger.error(new Error(err.toString()))
+      logger.error(err)
       throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
     }
   }
@@ -106,7 +106,7 @@ class ChatRoom extends Room<ChatState> {
         throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, 'Auth token does not exist.')
       }
     } catch (err) {
-      logger.error(new Error(err.toString()))
+      logger.error(err)
       throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
     }
   }

@@ -22,7 +22,7 @@ async function main() {
 
     process.once('SIGUSR2', stopAllProcesses)
   } catch (err) {
-    logger.error(new Error(err.toString()))
+    logger.error(err)
     process.exit(1)
   }
 }

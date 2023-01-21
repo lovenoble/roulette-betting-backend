@@ -58,8 +58,8 @@ export default class StoreWorker {
           throw new Error(`[Worker]: Invalid eventName ${job.name}`)
       }
     } catch (err) {
-      logger.error(new Error(err.toString()))
-      throw new Error(err.toString())
+      logger.error(err)
+      throw err
     }
   }
 
@@ -73,8 +73,8 @@ export default class StoreWorker {
           throw new Error(`[Worker]: Invalid eventName ${job.name}`)
       }
     } catch (err) {
-      logger.error(new Error(err.toString()))
-      throw new Error(err.toString())
+      logger.error(err)
+      throw err
     }
   }
 
@@ -98,8 +98,8 @@ export default class StoreWorker {
           throw new Error(`[Worker]: Invalid eventName ${job.name}`)
       }
     } catch (err) {
-      logger.error(new Error(err.toString()))
-      throw new Error(err.toString())
+      logger.error(err)
+      throw err
     }
   }
   // #endregion Job Handlers

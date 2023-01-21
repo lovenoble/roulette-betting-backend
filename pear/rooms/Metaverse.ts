@@ -43,7 +43,7 @@ class Metaverse extends Room<MetaverseState> {
 
       this.setState(new MetaverseState())
     } catch (err) {
-      logger.error(new Error(err.toString()))
+      logger.error(err)
       throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
     }
   }
@@ -60,7 +60,7 @@ class Metaverse extends Room<MetaverseState> {
 
       return peerId
     } catch (err: any) {
-      logger.error(new Error(err.toString()))
+      logger.error(err)
       throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
     }
   }
@@ -78,7 +78,7 @@ class Metaverse extends Room<MetaverseState> {
 
       this.state.streams.set(sessionId, userStream)
     } catch (err) {
-      logger.error(new Error(err.toString()))
+      logger.error(err)
       throw new ServerError(HttpStatusCode.INTERNAL_SERVER_ERROR, err.toString())
     }
   }

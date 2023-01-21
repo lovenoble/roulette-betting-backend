@@ -94,8 +94,8 @@ export class OnUserJoined extends Command<SpinRoom, IUser & { client: Client }> 
       })
     } catch (err) {
       // @NOTE: NEED TO ADD ERROR QUEUE WHEN THIS IS HIT
-      logger.error(new Error(err.toString()))
-      throw new Error(err.toString())
+      logger.error(err)
+      throw err
     }
   }
 }
@@ -121,8 +121,8 @@ export class OnBalanceUpdate extends Command<
       user.balance.fare = fare
     } catch (err) {
       // @NOTE: NEED TO ADD ERROR QUEUE WHEN THIS IS HIT
-      logger.error(new Error(err.toString()))
-      throw new Error(err.toString())
+      logger.error(err)
+      throw err
     }
   }
 }
@@ -161,8 +161,8 @@ export class OnUserLeave extends Command<SpinRoom, OnUserLeaveOptions> {
       // this.state.guestUsers.get(client.sessionId).connected = true
     } catch (err) {
       // @NOTE: NEED TO ADD ERROR QUEUE WHEN THIS IS HIT
-      logger.error(new Error(err.toString()))
-      throw new Error(err.toString())
+      logger.error(err)
+      throw err
     }
   }
 }

@@ -88,8 +88,8 @@ class CryptoAdmin {
       this.placedUserIdxs.push(userIdx)
       return receipt
     } catch (err: any) {
-      logger.error(new Error(`${err.error.reason}`))
-      throw new Error(err.error.reason)
+      logger.error(err)
+      throw err
     }
   }
 
@@ -423,7 +423,7 @@ class CryptoAdmin {
       this.startCountdown(this.countdown, true)
     } catch (err) {
       clearInterval(this.eventLoopIntervalId)
-      logger.error(new Error(err.toString()))
+      logger.error(err)
     }
   }
 }

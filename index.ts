@@ -12,7 +12,6 @@ function stopAllProcesses() {
   logger.info('Stopping all processes...')
   redisStore.disconnectAll()
   pearServer.stopAll()
-  // rpcServer.stop()
   transport.stopAll()
 }
 
