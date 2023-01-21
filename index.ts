@@ -1,11 +1,10 @@
 import pearServer from './pear'
 import redisStore from './store'
-// import rpcServer from './rpc'
 import transport from './transport'
 import slackBotServer from './notifications/slack'
 import logger from './utils/logger'
 import { pearServerPort, isDev, isProd } from './config'
-// import cryptoAdmin from './crypto/admin'
+import { fireTheAlarms } from './notifications/pagerDuty'
 
 // Handle stopping processes on exit, error, or shutdown
 function stopAllProcesses() {
@@ -47,8 +46,10 @@ async function init() {
     // @NOTE: Need to add more exit eventListeners conditions
     process.once('SIGUSR2', stopAllProcesses)
   } catch (err) {
-    logger.error(err)
-    process.exit(1)
+    fireTheAlarms('FP-backend has crashed', err.toString()).finally(() => {
+      logger.error(err)
+      process.exit(1)
+    })
   }
 }
 
