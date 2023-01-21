@@ -14,6 +14,27 @@ function stopAllProcesses() {
   transport.stopAll()
 }
 
+// Mount uncaught error eventListeners
+process.on('uncaughtException', async err => {
+  try {
+    await fireTheAlarms('FP-backend uncaughtException', err.toString())
+  } catch (error) {
+    logger.error(error)
+  } finally {
+    logger.error(err)
+  }
+})
+
+process.on('unhandledRejection', async err => {
+  try {
+    await fireTheAlarms('FP-backend uncaughtRejection', err.toString())
+  } catch (error) {
+    logger.error(error)
+  } finally {
+    logger.error(err)
+  }
+})
+
 async function init() {
   try {
     // Initialize slack bot and dependency inject logger
@@ -46,10 +67,12 @@ async function init() {
     // @NOTE: Need to add more exit eventListeners conditions
     process.once('SIGUSR2', stopAllProcesses)
   } catch (err) {
-    fireTheAlarms('FP-backend has crashed', err.toString()).finally(() => {
+    try {
+      await fireTheAlarms('FP-backend has crashed', err.toString())
+    } finally {
       logger.error(err)
       process.exit(1)
-    })
+    }
   }
 }
 

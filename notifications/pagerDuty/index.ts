@@ -1,10 +1,13 @@
 import { api } from '@pagerduty/pdjs'
+import { isProd } from '../../config'
 
 const token = process.env.PAGER_DUTY_API_TOKEN || ''
 
 export const pagerDuty = api({ token })
 
 export const fireTheAlarms = async (title = 'Server error/down', desc?: string) => {
+  if (!isProd) return
+
   const reqBody: any = {
     headers: {
       From: 'admin@frostbit.dev',
