@@ -20,6 +20,13 @@ services:
       - 6379:6379
     volumes:
       - fare-cache:/data
+  fareplay-server:
+    image: fp-backend:latest
+    network_mode: host
+networks:
+  default:
+    name: fareplay-bridge-network
+    driver: bridge
 volumes:
   fare-store-data:
     driver: local
