@@ -291,8 +291,6 @@ class SpinRoom extends Room<SpinState> {
         }, 3000)
       },
     })
-
-    // runInterval(6, 6, 3, () => this.incrementWheelTick())
   }
 
   async onAuth(client: Client, options: IDefaultRoomOptions = {}) {
@@ -303,7 +301,7 @@ class SpinRoom extends Room<SpinState> {
         const user = await store.service.user.getUserFromToken(authToken)
 
         if (!user) {
-          logger.error(new Error('Invalid authToken. Please reauthenticate and try again.'))
+          logger.warn(new Error('Invalid authToken. Please reauthenticate and try again.'))
           throw new ServerError(
             HttpStatusCode.UNAUTHORIZED,
             'Invalid authToken. Please reauthenticate and try again.'
@@ -329,7 +327,7 @@ class SpinRoom extends Room<SpinState> {
 
       return `guest:${guestId}`
     } catch (err: any) {
-      logger.error(err)
+      logger.warn(err)
 
       setTimeout(() => client.leave(WebSocketCloseCode.POLICY_VIOLATION, (err as Error).message), 0)
       if (err instanceof Error) {
