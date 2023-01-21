@@ -12,6 +12,10 @@ await fast.register(fastifyCors, {
   origin: true,
 })
 
+fast.get('/health-check', async (_req, reply) => {
+  reply.code(200).send('OK')
+})
+
 fast.post<{ Body: { publicAddress: string } }>('/auth/generate-nonce', async req => {
   const { publicAddress } = req.body
 

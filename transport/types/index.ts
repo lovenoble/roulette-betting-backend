@@ -23,7 +23,7 @@ export interface IRouteController {
 export interface ITransportOptions {
   transportOpts?: TransportOptions
   appOpts?: AppOptions
-  pearMonitorPort?: number | string
+  fareMonitorPort?: number | string
 }
 
 export type WSHandler = (ws: WebSocket<{}>, message: ArrayBuffer, isBinary: boolean) => void

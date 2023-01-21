@@ -7,7 +7,7 @@ import type { ITransportOptions } from './types'
 import {
   transportOptions as defaultTransportOptions,
   appOptions as defaultAppOptions,
-  pearMonitorPort as defaultPearMonitorPort,
+  fareMonitorPort as defaultFareMonitorPort,
 } from '../config/transport.config'
 import { logger } from './utils'
 import createRoutes from './routes'
@@ -21,34 +21,34 @@ import fast from './fastify'
 export class Transport {
   instance!: uWebSocketsTransport
   app!: TemplatedApp
-  #pearMonitor: ReturnType<typeof createMonitorDashboard>
-  pearMonitorPort = defaultPearMonitorPort
-  pearMonitorServer?: Server
+  #fareMonitor: ReturnType<typeof createMonitorDashboard>
+  fareMonitorPort = defaultFareMonitorPort
+  fareMonitorServer?: Server
   logger = logger
 
   constructor({
     transportOpts = defaultTransportOptions,
     appOpts = defaultAppOptions,
-    pearMonitorPort = defaultPearMonitorPort,
+    fareMonitorPort = defaultFareMonitorPort,
   }: ITransportOptions) {
     // Create new uWebSocketsTransport instance
     this.instance = new uWebSocketsTransport(transportOpts, appOpts)
     this.app = this.instance.app
-    this.pearMonitorPort = pearMonitorPort
+    this.fareMonitorPort = fareMonitorPort
 
     // Create routes from transport instance
     createRoutes(this.app)
     logger.info(`Created (HTTP/WS) routes for transport`)
   }
 
-  async startMonitorDashboard(newPearMonitorPort?: number): Promise<Express> {
+  async startMonitorDashboard(newFareMonitorPort?: number): Promise<Express> {
     return new Promise((resolve, reject) => {
-      this.pearMonitorPort = newPearMonitorPort || this.pearMonitorPort
-      this.#pearMonitor = createMonitorDashboard()
-      this.pearMonitorServer = this.#pearMonitor
-        .listen(this.pearMonitorPort, () => {
-          logger.info(`Pear monitor dashboard running on port ${this.pearMonitorPort}...`)
-          resolve(this.#pearMonitor)
+      this.fareMonitorPort = newFareMonitorPort || this.fareMonitorPort
+      this.#fareMonitor = createMonitorDashboard()
+      this.fareMonitorServer = this.#fareMonitor
+        .listen(this.fareMonitorPort, () => {
+          logger.info(`Pear monitor dashboard running on port ${this.fareMonitorPort}...`)
+          resolve(this.#fareMonitor)
         })
         .on('error', reject)
     })
@@ -56,10 +56,10 @@ export class Transport {
 
   async stopMonitorDashboard() {
     return new Promise((resolve, reject) => {
-      if (this.pearMonitorServer) {
-        this.pearMonitorServer.close(err => {
+      if (this.fareMonitorServer) {
+        this.fareMonitorServer.close(err => {
           if (err) reject(err)
-          const successMsg = `Pear monitor dashboard closed (port: ${this.pearMonitorPort})`
+          const successMsg = `Pear monitor dashboard closed (port: ${this.fareMonitorPort})`
           logger.info(successMsg)
           resolve(successMsg)
         })

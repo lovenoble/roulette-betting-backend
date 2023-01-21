@@ -34,12 +34,6 @@ async function init() {
       await redisStore.initialize()
       await redisStore.initQueue()
       await redisStore.initSmartContractListeners()
-
-      // FOR TESTNET AND LOCAL DEV: Create seed test accounts and init admin methods
-      // await cryptoAdmin.init()
-
-      // Initializes gRPC server with reflection enabled (default port: 9090)
-      // await rpcServer.start()
     }
 
     // Initializes HTTP/WebSocket server (default port: 3100)
@@ -47,7 +41,7 @@ async function init() {
     await pearServer.listen()
 
     // Pear monitor dashboard (default port: 4200)
-    if (isDev) {
+    if (isDev || process.env.FARE_STATE_MONITOR_PASSWORD) {
       await transport.startMonitorDashboard()
     }
 

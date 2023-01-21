@@ -9,14 +9,14 @@ WORKDIR /usr/src/app
 COPY .npmrc package.json pnpm-lock.yaml ./
 ENV GENERATE_SOURCEMAP=false
 RUN pnpm install --frozen-lockfile --prod
+# RUN pnpm install
 
 FROM base as build
 
 WORKDIR /usr/src/app
 COPY . ./
 COPY --from=dependencies /usr/src/app/node_modules ./node_modules
-RUN pnpm run build:docker
-# RUN pnpm prune --prod
+RUN pnpm run build
 
 FROM base as deploy
 

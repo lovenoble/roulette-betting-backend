@@ -16,7 +16,7 @@ export const appOptions: AppOptions = {}
 // @NOTE: Configure later (options at the bottom)
 export const transportOptions: TransportOptions = {}
 
-export const pearMonitorPort = process.env.FARE_STATE_MONITOR_PORT || 4200
-
 // @NOTE: Used to access pear monitor dashboard
-export const pearMonitorPassword = process.env.FARE_STATE_MONITOR_PASSWORD || 'pearPlay123'
+export const fareMonitorPort = process.env.FARE_STATE_MONITOR_PORT || 4200
+export const fareMonitorUsername = process.env.FARE_STATE_MONITOR_USERNAME || 'admin'
+export const fareMonitorPassword = process.env.FARE_STATE_MONITOR_PASSWORD || 'pearPlay123'
