@@ -3,7 +3,7 @@ import { Logger } from 'winston'
 
 import { createSlackCommands } from './commands'
 import { SlackBoltApp, ISlackBot, SlackChannels } from './types'
-import { isProd } from '../config'
+import { isProd } from '../../config'
 // import { createSlackEvents } from './events'
 
 const {
