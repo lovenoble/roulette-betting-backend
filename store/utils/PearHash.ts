@@ -1,9 +1,9 @@
-import bcrypt from 'bcrypt'
 import fs from 'fs/promises'
+import path from 'path'
+import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
 import { utils } from 'ethers'
-import path from 'path'
 
 import { SIGNING_MESSAGE_TEXT } from '../constants'
 import { saltRounds, jwtExpiration } from '../../config'

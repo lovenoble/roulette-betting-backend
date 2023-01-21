@@ -1,12 +1,12 @@
 import { Wallet, providers, ContractTransaction, ContractReceipt, ethers } from 'ethers'
 import { Clock, Delayed } from '@colyseus/core'
 
-import { RandomTag } from '../../store/schema/randomness'
-import { FareSpin, FareSpin__factory, FareToken, FareToken__factory, FlatEntry } from '../types'
 import CryptoToken from './token'
 import CryptoSeed from './seed'
-import cryptoConfig from '../../config/crypto.config'
 import { logger, createBatchEntry, retryPromise } from './utils'
+import { RandomTag } from '../../store/schema/randomness'
+import { FareSpin, FareSpin__factory, FareToken, FareToken__factory, FlatEntry } from '../types'
+import cryptoConfig from '../../config/crypto.config'
 import { randomizer } from '../../utils'
 import store from '../../store'
 import {

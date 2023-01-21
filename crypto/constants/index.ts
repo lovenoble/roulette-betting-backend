@@ -1,6 +1,6 @@
 import { utils } from 'ethers'
-import { BN } from '../utils'
 import type { ContractModeParams } from '../types/spin.types'
+import { BN } from '../utils'
 
 export const ENTRIES_OPEN_COUNTDOWN_DURATION = 30_000
 export const PRE_SPIN_DURATION = 5_000

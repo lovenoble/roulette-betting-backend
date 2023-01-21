@@ -1,10 +1,9 @@
-import type { Client } from '@colyseus/core'
 import { Command } from '@colyseus/command'
 import { utils } from 'ethers'
 import numeral from 'numeral'
 import shortId from 'shortid'
+import type { Client } from '@colyseus/core'
 
-import { ENTRIES_OPEN_COUNTDOWN_DURATION } from '../../crypto/constants'
 import type SpinRoom from '../rooms/SpinRoom'
 import type {
   FareTransferArgs,
@@ -12,6 +11,7 @@ import type {
   SettledRound,
   INewRoundStarted,
 } from '../../pubsub/types'
+import { ENTRIES_OPEN_COUNTDOWN_DURATION } from '../../crypto/constants'
 
 import store from '../../store'
 import { SpinEvent, MAX_CHAT_MESSAGE_LENGTH, WebSocketCustomCodes } from '../constants'

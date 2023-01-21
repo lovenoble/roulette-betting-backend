@@ -1,7 +1,7 @@
-import type { Client } from '@colyseus/core'
 import { Room, ServerError, Delayed } from '@colyseus/core'
 import { Dispatcher } from '@colyseus/command'
 import shortId from 'shortid'
+import type { Client } from '@colyseus/core'
 
 import type { IDefaultRoomOptions, ICreateSpinRoomOptions } from '../types'
 import { HttpStatusCode, SpinEvent, MAX_SPIN_CLIENTS, WebSocketCloseCode } from '../constants'

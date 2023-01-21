@@ -4,15 +4,15 @@ import type { Express } from 'express'
 import type { Server } from 'http'
 
 import type { ITransportOptions } from './types'
+import { logger } from './utils'
+import createRoutes from './routes'
+import createMonitorDashboard from './monitor'
+import fast from './fastify'
 import {
   transportOptions as defaultTransportOptions,
   appOptions as defaultAppOptions,
   fareMonitorPort as defaultFareMonitorPort,
 } from '../config/transport.config'
-import { logger } from './utils'
-import createRoutes from './routes'
-import createMonitorDashboard from './monitor'
-import fast from './fastify'
 
 /** Create HTTP/WS server instance
  * Used as the transport layer for state syncing - This is imported by `server/pear/index.ts`

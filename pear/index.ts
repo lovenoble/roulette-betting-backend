@@ -2,11 +2,11 @@ import { Server } from '@colyseus/core'
 import { MongooseDriver } from '@colyseus/mongoose-driver'
 
 import type { RedisOptions } from 'ioredis'
+import { logger } from './utils'
+import Rooms from './rooms'
 import RedisPresence from '../store/presence'
 
-import { logger } from './utils'
 import { MONGO_ROOT_USERNAME, mongoUri, pearServerPort, defaultPresenceOpts } from '../config'
-import Rooms from './rooms'
 import transport from '../transport'
 
 export interface IPearOptions {

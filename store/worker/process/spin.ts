@@ -9,8 +9,8 @@ import type {
   INewRoundStartedQueue,
 } from '../../types'
 
-import PubSub from '../../../pubsub'
 import type { IRoundEliminators } from '../../../pubsub/types'
+import PubSub from '../../../pubsub'
 import { ContractNames, EventNames } from '../../constants'
 import { spinAPI } from '../../../crypto'
 import { formatETH, toEth, workerLogger as logger } from '../../utils'

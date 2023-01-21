@@ -1,7 +1,7 @@
 import { utils, BigNumber } from 'ethers'
 
-import { Logger } from '../../../utils'
 import type { FlatEntry } from '../../types'
+import { Logger } from '../../../utils'
 
 export const logger = Logger.create({ logType: 'CryptoAdmin', theme: ['mexicanBrown'] })
 

@@ -1,9 +1,9 @@
 import type { BigNumber, Event } from 'ethers'
 
-import { ContractNames, EventNames } from '../constants'
-import { formatETH } from '../utils'
 import type { StoreQueue } from '../queue'
 import type { IFareTransferQueue, IServiceObj } from '../types'
+import { ContractNames, EventNames } from '../constants'
+import { formatETH } from '../utils'
 
 const createFareTokenListener = (service: IServiceObj, storeQueue: StoreQueue) => {
   const { eventLog } = service

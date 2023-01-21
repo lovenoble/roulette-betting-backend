@@ -1,6 +1,6 @@
 import fs from 'fs'
-import { Wallet, providers } from 'ethers'
 import { exec } from 'node:child_process'
+import { Wallet, providers } from 'ethers'
 import { logger } from '../utils'
 import cryptoConfig from '../../config/crypto.config'
 

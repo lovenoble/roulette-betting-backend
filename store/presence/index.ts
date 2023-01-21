@@ -1,7 +1,6 @@
 import Redis from 'ioredis'
-import type { RedisOptions } from 'ioredis'
-
 import { Presence } from '@colyseus/core'
+import type { RedisOptions } from 'ioredis'
 
 type Callback = (...args: any[]) => void
 

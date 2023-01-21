@@ -1,10 +1,10 @@
-import { createLogger, format, transports } from 'winston'
 import fs from 'fs'
 import path from 'path'
+import { createLogger, format, transports } from 'winston'
 import chalk from 'chalk'
-import slackBotServer from '../../notifications/slack'
 
 import { LogType, LoggerOptions, logColors } from './types'
+import slackBotServer from '../../notifications/slack'
 
 const levels = {
   error: 0,

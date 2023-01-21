@@ -1,5 +1,7 @@
 import type { BigNumber, Event } from 'ethers'
 
+import type { StoreQueue } from '../queue'
+import type { IServiceObj } from '../types'
 import { BNToNumber, formatBN } from '../utils'
 import { EventNames, ContractNames } from '../constants'
 import {
@@ -11,8 +13,6 @@ import {
   INewRoundStartedQueue,
   IBatchEntryWithdrawQueue,
 } from '../types'
-import type { StoreQueue } from '../queue'
-import type { IServiceObj } from '../types'
 import PubSub from '../../pubsub'
 
 const createSpinContractListener = (service: IServiceObj, storeQueue: StoreQueue) => {

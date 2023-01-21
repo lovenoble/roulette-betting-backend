@@ -1,12 +1,11 @@
+import type { IServiceObj } from '../types'
+import createFareTokenListener from './fareToken'
+import createSpinContractListener from './spinContract'
 import { fareAPI, spinAPI } from '../../crypto'
 
-import type { IServiceObj } from '../types'
 import { EventNames } from '../constants'
 import { StoreQueue } from '../queue'
 import { logger, sleep } from '../utils'
-
-import createFareTokenListener from './fareToken'
-import createSpinContractListener from './spinContract'
 
 export default class SmartContractListener {
   #reconnectAttempts = 10

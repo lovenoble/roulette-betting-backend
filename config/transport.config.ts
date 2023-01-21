@@ -1,6 +1,6 @@
+import { DEDICATED_COMPRESSOR_3KB } from 'uWebSockets.js'
 import type { AppOptions } from 'uWebSockets.js'
 import type { TransportOptions } from '@colyseus/uwebsockets-transport'
-import { DEDICATED_COMPRESSOR_3KB } from 'uWebSockets.js'
 
 export const webSocketOptions = {
   /* There are many common helper features */

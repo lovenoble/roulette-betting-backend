@@ -1,5 +1,5 @@
-import type { Client } from '@colyseus/core'
 import { Command } from '@colyseus/command'
+import type { Client } from '@colyseus/core'
 
 import type { SpinRoom } from '../types'
 import { WebSocketCloseCode, SpinEvent } from '../constants'

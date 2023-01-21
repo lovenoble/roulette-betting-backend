@@ -4,7 +4,7 @@ import redisStore from './store'
 import transport from './transport'
 import slackBotServer from './notifications/slack'
 import logger from './utils/logger'
-import { pearServerPort, isDev } from './config'
+import { pearServerPort, isDev, isProd } from './config'
 // import cryptoAdmin from './crypto/admin'
 
 // Handle stopping processes on exit, error, or shutdown
@@ -18,7 +18,7 @@ function stopAllProcesses() {
 async function init() {
   try {
     // Initialize slack bot and dependency inject logger
-    if (process.env.NODE_ENV === 'production') {
+    if (isProd) {
       try {
         slackBotServer.setLogger(logger)
         await slackBotServer.initServer()

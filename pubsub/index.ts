@@ -3,8 +3,8 @@ import type { RedisOptions, Callback, Result } from 'ioredis'
 
 import type { ChannelName, MessageListener, FirstArgument } from './types'
 import { pubLogger, subLogger } from './utils'
-import { ioRedisOptions } from '../config'
 import { PubSubChannel } from './constants'
+import { ioRedisOptions } from '../config'
 
 declare module 'ioredis' {
   interface Redis {

@@ -12,9 +12,9 @@ import {
   FareToken,
   FareToken__factory,
 } from './types'
-import config from '../config/crypto.config'
 import * as utils from './utils'
 import { FareSpinAPI, FareTokenAPI } from './apis'
+import config from '../config/crypto.config'
 
 const {
   fareTokenAddress,

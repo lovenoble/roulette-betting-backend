@@ -2,10 +2,10 @@ import { Worker } from 'bullmq'
 import type { Job } from 'bullmq'
 
 import type { IServiceObj } from '../types'
+import { createFareJobProcesses, createSpinJobProcesses, createUserJobProcess } from './process'
 import { QueueNames, EventNames } from '../constants'
 import { workerDefaultOpts } from '../../config/redis.config'
 import { sleep, workerLogger as logger } from '../utils'
-import { createFareJobProcesses, createSpinJobProcesses, createUserJobProcess } from './process'
 
 export default class StoreWorker {
   fareWorker!: Worker

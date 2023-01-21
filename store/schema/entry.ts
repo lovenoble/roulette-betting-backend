@@ -1,8 +1,8 @@
 import { Entity, Schema } from 'redis-om'
 import type { BigNumber } from 'ethers'
 
-import { bnify } from '../utils'
 import type { Overwrite } from '../types'
+import { bnify } from '../utils'
 
 // @NOTE: Need to add roundId, entryId, and settled to this and update on settlement
 export interface Entry {

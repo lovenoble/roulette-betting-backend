@@ -1,7 +1,5 @@
 import { BigNumber, utils } from 'ethers'
 
-import { BNToNumber } from '../utils'
-
 import type {
   IEntry,
   IBatchEntry,
@@ -10,6 +8,7 @@ import type {
   ContractModeParams,
 } from '../types/spin.types'
 import type { FareToken, FareSpin, EntryStructOutput, EliminatorStructOutput } from '../types'
+import { BNToNumber } from '../utils'
 
 import { ContractModes } from '../constants'
 import config from '../../config/crypto.config'

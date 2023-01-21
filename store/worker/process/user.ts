@@ -1,5 +1,5 @@
-import CryptoToken from '../../../crypto/admin/token'
 import type { IServiceObj } from '../../types'
+import CryptoToken from '../../../crypto/admin/token'
 import { workerLogger as logger } from '../../utils'
 
 const fund = new CryptoToken({})

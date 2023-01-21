@@ -1,7 +1,7 @@
 import type { FareTransfer } from '../schema/types'
 
-import { fareAPI } from '../../crypto'
 import ServiceBase from './ServiceBase'
+import { fareAPI } from '../../crypto'
 import { zeroAddress, toEth, formatETH, logger, prettyNum } from '../utils'
 import { GlobalRedisKey } from '../constants'
 import PubSub from '../../pubsub'

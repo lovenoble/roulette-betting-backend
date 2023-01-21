@@ -1,6 +1,7 @@
 import SlackBolt from '@slack/bolt'
 import { Logger } from 'winston'
 
+import { isProd } from 'config'
 import { createSlackCommands } from './commands'
 import { SlackBoltApp, ISlackBot, SlackChannels } from './types'
 // import { createSlackEvents } from './events'
@@ -37,7 +38,7 @@ class SlackBot implements ISlackBot {
   }
 
   constructor() {
-    if (process.env.NODE_ENV === 'production') {
+    if (isProd) {
       this.#server = new App({
         token,
         appToken,

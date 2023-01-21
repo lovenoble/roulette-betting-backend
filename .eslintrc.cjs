@@ -31,6 +31,19 @@ module.exports = {
     'no-param-reassign': 'off',
     'import/extensions': ['warn', 'never'],
     'import/prefer-default-export': 'off',
+    'import/order': [
+      'warn',
+      {
+        groups: ['builtin', 'external', 'internal', 'type', 'index', 'sibling', 'object'],
+      },
+    ],
+    // '@typescript-eslint/consistent-type-imports': [
+    //   'warn',
+    //   {
+    //     disallowTypeAnnotations: false,
+    //     fixStyle: 'inline-type-imports',
+    //   },
+    // ],
     'no-promise-executor-return': 'off',
     'node/no-missing-import': 'off',
     'node/no-unsupported-features/node-builtins': 'off',

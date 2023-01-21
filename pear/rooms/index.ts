@@ -1,11 +1,11 @@
 import { Server, LobbyRoom } from '@colyseus/core'
 
+import type { RoomMap } from '../types'
 import SpinRoom from './SpinRoom'
 import ChatRoom from './ChatRoom'
 import Metaverse from './Metaverse'
 // import MediaStream from './MediaStream'
 
-import type { RoomMap } from '../types'
 import { RoomName } from '../constants'
 
 export const roomList: RoomMap = {
