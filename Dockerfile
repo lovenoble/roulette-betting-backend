@@ -22,6 +22,7 @@ FROM base as deploy
 WORKDIR /usr/src/app
 # COPY .env.prod ./.env
 COPY .env ./.env
+COPY bin/docker-entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY --from=build /usr/src/app/dist ./dist
 COPY --from=build /usr/src/app/keys ./keys
 COPY --from=build /usr/src/app/node_modules ./node_modules
@@ -29,5 +30,6 @@ COPY .npmrc package.json pnpm-lock.yaml ./
 EXPOSE 3100
 EXPOSE 3200
 EXPOSE 4200
-CMD ["node", "--experimental-specifier-resolution=node", "-r", "dotenv/config", "/usr/src/app/dist/index.js"]
+ENTRYPOINT [ "/bin/sh", "/usr/local/bin/entrypoint.sh" ]
+# CMD ["node", "--experimental-specifier-resolution=node", "-r", "dotenv/config", "/usr/src/app/dist/index.js"]
 
