@@ -16,7 +16,7 @@ WORKDIR /usr/src/app
 COPY . ./
 COPY --from=dependencies /usr/src/app/node_modules ./node_modules
 # RUN pnpm run build
-RUN ./node_modules/.bin/tsc
+RUN ./node_modules/.bin/tsc -b
 
 FROM base as deploy
 
