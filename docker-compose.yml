@@ -31,6 +31,12 @@ services:
       dockerfile: Dockerfile
     network_mode: host
     profiles: ['testnet']
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://127.0.0.1:50521/health']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
     depends_on:
       - fareplay-testnet
   fareplay-mongo-db:
@@ -56,22 +62,18 @@ services:
     volumes:
       - fare-cache:/data
   fareplay-server:
-    image: fp-backend:latest
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
+    # image: fp-backend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NO_CACHE=1
     network_mode: host
     profiles: ['server']
     restart: unless-stopped
     depends_on:
       - fareplay-testnet
       - fareplay-smart-contracts
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:50521/health']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 5s
 networks:
   default:
     name: fareplay-bridge-network
