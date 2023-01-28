@@ -36,5 +36,5 @@ EXPOSE 3200
 EXPOSE 4200
 # ENTRYPOINT [ "/bin/sh", "/usr/local/bin/entrypoint.sh" ]
 # CMD ["node", "--experimental-specifier-resolution=node", "-r", "dotenv/config", "/usr/src/app/dist/index.js"]
-CMD ["/bin/sh", "/usr/src/app/docker-entrypoint.sh"]
+CMD ["/bin/sh", "/usr/local/bin/entrypoint.sh"]
 
