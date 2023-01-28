@@ -1,15 +1,14 @@
 FROM node:16.19.0 as base
 
 RUN npm install -g pnpm
-# RUN curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
+RUN npm install -g typescript
 
 FROM base as dependencies
 
 WORKDIR /usr/src/app
 COPY .npmrc package.json pnpm-lock.yaml ./
 ENV GENERATE_SOURCEMAP=false
-RUN pnpm install --frozen-lockfile --prod
-# RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
 FROM base as build
 
@@ -21,7 +20,8 @@ RUN pnpm run build
 FROM base as deploy
 
 WORKDIR /usr/src/app
-COPY .env.prod ./.env
+# COPY .env.prod ./.env
+COPY .env ./.env
 COPY --from=build /usr/src/app/dist ./dist
 COPY --from=build /usr/src/app/keys ./keys
 COPY --from=build /usr/src/app/node_modules ./node_modules

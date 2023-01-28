@@ -52,7 +52,13 @@ export class Logger {
           if (info.level === 'error') {
             // Register slackBotServer
             if (slackBotServer.isConnected && process.env.NODE_ENV === 'production') {
-              slackBotServer.createUploadFile('logger-error', JSON.stringify(info))
+              ;(async () => {
+                try {
+                  slackBotServer.createUploadFile('logger-error', JSON.stringify(info))
+                } catch (err) {
+                  slackBotServer.createUploadFile('logger-error', info.message)
+                }
+              })()
             }
 
             if (info.metadata) {

@@ -6,7 +6,7 @@ const token = process.env.PAGER_DUTY_API_TOKEN || ''
 export const pagerDuty = api({ token })
 
 export const fireTheAlarms = async (title = 'Server error/down', desc?: string) => {
-  if (!isProd) return
+  if (!isProd || !token) return
 
   const reqBody: any = {
     headers: {
