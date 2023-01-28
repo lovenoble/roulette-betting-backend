@@ -1,6 +1,6 @@
 FROM node:16.19.0 as base
 
-RUN npm install -g pnpm
+RUN npm install --global pnpm
 # RUN npm install -g typescript
 
 FROM base as dependencies
@@ -15,12 +15,13 @@ FROM base as build
 WORKDIR /usr/src/app
 COPY . ./
 COPY --from=dependencies /usr/src/app/node_modules ./node_modules
-RUN pnpm run build
+# RUN pnpm run build
+RUN ./node_modules/.bin/tsc
 
 FROM base as deploy
 
-RUN npm install -g pnpm
-RUN npm install -g typescript
+RUN npm install --global pnpm
+RUN npm install --global typescript
 
 WORKDIR /usr/src/app
 # COPY .env.prod ./.env
