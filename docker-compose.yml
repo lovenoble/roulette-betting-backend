@@ -56,9 +56,10 @@ services:
     volumes:
       - fare-cache:/data
   fareplay-server:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: fp-backend:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
     network_mode: host
     profiles: ['server']
     restart: unless-stopped
