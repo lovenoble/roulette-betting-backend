@@ -19,6 +19,9 @@ RUN pnpm run build
 
 FROM base as deploy
 
+RUN npm install -g pnpm
+RUN npm install -g typescript
+
 WORKDIR /usr/src/app
 # COPY .env.prod ./.env
 COPY .env ./.env
