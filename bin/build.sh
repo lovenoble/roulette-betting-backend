@@ -1,4 +1,4 @@
 #!/bin/sh
 rimraf dist
 # tsc -b
-tsc -b
+tsc

@@ -1,7 +1,7 @@
 FROM node:16.19.0 as base
 
 RUN npm install -g pnpm
-RUN npm install -g typescript
+# RUN npm install -g typescript
 
 FROM base as dependencies
 
