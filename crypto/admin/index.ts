@@ -296,7 +296,8 @@ class CryptoAdmin {
   async startCountdown(_countdown: number, shouldSendStartTx = false) {
     // store.service.round.setSpinRoomStatus('starting')
     if (shouldSendStartTx) {
-      await retryPromise(() => this.startNewRound(), 5)
+      // await retryPromise(() => this.startNewRound(), 5)
+      await this.startNewRound()
     }
 
     await store.service.round.setSpinRoomStatus('countdown')
