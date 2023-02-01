@@ -274,7 +274,7 @@ class CryptoAdmin {
       const currentBlockEntry = Number(await this.spin.getBatchEntryCount(this.currentRoundId))
       logger.info(`Current block entries: ${currentBlockEntry}`)
       if (currentBatchEntries.length === 0 || currentBlockEntry === 0) {
-        this.submitRandomBatchEntry().then(console.log).catch(console.error)
+        await this.submitRandomBatchEntry()
       }
     } catch (err) {
       logger.error(err)
@@ -305,6 +305,10 @@ class CryptoAdmin {
     this.countdown = _countdown
     this.setCountdown(this.countdown)
     this.countdown -= SEC_MS
+
+    if (this.countdown <= 10_000 && this.countdown >= 7_000) {
+      this.determineSubmitSeedBatchEntry().catch(logger.error)
+    }
 
     this.delayedInterval = this.clock.setInterval(() => {
       if (this.countdown <= 0) {
