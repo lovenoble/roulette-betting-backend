@@ -89,7 +89,6 @@ class CryptoAdmin {
       return receipt
     } catch (err: any) {
       logger.error(err)
-      throw err
     }
   }
 
@@ -190,7 +189,6 @@ class CryptoAdmin {
       return receipt
     } catch (err) {
       logger.warn(String(err))
-      throw err
     }
   }
 
@@ -211,7 +209,6 @@ class CryptoAdmin {
       await resp.wait()
     } catch (err) {
       logger.warn(String(err))
-      throw err
     }
   }
 
@@ -228,7 +225,6 @@ class CryptoAdmin {
       await resp.wait()
     } catch (err: any) {
       logger.warn(String(err))
-      throw err
       // try {
       //   resp = await this.spin.startNewRound(randomness.randomHash, {
       //     gasLimit: 9000000,
@@ -275,12 +271,13 @@ class CryptoAdmin {
   async determineSubmitSeedBatchEntry() {
     try {
       const currentBatchEntries = await store.service.batchEntry.getCurrentRoundBatchEntries()
-      if (currentBatchEntries.length === 0) {
-        this.submitRandomBatchEntry()
+      const currentBlockEntry = Number(await this.spin.getBatchEntryCount(this.currentRoundId))
+      logger.info(`Current block entries: ${currentBlockEntry}`)
+      if (currentBatchEntries.length === 0 || currentBlockEntry === 0) {
+        await this.submitRandomBatchEntry()
       }
     } catch (err) {
       logger.error(err)
-      throw err
     }
   }
 
