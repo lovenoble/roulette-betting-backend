@@ -276,7 +276,7 @@ class CryptoAdmin {
     try {
       const currentBatchEntries = await store.service.batchEntry.getCurrentRoundBatchEntries()
       if (currentBatchEntries.length === 0) {
-        this.submitRandomBatchEntry().catch(logger.error)
+        retryPromise(() => this.submitRandomBatchEntry()).catch(logger.error)
       }
     } catch (err) {
       logger.error(err)
@@ -340,7 +340,7 @@ class CryptoAdmin {
       // Pause round - Prevents batch entries from being submitted
       logger.info(`Pausing spin round...`)
       await store.service.round.setSpinRoomStatus('pausing')
-      await retryPromise(() => this.pauseSpinRound(true), 5)
+      await retryPromise(() => this.pauseSpinRound(true), 5).catch(logger.error)
       this.spinWheel()
     } catch (err) {
       logger.error(err)
@@ -354,7 +354,7 @@ class CryptoAdmin {
 
   async spinEnded() {
     logger.info('Spin round is concluding.')
-    await retryPromise(() => this.concludeRound(), 5)
+    await retryPromise(() => this.concludeRound(), 5).catch(logger.error)
     logger.info('Spin round has successfully concluded!')
     await store.service.round.setSpinRoomStatus('finished')
     this.resetRound()
@@ -363,9 +363,12 @@ class CryptoAdmin {
   async resetRound() {
     logger.info('Sending startNewRound transaction to FareSpin contract...')
     await delayAfterPromise(
-      retryPromise(() => this.startNewRound(), 5),
+      // retryPromise(() => this.startNewRound(), 5),
+      this.startNewRound(),
       RESULT_SCREEN_DURATION
-    )
+    ).catch(() => {
+      this.startNewRound()
+    })
     logger.info('New round started successfully!')
     await store.service.round.resetFareSpinStateRound()
     this.startCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION, false)
