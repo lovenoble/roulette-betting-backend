@@ -229,24 +229,24 @@ class CryptoAdmin {
       await resp.wait()
     } catch (err: any) {
       logger.warn(String(err))
-      // try {
-      //   resp = await this.spin.startNewRound(randomness.randomHash, {
-      //     gasLimit: 9000000,
-      //     gasPrice: 70000000000,
-      //   })
-      //   await resp.wait()
-      // } catch (errs: any) {
-      //   logger.warn(String(errs))
-      //   try {
-      //     resp = await this.spin.startNewRound(randomness.randomHash, {
-      //       gasLimit: 9000000,
-      //       gasPrice: 70000000000,
-      //     })
-      //     await resp.wait()
-      //   } catch (errs2: any) {
-      //     logger.warn(String(errs2))
-      //   }
-      // }
+      try {
+        resp = await this.spin.startNewRound(randomness.randomHash, {
+          gasLimit: 9000000,
+          gasPrice: 70000000000,
+        })
+        await resp.wait()
+      } catch (errs: any) {
+        logger.warn(String(errs))
+        try {
+          resp = await this.spin.startNewRound(randomness.randomHash, {
+            gasLimit: 9000000,
+            gasPrice: 70000000000,
+          })
+          await resp.wait()
+        } catch (errs2: any) {
+          logger.warn(String(errs2))
+        }
+      }
     }
   }
 
