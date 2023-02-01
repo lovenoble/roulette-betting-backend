@@ -274,7 +274,7 @@ class CryptoAdmin {
       const currentBlockEntry = Number(await this.spin.getBatchEntryCount(this.currentRoundId))
       logger.info(`Current block entries: ${currentBlockEntry}`)
       if (currentBatchEntries.length === 0 || currentBlockEntry === 0) {
-        await this.submitRandomBatchEntry()
+        this.submitRandomBatchEntry().then(console.log).catch(console.error)
       }
     } catch (err) {
       logger.error(err)
@@ -321,7 +321,7 @@ class CryptoAdmin {
       this.setCountdown(this.countdown)
       this.countdown -= SEC_MS
 
-      if (this.countdown === 10_000) {
+      if (this.countdown <= 10_000 && this.countdown >= 7_000) {
         this.determineSubmitSeedBatchEntry().catch(logger.error)
       }
 
@@ -358,16 +358,17 @@ class CryptoAdmin {
 
   async resetRound() {
     logger.info('Sending startNewRound transaction to FareSpin contract...')
-    await delayAfterPromise(
-      // retryPromise(() => this.startNewRound(), 5),
-      this.startNewRound(),
-      RESULT_SCREEN_DURATION
-    ).catch(() => {
-      this.startNewRound()
-    })
-    logger.info('New round started successfully!')
-    await store.service.round.resetFareSpinStateRound()
-    this.startCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION, false)
+    await this.startNewRound()
+    // await delayAfterPromise(
+    // retryPromise(() => this.startNewRound(), 5),
+    // this.startNewRound(),
+    // RESULT_SCREEN_DURATION
+    // )
+    setTimeout(async () => {
+      logger.info('New round started successfully!')
+      await store.service.round.resetFareSpinStateRound()
+      this.startCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION, false)
+    }, RESULT_SCREEN_DURATION)
 
     // setTimeout(async () => {
     //   // this.settleAllPlacedEntries().finally(() => {
