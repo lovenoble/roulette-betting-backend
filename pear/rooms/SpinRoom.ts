@@ -17,7 +17,6 @@ import {
   OnResetRound,
   OnBalanceUpdate,
   OnNewRoundStarted,
-  // OnFareTransfer,
 } from '../commands'
 import { SpinState } from '../state/SpinState'
 import { logger } from '../utils'
@@ -106,7 +105,6 @@ class SpinRoom extends Room<SpinState> {
       PubSub.sub('fare', 'fare-transfer').listen<'fare-transfer'>(transfer => {
         this.dispatcher.dispatch(new OnBalanceUpdate(), { playerAddress: transfer.to })
         this.dispatcher.dispatch(new OnBalanceUpdate(), { playerAddress: transfer.from })
-        // this.dispatcher.dispatch(new OnFareTransfer(), transfer)
       })
 
       // FareTotalSupply updated
@@ -135,25 +133,7 @@ class SpinRoom extends Room<SpinState> {
         this.state.roomStatus = opt.status
         // TODO: Refactor this code
         if (opt.status === 'spinning') {
-          setTimeout(() => this.decrementWheelTick(), 1_200)
-          setTimeout(() => this.decrementWheelTick(), 1_350)
-          setTimeout(() => this.decrementWheelTick(), 1_450)
-          setTimeout(() => this.decrementWheelTick(), 1_600)
-          setTimeout(() => this.decrementWheelTick(), 1_750)
-          setTimeout(() => this.decrementWheelTick(), 1_900)
-          setTimeout(() => this.decrementWheelTick(), 2_000)
-          setTimeout(() => this.decrementWheelTick(), 2_100)
-          setTimeout(() => this.decrementWheelTick(), 2_150)
-          setTimeout(() => this.decrementWheelTick(), 2_200)
-          setTimeout(() => this.decrementWheelTick(), 2_225)
-          setTimeout(() => this.decrementWheelTick(), 2_250)
-          setTimeout(() => this.decrementWheelTick(), 2_275)
-          setTimeout(() => this.decrementWheelTick(), 2_300)
-          setTimeout(() => this.decrementWheelTick(), 2_325)
-          setTimeout(() => this.decrementWheelTick(), 2_350)
-          setTimeout(() => this.decrementWheelTick(), 2_375)
-          setTimeout(() => this.decrementWheelTick(), 2_400)
-          setTimeout(() => this.spinWheelTicks(opt.targetTick), 2_500)
+          this.initWheelSpin(opt.targetTick)
         }
       })
 
@@ -228,7 +208,7 @@ class SpinRoom extends Room<SpinState> {
       return num <= end ? num : end
     }
 
-    // Recursive run functoin
+    // Recursive run function
     const run = () => {
       const tickDiff = Math.abs(selectedTick + this.spinTick - 100)
       if (
@@ -283,14 +263,36 @@ class SpinRoom extends Room<SpinState> {
       onFinished: () => {
         // Set spinTick on state
         this.state.spinTick = this.spinTick
-        setTimeout(() => {
-          PubSub.pub('spin-state', 'round-finished', {
-            endedAt: Date.now(),
-            randomNum: selectedTick,
-          })
-        }, 3000)
+        // setTimeout(() => {
+        PubSub.pub('spin-state', 'round-finished', {
+          endedAt: Date.now(),
+          randomNum: selectedTick,
+        })
+        // }, 3000)
       },
     })
+  }
+
+  initWheelSpin(selectedTick: number) {
+    setTimeout(() => this.decrementWheelTick(), 1_200)
+    setTimeout(() => this.decrementWheelTick(), 1_350)
+    setTimeout(() => this.decrementWheelTick(), 1_450)
+    setTimeout(() => this.decrementWheelTick(), 1_600)
+    setTimeout(() => this.decrementWheelTick(), 1_750)
+    setTimeout(() => this.decrementWheelTick(), 1_900)
+    setTimeout(() => this.decrementWheelTick(), 2_000)
+    setTimeout(() => this.decrementWheelTick(), 2_100)
+    setTimeout(() => this.decrementWheelTick(), 2_150)
+    setTimeout(() => this.decrementWheelTick(), 2_200)
+    setTimeout(() => this.decrementWheelTick(), 2_225)
+    setTimeout(() => this.decrementWheelTick(), 2_250)
+    setTimeout(() => this.decrementWheelTick(), 2_275)
+    setTimeout(() => this.decrementWheelTick(), 2_300)
+    setTimeout(() => this.decrementWheelTick(), 2_325)
+    setTimeout(() => this.decrementWheelTick(), 2_350)
+    setTimeout(() => this.decrementWheelTick(), 2_375)
+    setTimeout(() => this.decrementWheelTick(), 2_400)
+    setTimeout(() => this.spinWheelTicks(selectedTick), 2_500)
   }
 
   async onAuth(client: Client, options: IDefaultRoomOptions = {}) {

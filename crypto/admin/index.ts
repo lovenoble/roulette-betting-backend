@@ -3,7 +3,7 @@ import { Clock, Delayed } from '@colyseus/core'
 
 import CryptoToken from './token'
 import CryptoSeed from './seed'
-import { logger, createBatchEntry, retryPromise } from './utils'
+import { logger, createBatchEntry, retryPromise, delayAfterPromise } from './utils'
 import { RandomTag } from '../../store/schema/randomness'
 import { FareSpin, FareSpin__factory, FareToken, FareToken__factory, FlatEntry } from '../types'
 import cryptoConfig from '../../config/crypto.config'
@@ -302,6 +302,8 @@ class CryptoAdmin {
     await store.service.round.setSpinRoomStatus('countdown')
     this.clock.start()
     this.countdown = _countdown
+    this.setCountdown(this.countdown)
+    this.countdown -= SEC_MS
 
     this.delayedInterval = this.clock.setInterval(() => {
       if (this.countdown <= 0) {
@@ -346,42 +348,31 @@ class CryptoAdmin {
     logger.info('Spin round is concluding.')
     await retryPromise(() => this.concludeRound(), 5)
     logger.info('Spin round has successfully concluded!')
-    store.service.round.setSpinRoomStatus('finished')
+    await store.service.round.setSpinRoomStatus('finished')
     this.resetRound()
   }
 
   async resetRound() {
     logger.info('Sending startNewRound transaction to FareSpin contract...')
+    await delayAfterPromise(
+      retryPromise(() => this.startNewRound(), 5),
+      RESULT_SCREEN_DURATION
+    )
+    logger.info('New round started successfully!')
+    await store.service.round.resetFareSpinStateRound()
+    this.startCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION, false)
 
-    setTimeout(async () => {
-      // this.settleAllPlacedEntries().finally(() => {
-      this.startNewRound()
-        .then(async () => {
-          logger.info('New round started successfully!')
-          await store.service.round.resetFareSpinStateRound()
-          this.startCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION, false)
-        })
-        .catch(err => logger.error(err))
-      // })
-    }, RESULT_SCREEN_DURATION)
-
-    // this.countdown = RESULT_SCREEN_DURATION // Time duration before spin round is reset
-    // // PubSub countdown update
-    // await this.setCountdown(this.countdown)
-    // this.delayedInterval = this.clock.setInterval(() => {
-    //   this.logCountdown('RESETTING ROUND')
-    //   this.setCountdown(this.countdown)
-    //   this.countdown -= SEC_MS
-    //   if (this.countdown <= 0) {
-    //     // @NOTE: commented out because FareSpin concludeRound now handles unpausing the round
-    //     // this.pauseSpinRound(false)
-    //     this.clock.stop()
-    //     this.clock.clear()
-    //     this.delayedInterval.clear()
-    //     store.service.round.resetFareSpinStateRound()
-    //     this.startCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION)
-    //   }
-    // }, 1000)
+    // setTimeout(async () => {
+    //   // this.settleAllPlacedEntries().finally(() => {
+    //   this.startNewRound()
+    //     .then(async () => {
+    //       logger.info('New round started successfully!')
+    //       await store.service.round.resetFareSpinStateRound()
+    //       this.startCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION, false)
+    //     })
+    //     .catch(err => logger.error(err))
+    //   // })
+    // }, RESULT_SCREEN_DURATION)
   }
 
   async initPearKeeper(shouldResetCountdown = true) {

@@ -54,3 +54,13 @@ export const retryPromise = async <T>(fn: () => Promise<T>, retriesLeft = 5): Pr
     return retryPromise(fn, retriesLeft - 1)
   }
 }
+
+export async function delayAfterPromise(promise: Promise<any>, minWaitMs = 3000) {
+  const start = Date.now()
+  await promise
+  const elapsed = Date.now() - start
+  const remaining = minWaitMs - elapsed
+  if (remaining > 0) {
+    await new Promise(resolve => setTimeout(resolve, remaining))
+  }
+}
