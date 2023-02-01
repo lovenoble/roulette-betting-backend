@@ -190,6 +190,7 @@ class CryptoAdmin {
       return receipt
     } catch (err) {
       logger.warn(String(err))
+      throw err
     }
   }
 
@@ -210,6 +211,7 @@ class CryptoAdmin {
       await resp.wait()
     } catch (err) {
       logger.warn(String(err))
+      throw err
     }
   }
 
@@ -226,24 +228,25 @@ class CryptoAdmin {
       await resp.wait()
     } catch (err: any) {
       logger.warn(String(err))
-      try {
-        resp = await this.spin.startNewRound(randomness.randomHash, {
-          gasLimit: 9000000,
-          gasPrice: 70000000000,
-        })
-        await resp.wait()
-      } catch (errs: any) {
-        logger.warn(String(errs))
-        try {
-          resp = await this.spin.startNewRound(randomness.randomHash, {
-            gasLimit: 9000000,
-            gasPrice: 70000000000,
-          })
-          await resp.wait()
-        } catch (errs2: any) {
-          logger.warn(String(errs2))
-        }
-      }
+      throw err
+      // try {
+      //   resp = await this.spin.startNewRound(randomness.randomHash, {
+      //     gasLimit: 9000000,
+      //     gasPrice: 70000000000,
+      //   })
+      //   await resp.wait()
+      // } catch (errs: any) {
+      //   logger.warn(String(errs))
+      //   try {
+      //     resp = await this.spin.startNewRound(randomness.randomHash, {
+      //       gasLimit: 9000000,
+      //       gasPrice: 70000000000,
+      //     })
+      //     await resp.wait()
+      //   } catch (errs2: any) {
+      //     logger.warn(String(errs2))
+      //   }
+      // }
     }
   }
 
@@ -277,6 +280,7 @@ class CryptoAdmin {
       }
     } catch (err) {
       logger.error(err)
+      throw err
     }
   }
 
@@ -297,7 +301,7 @@ class CryptoAdmin {
     // store.service.round.setSpinRoomStatus('starting')
     if (shouldSendStartTx) {
       // await retryPromise(() => this.startNewRound(), 5)
-      await this.startNewRound()
+      await retryPromise(() => this.startNewRound(), 5)
     }
 
     await store.service.round.setSpinRoomStatus('countdown')
@@ -309,10 +313,12 @@ class CryptoAdmin {
     this.delayedInterval = this.clock.setInterval(() => {
       if (this.countdown <= 0) {
         this.logCountdown('COUNTDOWN')
-        this.setCountdown(this.countdown).then(() => {
-          this.delayedInterval.clear()
-          this.preSpinPause()
-        })
+        this.setCountdown(this.countdown)
+          .then(() => {
+            this.delayedInterval.clear()
+            this.preSpinPause()
+          })
+          .catch(logger.error)
         return
       }
       this.logCountdown('COUNTDOWN')
@@ -338,6 +344,7 @@ class CryptoAdmin {
       this.spinWheel()
     } catch (err) {
       logger.error(err)
+      throw err
     }
   }
 
