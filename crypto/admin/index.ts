@@ -167,7 +167,11 @@ class CryptoAdmin {
       this.currentUserIdx += 1 // Increment currentUserIdx
       this.failThreshold = 0
     } catch (err) {
-      if (this.failThreshold >= this.seed.publicKeys.length) return
+      if (this.failThreshold >= this.seed.publicKeys.length) {
+        this.currentUserIdx = 0
+        this.failThreshold = 0
+        return
+      }
 
       this.currentUserIdx += 1 // Increment currentUserIdx
       logger.warn(
@@ -306,9 +310,9 @@ class CryptoAdmin {
     this.setCountdown(this.countdown)
     this.countdown -= SEC_MS
 
-    if (this.countdown <= 10_000 && this.countdown >= 7_000) {
+    setTimeout(() => {
       this.determineSubmitSeedBatchEntry().catch(logger.error)
-    }
+    }, 3_000)
 
     this.delayedInterval = this.clock.setInterval(() => {
       if (this.countdown <= 0) {
