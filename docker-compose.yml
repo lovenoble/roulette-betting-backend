@@ -3,8 +3,8 @@ services:
   fareplay-testnet:
     image: trufflesuite/ganache:latest
     network_mode: host
-    # ports:
-    #   - 50174:50174
+    ports:
+      - 50174:50174
     volumes:
       - fare-testnet-data:${TESTNET_DB_PATH:-"/tmp/testnet-docker-db"}
     command:
