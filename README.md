@@ -17,6 +17,7 @@ pnpm run start:keeper # Creates test accounts, seeds with ETH/FARE, and begins s
 ```
 
 .env
+
 ```shell
 NODE_ENV=development
 GRPC_TRACE=NONE
@@ -45,10 +46,3 @@ FARE_NFT_LOOTBOX_CONTROLLER_ADDRESS=0x70e0bA845a1A0F2DA3359C97E0285013525FFC49
 REWARDS_ADDRESS=0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
 PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 ```
-
-- View real-time state dashboard
-  - URL: http://localhost:4200/fare-state/
-  - Test Username: admin
-  - Test Password: pearPlay123
-  
-

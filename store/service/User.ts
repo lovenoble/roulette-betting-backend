@@ -2,156 +2,167 @@ import { utils } from 'ethers'
 import validator from 'validator'
 
 import type { User } from '../types'
-import type { SetUserDataRequest } from '../../rpc/models/user'
 
 import ServiceBase from './ServiceBase'
-import { userColorThemeToJSON } from '../../rpc/models/user'
 import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from '../constants'
-import { Omit } from '../types'
 import { PearHash, logger, isValidUsername } from '../utils'
+import { spinAPI } from '../../crypto'
 
-const { isEmail, isEmpty } = validator
+const { isEmail } = validator
 
 export default class UserService extends ServiceBase<User> {
-	// Fetch userEntity by publicAddress
-	public async getUserByAddress(publicAddress: string) {
-		return this.repo.search().where('publicAddress').eq(publicAddress).returnFirst()
-	}
+  // Fetch userEntity by publicAddress
+  public async getUserByAddress(publicAddress: string) {
+    return this.repo.search().where('publicAddress').eq(publicAddress).returnFirst()
+  }
 
-	public async getUserByUsername(username: string) {
-		return this.repo.search().where('username').eq(username).returnFirst()
-	}
+  public async getUserByUsername(username: string) {
+    return this.repo.search().where('username').eq(username).returnFirst()
+  }
 
-	public async getUserBySessionId(sessionId: string) {
-		return this.repo.search().where('sessionId').eq(sessionId).returnFirst()
-	}
+  public async getUserBySessionId(sessionId: string) {
+    return this.repo.search().where('sessionId').eq(sessionId).returnFirst()
+  }
 
-	// Check if publicAddress exists.
-	// If true, generate a new nonce, update the player record, and return the nonce
-	// If false, generate a new nonce, create a new player record, and return the none
-	public async authPublicAddress(publicAddress: string) {
-		if (!utils.isAddress(publicAddress)) throw new Error('Public address is not valid')
-		const { nonce, signingMessage } = PearHash.generateNonceWithSigningMessage()
+  // Check if publicAddress exists.
+  // If true, generate a new nonce, update the player record, and return the nonce
+  // If false, generate a new nonce, create a new player record, and return the none
+  public async authPublicAddress(publicAddress: string) {
+    if (!utils.isAddress(publicAddress)) throw new Error('Public address is not valid')
+    const { nonce, signingMessage } = PearHash.generateNonceWithSigningMessage()
 
-		const userEntity = await this.getUserByAddress(publicAddress)
+    const userEntity = await this.getUserByAddress(publicAddress)
 
-		// If userEntity doesn't exist, create a new user entity and pass in generated nonce
-		if (!userEntity) {
-			await this.repo.createAndSave({
-				publicAddress,
-				nonce,
-				isDisabled: false,
-				createdAt: Date.now(),
-			})
+    // If userEntity doesn't exist, create a new user entity and pass in generated nonce
+    if (!userEntity) {
+      await this.repo.createAndSave({
+        publicAddress,
+        nonce,
+        isDisabled: false,
+        createdAt: Date.now(),
+      })
 
-			logger.info(`Generated new player record for: ${publicAddress}`)
+      logger.info(`Generated new player record for: ${publicAddress}`)
 
-			// else update nonce for current user
-		} else {
-			userEntity.nonce = nonce
-			await this.repo.save(userEntity)
+      // else update nonce for current user
+    } else {
+      userEntity.nonce = nonce
+      await this.repo.save(userEntity)
 
-			logger.info(`Updated nonce for player: ${publicAddress}, ${userEntity.entityId}`)
-		}
+      logger.info(`Updated nonce for player: ${publicAddress}, ${userEntity.entityId}`)
+    }
 
-		return { nonce, signingMessage }
-	}
+    return { nonce, signingMessage }
+  }
 
-	// Fetch userEntity nonce by publicAddress
-	public async getUserNonce(publicAddress: string) {
-		if (!utils.isAddress(publicAddress)) throw new Error('Public address is not valid')
+  // Fetch userEntity nonce by publicAddress
+  public async getUserNonce(publicAddress: string) {
+    if (!utils.isAddress(publicAddress)) throw new Error('Public address is not valid')
 
-		const userEntity = await this.getUserByAddress(publicAddress)
+    const userEntity = await this.getUserByAddress(publicAddress)
 
-		if (!userEntity) {
-			throw new Error(`User does not exist with publicAddress: ${publicAddress}`)
-		}
+    if (!userEntity) {
+      throw new Error(`User does not exist with publicAddress: ${publicAddress}`)
+    }
 
-		return {
-			nonce: userEntity.nonce,
-			signingMessage: `${PearHash.getSigningMsgText()}${userEntity.nonce}`,
-		}
-	}
+    return {
+      nonce: userEntity.nonce,
+      signingMessage: `${PearHash.getSigningMsgText()}${userEntity.nonce}`,
+    }
+  }
 
-	public async userAuthed(publicAddress: string) {
-		const userEntity = await this.getUserByAddress(publicAddress)
-		userEntity.lastAuthed = Date.now()
-		return this.repo.save(userEntity)
-	}
+  public async userAuthed(publicAddress: string) {
+    const userEntity = await this.getUserByAddress(publicAddress)
+    userEntity.lastAuthed = Date.now()
+    return this.repo.save(userEntity)
+  }
 
-	// Checks if user exists by publicAddress
-	public async exists(publicAddress: string) {
-		const count = await this.repo
-			.search()
-			.where('publicAddress')
-			.eq(publicAddress)
-			.returnCount()
+  // Checks if user exists by publicAddress
+  public async exists(publicAddress: string) {
+    const count = await this.repo.search().where('publicAddress').eq(publicAddress).returnCount()
 
-		return count > 0
-	}
+    return count > 0
+  }
 
-	public async logout(publicAddress: string) {
-		const userEntity = await this.getUserByAddress(publicAddress)
+  public async logout(publicAddress: string) {
+    const userEntity = await this.getUserByAddress(publicAddress)
 
-		userEntity.sessionId = ''
+    userEntity.sessionId = ''
 
-		return this.repo.save(userEntity)
-	}
+    return this.repo.save(userEntity)
+  }
 
-	public async doesUsernameExist(username: string) {
-		const userEntity = await this.getUserByUsername(username)
+  public async doesUsernameExist(username: string) {
+    const userEntity = await this.getUserByUsername(username)
 
-		return !!userEntity
-	}
+    return !!userEntity
+  }
 
-	public async getUserFromToken(token: string) {
-		const publicAddress = PearHash.getAddressFromToken(token)
-		return this.getUserByAddress(publicAddress)
-	}
+  public async getUserFromToken(token: string) {
+    const publicAddress = PearHash.getAddressFromToken(token)
+    return this.getUserByAddress(publicAddress)
+  }
 
-	public async updateUserSessionId(publicAddress: string, sessionId: string) {
-		const userEntity = await this.getUserByAddress(publicAddress)
-		userEntity.sessionId = sessionId
-		return this.repo.save(userEntity)
-	}
+  public async updateUserSessionId(publicAddress: string, sessionId: string) {
+    const userEntity = await this.getUserByAddress(publicAddress)
+    userEntity.sessionId = sessionId
+    return this.repo.save(userEntity)
+  }
 
-	public async clearOutSessionId(sessionId: string): Promise<string | null> {
-		const userEntity = await this.getUserBySessionId(sessionId)
-		if (!userEntity) return null
+  public async clearOutSessionId(sessionId: string): Promise<string | null> {
+    const userEntity = await this.getUserBySessionId(sessionId)
+    if (!userEntity) return null
 
-		userEntity.sessionId = null
-		return this.repo.save(userEntity)
-	}
+    userEntity.sessionId = null
+    return this.repo.save(userEntity)
+  }
 
-	public async setUserData(
-		publicAddress: string,
-		{ username: _username, email, colorTheme: _colorTheme }: Omit<SetUserDataRequest, 'token'>,
-	) {
-		const userEntity = await this.getUserByAddress(publicAddress)
-		const colorTheme = userColorThemeToJSON(_colorTheme)
+  public async isUserInSpinRound(publicAddress: string, roundId: number) {
+    try {
+      const batchEntry = await spinAPI.contract.batchEntryMap(String(roundId), publicAddress)
+      return batchEntry.placedAt.gt(0)
+    } catch (err) {
+      logger.error(err)
+    }
+  }
 
-		if (!userEntity) throw new Error('User does not exist.')
+  public async setUserData(
+    publicAddress: string,
+    {
+      username: _username,
+      email,
+      colorTheme: _colorTheme,
+    }: { username?: string; email?: string; colorTheme?: string }
+  ) {
+    const userEntity = await this.getUserByAddress(publicAddress)
+    const colorTheme = _colorTheme
 
-		if (!isEmpty(email) && !isEmail(email)) throw new Error('Invalid email address')
-		if (!isEmpty(_username)) {
-			const username = _username.trim()
-			if (!isValidUsername(username)) {
-				throw new Error(
-					`Username is invalid. Valid format: [a-zA-Z0-9_] | Min: ${USERNAME_MIN_LENGTH} | Max: ${USERNAME_MAX_LENGTH}`,
-				)
-			}
-			const doesExist = await this.doesUsernameExist(username)
-			if (doesExist) throw new Error('Username already exists.')
+    if (!userEntity) throw new Error('User does not exist.')
 
-			userEntity.username = username
-		}
+    if (email) {
+      if (!isEmail(email)) {
+        throw new Error('Invalid email address')
+      }
+    }
+    if (_username) {
+      const username = _username.trim()
+      if (!isValidUsername(username)) {
+        throw new Error(
+          `Username is invalid. Valid format: [a-zA-Z0-9_] | Min: ${USERNAME_MIN_LENGTH} | Max: ${USERNAME_MAX_LENGTH}`
+        )
+      }
+      const doesExist = await this.doesUsernameExist(username)
+      if (doesExist) throw new Error('Username already exists.')
 
-		if (colorTheme !== 'UNRECOGNIZED') {
-			userEntity.colorTheme = colorTheme
-		}
+      userEntity.username = username
+    }
 
-		userEntity.email = email || userEntity.email
+    if (colorTheme) {
+      userEntity.colorTheme = colorTheme
+    }
 
-		return this.repo.save(userEntity)
-	}
+    userEntity.email = email || userEntity.email
+
+    return this.repo.save(userEntity)
+  }
 }

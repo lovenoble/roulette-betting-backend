@@ -9,133 +9,150 @@ import { ensureNumber, formatETH, logger } from '../utils'
 import { spinAPI } from '../../crypto'
 
 interface ICurrentBatchEntries {
-	batchEntry: IBatchEntry
-	entries: IEntry[]
+  batchEntry: IBatchEntry
+  entries: IEntry[]
 }
 
 export default class BatchEntryService extends ServiceBase<BatchEntry> {
-	entryService!: EntryService
+  entryService!: EntryService
 
-	constructor(entryService: EntryService) {
-		super()
+  constructor(entryService: EntryService) {
+    super()
 
-		this.entryService = entryService
-	}
+    this.entryService = entryService
+  }
 
-	public fetch(roundId: BigNumber | number, player: string) {
-		return this.repo
-			.search()
-			.where('roundId')
-			.equal(ensureNumber(roundId))
-			.where('player')
-			.equal(player)
-			.returnFirst()
-	}
+  public fetch(roundId: BigNumber | number, player: string) {
+    return this.repo
+      .search()
+      .where('roundId')
+      .equal(ensureNumber(roundId))
+      .where('player')
+      .equal(player)
+      .returnFirst()
+  }
 
-	public fetchBatchEntriesByRoundId(roundId: number) {
-		return this.repo
-			.search()
-			.where('roundId')
-			.equal(roundId)
-			.sortAsc('batchEntryId')
-			.returnAll()
-	}
+  public fetchBatchEntriesByRoundId(roundId: number) {
+    return this.repo.search().where('roundId').equal(roundId).sortAsc('batchEntryId').returnAll()
+  }
 
-	public async getCurrentRoundBatchEntries(): Promise<ICurrentBatchEntries[]> {
-		const currentRoundId = await spinAPI.getCurrentRoundId()
-		const batchEntries = await this.fetchBatchEntriesByRoundId(currentRoundId)
+  public async fetchClaimableRewards(publicAddress: string) {
+    let records = await this.repo
+      .search()
+      .where('player')
+      .eq(publicAddress)
+      .and('settled')
+      .eq(false)
+      .returnAll()
 
-		const promiseList: Promise<ICurrentBatchEntries>[] = batchEntries.map(be => {
-			return new Promise((resolve, reject) => {
-				this.entryService
-					.fetchEntriesByRoundPlayer(be.roundId, be.player)
-					.then(entries => {
-						resolve({
-							batchEntry: be.toRedisJson() as IBatchEntry,
-							entries: entries.map(entry => entry.toRedisJson()) as IEntry[],
-						})
-					})
-					.catch(reject)
-			})
-		})
+    records = records.filter(record => Number(record.totalMintAmount))
 
-		return Promise.all(promiseList)
-	}
+    return records
+  }
 
-	public async create(
-		eventLogId: string,
-		roundId: number,
-		batchEntryId: number,
-		player: string,
-		jobId: string = null,
-		timestamp = Date.now(),
-	) {
-		const entries = await this.entryService.populateEntriesFromBatchEntryId(
-			eventLogId,
-			roundId,
-			player,
-			jobId,
-			timestamp,
-		)
+  public async getCurrentRoundBatchEntries(): Promise<ICurrentBatchEntries[]> {
+    const currentRoundId = await spinAPI.getCurrentRoundId()
+    const batchEntries = await this.fetchBatchEntriesByRoundId(currentRoundId)
 
-		const be = await spinAPI.contract.batchEntryMap(roundId, player)
-		const { settled, totalEntryAmount, totalMintAmount } = be
+    const promiseList: Promise<ICurrentBatchEntries>[] = batchEntries.map(be => {
+      return new Promise((resolve, reject) => {
+        this.entryService
+          .fetchEntriesByRoundPlayer(be.roundId, be.player)
+          .then(entries => {
+            resolve({
+              batchEntry: be.toRedisJson() as IBatchEntry,
+              entries: entries.map(entry => entry.toRedisJson()) as IEntry[],
+            })
+          })
+          .catch(reject)
+      })
+    })
 
-		const batchEntry = {
-			eventLogId,
-			roundId,
-			batchEntryId,
-			settled,
-			player,
-			totalEntryAmount: formatETH(totalEntryAmount),
-			totalMintAmount: formatETH(totalMintAmount),
-			timestamp,
-			jobId,
-		}
+    return Promise.all(promiseList)
+  }
 
-		await this.repo.createAndSave(batchEntry)
+  public async create(
+    eventLogId: string,
+    roundId: number,
+    batchEntryId: number,
+    player: string,
+    placedAt: number,
+    placedTxHash: string,
+    jobId: string = null,
+    timestamp = Date.now()
+  ) {
+    const entries = await this.entryService.populateEntriesFromBatchEntryId(
+      eventLogId,
+      roundId,
+      player,
+      jobId,
+      timestamp
+    )
 
-		return {
-			batchEntry,
-			entries,
-		}
-	}
+    const be = await spinAPI.contract.batchEntryMap(roundId, player)
+    const { settled, totalEntryAmount, totalMintAmount } = be
 
-	public async settle(
-		roundId: number,
-		player: string,
-		settledOn = Date.now(),
-		jobId: string = null,
-	) {
-		const batchEntryEntity = await this.fetch(roundId, player)
+    const batchEntry = {
+      eventLogId,
+      roundId,
+      batchEntryId,
+      settled,
+      player,
+      placedAt,
+      totalEntryAmount: formatETH(totalEntryAmount),
+      totalMintAmount: formatETH(totalMintAmount),
+      timestamp,
+      jobId,
+      placedTxHash,
+    }
 
-		// @NOTE: BULLMQ
-		if (!batchEntryEntity) {
-			// @NOTE: Push to queue to wait retry again in 10 seconds.
-			// @NOTE: Problem occurs because settleBatchEntry and entrySubmitted even are fired off on connection
-			logger.warn(
-				'@NOTE: NEED TO RACE CONDITION TO CREATE BATCH ENTRY AND ENTRIES SINCE IT IS NULL!!!',
-			)
-		}
+    await this.repo.createAndSave(batchEntry)
 
-		batchEntryEntity.settled = true
-		batchEntryEntity.settledOn = settledOn
-		batchEntryEntity.jobId = jobId
+    return {
+      batchEntry,
+      entries,
+    }
+  }
 
-		const entries = await this.entryService.fetchEntriesByRoundPlayer(roundId, player)
+  public async settle(
+    roundId: number,
+    player: string,
+    settledAt: number,
+    settledTxHash: string,
+    jobId: string = null,
+    settledOn = Date.now()
+  ) {
+    const batchEntryEntity = await this.fetch(roundId, player)
 
-		const promiseList = entries.map(entry => {
-			return new Promise((resolve, reject) => {
-				entry.settled = true
-				entry.settledOn = settledOn
-				entry.jobId = jobId
-				this.entryService.repo.save(entry).then(resolve).catch(reject)
-			})
-		})
+    // @NOTE: BULLMQ
+    if (!batchEntryEntity) {
+      // @NOTE: Push to queue to wait retry again in 10 seconds.
+      // @NOTE: Problem occurs because settleBatchEntry and entrySubmitted even are fired off on connection
+      logger.warn(
+        '@NOTE: NEED TO RACE CONDITION TO CREATE BATCH ENTRY AND ENTRIES SINCE IT IS NULL!!!'
+      )
+    }
 
-		await Promise.all(promiseList)
-		await this.repo.save(batchEntryEntity)
+    batchEntryEntity.settled = true
+    batchEntryEntity.settledOn = settledOn
+    batchEntryEntity.settledAt = settledAt
+    batchEntryEntity.jobId = jobId
+    batchEntryEntity.settledTxHash = settledTxHash
 
-		return batchEntryEntity
-	}
+    const entries = await this.entryService.fetchEntriesByRoundPlayer(roundId, player)
+
+    const promiseList = entries.map(entry => {
+      return new Promise((resolve, reject) => {
+        entry.settled = true
+        entry.settledOn = settledAt
+        entry.jobId = jobId
+        this.entryService.repo.save(entry).then(resolve).catch(reject)
+      })
+    })
+
+    await Promise.all(promiseList)
+    await this.repo.save(batchEntryEntity)
+
+    return batchEntryEntity
+  }
 }
