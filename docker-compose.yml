@@ -24,7 +24,7 @@ services:
       - '--wallet.defaultBalance=100000000'
       - '--wallet.totalAccounts=25'
       - '--wallet.mnemonic=${TESTNET_MNEMONIC:-"ticket improve exist summer reform exercise mirror trade raven slogan crop siege artwork between client foster join swamp"}'
-    profiles: ['testnet']
+    # profiles: ['testnet']
   fareplay-smart-contracts:
     build:
       context: ${FARE_CONTRACT_REPO_PATH}
