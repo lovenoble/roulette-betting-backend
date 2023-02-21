@@ -7,7 +7,7 @@ export const PRE_SPIN_DURATION = 5_000
 export const WHEEL_SPINNING_DURATION = 10_000
 export const RESULT_SCREEN_DURATION = 3_000
 export const SEC_MS = 1000
-export const SEED_USER_SUBMIT_FEQUENCY = 4_000 // Amount of secs between seed user batchEntry submits
+export const SEED_USER_SUBMIT_FEQUENCY = 3_000 // Amount of secs between seed user batchEntry submits
 export const SEED_AVAX_FAUCET_AMOUNT = utils.parseEther('35')
 export const SEED_FARE_FAUCET_AMOUNT = utils.parseEther('10000000')
 

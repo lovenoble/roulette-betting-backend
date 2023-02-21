@@ -13,7 +13,7 @@ import {
   ENTRIES_OPEN_COUNTDOWN_DURATION,
   // PRE_SPIN_DURATION,
   // WHEEL_SPINNING_DURATION,
-  // SEED_USER_SUBMIT_FEQUENCY,
+  SEED_USER_SUBMIT_FEQUENCY,
   RESULT_SCREEN_DURATION,
   SEC_MS,
   DEFAULT_SIMULATION_INTERVAL,
@@ -310,9 +310,9 @@ class CryptoAdmin {
     this.setCountdown(this.countdown)
     this.countdown -= SEC_MS
 
-    setTimeout(() => {
-      this.determineSubmitSeedBatchEntry().catch(logger.error)
-    }, 3_000)
+    // setTimeout(() => {
+    //   this.determineSubmitSeedBatchEntry().catch(logger.error)
+    // }, 3_000)
 
     this.delayedInterval = this.clock.setInterval(() => {
       if (this.countdown <= 0) {
@@ -329,13 +329,13 @@ class CryptoAdmin {
       this.setCountdown(this.countdown)
       this.countdown -= SEC_MS
 
-      if (this.countdown <= 10_000 && this.countdown >= 7_000) {
-        this.determineSubmitSeedBatchEntry().catch(logger.error)
-      }
-
-      // if (this.countdown % SEED_USER_SUBMIT_FEQUENCY === 0) {
-      //   this.submitRandomBatchEntry().catch(logger.error)
+      // if (this.countdown <= 10_000 && this.countdown >= 7_000) {
+      //   this.determineSubmitSeedBatchEntry().catch(logger.error)
       // }
+
+      if (this.countdown % SEED_USER_SUBMIT_FEQUENCY === 0) {
+        this.submitRandomBatchEntry().catch(logger.error)
+      }
     }, 1_000)
   }
 
