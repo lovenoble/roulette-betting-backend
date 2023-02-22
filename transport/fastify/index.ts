@@ -79,17 +79,19 @@ fast.post<{ Headers: { token: string } }>('/auth/verify-token', async req => {
   return { publicAddress }
 })
 
-fast.post<{ Headers: { token: string }; Query: { authToken: string } }>(
-  '/auth-metaverse/verify-token',
-  async req => {
-    console.log(req.headers)
-    console.log(req.body)
-    console.log(req.query)
-    // const { token } = req.headers
-    // const publicAddress = PearHash.getAddressFromToken(token)
-    return { ResultCode: 3, Message: 'Invalid parameters.' }
+fast.post<{
+  Headers: { token: string }
+  Body: { dedicated_server_key: string; dedicated_server_prover: string }
+}>('/auth-metaverse/verify-token', async req => {
+  const { dedicated_server_key, dedicated_server_prover } = req.body
+
+  if (dedicated_server_key === 'tallahasse' && dedicated_server_prover === 'supkip') {
+    return { ResultCode: 1, UserId: 'dedicated-server-us' }
   }
-)
+  // const { token } = req.headers
+  // const publicAddress = PearHash.getAddressFromToken(token)
+  return { ResultCode: 3, Message: 'Invalid parameters.' }
+})
 
 fast.post<{ Headers: { token: string }; Body: { username: string; colorTheme: string } }>(
   '/auth/set-user-data',
