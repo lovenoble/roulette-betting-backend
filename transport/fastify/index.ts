@@ -82,6 +82,9 @@ fast.post<{ Headers: { token: string } }>('/auth/verify-token', async req => {
 fast.post<{ Headers: { token: string }; Query: { authToken: string } }>(
   '/auth-metaverse/verify-token',
   async req => {
+    console.log(req.headers)
+    console.log(req.body)
+    console.log(req.query)
     // const { token } = req.headers
     // const publicAddress = PearHash.getAddressFromToken(token)
     return { ResultCode: 3, Message: 'Invalid parameters.' }
