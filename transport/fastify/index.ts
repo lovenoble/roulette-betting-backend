@@ -81,16 +81,38 @@ fast.post<{ Headers: { token: string } }>('/auth/verify-token', async req => {
 
 fast.post<{
   Headers: { token: string }
-  Body: { dedicated_server_key: string; dedicated_server_prover: string }
+  Body: { dedicated_server_key: string; dedicated_server_prover: string; auth_token: string }
 }>('/auth-metaverse/verify-token', async req => {
-  const { dedicated_server_key, dedicated_server_prover } = req.body
+  const { auth_token, dedicated_server_key, dedicated_server_prover } = req.body
+  const successResp = { ResultCode: 1, UserId: 'dedicated-server-us' }
+  const authFailedResp = { ResultCode: 2, Message: 'Authentication failed. Wrong credentials.' }
+  const invalidParamsResp = { ResultCode: 3, Message: 'Invalid parameters.' }
 
+  // TODO: Need to setup custom RSA public/private key authentication for dedicated server
   if (dedicated_server_key === 'tallahasse' && dedicated_server_prover === 'supkip') {
-    return { ResultCode: 1, UserId: 'dedicated-server-us' }
+    return successResp
   }
-  // const { token } = req.headers
-  // const publicAddress = PearHash.getAddressFromToken(token)
-  return { ResultCode: 3, Message: 'Invalid parameters.' }
+  if (auth_token) {
+    const publicAddress = PearHash.getAddressFromToken(auth_token)
+
+    // @NOTE: Need to check if token is expired here
+    // @NOTE: If token is invalid or expired send a message to client to clear out token in localStorage
+    if (!publicAddress) {
+      return authFailedResp
+    }
+
+    const doesExist = await store.service.user.exists(publicAddress)
+
+    // @NOTE: Need to send message to client to redirect user to connect wallet and reverify
+    if (!doesExist) {
+      return authFailedResp
+    }
+
+    // Success auth
+    return successResp
+  }
+
+  return invalidParamsResp
 })
 
 fast.post<{ Headers: { token: string }; Body: { username: string; colorTheme: string } }>(
