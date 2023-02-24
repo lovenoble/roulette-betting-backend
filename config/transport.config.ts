@@ -20,3 +20,6 @@ export const transportOptions: TransportOptions = {}
 export const fareMonitorPort = process.env.FARE_STATE_MONITOR_PORT || 4200
 export const fareMonitorUsername = process.env.FARE_STATE_MONITOR_USERNAME || 'admin'
 export const fareMonitorPassword = process.env.FARE_STATE_MONITOR_PASSWORD || 'pearPlay123'
+
+// @NOTE: Used for authenticating photon fusion in the Unity editor
+export const authOverrideToken = process.env.AUTH_OVERRIDE_TOKEN

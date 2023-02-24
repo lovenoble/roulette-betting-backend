@@ -1,6 +1,8 @@
 import Fastify from 'fastify'
 import { utils } from 'ethers'
 import fastifyCors from '@fastify/cors'
+import { nanoid } from 'nanoid/async'
+import { authOverrideToken } from '../../config/transport.config'
 import store from '../../store'
 import { EventNames } from '../../store/constants'
 import { PearHash } from '../../store/utils'
@@ -81,17 +83,42 @@ fast.post<{ Headers: { token: string } }>('/auth/verify-token', async req => {
 
 fast.post<{
   Headers: { token: string }
-  Body: { dedicated_server_key: string; dedicated_server_prover: string; auth_token: string }
+  Body: {
+    dedicated_server_key: string
+    dedicated_server_prover: string
+    auth_token: string
+    auth_override_token: string
+    lobby: string
+    session: string
+  }
 }>('/auth-metaverse/verify-token', async req => {
-  const { auth_token, dedicated_server_key, dedicated_server_prover } = req.body
-  const successResp = { ResultCode: 1, UserId: 'dedicated-server-us' }
+  const {
+    auth_override_token,
+    auth_token,
+    dedicated_server_key,
+    dedicated_server_prover,
+    lobby,
+    session,
+  } = req.body
+  const successResp = { ResultCode: 1, UserId: `dedicated-server_${lobby}--${session}` }
   const authFailedResp = { ResultCode: 2, Message: 'Authentication failed. Wrong credentials.' }
   const invalidParamsResp = { ResultCode: 3, Message: 'Invalid parameters.' }
 
   // TODO: Need to setup custom RSA public/private key authentication for dedicated server
-  if (dedicated_server_key === 'tallahasse' && dedicated_server_prover === 'supkip') {
+  if (
+    dedicated_server_key === 'tallahasse' &&
+    dedicated_server_prover === 'supkip' &&
+    auth_override_token === authOverrideToken
+  ) {
     return successResp
   }
+
+  if (Boolean(auth_override_token) && auth_override_token === authOverrideToken) {
+    const overrideUserId = await nanoid(12)
+    successResp.UserId = `admin-${overrideUserId}`
+    return successResp
+  }
+
   if (auth_token) {
     const publicAddress = PearHash.getAddressFromToken(auth_token)
 
