@@ -108,6 +108,8 @@ fast.post<{
       return authFailedResp
     }
 
+    successResp.UserId = publicAddress
+
     // Success auth
     return successResp
   }
