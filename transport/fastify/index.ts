@@ -88,17 +88,11 @@ fast.post<{
     dedicated_server_prover: string
     auth_token: string
     auth_override_token: string
-  }}>('/auth-metaverse/verify-token', async req => {
-  const {
-    auth_override_token,
-    auth_token,
-    dedicated_server_key,
-    dedicated_server_prover,
-  } = req.body
-    const {
-      lobby,
-      session,
-    } = req.query as {lobby: string, session: string}
+  }
+}>('/auth-metaverse/verify-token', async req => {
+  const { auth_override_token, auth_token, dedicated_server_key, dedicated_server_prover } =
+    req.body
+  const { lobby, session } = req.query as { lobby: string; session: string }
 
   const successResp = { ResultCode: 1, UserId: `dedicated-server_${lobby}--${session}` }
   const authFailedResp = { ResultCode: 2, Message: 'Authentication failed. Wrong credentials.' }
