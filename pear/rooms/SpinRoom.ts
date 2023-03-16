@@ -349,8 +349,10 @@ class SpinRoom extends Room<SpinState> {
       const [publicAddress, guestId] = auth.split(':')
 
       if (guestId) {
+        console.log('ON GUEST JOINED')
         this.dispatcher.dispatch(new OnGuestUserJoined(), { client, guestId })
       } else if (publicAddress) {
+        console.log('ON USER JOINED')
         this.dispatcher.dispatch(new OnUserJoined(), {
           client,
           publicAddress,
