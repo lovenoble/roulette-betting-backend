@@ -39,28 +39,28 @@ export class OnUserJoined extends Command<SpinRoom, IUser & { client: Client }> 
       const {
         username,
         colorTheme,
-        sessionId: previousSessionId,
+        // sessionId: previousSessionId,
       } = await store.service.user.getUserByAddress(publicAddress)
-      console.log(previousSessionId, sessionId)
 
+      // @TODO reimplement single auth by public address
       // If user sessionId still exists disconnect previous session from Room
-      if (previousSessionId) {
-        const prevClient = findClientBySessionId(previousSessionId, this.room.clients)
-        if (prevClient) {
-          logger.info(
-            `User already in room. Disconnecting previous client: sessionId(${previousSessionId}) publicAddress(${publicAddress})`
-          )
+      // if (previousSessionId) {
+      //   const prevClient = findClientBySessionId(previousSessionId, this.room.clients)
+      //   if (prevClient) {
+      //     logger.info(
+      //       `User already in room. Disconnecting previous client: sessionId(${previousSessionId}) publicAddress(${publicAddress})`
+      //     )
 
-          // Throw error to client so frontend app can handle redirection and popup message
-          prevClient.error(
-            WebSocketCloseCode.NEW_CONNECTION_SESSION,
-            'Client with same publicAddress connected. Only one client can connect per publicAddress.'
-          )
+      //     // Throw error to client so frontend app can handle redirection and popup message
+      //     prevClient.error(
+      //       WebSocketCloseCode.NEW_CONNECTION_SESSION,
+      //       'Client with same publicAddress connected. Only one client can connect per publicAddress.'
+      //     )
 
-          // Disconnect client from room session
-          prevClient.leave(WebSocketCloseCode.NEW_CONNECTION_SESSION)
-        }
-      }
+      //     // Disconnect client from room session
+      //     prevClient.leave(WebSocketCloseCode.NEW_CONNECTION_SESSION)
+      //   }
+      // }
 
       await store.service.user.updateUserSessionId(publicAddress, sessionId)
       logger.info(`Updated user(${publicAddress}) sessionId in RedisStore: ${sessionId}`)
