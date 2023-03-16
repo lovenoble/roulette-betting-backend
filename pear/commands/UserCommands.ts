@@ -41,6 +41,7 @@ export class OnUserJoined extends Command<SpinRoom, IUser & { client: Client }> 
         colorTheme,
         sessionId: previousSessionId,
       } = await store.service.user.getUserByAddress(publicAddress)
+      console.log(previousSessionId, sessionId)
 
       // If user sessionId still exists disconnect previous session from Room
       if (previousSessionId) {
