@@ -68,6 +68,7 @@ export default class UserService extends ServiceBase<User> {
     return {
       nonce: userEntity.nonce,
       signingMessage: `${PearHash.getSigningMsgText()}${userEntity.nonce}`,
+      username: userEntity.username,
     }
   }
 
@@ -82,6 +83,11 @@ export default class UserService extends ServiceBase<User> {
     const count = await this.repo.search().where('publicAddress').eq(publicAddress).returnCount()
 
     return count > 0
+  }
+
+  public async getUserEntity(publicAddress: string) {
+    const userEntity = await this.getUserByAddress(publicAddress)
+    return userEntity
   }
 
   public async logout(publicAddress: string) {

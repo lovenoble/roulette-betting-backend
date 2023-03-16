@@ -1,5 +1,4 @@
 import { utils, BigNumber } from 'ethers'
-import validator from 'validator'
 import numeral from 'numeral'
 import type { Entity } from 'redis-om'
 
@@ -78,8 +77,21 @@ export function bnify<T extends Entity>(obj: T & SchemaAdditions, includeKeys: s
 }
 
 // @NOTE: Define more username constraints
-export function isValidUsername(username: string) {
-  if (username.length > USERNAME_MAX_LENGTH || username.length < USERNAME_MIN_LENGTH) return false
+export function isValidUsername(username: string): boolean {
+  // Define the regex pattern to match valid usernames
+  const pattern = /^[a-zA-Z0-9_-]{2,14}([ ]?[a-zA-Z0-9_-]{1,14})*$/
 
-  return validator.matches(username, '^[a-zA-Z0-9_]*$')
+  // Ensure the length of the username is between 4 and 16 characters
+  const isValidLength =
+    username.trim().length >= USERNAME_MIN_LENGTH && username.trim().length <= USERNAME_MAX_LENGTH
+
+  // Use the test method of the RegExp object to match the pattern against the username string
+  return pattern.test(username) && isValidLength
+}
+
+export function ensureString(value: unknown): string {
+  if (value === null || value === undefined || typeof value !== 'string') {
+    return ''
+  }
+  return value
 }

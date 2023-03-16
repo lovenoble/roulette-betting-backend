@@ -5,7 +5,7 @@ import { nanoid } from 'nanoid/async'
 import { authOverrideToken } from '../../config/transport.config'
 import store from '../../store'
 import { EventNames } from '../../store/constants'
-import { PearHash } from '../../store/utils'
+import { PearHash, ensureString } from '../../store/utils'
 
 const fast = Fastify({
   logger: true,
@@ -31,7 +31,7 @@ fast.post<{ Body: { publicAddress: string; signature: string } }>(
   async req => {
     const { publicAddress, signature } = req.body
 
-    const { nonce, signingMessage } = await store.service.user.getUserNonce(publicAddress)
+    const { nonce, signingMessage, username } = await store.service.user.getUserNonce(publicAddress)
 
     const addressFromSignature = utils.verifyMessage(signingMessage, signature)
 
@@ -50,7 +50,7 @@ fast.post<{ Body: { publicAddress: string; signature: string } }>(
       // @NOTE: Ensure user has AVAX (and/or) FARE balances
       await store.queue.user.add(EventNames.EnsureBalance, addressFromSignature)
 
-      return { token: createdJwt }
+      return { token: createdJwt, username: ensureString(username) }
     }
   }
 )
@@ -65,10 +65,15 @@ fast.post<{ Headers: { token: string } }>('/auth/verify-token', async req => {
     throw new Error('Public address does not exist.')
   }
 
-  const doesExist = await store.service.user.exists(publicAddress)
+  // const doesExist = await store.service.user.exists(publicAddress)
 
   // @NOTE: Need to send message to client to redirect user to connect wallet and reverify
-  if (!doesExist) {
+  // if (!doesExist) {
+  //   throw new Error('User does not exist')
+  // }
+  const userEntity = await store.service.user.getUserEntity(publicAddress)
+
+  if (!userEntity) {
     throw new Error('User does not exist')
   }
 
@@ -78,7 +83,7 @@ fast.post<{ Headers: { token: string } }>('/auth/verify-token', async req => {
   // @NOTE: Need to create a faucet function that checks users balances and ensures tokens
   // await store.queue.user.add(EventNames.EnsureBalance, publicAddress)
 
-  return { publicAddress }
+  return { publicAddress, username: ensureString(userEntity.username) }
 })
 
 fast.post<{
