@@ -15,6 +15,7 @@ import {
   UserService,
   EliminatorService,
   RandomnessService,
+  ChatMessageService,
 } from './service'
 import { IRepoObj, IServiceObj } from './types'
 
@@ -29,6 +30,7 @@ import {
   userSchema,
   eliminatorSchema,
   randomnessSchema,
+  chatMessageSchema,
 } from './schema'
 
 import { redisUri, RedisDBIndex } from '../config'
@@ -87,6 +89,7 @@ export class RedisStore {
     this.repo.round = await this.service.round.init(om, roundSchema)
     this.repo.user = await this.service.user.init(om, userSchema)
     this.repo.randomness = await this.service.randomness.init(om, randomnessSchema)
+    this.repo.chatMessage = await this.service.chatMessage.init(om, chatMessageSchema)
   }
 
   private async initServices() {
@@ -103,6 +106,7 @@ export class RedisStore {
     )
     this.service.user = new UserService()
     this.service.randomness = new RandomnessService()
+    this.service.chatMessage = new ChatMessageService()
   }
 
   async initQueue() {

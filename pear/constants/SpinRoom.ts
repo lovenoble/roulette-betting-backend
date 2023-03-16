@@ -10,6 +10,8 @@ export enum SpinEvent {
   SendRoomData = 'SendRoomData',
 }
 
+export const MAX_CHAT_MSGS = 50
+
 export enum ChatMessage {
   NewChatMessage = 'NewChatMessage',
 }

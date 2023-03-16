@@ -1,7 +1,7 @@
 import { Command } from '@colyseus/command'
 import type { Client } from '@colyseus/core'
 
-import type { SpinRoom } from '../types'
+import type SpinRoom from '../rooms/SpinRoom'
 import { WebSocketCloseCode, SpinEvent } from '../constants'
 
 import crypto from '../../crypto'
@@ -88,10 +88,10 @@ export class OnUserJoined extends Command<SpinRoom, IUser & { client: Client }> 
       }
 
       client.send(SpinEvent.SendRoomData, {
-        countdown: this.room.currentCountdown,
-        roomStatus: this.state.roomStatus,
-        fareTotalSupply: this.state.fareTotalSupply,
-        currentRoundId: this.state.currentRoundId,
+        // roomStatus: this.state.roomStatus,
+        // fareTotalSupply: this.state.fareTotalSupply,
+        // currentRoundId: this.state.currentRoundId,
+        chatMessages: this.room.chatMessages,
       })
     } catch (err) {
       // @NOTE: NEED TO ADD ERROR QUEUE WHEN THIS IS HIT

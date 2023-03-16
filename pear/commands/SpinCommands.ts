@@ -15,7 +15,12 @@ import type {
 import { ENTRIES_OPEN_COUNTDOWN_DURATION } from '../../crypto/constants'
 
 import store from '../../store'
-import { SpinEvent, MAX_CHAT_MESSAGE_LENGTH, WebSocketCustomCodes } from '../constants'
+import {
+  SpinEvent,
+  MAX_CHAT_MESSAGE_LENGTH,
+  WebSocketCustomCodes,
+  MAX_CHAT_MSGS,
+} from '../constants'
 import { Entry, BatchEntry, Round, IMessage, IGameMessage } from '../entities'
 import { logger } from '../utils'
 
@@ -83,13 +88,22 @@ export class OnGameChatMessage extends Command<SpinRoom, OnGameChatMessageOpts> 
       timestamp: Date.now(),
     }
 
-    logger.info(`New chat message from ${newMsg.createdBy} - ${text}`)
+    this.room.chatMessages.push(newMsg)
+
+    if (this.room.chatMessages.length > MAX_CHAT_MSGS) {
+      this.room.chatMessages.shift()
+    }
 
     const msgJSON = JSON.stringify(newMsg)
 
     logger.info(msgJSON)
 
     this.room.broadcast(SpinEvent.NewGameChatMessage, msgJSON, { except: client })
+
+    store.service.chatMessage
+      .addChatMessage(newMsg)
+      .then(() => logger.info(`Saved chat message from ${newMsg.createdBy} - ${text}`))
+      .catch(logger.error)
   }
 }
 

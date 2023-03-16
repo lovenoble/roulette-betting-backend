@@ -4,6 +4,7 @@ import shortId from 'shortid'
 import type { Client } from '@colyseus/core'
 
 import type { IDefaultRoomOptions, ICreateSpinRoomOptions } from '../types'
+import type { IGameMessage } from '../entities'
 import { HttpStatusCode, SpinEvent, MAX_SPIN_CLIENTS, WebSocketCloseCode } from '../constants'
 import {
   OnBatchEntry,
@@ -29,6 +30,7 @@ class SpinRoom extends Room<SpinState> {
   #desc: string
   #password: string | null = null
   spinTick = 0
+  chatMessages: IGameMessage[] = []
 
   maxClients = MAX_SPIN_CLIENTS // @NOTE: Need to determine the number of clients where performance begins to fall off
   autoDispose = false

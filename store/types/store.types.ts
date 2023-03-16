@@ -1,4 +1,5 @@
 import { Repository } from 'redis-om'
+import ChatMessageService from 'store/service/ChatMessage'
 
 import type {
   BatchEntry,
@@ -10,6 +11,7 @@ import type {
   User,
   Eliminator,
   Randomness,
+  ChatMessage,
 } from '../schema/types'
 import type {
   BatchEntryService,
@@ -33,6 +35,7 @@ export interface IRepoObj {
   round?: Repository<Round>
   user?: Repository<User>
   randomness?: Repository<Randomness>
+  chatMessage?: Repository<ChatMessage>
 }
 
 export interface IServiceObj {
@@ -45,6 +48,7 @@ export interface IServiceObj {
   round?: RoundService
   user?: UserService
   randomness?: RandomnessService
+  chatMessage?: ChatMessageService
 }
 
 export type SpinRoomStatus = 'starting' | 'countdown' | 'pausing' | 'spinning' | 'finished'
