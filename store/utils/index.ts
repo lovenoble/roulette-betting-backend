@@ -79,7 +79,7 @@ export function bnify<T extends Entity>(obj: T & SchemaAdditions, includeKeys: s
 // @NOTE: Define more username constraints
 export function isValidUsername(username: string): boolean {
   // Define the regex pattern to match valid usernames
-  const pattern = /^[a-zA-Z0-9_-]{2,14}([ ]?[a-zA-Z0-9_-]{1,14})*$/
+  const pattern = /^[a-zA-Z0-9-]{2,14}( [a-zA-Z0-9-]{1,14})*$/
 
   // Ensure the length of the username is between 4 and 16 characters
   const isValidLength =
