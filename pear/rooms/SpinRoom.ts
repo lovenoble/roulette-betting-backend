@@ -17,6 +17,7 @@ import {
   OnResetRound,
   OnBalanceUpdate,
   OnNewRoundStarted,
+  OnGameChatMessage,
 } from '../commands'
 import { SpinState } from '../state/SpinState'
 import { logger } from '../utils'
@@ -95,6 +96,10 @@ class SpinRoom extends Room<SpinState> {
 
       this.onMessage(SpinEvent.NewChatMessage, (client, text: string) => {
         this.dispatcher.dispatch(new OnNewChatMessage(), { text, client })
+      })
+
+      this.onMessage(SpinEvent.NewGameChatMessage, (client, text: string) => {
+        this.dispatcher.dispatch(new OnGameChatMessage(), { text, client })
       })
 
       // #endregion
@@ -314,8 +319,9 @@ class SpinRoom extends Room<SpinState> {
         client.userData = {
           authToken,
           publicAddress: user.publicAddress,
-          networkUsername,
-          networkActorNumber,
+          username: user.username,
+          networkUsername, // Depracated
+          networkActorNumber, // Depracated
         }
         return user.publicAddress
       }

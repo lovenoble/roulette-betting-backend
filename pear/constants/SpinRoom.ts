@@ -3,6 +3,7 @@ export enum SpinEvent {
   TimerUpdated = 'TimerUpdated',
   /** User sent new chat message */
   NewChatMessage = 'NewChatMessage',
+  NewGameChatMessage = 'NewGameChatMessage',
   /** Only sent to a single guest client on connect (passes guestId) */
   GuestUserJoined = 'GuestUserJoined',
   /** Initial spin room data */

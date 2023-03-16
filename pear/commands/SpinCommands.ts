@@ -2,6 +2,7 @@ import { Command } from '@colyseus/command'
 import { utils } from 'ethers'
 import numeral from 'numeral'
 import shortId from 'shortid'
+import { nanoid } from 'nanoid'
 import type { Client } from '@colyseus/core'
 
 import type SpinRoom from '../rooms/SpinRoom'
@@ -15,7 +16,7 @@ import { ENTRIES_OPEN_COUNTDOWN_DURATION } from '../../crypto/constants'
 
 import store from '../../store'
 import { SpinEvent, MAX_CHAT_MESSAGE_LENGTH, WebSocketCustomCodes } from '../constants'
-import { Entry, BatchEntry, Round, IMessage } from '../entities'
+import { Entry, BatchEntry, Round, IMessage, IGameMessage } from '../entities'
 import { logger } from '../utils'
 
 // @NOTE: Needed commands
@@ -44,6 +45,54 @@ export class OnFareTransfer extends Command<SpinRoom, FareTransferArgs> {
     }
   }
 }
+
+type OnGameChatMessageOpts = { text: string; client: Client }
+export class OnGameChatMessage extends Command<SpinRoom, OnGameChatMessageOpts> {
+  async execute({ text: _text, client }: OnGameChatMessageOpts) {
+    const text = (_text || '').trim()
+    if (!text || text.length === 0) {
+      client.error(
+        WebSocketCustomCodes.MESSAGE_VALIDATION_ERROR,
+        'Cannnot send empty chat message.'
+      )
+      return
+    }
+
+    if (text.length > MAX_CHAT_MESSAGE_LENGTH) {
+      client.error(
+        WebSocketCustomCodes.MESSAGE_VALIDATION_ERROR,
+        `Message too long (max length: ${MAX_CHAT_MESSAGE_LENGTH})`
+      )
+      return
+    }
+
+    let clientUser = this.state.users.get(client.sessionId)
+    if (!clientUser) {
+      client.error(
+        WebSocketCustomCodes.RESTRICTED_USER_ACTION,
+        'User doesnt have an active session'
+      )
+      return
+    }
+
+    let newMsg: IGameMessage = {
+      id: nanoid(),
+      text,
+      username: client.userData?.username || '',
+      createdBy: client.auth,
+      timestamp: Date.now(),
+    }
+
+    logger.info(`New chat message from ${newMsg.createdBy} - ${text}`)
+
+    const msgJSON = JSON.stringify(newMsg)
+
+    logger.info(msgJSON)
+
+    this.room.broadcast(SpinEvent.NewGameChatMessage, msgJSON, { except: client })
+  }
+}
+
 type OnNewChatMessageOpts = { text: string; client: Client }
 export class OnNewChatMessage extends Command<SpinRoom, OnNewChatMessageOpts> {
   async execute({ text: _text, client }: OnNewChatMessageOpts) {
