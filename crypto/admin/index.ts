@@ -329,13 +329,13 @@ class CryptoAdmin {
       this.setCountdown(this.countdown)
       this.countdown -= SEC_MS
 
-      if (this.countdown <= 10_000 && this.countdown >= 7_000) {
-        this.determineSubmitSeedBatchEntry().catch(logger.error)
-      }
-
-      // if (this.countdown % SEED_USER_SUBMIT_FEQUENCY === 0) {
-      //   this.submitRandomBatchEntry().catch(logger.error)
+      // if (this.countdown <= 10_000 && this.countdown >= 7_000) {
+      //   this.determineSubmitSeedBatchEntry().catch(logger.error)
       // }
+
+      if (this.countdown % SEED_USER_SUBMIT_FEQUENCY === 0) {
+        this.submitRandomBatchEntry().catch(logger.error)
+      }
     }, 1_000)
   }
 
