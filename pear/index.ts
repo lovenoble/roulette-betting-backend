@@ -6,7 +6,7 @@ import { logger } from './utils'
 import Rooms from './rooms'
 import RedisPresence from '../store/presence'
 
-import { MONGO_ROOT_USERNAME, mongoUri, pearServerPort, defaultPresenceOpts } from '../config'
+import { MONGO_ROOT_USERNAME, mongoUri, pearServerPort, redisOptions } from '../config'
 import transport from '../transport'
 
 export interface IPearOptions {
@@ -18,7 +18,7 @@ export interface IPearOptions {
 
 const defaultPearOptions: IPearOptions = {
   pearServerPort,
-  presenceOpts: defaultPresenceOpts,
+  presenceOpts: redisOptions,
   mongoBaseUri: mongoUri,
   mongoAuthSource: MONGO_ROOT_USERNAME,
 }

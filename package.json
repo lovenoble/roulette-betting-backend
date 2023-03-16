@@ -56,7 +56,7 @@
     "@pagerduty/pdjs": "^2.2.4",
     "@slack/bolt": "^3.12.1",
     "bcrypt": "^5.0.1",
-    "bullmq": "^1.84.1",
+    "bullmq": "^3.10.1",
     "chalk": "^4.1.0",
     "chance": "^1.1.9",
     "dayjs": "^1.11.2",

@@ -4,7 +4,7 @@ import type { RedisOptions, Callback, Result } from 'ioredis'
 import type { ChannelName, MessageListener, FirstArgument } from './types'
 import { pubLogger, subLogger } from './utils'
 import { PubSubChannel } from './constants'
-import { ioRedisOptions } from '../config'
+import { redisUri } from '../config'
 
 declare module 'ioredis' {
   interface Redis {
@@ -65,7 +65,7 @@ function RedisSub(
 export default abstract class PubSub {
   static #pub: Redis
   static #sub: Redis
-  static #options = ioRedisOptions
+  static #redisUri = redisUri
   static #subInstance: { [channel: string]: ReturnType<typeof RedisSub> } = {}
   logger = pubLogger
   Channels = PubSubChannel
@@ -77,7 +77,7 @@ export default abstract class PubSub {
     data: FirstArgument<MessageListener[T]>
   ) {
     if (!this.#pub) {
-      this.#pub = new Redis(ioRedisOptions)
+      this.#pub = new Redis(this.#redisUri)
       pubLogger.info('New RedisPub instance created!')
     }
     const patternName = `${channel}.${messageName}`
@@ -97,7 +97,7 @@ export default abstract class PubSub {
   ) {
     const patternName = `${channel}.${messageName}`
     if (!this.#sub) {
-      this.#sub = new Redis(this.#options)
+      this.#sub = new Redis(this.#redisUri)
     }
 
     if (!this.#subInstance[patternName]) {
