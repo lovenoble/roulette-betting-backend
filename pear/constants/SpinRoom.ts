@@ -8,6 +8,7 @@ export enum SpinEvent {
   GuestUserJoined = 'GuestUserJoined',
   /** Initial spin room data */
   SendRoomData = 'SendRoomData',
+  UsernameUpdated = 'UsernameUpdated',
 }
 
 export const MAX_CHAT_MSGS = 50

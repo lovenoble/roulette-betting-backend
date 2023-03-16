@@ -160,7 +160,7 @@ fast.post<{ Headers: { token: string }; Body: { username: string; colorTheme: st
 
     if (publicAddress && username) {
       PubSub.pub<'username-changed'>('user-update', 'username-changed', {
-        publicAddress: publicAddress.toLowerCase(),
+        publicAddress: utils.getAddress(publicAddress),
         username,
       }).catch(logger.error)
     }

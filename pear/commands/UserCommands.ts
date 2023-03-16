@@ -178,9 +178,11 @@ export class OnUserLeave extends Command<SpinRoom, OnUserLeaveOptions> {
 export class OnUsernameChanged extends Command<SpinRoom, IUsernameChanged> {
   async execute({ publicAddress, username }: IUsernameChanged) {
     try {
+      // Update store chat message usernames
       const userSessionId = this.room.sessionIdUserMap.get(publicAddress)
 
       if (userSessionId) {
+        // Update cached chat message usernames
         for (const msg of this.room.chatMessages) {
           if (msg.createdBy === publicAddress) {
             msg.username = username
@@ -188,7 +190,14 @@ export class OnUsernameChanged extends Command<SpinRoom, IUsernameChanged> {
         }
         const user = this.state.users.get(userSessionId)
         user.username = username
+        // Update user map with new username
         this.state.users.set(userSessionId, user)
+
+        // Broadcast username update to connected clients
+        this.room.broadcast(SpinEvent.UsernameUpdated, {
+          username,
+          publicAddress,
+        })
       } else {
         logger.warn('Could not find userSessionId in sessionIdUser map.')
       }
