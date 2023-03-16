@@ -310,9 +310,9 @@ class CryptoAdmin {
     this.setCountdown(this.countdown)
     this.countdown -= SEC_MS
 
-    setTimeout(() => {
-      this.determineSubmitSeedBatchEntry().catch(logger.error)
-    }, 3_000)
+    // setTimeout(() => {
+    //   this.determineSubmitSeedBatchEntry().catch(logger.error)
+    // }, 3_000)
 
     this.delayedInterval = this.clock.setInterval(() => {
       if (this.countdown <= 0) {
