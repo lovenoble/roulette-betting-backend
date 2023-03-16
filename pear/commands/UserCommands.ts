@@ -8,6 +8,7 @@ import crypto from '../../crypto'
 import { logger, findClientBySessionId } from '../utils'
 import { User, IUser, GuestUser, IGuestUser } from '../entities'
 import store from '../../store'
+import { IUsernameChanged } from '../../pubsub/types'
 
 export class OnGuestUserJoined extends Command<SpinRoom, IGuestUser & { client: Client }> {
   async execute({ guestId, client }: IGuestUser & { client: Client }) {
@@ -62,8 +63,14 @@ export class OnUserJoined extends Command<SpinRoom, IUser & { client: Client }> 
       //   }
       // }
 
-      await store.service.user.updateUserSessionId(publicAddress, sessionId)
-      logger.info(`Updated user(${publicAddress}) sessionId in RedisStore: ${sessionId}`)
+      store.service.user
+        .updateUserSessionId(publicAddress, sessionId)
+        .then(() =>
+          logger.info(`Updated user(${publicAddress}) sessionId in RedisStore: ${sessionId}`)
+        )
+        .catch(logger.error)
+
+      this.room.sessionIdUserMap.set(publicAddress, sessionId)
 
       const userOptions: IUser = {
         isInRound: true,
@@ -141,13 +148,13 @@ export class OnUserLeave extends Command<SpinRoom, OnUserLeaveOptions> {
       if (consented) {
         const logMessage = `Consented Leave -> ${JSON.stringify(client.userData)}`
         logger.info(logMessage)
-        // throw new Error(logMessage)
       }
 
       if (this.state.users.has(sessionId)) {
         // Clear sessionId on user model for Redis
         await store.service.user.clearOutSessionId(sessionId)
         this.state.users.delete(sessionId)
+        this.room.sessionIdUserMap.delete(client.userData?.publicAddress)
         logger.info(`User has left SpinRoom: ${sessionId}`)
       } else if (this.state.guestUsers.has(sessionId)) {
         this.state.guestUsers.delete(sessionId)
@@ -162,6 +169,35 @@ export class OnUserLeave extends Command<SpinRoom, OnUserLeaveOptions> {
       // this.state.guestUsers.get(client.sessionId).connected = true
     } catch (err) {
       // @NOTE: NEED TO ADD ERROR QUEUE WHEN THIS IS HIT
+      logger.error(err)
+      throw err
+    }
+  }
+}
+
+export class OnUsernameChanged extends Command<SpinRoom, IUsernameChanged> {
+  async execute({ publicAddress, username }: IUsernameChanged) {
+    try {
+      const userSessionId = this.room.sessionIdUserMap.get(publicAddress)
+
+      if (userSessionId) {
+        for (const msg of this.room.chatMessages) {
+          if (msg.createdBy === publicAddress) {
+            msg.username = username
+          }
+        }
+        const user = this.state.users.get(userSessionId)
+        user.username = username
+        this.state.users.set(userSessionId, user)
+      } else {
+        logger.warn('Could not find userSessionId in sessionIdUser map.')
+      }
+
+      store.service.chatMessage
+        .updateUsername(publicAddress, username)
+        .then(() => logger.info(`${publicAddress} chat messages have been updated!`))
+        .catch(logger.error)
+    } catch (err) {
       logger.error(err)
       throw err
     }

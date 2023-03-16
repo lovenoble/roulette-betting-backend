@@ -50,6 +50,11 @@ export interface IRoundFinished {
   randomNum: number
 }
 
+export interface IUsernameChanged {
+  publicAddress: string
+  username: string
+}
+
 export type SettledRound = {
   settledData: SettledBatchEntryArgs[]
 } & Omit<IRound, 'isEliminator'> &
@@ -74,6 +79,7 @@ export interface MessageListener {
     ...args: any[]
   ) => void
   'reset-spin-round': (opts: { message: string }, ...args: any[]) => void
+  'username-changed': (opts: IUsernameChanged, ...args: any[]) => void
 }
 
 export type FirstArgument<T> = T extends (arg1: infer U, ...args: any[]) => any ? U : any

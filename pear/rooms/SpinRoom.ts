@@ -19,6 +19,7 @@ import {
   OnBalanceUpdate,
   OnNewRoundStarted,
   OnGameChatMessage,
+  OnUsernameChanged,
 } from '../commands'
 import { SpinState } from '../state/SpinState'
 import { logger } from '../utils'
@@ -31,6 +32,7 @@ class SpinRoom extends Room<SpinState> {
   #password: string | null = null
   spinTick = 0
   chatMessages: IGameMessage[] = []
+  sessionIdUserMap = new Map<string, string>()
 
   maxClients = MAX_SPIN_CLIENTS // @NOTE: Need to determine the number of clients where performance begins to fall off
   autoDispose = false
@@ -102,6 +104,10 @@ class SpinRoom extends Room<SpinState> {
 
       this.onMessage(SpinEvent.NewGameChatMessage, (client, text: string) => {
         this.dispatcher.dispatch(new OnGameChatMessage(), { text, client })
+      })
+
+      PubSub.sub('user-update', 'username-changed').listen<'username-changed'>(opts => {
+        this.dispatcher.dispatch(new OnUsernameChanged(), opts)
       })
 
       // #endregion
@@ -325,6 +331,10 @@ class SpinRoom extends Room<SpinState> {
           networkUsername, // Depracated
           networkActorNumber, // Depracated
         }
+
+        this.sessionIdUserMap.set(user.publicAddress, client.sessionId)
+        logger.info(client.sessionId)
+
         return user.publicAddress
       }
 

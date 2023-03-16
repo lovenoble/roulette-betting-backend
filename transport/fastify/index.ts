@@ -6,6 +6,8 @@ import { authOverrideToken } from '../../config/transport.config'
 import store from '../../store'
 import { EventNames } from '../../store/constants'
 import { PearHash, ensureString } from '../../store/utils'
+import PubSub from '../../pubsub'
+import logger from '../../utils/logger'
 
 const fast = Fastify({
   logger: true,
@@ -155,6 +157,13 @@ fast.post<{ Headers: { token: string }; Body: { username: string; colorTheme: st
       username,
       colorTheme,
     })
+
+    if (publicAddress && username) {
+      PubSub.pub<'username-changed'>('user-update', 'username-changed', {
+        publicAddress: publicAddress.toLowerCase(),
+        username,
+      }).catch(logger.error)
+    }
 
     return { message: 'User data was updated!' }
   }

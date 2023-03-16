@@ -54,6 +54,11 @@ export class OnFareTransfer extends Command<SpinRoom, FareTransferArgs> {
 type OnGameChatMessageOpts = { text: string; client: Client }
 export class OnGameChatMessage extends Command<SpinRoom, OnGameChatMessageOpts> {
   async execute({ text: _text, client }: OnGameChatMessageOpts) {
+    // Reject guest users from sending messages
+    if (client.userData?.guestId) {
+      client.error(WebSocketCustomCodes.RESTRICTED_USER_ACTION, 'Guest users cannot send messages.')
+      return
+    }
     const text = (_text || '').trim()
     if (!text || text.length === 0) {
       client.error(
@@ -83,8 +88,8 @@ export class OnGameChatMessage extends Command<SpinRoom, OnGameChatMessageOpts> 
     let newMsg: IGameMessage = {
       id: nanoid(),
       text,
-      username: client.userData?.username || '',
-      createdBy: client.auth,
+      username: clientUser.username || '',
+      createdBy: clientUser.publicAddress,
       timestamp: Date.now(),
     }
 
@@ -189,6 +194,9 @@ export class OnInitSpinRoom extends Command<SpinRoom, void> {
     this.state.countdownTotal = ENTRIES_OPEN_COUNTDOWN_DURATION / 1000
     const batchEntryData = await store.service.batchEntry.getCurrentRoundBatchEntries()
     const roundData = await store.service.round.fetch(this.state.currentRoundId)
+    const chatMessages = await store.service.chatMessage.getRecentChatMessages()
+
+    this.room.chatMessages.push(...chatMessages)
     // const roundData =
     //   this.state.currentRoundId !== 0
     //     ? await store.service.round.fetch(this.state.currentRoundId - 1)
