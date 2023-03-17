@@ -54,6 +54,19 @@ export class OnFareTransfer extends Command<SpinRoom, FareTransferArgs> {
 type OnGameChatMessageOpts = { text: string; client: Client }
 export class OnGameChatMessage extends Command<SpinRoom, OnGameChatMessageOpts> {
   async execute({ text: _text, client }: OnGameChatMessageOpts) {
+    if (client.userData?.publicAddress) {
+      const canSendMessage = store.service.chatMessage.messageLimiter.handleMessage(
+        client.userData?.publicAddress,
+        _text
+      )
+      if (!canSendMessage) {
+        client.error(
+          WebSocketCustomCodes.USER_MESSAGE_TIMEOUT,
+          'You are sending messages too fast. Please slow down.'
+        )
+        return
+      }
+    }
     // Reject guest users from sending messages
     if (client.userData?.guestId) {
       client.error(WebSocketCustomCodes.RESTRICTED_USER_ACTION, 'Guest users cannot send messages.')

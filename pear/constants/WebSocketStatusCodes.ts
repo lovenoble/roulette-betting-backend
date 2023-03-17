@@ -88,4 +88,6 @@ export enum WebSocketCustomCodes {
    * Message parameter validation error
    */
   MESSAGE_VALIDATION_ERROR = 3001,
+
+  USER_MESSAGE_TIMEOUT = 3002,
 }
