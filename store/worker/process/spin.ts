@@ -56,7 +56,7 @@ const createSpinJobProcesses = (service: IServiceObj) => {
     )
 
     PubSub.pub<'batch-entry'>('spin-state', 'batch-entry', {
-      batchEntry: data.batchEntry,
+      batchEntry: data.batchEntry as any,
       entries: data.entries,
     })
 

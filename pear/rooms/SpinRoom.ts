@@ -333,8 +333,7 @@ class SpinRoom extends Room<SpinState> {
           networkActorNumber, // Depracated
         }
 
-        this.sessionIdUserMap.set(user.publicAddress, client.sessionId)
-        logger.info(client.sessionId)
+        this.sessionIdUserMap.set(user.publicAddress.toLowerCase(), client.sessionId)
 
         return user.publicAddress
       }

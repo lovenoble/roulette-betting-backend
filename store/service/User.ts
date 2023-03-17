@@ -32,7 +32,7 @@ export default class UserService extends ServiceBase<User> {
   // If true, generate a new nonce, update the player record, and return the nonce
   // If false, generate a new nonce, create a new player record, and return the none
   public async authPublicAddress(_publicAddress: string) {
-    const publicAddress = utils.getAddress(_publicAddress) // Normalize the public address
+    const publicAddress = utils.getAddress(_publicAddress).toLowerCase() // Normalize the public address
     const { nonce, signingMessage } = PearHash.generateNonceWithSigningMessage()
 
     const userEntity = await this.getUserByAddress(publicAddress)

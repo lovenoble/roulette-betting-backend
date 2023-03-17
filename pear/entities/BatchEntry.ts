@@ -9,6 +9,7 @@ export interface IBatchEntry {
   roundId: number // Round when batchEntry was submitted
   batchEntryId: number // References the position of batchEntry array in smart contract
   player: string // Public address of player
+  username: string // Player username
   settled: boolean // Determines if a player has submitted an batchEntrySettled transaction to claim token
   placedAt: number
   placedTxHash: string
@@ -25,6 +26,7 @@ export class BatchEntry extends Schema implements IBatchEntry {
   @type('number') roundId: number
   @type('number') batchEntryId: number
   @type('string') player: string
+  @type('string') username: string
   @type('string') placedTxHash: string
   @type('boolean') settled = false
   @type('string') totalEntryAmount: string

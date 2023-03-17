@@ -70,7 +70,7 @@ export class OnUserJoined extends Command<SpinRoom, IUser & { client: Client }> 
         )
         .catch(logger.error)
 
-      this.room.sessionIdUserMap.set(publicAddress, sessionId)
+      this.room.sessionIdUserMap.set(publicAddress.toLowerCase(), sessionId)
 
       const userOptions: IUser = {
         isInRound: true,
@@ -179,7 +179,7 @@ export class OnUsernameChanged extends Command<SpinRoom, IUsernameChanged> {
   async execute({ publicAddress, username }: IUsernameChanged) {
     try {
       // Update store chat message usernames
-      const userSessionId = this.room.sessionIdUserMap.get(publicAddress)
+      const userSessionId = this.room.sessionIdUserMap.get(publicAddress.toLowerCase())
 
       if (userSessionId) {
         // Update cached chat message usernames
