@@ -287,20 +287,15 @@ export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
       )
 
       // Get username from sessionIdUserMap
-      console.log(this.room.sessionIdUserMap.entries())
-      console.log(batchEntry.player)
       const userSessionId = this.room.sessionIdUserMap.get((batchEntry.player || '').toLowerCase())
       let playerDisplayName: string
       if (userSessionId) {
         const user = this.state.users.get(userSessionId)
-        console.log(user.toJSON())
-        console.log(user.username)
         // Set username if it exists
         if (user && user.username) {
           playerDisplayName = user.username
         }
       }
-      console.log(userSessionId)
 
       const batchEntryState = new BatchEntry()
       batchEntryState.roundId = batchEntry.roundId
