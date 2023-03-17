@@ -4,7 +4,11 @@ import validator from 'validator'
 import type { User } from '../types'
 
 import ServiceBase from './ServiceBase'
-import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from '../constants'
+import {
+  USERNAME_CHANGE_COOLDOWN_HOURS,
+  USERNAME_MAX_LENGTH,
+  USERNAME_MIN_LENGTH,
+} from '../constants'
 import { PearHash, logger, isValidUsername } from '../utils'
 import { spinAPI } from '../../crypto'
 
@@ -28,7 +32,6 @@ export default class UserService extends ServiceBase<User> {
   // If true, generate a new nonce, update the player record, and return the nonce
   // If false, generate a new nonce, create a new player record, and return the none
   public async authPublicAddress(_publicAddress: string) {
-    if (!utils.isAddress(_publicAddress)) throw new Error('Public address is not valid')
     const publicAddress = utils.getAddress(_publicAddress) // Normalize the public address
     const { nonce, signingMessage } = PearHash.generateNonceWithSigningMessage()
 
@@ -133,6 +136,18 @@ export default class UserService extends ServiceBase<User> {
     }
   }
 
+  canChangeUsername(lastChangedTimestamp: number) {
+    const currentTime = Date.now()
+    const elaspedTime = currentTime - lastChangedTimestamp
+    const elaspedHours = elaspedTime / (1000 * 60 * 60)
+    const canChange = elaspedHours >= USERNAME_CHANGE_COOLDOWN_HOURS
+
+    return {
+      elaspedHours,
+      canChange,
+    }
+  }
+
   public async setUserData(
     publicAddress: string,
     {
@@ -158,10 +173,19 @@ export default class UserService extends ServiceBase<User> {
           `Username is invalid. Valid format: [a-zA-Z0-9_] | Min: ${USERNAME_MIN_LENGTH} | Max: ${USERNAME_MAX_LENGTH}`
         )
       }
+      const canChangeObj = this.canChangeUsername(userEntity.lastUsernameChangeTimestamp)
+      if (!canChangeObj.canChange) {
+        throw new Error(
+          `You can only change your username once every ${USERNAME_CHANGE_COOLDOWN_HOURS} hours. Please wait ${(
+            USERNAME_CHANGE_COOLDOWN_HOURS - canChangeObj.elaspedHours
+          ).toFixed(1)} more hours before changing your username again.`
+        )
+      }
       const doesExist = await this.doesUsernameExist(username)
       if (doesExist) throw new Error('Username already exists.')
 
       userEntity.username = username
+      userEntity.lastUsernameChangeTimestamp = Date.now()
     }
 
     if (colorTheme) {

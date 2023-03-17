@@ -103,6 +103,7 @@ class SpinRoom extends Room<SpinState> {
       })
 
       this.onMessage(SpinEvent.NewGameChatMessage, (client, text: string) => {
+        // @TODO: Add a PubSub that listens to chatMessages so all rooms share the same chat
         this.dispatcher.dispatch(new OnGameChatMessage(), { text, client })
       })
 

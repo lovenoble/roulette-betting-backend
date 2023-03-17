@@ -14,6 +14,7 @@ export interface User {
   lastAuthed: number // Unix timestamp when the user last logged in
   nonce: string // Nonce sent to the client for the user to sign. This value is updated every time the user authenticates.
   isDisabled: boolean // If true, the user is required to reauthicate
+  lastUsernameChangeTimestamp: number
   // @NOTE: Need to add referal properties to track referals
   // referredBy: string // UUID or slug
 
@@ -55,6 +56,7 @@ export default new Schema(
     lastAuthed: { type: 'number' },
     nonce: { type: 'string' },
     isDisabled: { type: 'boolean' },
+    lastUsernameChangeTimestamp: { type: 'number' },
   },
   { dataStructure: 'JSON' }
 )
