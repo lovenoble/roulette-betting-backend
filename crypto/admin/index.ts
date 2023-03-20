@@ -4,7 +4,8 @@ import { Clock, Delayed } from '@colyseus/core'
 import CryptoToken from './token'
 import CryptoSeed from './seed'
 import { logger, createBatchEntry, retryPromise, delayAfterPromise } from './utils'
-import { RandomTag } from '../../store/schema/randomness'
+import { ensureNumber } from '../utils'
+import { Randomness, RandomTag } from '../../store/schema/randomness'
 import { FareSpin, FareSpin__factory, FareToken, FareToken__factory, FlatEntry } from '../types'
 import cryptoConfig from '../../config/crypto.config'
 import { randomizer } from '../../utils'
@@ -13,11 +14,12 @@ import {
   ENTRIES_OPEN_COUNTDOWN_DURATION,
   // PRE_SPIN_DURATION,
   // WHEEL_SPINNING_DURATION,
-  SEED_USER_SUBMIT_FEQUENCY,
+  // SEED_USER_SUBMIT_FEQUENCY,
   RESULT_SCREEN_DURATION,
   SEC_MS,
   DEFAULT_SIMULATION_INTERVAL,
   ContractModes,
+  Bytes32Zero,
 } from '../constants'
 import fareRandomness from '../utils/FareRandomness'
 import PubSub from '../../pubsub'
@@ -25,6 +27,8 @@ import PubSub from '../../pubsub'
 const { blockchainRpcUrl, privateKey, fareTokenAddress, fareSpinAddress } = cryptoConfig
 
 const provider = new providers.JsonRpcProvider(blockchainRpcUrl)
+
+type ContractState = 'should-pause-and-end-round' | 'should-end-prev-round' | 'should-start-round'
 
 /** Used to run admin level smart contract functions */
 class CryptoAdmin {
@@ -44,7 +48,9 @@ class CryptoAdmin {
   failThreshold = 0
   targetTick: number
   revealKey: string
+  randomHash: string
   fullRandomNum: string
+  isRoundPaused: boolean
 
   async init() {
     logger.warn(
@@ -189,6 +195,7 @@ class CryptoAdmin {
         gasPrice: 70000000000,
       })
       const receipt = await tx.wait()
+      this.isRoundPaused = isPaused
       logger.info('Round paused successfully!')
       return receipt
     } catch (err) {
@@ -197,19 +204,22 @@ class CryptoAdmin {
   }
 
   async concludeRound() {
-    // const roundId = Number(await this.spin.getCurrentRoundId())
-    // const randomness = await store.service.randomness.getRandomess(roundId)
+    if (!this.currentRoundId) {
+      this.currentRoundId = Number(await this.spin.getCurrentRoundId())
+    }
     try {
-      const randomness = await store.service.randomness.getRandomess(this.currentRoundId)
-      // const resp = await this.spin.concludeRound(randomness.revealKey, randomness.fullRandomNum, {
-      const resp = await this.spin.concludeRound(
-        this.revealKey || randomness.revealKey,
-        this.fullRandomNum || randomness.fullRandomNum,
-        {
-          gasLimit: 9000000,
-          gasPrice: 70000000000,
-        }
-      )
+      let randomness: Partial<Randomness> = {}
+      if (this.revealKey === Bytes32Zero && this.fullRandomNum === '0') {
+        randomness = await store.service.randomness.getRandomess(this.currentRoundId)
+      } else {
+        randomness.revealKey = this.revealKey
+        randomness.fullRandomNum = this.fullRandomNum
+      }
+
+      const resp = await this.spin.concludeRound(randomness.revealKey, randomness.fullRandomNum, {
+        gasLimit: 9000000,
+        gasPrice: 70000000000,
+      })
       await resp.wait()
     } catch (err) {
       logger.warn(String(err))
@@ -276,7 +286,6 @@ class CryptoAdmin {
     try {
       const currentBatchEntries = await store.service.batchEntry.getCurrentRoundBatchEntries()
       const currentBlockEntry = Number(await this.spin.getBatchEntryCount(this.currentRoundId))
-      logger.info(`Current block entries: ${currentBlockEntry}`)
       if (currentBatchEntries.length === 0 || currentBlockEntry === 0) {
         await this.submitRandomBatchEntry()
       }
@@ -299,7 +308,6 @@ class CryptoAdmin {
   }
 
   async startCountdown(_countdown: number, shouldSendStartTx = false) {
-    // store.service.round.setSpinRoomStatus('starting')
     if (shouldSendStartTx) {
       await this.startNewRound()
     }
@@ -367,28 +375,39 @@ class CryptoAdmin {
   async resetRound() {
     logger.info('Sending startNewRound transaction to FareSpin contract...')
     await this.startNewRound()
-    // await delayAfterPromise(
-    // retryPromise(() => this.startNewRound(), 5),
-    // this.startNewRound(),
-    // RESULT_SCREEN_DURATION
-    // )
     setTimeout(async () => {
       logger.info('New round started successfully!')
       await store.service.round.resetFareSpinStateRound()
       this.startCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION, false)
     }, RESULT_SCREEN_DURATION)
+  }
 
-    // setTimeout(async () => {
-    //   // this.settleAllPlacedEntries().finally(() => {
-    //   this.startNewRound()
-    //     .then(async () => {
-    //       logger.info('New round started successfully!')
-    //       await store.service.round.resetFareSpinStateRound()
-    //       this.startCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION, false)
-    //     })
-    //     .catch(err => logger.error(err))
-    //   // })
-    // }, RESULT_SCREEN_DURATION)
+  async setContractProperties() {
+    this.isRoundPaused = await this.spin.isRoundPaused()
+    this.currentRoundId = ensureNumber(await this.spin.getCurrentRoundId())
+    const currentRound = await this.spin.rounds(this.currentRoundId)
+    this.revealKey = currentRound.revealKey
+    this.randomHash = currentRound.randomHash
+    this.fullRandomNum = currentRound.fullRandomNum.toString()
+
+    let contractState: ContractState | undefined
+
+    const shouldEndPrevRound =
+      this.isRoundPaused && this.randomHash !== Bytes32Zero && this.revealKey === Bytes32Zero
+    const shouldPauseAndEndRound =
+      !this.isRoundPaused && this.randomHash !== Bytes32Zero && this.revealKey === Bytes32Zero
+    const shouldStartRound =
+      !this.isRoundPaused && this.randomHash === Bytes32Zero && this.revealKey === Bytes32Zero
+
+    if (shouldEndPrevRound) {
+      contractState = 'should-end-prev-round'
+    } else if (shouldPauseAndEndRound) {
+      contractState = 'should-pause-and-end-round'
+    } else if (shouldStartRound) {
+      contractState = 'should-start-round'
+    }
+
+    return contractState
   }
 
   async initPearKeeper(shouldResetCountdown = true) {
@@ -396,6 +415,27 @@ class CryptoAdmin {
       if (this.eventLoopIntervalId) clearInterval(this.eventLoopIntervalId)
       this.clock.stop()
       this.clock.clear()
+
+      // Set current contract properties
+      const contractState = await this.setContractProperties()
+      // Handle current state of contract
+      switch (contractState) {
+        case 'should-end-prev-round':
+          logger.info('Should end previous round.')
+          await this.concludeRound()
+          break
+        case 'should-pause-and-end-round':
+          await this.pauseSpinRound(true)
+          await this.concludeRound()
+          logger.info('Should pause and end previous round.')
+          break
+        case 'should-start-round':
+          logger.info('Should start round.')
+          break
+        default:
+          logger.error('Unknown contract state. Exiting keeper process...')
+          throw new Error('Unknown contract state')
+      }
 
       this.countdown = await store.service.round.getSpinCountdownTimer()
       if (shouldResetCountdown) {
@@ -412,7 +452,7 @@ class CryptoAdmin {
       }, DEFAULT_SIMULATION_INTERVAL) // 60fps (16.66ms)
 
       // Ensure batch entries can be submitted
-      await this.pauseSpinRound(false)
+      // await this.pauseSpinRound(false)
 
       // Bind subs
       PubSub.sub('spin-state', 'round-finished').listen((opts: any) => {

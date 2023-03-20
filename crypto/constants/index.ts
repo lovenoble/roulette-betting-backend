@@ -18,6 +18,8 @@ export const FARE_FAUCET_AMOUNT = utils.parseEther('1000000')
 export const DEFAULT_PATCH_RATE = 1000 / 20 // 20fps (50ms)
 export const DEFAULT_SIMULATION_INTERVAL = 1000 / 60 // 60fps (16.66ms)
 
+export const Bytes32Zero = '0x0000000000000000000000000000000000000000000000000000000000000000'
+
 // @NOTE: This object should only be used for testing
 // @NOTE: If actually using ContractMode, fetch all active ContractModes from smart contract
 export const ContractModes: ContractModeParams[] = [
