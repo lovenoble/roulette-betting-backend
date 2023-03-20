@@ -3,6 +3,7 @@ export enum RoomName {
   Metaverse = 'Metaverse',
   Lobby = 'Lobby',
   Spin = 'Spin',
+  Spin2 = 'Spin2',
   ChatRoom = 'ChatRoom',
   MediaStream = 'MediaStream',
 }

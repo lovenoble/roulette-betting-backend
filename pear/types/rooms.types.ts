@@ -13,5 +13,9 @@ export type RoomDef = {
 }
 
 export type RoomMap = {
-  [roomKey: string]: RoomDef
+  lobby: RoomDef
+  chat: RoomDef
+  spin: RoomDef
+  spin2: RoomDef
+  metaverse: RoomDef
 }

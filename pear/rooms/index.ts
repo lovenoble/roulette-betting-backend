@@ -28,6 +28,15 @@ export const roomList: RoomMap = {
       password: null,
     },
   },
+  spin2: {
+    name: RoomName.Spin2,
+    def: SpinRoom,
+    options: {
+      name: 'Spin 2',
+      desc: 'Fareplay Spin 2 Room',
+      password: null,
+    },
+  },
   chat: {
     name: RoomName.ChatRoom,
     def: ChatRoom,
@@ -53,6 +62,7 @@ class Rooms {
   RoomName = RoomName
   roomList = roomList
   spinRoom?: RoomListingData
+  spin2Room?: RoomListingData
 
   constructor(pearServer: Server) {
     this.pearServer = pearServer
@@ -66,7 +76,6 @@ class Rooms {
       const { spin } = this.roomList
       try {
         this.spinRoom = await matchMaker.createRoom(spin.name, spin.options)
-        logger.info(this.spinRoom)
       } catch (err) {
         logger.warn(err)
       }
@@ -74,15 +83,16 @@ class Rooms {
   }
 
   createAll() {
-    const { chat, spin, lobby, metaverse } = this.roomList
-
-    this.pearServer.define(chat.name, chat.def, chat.options).enableRealtimeListing()
+    const { spin } = this.roomList
+    // const { chat, spin, spin2, lobby, metaverse } = this.roomList
 
     // Define and create spin room
     this.pearServer.define(spin.name, spin.def, spin.options)
 
-    this.pearServer.define(lobby.name, lobby.def, lobby.options)
-    this.pearServer.define(metaverse.name, metaverse.def, metaverse.options)
+    // this.pearServer.define(chat.name, chat.def, chat.options).enableRealtimeListing()
+    // this.pearServer.define(spin2.name, spin2.def, spin2.options)
+    // this.pearServer.define(lobby.name, lobby.def, lobby.options)
+    // this.pearServer.define(metaverse.name, metaverse.def, metaverse.options)
   }
 }
 
