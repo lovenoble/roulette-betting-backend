@@ -1,10 +1,11 @@
-import { Server, LobbyRoom } from '@colyseus/core'
+import { Server, LobbyRoom, matchMaker, RoomListingData } from '@colyseus/core'
 
 import type { RoomMap } from '../types'
 import SpinRoom from './SpinRoom'
 import ChatRoom from './ChatRoom'
 import Metaverse from './Metaverse'
-// import MediaStream from './MediaStream'
+import { onLocalEvent } from '../../utils'
+import { logger } from '../utils'
 
 import { RoomName } from '../constants'
 
@@ -51,16 +52,35 @@ class Rooms {
   pearServer: Server = null
   RoomName = RoomName
   roomList = roomList
+  spinRoom?: RoomListingData
 
   constructor(pearServer: Server) {
     this.pearServer = pearServer
+
+    this.bindEventListeners()
+  }
+
+  bindEventListeners() {
+    // onServerStarted
+    onLocalEvent('server-started', async () => {
+      const { spin } = this.roomList
+      try {
+        this.spinRoom = await matchMaker.createRoom(spin.name, spin.options)
+        logger.info(this.spinRoom)
+      } catch (err) {
+        logger.warn(err)
+      }
+    })
   }
 
   createAll() {
     const { chat, spin, lobby, metaverse } = this.roomList
 
     this.pearServer.define(chat.name, chat.def, chat.options).enableRealtimeListing()
+
+    // Define and create spin room
     this.pearServer.define(spin.name, spin.def, spin.options)
+
     this.pearServer.define(lobby.name, lobby.def, lobby.options)
     this.pearServer.define(metaverse.name, metaverse.def, metaverse.options)
   }

@@ -6,3 +6,4 @@ export function randomizer(min: number, max: number) {
 
 // Import/exports
 export * from './logger'
+export * from './event'

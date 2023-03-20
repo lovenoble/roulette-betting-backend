@@ -3,6 +3,7 @@ import redisStore from './store'
 import transport from './transport'
 import slackBotServer from './notifications/slack'
 import logger from './utils/logger'
+import { emitLocalEvent } from './utils'
 import { pearServerPort, isDev, isProd } from './config'
 import { fireTheAlarms } from './notifications/pagerDuty'
 
@@ -66,6 +67,8 @@ async function init() {
 
     // @NOTE: Need to add more exit eventListeners conditions
     process.once('SIGUSR2', stopAllProcesses)
+
+    emitLocalEvent('server-started', '')
   } catch (err) {
     try {
       await fireTheAlarms('FP-backend has crashed', err.toString())
