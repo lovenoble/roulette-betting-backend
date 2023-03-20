@@ -3,10 +3,17 @@ import { Clock, Delayed } from '@colyseus/core'
 
 import CryptoToken from './token'
 import CryptoSeed from './seed'
-import { logger, createBatchEntry, retryPromise, delayAfterPromise } from './utils'
+import { logger, createBatchEntry } from './utils'
 import { ensureNumber } from '../utils'
 import { Randomness, RandomTag } from '../../store/schema/randomness'
-import { FareSpin, FareSpin__factory, FareToken, FareToken__factory, FlatEntry } from '../types'
+import {
+  FareSpin,
+  FareSpin__factory,
+  FareToken,
+  FareToken__factory,
+  FlatEntry,
+  FareSpinContractState,
+} from '../types'
 import cryptoConfig from '../../config/crypto.config'
 import { randomizer } from '../../utils'
 import store from '../../store'
@@ -27,8 +34,6 @@ import PubSub from '../../pubsub'
 const { blockchainRpcUrl, privateKey, fareTokenAddress, fareSpinAddress } = cryptoConfig
 
 const provider = new providers.JsonRpcProvider(blockchainRpcUrl)
-
-type ContractState = 'should-pause-and-end-round' | 'should-end-prev-round' | 'should-start-round'
 
 /** Used to run admin level smart contract functions */
 class CryptoAdmin {
@@ -390,7 +395,7 @@ class CryptoAdmin {
     this.randomHash = currentRound.randomHash
     this.fullRandomNum = currentRound.fullRandomNum.toString()
 
-    let contractState: ContractState | undefined
+    let contractState: FareSpinContractState | undefined
 
     const shouldEndPrevRound =
       this.isRoundPaused && this.randomHash !== Bytes32Zero && this.revealKey === Bytes32Zero

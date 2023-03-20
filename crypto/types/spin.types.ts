@@ -133,3 +133,8 @@ export type EliminatorStructOutput = [BigNumber, BigNumber, boolean] & {
   recordedExpectedValueFloor: BigNumber
   isEliminator: boolean
 }
+
+export type FareSpinContractState =
+  | 'should-pause-and-end-round'
+  | 'should-end-prev-round'
+  | 'should-start-round'
