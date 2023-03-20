@@ -1,5 +1,4 @@
 import { Command } from '@colyseus/command'
-
 import { Message, ChatUser, IChatUser, IGuestUser, GuestUser, IUser } from '../entities'
 import { ChatRoom, OnMessageOptions } from '../types'
 import { logger } from '../utils'

@@ -1,11 +1,11 @@
-import { Room, ServerError, Client } from '@colyseus/core'
 import { Dispatcher } from '@colyseus/command'
+import { Room, ServerError, Client } from '@colyseus/core'
+import type { IMetaverseOptions, IRoomOptions } from '../types'
+import { logger } from '../utils'
 
 // Libraries
-import type { IMetaverseOptions, IRoomOptions } from '../types'
 import { HttpStatusCode } from '../constants'
 import MetaverseState from '../state/MetaverseState'
-import { logger } from '../utils'
 
 import { UserStream } from '../entities'
 

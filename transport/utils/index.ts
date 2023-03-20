@@ -1,5 +1,5 @@
 import { TextEncoder, TextDecoder } from 'util'
-import type { WebSocketBehavior, HttpResponse } from 'uWebSockets.js'
+import type { WebSocketBehavior as _WebSocketBehavior, HttpResponse } from 'uWebSockets.js'
 import type { IRouteController, RouteHandler, WSHandler } from '../types'
 
 import { Logger } from '../../utils'
@@ -10,7 +10,7 @@ export const logger = Logger.create({ logType: 'Transport', theme: ['purple'] })
 export const binaryDecoder = new TextDecoder('utf-8')
 export const binaryEncoder = new TextEncoder()
 
-export function WSRoute(wsHandler: WSHandler): WebSocketBehavior<{}> {
+export function WSRoute(wsHandler: WSHandler) {
   // Apply middleware here (cors for example)
   return {
     /* You can do app.publish('sensors/home/temperature', '22C') kind of pub/sub as well */
@@ -26,7 +26,7 @@ export function HTTPRoute(httpHandler: RouteHandler) {
 }
 
 export class RouteController implements IRouteController {
-  ws?: { [routeName: string]: WebSocketBehavior<{}> } = {}
+  ws?: { [routeName: string]: ReturnType<typeof WSRoute> } = {}
   http?: { [routeName: string]: RouteHandler } = {}
 }
 

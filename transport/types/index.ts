@@ -3,11 +3,11 @@ import type {
   WebSocket,
   HttpResponse,
   HttpRequest,
-  WebSocketBehavior,
+  WebSocketBehavior as _WebsocketBehavior,
   AppOptions,
 } from 'uWebSockets.js'
 
-export type { WebSocketBehavior } from 'uWebSockets.js'
+// export type { WebSocketBehavior } from 'uWebSockets.js'
 
 export type RouteHandler = (res: HttpResponse, req: HttpRequest) => void
 
@@ -16,7 +16,7 @@ export interface IRouteController {
     [routeName: string]: RouteHandler
   }
   ws?: {
-    [routeName: string]: WebSocketBehavior<{}>
+    [routeName: string]: any
   }
 }
 
@@ -26,4 +26,4 @@ export interface ITransportOptions {
   fareMonitorPort?: number | string
 }
 
-export type WSHandler = (ws: WebSocket<{}>, message: ArrayBuffer, isBinary: boolean) => void
+export type WSHandler = (ws: WebSocket, message: ArrayBuffer, isBinary: boolean) => void

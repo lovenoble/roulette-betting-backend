@@ -11,7 +11,6 @@ export default class RandomnessService extends ServiceBase<Randomness> {
   }
 
   public async getRandomess(roundId: number) {
-    console.log('fetched roundId', roundId)
     return this.repo.search().where('roundId').equal(roundId).returnFirst()
   }
 

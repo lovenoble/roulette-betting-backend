@@ -1,5 +1,5 @@
-import { Room, ServerError, Delayed } from '@colyseus/core'
 import { Dispatcher } from '@colyseus/command'
+import { Room, ServerError, Delayed } from '@colyseus/core'
 import shortId from 'shortid'
 import type { Client } from '@colyseus/core'
 
