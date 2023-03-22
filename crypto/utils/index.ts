@@ -1,4 +1,4 @@
-import { providers, utils, BigNumber } from 'ethers'
+import { type providers, utils, BigNumber } from 'ethers'
 import numeral from 'numeral'
 
 import type { FlatEntry } from '../types'
@@ -61,7 +61,7 @@ export function randomHexString(bits: number) {
 
 export const getRevertedReason = async (
   transtionHash: string,
-  provider: providers.JsonRpcProvider,
+  provider: providers.JsonRpcProvider
 ) => {
   const tx = await provider.getTransaction(transtionHash)
   try {
@@ -94,7 +94,7 @@ export function os2ip(X: Buffer) {
     .reverse()
     .reduce(
       (total, value, index) => (total += BigInt(value) * BigInt(256) ** BigInt(index)),
-      BigInt(0),
+      BigInt(0)
     )
   return x
 }

@@ -1,18 +1,25 @@
-import { Wallet, providers, ContractTransaction, ContractReceipt, ethers } from 'ethers'
-import { Clock, Delayed } from '@colyseus/core'
+import {
+  Wallet,
+  providers,
+  type ContractTransaction,
+  type ContractReceipt,
+  ethers,
+  type Overrides,
+} from 'ethers'
+import { Clock, type Delayed } from '@colyseus/core'
 
 import CryptoToken from './token'
 import CryptoSeed from './seed'
-import { logger, createBatchEntry } from './utils'
+import { logger, createBatchEntry, adjustTxGasOverrides } from './utils'
 import { ensureNumber } from '../utils'
-import { Randomness, RandomTag } from '../../store/schema/randomness'
+import { type Randomness, RandomTag } from '../../store/schema/randomness'
 import {
-  FareSpin,
+  type FareSpin,
   FareSpin__factory,
-  FareToken,
+  type FareToken,
   FareToken__factory,
-  FlatEntry,
-  FareSpinContractState,
+  type FlatEntry,
+  type FareSpinContractState,
 } from '../types'
 import cryptoConfig from '../../config/crypto.config'
 import { randomizer } from '../../utils'
@@ -56,6 +63,7 @@ class CryptoAdmin {
   randomHash: string
   fullRandomNum: string
   isRoundPaused: boolean
+  overrides: Overrides
 
   async init() {
     logger.warn(
@@ -70,6 +78,7 @@ class CryptoAdmin {
         fare: this.fare,
         spin: this.spin,
       })
+      this.overrides = adjustTxGasOverrides(6900000, 20000000000, cryptoConfig.txOverrides)
 
       await this.seed.init()
 
@@ -90,10 +99,7 @@ class CryptoAdmin {
       const signer = this.seed.signers[userIdx]
       if (!signer) throw new Error("Signer account doesn't exist")
 
-      tx = await this.spin.connect(signer).placeBatchEntry(params, {
-        gasLimit: 2100000,
-        gasPrice: 70000000,
-      })
+      tx = await this.spin.connect(signer).placeBatchEntry(params, cryptoConfig.txOverrides)
       receipt = await tx.wait()
       logger.info(`Submitted batch entry for Player: (${signer.address.substring(0, 11)})`)
       this.placedUserIdxs.push(userIdx)
@@ -195,10 +201,7 @@ class CryptoAdmin {
 
   async pauseSpinRound(isPaused: boolean) {
     try {
-      const tx = await this.spin.setRoundPaused(isPaused, {
-        gasLimit: 9000000,
-        gasPrice: 70000000000,
-      })
+      const tx = await this.spin.setRoundPaused(isPaused, this.overrides)
       const receipt = await tx.wait()
       this.isRoundPaused = isPaused
       logger.info('Round paused successfully!')
@@ -221,10 +224,11 @@ class CryptoAdmin {
         randomness.fullRandomNum = this.fullRandomNum
       }
 
-      const resp = await this.spin.concludeRound(randomness.revealKey, randomness.fullRandomNum, {
-        gasLimit: 9000000,
-        gasPrice: 70000000000,
-      })
+      const resp = await this.spin.concludeRound(
+        randomness.revealKey,
+        randomness.fullRandomNum,
+        this.overrides
+      )
       await resp.wait()
     } catch (err) {
       logger.warn(String(err))
@@ -237,26 +241,17 @@ class CryptoAdmin {
     const randomness = await this.generateAndSaveRandomness(roundId)
     let resp: ContractTransaction
     try {
-      resp = await this.spin.startNewRound(randomness.randomHash, {
-        gasLimit: 9000000,
-        gasPrice: 70000000000,
-      })
+      resp = await this.spin.startNewRound(randomness.randomHash, this.overrides)
       await resp.wait()
     } catch (err: any) {
       logger.warn(String(err))
       try {
-        resp = await this.spin.startNewRound(randomness.randomHash, {
-          gasLimit: 9000000,
-          gasPrice: 70000000000,
-        })
+        resp = await this.spin.startNewRound(randomness.randomHash, this.overrides)
         await resp.wait()
       } catch (errs: any) {
         logger.warn(String(errs))
         try {
-          resp = await this.spin.startNewRound(randomness.randomHash, {
-            gasLimit: 9000000,
-            gasPrice: 70000000000,
-          })
+          resp = await this.spin.startNewRound(randomness.randomHash, this.overrides)
           await resp.wait()
         } catch (errs2: any) {
           logger.warn(String(errs2))

@@ -1,15 +1,15 @@
 import { Wallet, providers, utils as ethUtils } from 'ethers'
 
 import {
-  FareItems,
+  type FareItems,
   FareItems__factory,
-  FareNFTLootBox,
-  FareNFTLootBoxController,
+  type FareNFTLootBox,
+  type FareNFTLootBoxController,
   FareNFTLootBoxController__factory,
   FareNFTLootBox__factory,
-  FareSpin,
+  type FareSpin,
   FareSpin__factory,
-  FareToken,
+  type FareToken,
   FareToken__factory,
 } from './types'
 import * as utils from './utils'
@@ -40,8 +40,7 @@ export class Crypto {
   utils = utils
 
   constructor() {
-    // this.provider = new providers.JsonRpcProvider(blockchainRpcUrl)
-    this.provider = new providers.WebSocketProvider(process.env.BLOCKCHAIN_ETH_URL_WS)
+    this.provider = new providers.WebSocketProvider(this.rpcUrl)
     this.signer = new Wallet(privateKey, this.provider)
     this.fare = FareToken__factory.connect(fareTokenAddress, this.signer)
     this.spin = FareSpin__factory.connect(fareSpinAddress, this.signer)

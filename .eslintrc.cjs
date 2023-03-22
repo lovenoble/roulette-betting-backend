@@ -1,5 +1,3 @@
-// const path = require('path')
-
 module.exports = {
   root: true,
   env: {
@@ -10,15 +8,14 @@ module.exports = {
   extends: [
     'airbnb-base',
     'airbnb-typescript/base',
+    'plugin:import/recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
-    // 'plugin:prettier/recommended',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 12,
-    // project: path.join(__dirname, 'tsconfig.json'),
-    project: 'tsconfig.json',
+    project: './tsconfig.json',
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint', 'promise', 'import'],
@@ -38,13 +35,13 @@ module.exports = {
         groups: ['builtin', 'external', 'internal', 'type', 'index', 'sibling', 'object'],
       },
     ],
-    // '@typescript-eslint/consistent-type-imports': [
-    //   'warn',
-    //   {
-    //     disallowTypeAnnotations: false,
-    //     fixStyle: 'inline-type-imports',
-    //   },
-    // ],
+    '@typescript-eslint/consistent-type-imports': [
+      'warn',
+      {
+        disallowTypeAnnotations: false,
+        fixStyle: 'inline-type-imports',
+      },
+    ],
     'no-promise-executor-return': 'off',
     'node/no-missing-import': 'off',
     'node/no-unsupported-features/node-builtins': 'off',
@@ -83,6 +80,7 @@ module.exports = {
     'import/resolver': {
       typescript: {
         alwaysTryTypes: true,
+        project: './tsconfig.json',
       },
     },
   },

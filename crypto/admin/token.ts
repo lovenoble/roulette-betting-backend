@@ -1,7 +1,8 @@
 import numeral from 'numeral'
-import { Wallet, providers, BigNumber, utils } from 'ethers'
+import { Wallet, providers, type BigNumber, utils, type Overrides } from 'ethers'
 
-import { FareSpin, FareSpin__factory, FareToken, FareToken__factory } from '../types'
+import { adjustTxGasOverrides } from './utils'
+import { type FareSpin, FareSpin__factory, type FareToken, FareToken__factory } from '../types'
 import cryptoConfig from '../../config/crypto.config'
 import { logger } from '../utils'
 import {
@@ -25,11 +26,13 @@ export default class CryptoToken {
   fundSigner!: Wallet
   fare!: FareToken
   spin!: FareSpin
+  #overrides: Overrides
 
   constructor({ fundSigner, fare, spin }: CryptoTokenOptions) {
     this.fundSigner = fundSigner || new Wallet(privateKey, provider)
     this.fare = fare || FareToken__factory.connect(fareTokenAddress, this.fundSigner)
     this.spin = spin || FareSpin__factory.connect(fareSpinAddress, this.fundSigner)
+    this.#overrides = adjustTxGasOverrides(5900000, 49930000000, cryptoConfig.txOverrides)
   }
 
   async ensureBalance(address: string) {
@@ -72,20 +75,8 @@ export default class CryptoToken {
           7
         )}`
       )
-      // "gasLimit": 8000000,
-      // "targetBlockRate": 2,
-      // "minBaseFee": 25000000000,
-      // "targetGas": 15000000,
-      // "baseFeeChangeDenominator": 36,
-      // "minBlockGasCost": 0,
-      // "maxBlockGasCost": 1000000,
-      // "blockGasCostStep": 200000
 
-      // underpriced: address 0x3b7883D9150e6EA961CB486F736479f1282fD17E have gas fee cap (15000000) \\u003c pool minimum fee cap (25000000000)\
-      await userFare.setAllowContractMintBurn(this.spin.address, true, {
-        gasLimit: 8000000,
-        gasPrice: 50000000000,
-      })
+      await userFare.setAllowContractMintBurn(this.spin.address, true, this.#overrides)
     }
   }
 
@@ -99,11 +90,9 @@ export default class CryptoToken {
       }
     })
 
-    /* eslint-disable */
     for (const prom of promiseList) {
       await prom()
     }
-    /* eslint-enable */
   }
 
   prettyBN(bn: BigNumber) {
@@ -138,20 +127,16 @@ export default class CryptoToken {
   }
 
   async transferFareTo(to: string, amount: BigNumber) {
-    const tx = await this.fare.transfer(to, amount, {
-      gasLimit: 8000000,
-      gasPrice: 50000000000,
-    })
+    const tx = await this.fare.transfer(to, amount, this.#overrides)
     const receipt = await tx.wait()
     return receipt
   }
 
   async transferAvaxTo(to: string, amount: BigNumber) {
     const tx = await this.fundSigner.sendTransaction({
+      ...this.#overrides,
       to,
       value: amount,
-      gasLimit: 8000000,
-      gasPrice: 50000000000,
     })
     const receipt = await tx.wait()
     return receipt
