@@ -21,7 +21,7 @@ import {
   WebSocketCustomCodes,
   MAX_CHAT_MSGS,
 } from '../constants'
-import { Entry, BatchEntry, Round, IMessage, IGameMessage } from '../entities'
+import { Entry, BatchEntry, Round, type IMessage, type IGameMessage } from '../entities'
 import { logger } from '../utils'
 
 // @NOTE: Needed commands
@@ -351,8 +351,12 @@ export class OnResetRound extends Command<SpinRoom, void> {
 
 export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
   execute(roundData: SettledRound) {
-    // const round = new Round()
     const round = this.state.round.get(String(this.state.currentRoundId))
+    if (!round) {
+      logger.warn(`Could not find round ${roundData.roundId} inside SpinRoom round map.`)
+      return
+    }
+
     round.roundId = roundData.roundId
     round.randomHash = roundData.randomHash
     round.revealKey = roundData.revealKey

@@ -10,7 +10,7 @@ import ServiceBase from './ServiceBase'
 import { ensureNumber, formatETH, BN, toEth, logger } from '../utils'
 import { spinAPI } from '../../crypto'
 import { GlobalRedisKey } from '../constants'
-import { SpinRoomStatus } from '../types'
+import { type SpinRoomStatus } from '../types'
 import PubSub from '../../pubsub'
 
 export default class RoundService extends ServiceBase<Round> {

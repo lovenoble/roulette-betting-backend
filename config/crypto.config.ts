@@ -13,6 +13,7 @@ const {
   BLOCKCHAIN_ENV = 'local',
 } = process.env
 
+// Default override for transactions
 const txOverrides: Overrides =
   BLOCKCHAIN_ENV === 'local'
     ? {
@@ -32,6 +33,7 @@ const config = {
   infuraApiKey: INFURA_API_KEY,
   privateKey: PRIVATE_KEY, // @NOTE: We need to ensure that this private key is totally secured in production (multi-sig)
   blockchainEnv: BLOCKCHAIN_ENV as 'local' | 'testnet',
+  shouldAutoCreateBatchEntries: BLOCKCHAIN_ENV === 'local',
   txOverrides,
 }
 

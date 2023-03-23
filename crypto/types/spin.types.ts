@@ -1,4 +1,4 @@
-import { BigNumber, ContractReceipt, ContractTransaction } from 'ethers'
+import { type BigNumber, type ContractReceipt, type ContractTransaction } from 'ethers'
 
 export type ContractModeParams = {
   id: BigNumber
@@ -138,3 +138,4 @@ export type FareSpinContractState =
   | 'should-pause-and-end-round'
   | 'should-end-prev-round'
   | 'should-start-round'
+  | 'should-unpause-round'
