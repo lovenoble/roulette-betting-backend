@@ -5,7 +5,6 @@ import {
   type ContractReceipt,
   ethers,
   type Overrides,
-  type BigNumber,
 } from 'ethers'
 import { Clock, type Delayed } from '@colyseus/core'
 
@@ -25,12 +24,11 @@ import {
 import cryptoConfig from '../../config/crypto.config'
 import { randomizer } from '../../utils'
 import store from '../../store'
-import { EventNames } from '../../store/constants'
 import {
   ENTRIES_OPEN_COUNTDOWN_DURATION,
   // PRE_SPIN_DURATION,
   // WHEEL_SPINNING_DURATION,
-  // SEED_USER_SUBMIT_FEQUENCY,
+  SEED_USER_SUBMIT_FEQUENCY,
   RESULT_SCREEN_DURATION,
   SEC_MS,
   DEFAULT_SIMULATION_INTERVAL,
@@ -265,7 +263,6 @@ class CryptoAdmin {
         }
       }
     }
-    await store.service.round.setSpinRoomStatus('waiting-for-first-entry')
     this.isRoundPaused = false
     this.currentRoundEntryCount = 0
   }
@@ -328,11 +325,11 @@ class CryptoAdmin {
     this.setCountdown(this.countdown)
     this.countdown -= SEC_MS
 
-    if (cryptoConfig.shouldAutoCreateBatchEntries) {
-      setTimeout(() => {
-        this.determineSubmitSeedBatchEntry().catch(logger.error)
-      }, 3_000)
-    }
+    // if (cryptoConfig.shouldAutoCreateBatchEntries) {
+    //   setTimeout(() => {
+    //     this.determineSubmitSeedBatchEntry().catch(logger.error)
+    //   }, 3_000)
+    // }
 
     this.delayedInterval = this.clock.setInterval(() => {
       if (this.countdown <= 0) {
@@ -349,17 +346,20 @@ class CryptoAdmin {
       this.setCountdown(this.countdown)
       this.countdown -= SEC_MS
 
+      // if (
+      //   this.countdown <= 10_000 &&
+      //   this.countdown >= 7_000 &&
+      //   cryptoConfig.shouldAutoCreateBatchEntries
+      // ) {
+      //   this.determineSubmitSeedBatchEntry().catch(logger.error)
+      // }
+
       if (
-        this.countdown <= 10_000 &&
-        this.countdown >= 7_000 &&
+        this.countdown % SEED_USER_SUBMIT_FEQUENCY === 0 &&
         cryptoConfig.shouldAutoCreateBatchEntries
       ) {
-        this.determineSubmitSeedBatchEntry().catch(logger.error)
+        this.submitRandomBatchEntry().catch(logger.error)
       }
-
-      // if (this.countdown % SEED_USER_SUBMIT_FEQUENCY === 0 && cryptoConfig.shouldAutoCreateBatchEntries) {
-      //   this.submitRandomBatchEntry().catch(logger.error)
-      // }
     }, 1_000)
   }
 
@@ -502,10 +502,12 @@ class CryptoAdmin {
           break
         default:
           logger.info('Round on going...')
-          await store.service.round.setSpinRoomStatus('waiting-for-first-entry')
+        // await store.service.round.setSpinRoomStatus('waiting-for-first-entry')
         // logger.error('Unknown contract state. Exiting keeper process...')
         // throw new Error('Unknown contract state')
       }
+
+      await store.service.round.setSpinRoomStatus('waiting-for-first-entry')
     } catch (err) {
       logger.error(err)
       throw err
@@ -549,7 +551,6 @@ class CryptoAdmin {
           this.currentRoundEntryCount = 1
         })
         // this.spin.on(EventNames.EntrySubmitted, (_roundId: BigNumber, batchId: BigNumber) => {
-        //   console.log('HITTTTTTT')
         //   if (batchId.toNumber() === 0 && this.currentRoundEntryCount === 0) {
         //     logger.info('Received first batch entry. Initializing countdown timer...')
         //     this.startSpinCountdown().catch(logger.error)
