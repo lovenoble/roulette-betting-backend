@@ -1,6 +1,6 @@
-import { IBatchEntry, IEntry, IRound } from '../../pear/entities'
-import { Omit, SpinRoomStatus } from '../../store/types'
-import { ContractMode } from '../../store/schema/types'
+import { type IBatchEntry, type IEntry, type IRound } from '../../pear/entities'
+import { type Omit, type SpinRoomStatus } from '../../store/types'
+import { type ContractMode } from '../../store/schema/types'
 
 export type ChannelName = 'fare' | 'spin-state' | 'analytics' | 'user-update'
 
@@ -80,6 +80,7 @@ export interface MessageListener {
   ) => void
   'reset-spin-round': (opts: { message: string }, ...args: any[]) => void
   'username-changed': (opts: IUsernameChanged, ...args: any[]) => void
+  'current-round-first-batch-entry': (opts: number, ...args: any[]) => void
 }
 
 export type FirstArgument<T> = T extends (arg1: infer U, ...args: any[]) => any ? U : any

@@ -204,6 +204,7 @@ export class OnInitSpinRoom extends Command<SpinRoom, void> {
     this.state.fareTotalSupply = await store.service.fareTransfer.getCachedTotalSupply()
     this.state.currentRoundId = Number(await store.service.round.getCachedCurrentRoundId())
     this.state.isRoundPaused = await store.service.round.getCachedSpinRoundPaused()
+    this.state.roomStatus = await store.service.round.getSpinRoomStatus()
     this.state.countdownTotal = ENTRIES_OPEN_COUNTDOWN_DURATION / 1000
     const batchEntryData = await store.service.batchEntry.getCurrentRoundBatchEntries()
     const roundData = await store.service.round.fetch(this.state.currentRoundId)
@@ -329,8 +330,9 @@ export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
 
       // If player is actively in room ensure their state is set to isInRound
       store.service.user.getUserByAddress(batchEntry.player).then(user => {
-        if (user) {
-          this.state.users.get(user.sessionId).isInRound = true
+        const stateUser = this.state.users.get(user.sessionId)
+        if (user && stateUser) {
+          stateUser.isInRound = true
         }
       })
     } catch (err) {

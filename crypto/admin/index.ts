@@ -265,6 +265,7 @@ class CryptoAdmin {
         }
       }
     }
+    await store.service.round.setSpinRoomStatus('waiting-for-first-entry')
     this.isRoundPaused = false
     this.currentRoundEntryCount = 0
   }
@@ -420,9 +421,9 @@ class CryptoAdmin {
 
       if (cryptoConfig.shouldAutoCreateBatchEntries) {
         this.autoStartCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION, false)
-      } else {
-        await store.service.round.setSpinRoomStatus('waiting-for-first-entry')
       }
+
+      await store.service.round.setSpinRoomStatus('waiting-for-first-entry')
     }, RESULT_SCREEN_DURATION)
   }
 
@@ -445,13 +446,15 @@ class CryptoAdmin {
       this.randomHash !== Bytes32Zero &&
       this.revealKey === Bytes32Zero &&
       this.currentRoundEntryCount > 0
+
     const shouldPauseAndEndRound =
       !this.isRoundPaused &&
       this.randomHash !== Bytes32Zero &&
       this.revealKey === Bytes32Zero &&
       this.currentRoundEntryCount > 0
-    const shouldStartRound =
-      this.isRoundPaused && this.randomHash === Bytes32Zero && this.revealKey === Bytes32Zero
+
+    const shouldStartRound = this.randomHash === Bytes32Zero && this.revealKey === Bytes32Zero
+
     const shouldUnpauseRound =
       this.isRoundPaused &&
       this.randomHash !== Bytes32Zero &&
@@ -471,12 +474,8 @@ class CryptoAdmin {
     return contractState
   }
 
-  async initPearKeeper(shouldResetCountdown = true) {
+  async handleInitByContractState() {
     try {
-      if (this.eventLoopIntervalId) clearInterval(this.eventLoopIntervalId)
-      this.clock.stop()
-      this.clock.clear()
-
       // Set current contract properties
       const contractState = await this.setContractProperties()
 
@@ -502,9 +501,25 @@ class CryptoAdmin {
           await this.pauseSpinRound(false)
           break
         default:
-          logger.error('Unknown contract state. Exiting keeper process...')
-          throw new Error('Unknown contract state')
+          logger.info('Round on going...')
+          await store.service.round.setSpinRoomStatus('waiting-for-first-entry')
+        // logger.error('Unknown contract state. Exiting keeper process...')
+        // throw new Error('Unknown contract state')
       }
+    } catch (err) {
+      logger.error(err)
+      throw err
+    }
+  }
+
+  async initPearKeeper(shouldResetCountdown = true) {
+    try {
+      if (this.eventLoopIntervalId) clearInterval(this.eventLoopIntervalId)
+      this.clock.stop()
+      this.clock.clear()
+
+      // Initialize SpinRoom depending on smart contract state
+      await this.handleInitByContractState()
 
       this.countdown = await store.service.round.getSpinCountdownTimer()
       if (shouldResetCountdown) {
@@ -512,39 +527,39 @@ class CryptoAdmin {
         this.countdown = ENTRIES_OPEN_COUNTDOWN_DURATION
       }
 
-      const currentRoundEntryCount = await this.spin.getBatchEntryCount(this.currentRoundId)
-      if (currentRoundEntryCount.toNumber() === 0) {
-        logger.info('No entries in current round. Setting roomStatus to waiting-for-first-entry')
-        await store.service.round.setSpinRoomStatus('waiting-for-first-entry')
-      }
-
       this.clock.start()
       logger.info('Spin countdown has started!')
-
       // Initialize event loop interval
       this.eventLoopIntervalId = setInterval(() => {
         this.clock.tick()
       }, DEFAULT_SIMULATION_INTERVAL) // 60fps (16.66ms)
-
-      // Listen to smart contract for first entry submitted
-      if (!cryptoConfig.shouldAutoCreateBatchEntries) {
-        this.spin.on(EventNames.EntrySubmitted, (_roundId: BigNumber, batchId: BigNumber) => {
-          if (batchId.toNumber() === 0 && this.currentRoundEntryCount === 0) {
-            logger.info('Received first batch entry. Initializing countdown timer...')
-            this.startSpinCountdown().catch(logger.error)
-            this.currentRoundEntryCount = 1
-          }
-        })
-      } else {
-        // Should auto start countdown and submit seed batch entries
-        this.autoStartCountdown(this.countdown)
-      }
 
       // Bind subs
       PubSub.sub('spin-state', 'round-finished').listen((opts: any) => {
         logger.info('Round finished:', opts)
         this.spinEnded()
       })
+
+      // Listen to smart contract for first entry submitted
+      if (!cryptoConfig.shouldAutoCreateBatchEntries) {
+        PubSub.sub('spin-state', 'current-round-first-batch-entry').listen((roundId: number) => {
+          logger.info(`First entry submitted for FareSpin roundId => ${roundId}`)
+          logger.info('Received first batch entry. Initializing countdown timer...')
+          this.startSpinCountdown().catch(logger.error)
+          this.currentRoundEntryCount = 1
+        })
+        // this.spin.on(EventNames.EntrySubmitted, (_roundId: BigNumber, batchId: BigNumber) => {
+        //   console.log('HITTTTTTT')
+        //   if (batchId.toNumber() === 0 && this.currentRoundEntryCount === 0) {
+        //     logger.info('Received first batch entry. Initializing countdown timer...')
+        //     this.startSpinCountdown().catch(logger.error)
+        //     this.currentRoundEntryCount = 1
+        //   }
+        // })
+      } else {
+        // Should auto start countdown and submit seed batch entries
+        this.autoStartCountdown(this.countdown)
+      }
 
       /* Start spin event loop
        * 1. startCountdown - Start countdown from existing countdown number in Redis
