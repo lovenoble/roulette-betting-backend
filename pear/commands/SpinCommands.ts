@@ -230,7 +230,7 @@ export class OnInitSpinRoom extends Command<SpinRoom, void> {
       this.room.spinTick = round.randomNum || 0
       this.state.spinTick = round.randomNum || 0
 
-      this.state.round.set(String(this.state.currentRoundId - 1), round)
+      this.state.round.set(String(this.state.currentRoundId), round)
     }
 
     batchEntryData.forEach(({ batchEntry, entries }) => {
@@ -406,6 +406,7 @@ export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
 
 export class OnNewRoundStarted extends Command<SpinRoom, INewRoundStarted> {
   execute(roundData: INewRoundStarted) {
+    console.log(roundData)
     const round = new Round()
     round.roundId = roundData.roundId
     round.randomHash = roundData.randomHash

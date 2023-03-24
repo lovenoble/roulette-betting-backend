@@ -19,7 +19,7 @@ import {
   DEFAULT_SIMULATION_INTERVAL,
   getCountdownScalingFactor,
 } from './constants'
-import { createMongoInstance, getRoomUserCount } from './db'
+import { getRoomUserCount } from './db'
 import { ContractModes, Bytes32Zero } from '../constants'
 import { ensureNumber } from '../utils'
 import { type Randomness, RandomTag } from '../../store/schema/randomness'
@@ -547,7 +547,10 @@ class CryptoAdmin {
           async (roundId: number) => {
             logger.info(`First entry submitted for FareSpin roundId => ${roundId}`)
             logger.info('Received first batch entry. Initializing countdown timer...')
-            const spinRoomUserCount = await getRoomUserCount('Spin')
+            let spinRoomUserCount = 25
+            if (!cryptoConfig.shouldAutoCreateBatchEntries) {
+              spinRoomUserCount = await getRoomUserCount('Spin')
+            }
             const scalingFactorCountdown = getCountdownScalingFactor(spinRoomUserCount || 1)
             this.startSpinCountdown(scalingFactorCountdown).catch(logger.error)
             this.currentRoundEntryCount = 1
