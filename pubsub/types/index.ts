@@ -75,7 +75,7 @@ export interface MessageListener {
   'countdown-updated': (countdown: number, ...args: any[]) => void
   'spin-round-pause': (opts: { isPaused: boolean; countdown: number }, ...args: any[]) => void
   'spin-room-status': (
-    opts: { status: SpinRoomStatus; targetTick?: number },
+    opts: { status: SpinRoomStatus; targetTick?: number; totalCountdown?: number },
     ...args: any[]
   ) => void
   'reset-spin-round': (opts: { message: string }, ...args: any[]) => void

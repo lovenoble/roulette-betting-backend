@@ -12,7 +12,7 @@ import type {
   SettledRound,
   INewRoundStarted,
 } from '../../pubsub/types'
-import { ENTRIES_OPEN_COUNTDOWN_DURATION } from '../../crypto/constants'
+import { ENTRIES_OPEN_COUNTDOWN_DURATION } from '../../crypto/admin/constants'
 
 import store from '../../store'
 import {
@@ -330,8 +330,9 @@ export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
 
       // If player is actively in room ensure their state is set to isInRound
       store.service.user.getUserByAddress(batchEntry.player).then(user => {
+        if (!user) return
         const stateUser = this.state.users.get(user.sessionId)
-        if (user && stateUser) {
+        if (stateUser) {
           stateUser.isInRound = true
         }
       })

@@ -143,6 +143,9 @@ class SpinRoom extends Room<SpinState> {
       })
 
       PubSub.sub('spin-state', 'spin-room-status').listen<'spin-room-status'>(opt => {
+        if (opt.status === 'countdown' && this.state.roomStatus === 'waiting-for-first-entry') {
+          this.state.countdownTotal = opt.totalCountdown || 30
+        }
         this.state.roomStatus = opt.status
         // TODO: Refactor this code
         if (opt.status === 'spinning') {

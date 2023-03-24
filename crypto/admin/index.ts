@@ -11,6 +11,16 @@ import { Clock, type Delayed } from '@colyseus/core'
 import CryptoToken from './token'
 import CryptoSeed from './seed'
 import { logger, createBatchEntry, adjustTxGasOverrides } from './utils'
+import {
+  ENTRIES_OPEN_COUNTDOWN_DURATION,
+  SEED_USER_SUBMIT_FEQUENCY,
+  RESULT_SCREEN_DURATION,
+  SEC_MS,
+  DEFAULT_SIMULATION_INTERVAL,
+  getCountdownScalingFactor,
+} from './constants'
+import { createMongoInstance, getRoomUserCount } from './db'
+import { ContractModes, Bytes32Zero } from '../constants'
 import { ensureNumber } from '../utils'
 import { type Randomness, RandomTag } from '../../store/schema/randomness'
 import {
@@ -24,17 +34,6 @@ import {
 import cryptoConfig from '../../config/crypto.config'
 import { randomizer } from '../../utils'
 import store from '../../store'
-import {
-  ENTRIES_OPEN_COUNTDOWN_DURATION,
-  // PRE_SPIN_DURATION,
-  // WHEEL_SPINNING_DURATION,
-  SEED_USER_SUBMIT_FEQUENCY,
-  RESULT_SCREEN_DURATION,
-  SEC_MS,
-  DEFAULT_SIMULATION_INTERVAL,
-  ContractModes,
-  Bytes32Zero,
-} from '../constants'
 import fareRandomness from '../utils/FareRandomness'
 import PubSub from '../../pubsub'
 
@@ -364,7 +363,7 @@ class CryptoAdmin {
   }
 
   async startSpinCountdown(_countdown = ENTRIES_OPEN_COUNTDOWN_DURATION) {
-    await store.service.round.setSpinRoomStatus('countdown')
+    await store.service.round.setSpinRoomStatus('countdown', 0, _countdown / SEC_MS)
     this.clock.start()
     this.countdown = _countdown
     this.setCountdown(this.countdown)
@@ -544,19 +543,16 @@ class CryptoAdmin {
 
       // Listen to smart contract for first entry submitted
       if (!cryptoConfig.shouldAutoCreateBatchEntries) {
-        PubSub.sub('spin-state', 'current-round-first-batch-entry').listen((roundId: number) => {
-          logger.info(`First entry submitted for FareSpin roundId => ${roundId}`)
-          logger.info('Received first batch entry. Initializing countdown timer...')
-          this.startSpinCountdown().catch(logger.error)
-          this.currentRoundEntryCount = 1
-        })
-        // this.spin.on(EventNames.EntrySubmitted, (_roundId: BigNumber, batchId: BigNumber) => {
-        //   if (batchId.toNumber() === 0 && this.currentRoundEntryCount === 0) {
-        //     logger.info('Received first batch entry. Initializing countdown timer...')
-        //     this.startSpinCountdown().catch(logger.error)
-        //     this.currentRoundEntryCount = 1
-        //   }
-        // })
+        PubSub.sub('spin-state', 'current-round-first-batch-entry').listen(
+          async (roundId: number) => {
+            logger.info(`First entry submitted for FareSpin roundId => ${roundId}`)
+            logger.info('Received first batch entry. Initializing countdown timer...')
+            const spinRoomUserCount = await getRoomUserCount('Spin')
+            const scalingFactorCountdown = getCountdownScalingFactor(spinRoomUserCount || 1)
+            this.startSpinCountdown(scalingFactorCountdown).catch(logger.error)
+            this.currentRoundEntryCount = 1
+          }
+        )
       } else {
         // Should auto start countdown and submit seed batch entries
         this.autoStartCountdown(this.countdown)

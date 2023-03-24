@@ -2,21 +2,10 @@ import { utils } from 'ethers'
 import type { ContractModeParams } from '../types/spin.types'
 import { BN } from '../utils'
 
-export const ENTRIES_OPEN_COUNTDOWN_DURATION = 30_000
-export const PRE_SPIN_DURATION = 5_000
-export const WHEEL_SPINNING_DURATION = 10_000
-export const RESULT_SCREEN_DURATION = 3_000
-export const SEC_MS = 1000
-export const SEED_USER_SUBMIT_FEQUENCY = 3_000 // Amount of secs between seed user batchEntry submits
-export const SEED_AVAX_FAUCET_AMOUNT = utils.parseEther('35')
-export const SEED_FARE_FAUCET_AMOUNT = utils.parseEther('10000000')
-
 export const AVAX_FLOOR = utils.parseEther('0.25')
 export const AVAX_FAUCET_AMOUNT = utils.parseEther('1')
 export const FARE_FLOOR = utils.parseEther('50000')
 export const FARE_FAUCET_AMOUNT = utils.parseEther('1000000')
-export const DEFAULT_PATCH_RATE = 1000 / 20 // 20fps (50ms)
-export const DEFAULT_SIMULATION_INTERVAL = 1000 / 60 // 60fps (16.66ms)
 
 export const Bytes32Zero = '0x0000000000000000000000000000000000000000000000000000000000000000'
 

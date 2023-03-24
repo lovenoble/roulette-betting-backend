@@ -73,8 +73,16 @@ export default class RoundService extends ServiceBase<Round> {
     return countdown
   }
 
-  public async setSpinRoomStatus(status: SpinRoomStatus, targetTick?: number) {
-    PubSub.pub<'spin-room-status'>('spin-state', 'spin-room-status', { status, targetTick })
+  public async setSpinRoomStatus(
+    status: SpinRoomStatus,
+    targetTick?: number,
+    totalCountdown?: number
+  ) {
+    PubSub.pub<'spin-room-status'>('spin-state', 'spin-room-status', {
+      status,
+      targetTick,
+      totalCountdown,
+    })
     return this.client.set(`Global:${GlobalRedisKey.SpinRoomStatus}`, status)
   }
 

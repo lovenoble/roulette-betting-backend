@@ -2,15 +2,11 @@ import numeral from 'numeral'
 import { Wallet, providers, type BigNumber, utils, type Overrides } from 'ethers'
 
 import { adjustTxGasOverrides } from './utils'
+import { SEED_AVAX_FAUCET_AMOUNT, SEED_FARE_FAUCET_AMOUNT } from './constants'
 import { type FareSpin, FareSpin__factory, type FareToken, FareToken__factory } from '../types'
 import cryptoConfig from '../../config/crypto.config'
 import { logger } from '../utils'
-import {
-  AVAX_FLOOR,
-  SEED_AVAX_FAUCET_AMOUNT,
-  FARE_FLOOR,
-  SEED_FARE_FAUCET_AMOUNT,
-} from '../constants'
+import { AVAX_FLOOR, FARE_FLOOR } from '../constants'
 
 const { blockchainRpcUrl, privateKey, fareTokenAddress, fareSpinAddress } = cryptoConfig
 
