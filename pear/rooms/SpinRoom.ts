@@ -267,11 +267,11 @@ class SpinRoom extends Room<SpinState> {
     this.clock.start(true)
 
     this.runInterval({
-      totalTime: 6,
-      holdTime: 6,
-      slowTime: 3,
-      startCruiseSpeed: 20,
-      endCruiseSpeed: 80,
+      totalTime: 3,
+      holdTime: 3,
+      slowTime: 2,
+      startCruiseSpeed: 25,
+      endCruiseSpeed: 90,
       stopSpeed: 120,
       selectedTick,
       tickDiffSlowdown: 24,
