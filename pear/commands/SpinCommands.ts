@@ -211,10 +211,6 @@ export class OnInitSpinRoom extends Command<SpinRoom, void> {
     const chatMessages = await store.service.chatMessage.getRecentChatMessages()
 
     this.room.chatMessages.push(...chatMessages)
-    // const roundData =
-    //   this.state.currentRoundId !== 0
-    //     ? await store.service.round.fetch(this.state.currentRoundId - 1)
-    //     : null
 
     if (roundData) {
       const round = new Round()

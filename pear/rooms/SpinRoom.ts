@@ -80,6 +80,9 @@ class SpinRoom extends Room<SpinState> {
 
       this.setState(new SpinState())
 
+      // Initialize SpinRoom state
+      await this.dispatcher.dispatch(new OnInitSpinRoom())
+
       // #region Client action events
 
       this.onMessage('*', (client, type, message) => {
@@ -161,9 +164,6 @@ class SpinRoom extends Room<SpinState> {
       PubSub.sub('spin-state', 'reset-spin-round').listen<'reset-spin-round'>(_message => {
         this.dispatcher.dispatch(new OnResetRound())
       })
-
-      // Initialize SpinRoom state
-      await this.dispatcher.dispatch(new OnInitSpinRoom())
 
       // #endregion
     } catch (err) {
