@@ -14,13 +14,17 @@ const {
 } = process.env
 
 // Default override for transactions
-const txOverrides: Overrides =
-  BLOCKCHAIN_ENV === 'local'
-    ? {
-        gasLimit: 2100000,
-        gasPrice: 70000000,
-      }
-    : {}
+// const txOverrides: Overrides =
+//   BLOCKCHAIN_ENV === 'local'
+//     ? {
+//         gasLimit: 2100000,
+//         gasPrice: 70000000,
+//       }
+//     : {}
+const txOverrides: Overrides = {
+  gasLimit: 2100000,
+  gasPrice: 70000000,
+}
 
 const config = {
   fareTokenAddress: FARE_TOKEN_ADDRESS,
