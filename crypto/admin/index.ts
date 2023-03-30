@@ -78,7 +78,11 @@ class CryptoAdmin {
         fare: this.fare,
         spin: this.spin,
       })
-      this.overrides = adjustTxGasOverrides(6900000, 20000000000, cryptoConfig.txOverrides)
+      // this.overrides = adjustTxGasOverrides(6900000, 20000000000, cryptoConfig.txOverrides)
+      this.overrides = {
+        gasLimit: 2100000 + 6900000,
+        gasPrice: 70000000 + 20000000000,
+      }
 
       if (cryptoConfig.shouldAutoCreateBatchEntries) {
         await this.seed.init()
