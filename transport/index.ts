@@ -76,7 +76,7 @@ export class Transport {
   }
 }
 
-fast.listen({ port: Number(process.env.FAST_SERVER_PORT || 3200) }, err => {
+fast.listen({ port: Number(process.env.FAST_SERVER_PORT || 3200), host: "0.0.0.0" }, err => {
   if (err) {
     logger.error(err)
     return
