@@ -12,13 +12,13 @@ import {
   GuestUser,
   User,
   Round,
-  IGuestUser,
-  IRound,
-  IBatchEntry,
-  IUser,
+  type IGuestUser,
+  type IRound,
+  type IBatchEntry,
+  type IUser,
 } from '../entities'
 
-import { SpinRoomStatus } from '../../store/types'
+import { type SpinRoomStatus } from '../../store/types'
 
 // const type = Context.create()
 

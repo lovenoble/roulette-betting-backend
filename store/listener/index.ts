@@ -4,7 +4,7 @@ import createSpinContractListener from './spinContract'
 import { fareAPI, spinAPI } from '../../crypto'
 
 import { EventNames } from '../constants'
-import { StoreQueue } from '../queue'
+import { type StoreQueue } from '../queue'
 import { logger, sleep } from '../utils'
 
 export default class SmartContractListener {

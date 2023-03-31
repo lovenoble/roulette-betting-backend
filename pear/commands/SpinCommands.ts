@@ -12,7 +12,7 @@ import type {
   SettledRound,
   INewRoundStarted,
 } from '../../pubsub/types'
-import { ENTRIES_OPEN_COUNTDOWN_DURATION } from '../../crypto/constants'
+import { ENTRIES_OPEN_COUNTDOWN_DURATION } from '../../crypto/admin/constants'
 
 import store from '../../store'
 import {
@@ -21,7 +21,7 @@ import {
   WebSocketCustomCodes,
   MAX_CHAT_MSGS,
 } from '../constants'
-import { Entry, BatchEntry, Round, IMessage, IGameMessage } from '../entities'
+import { Entry, BatchEntry, Round, type IMessage, type IGameMessage } from '../entities'
 import { logger } from '../utils'
 
 // @NOTE: Needed commands
@@ -204,16 +204,13 @@ export class OnInitSpinRoom extends Command<SpinRoom, void> {
     this.state.fareTotalSupply = await store.service.fareTransfer.getCachedTotalSupply()
     this.state.currentRoundId = Number(await store.service.round.getCachedCurrentRoundId())
     this.state.isRoundPaused = await store.service.round.getCachedSpinRoundPaused()
+    this.state.roomStatus = await store.service.round.getSpinRoomStatus()
     this.state.countdownTotal = ENTRIES_OPEN_COUNTDOWN_DURATION / 1000
     const batchEntryData = await store.service.batchEntry.getCurrentRoundBatchEntries()
     const roundData = await store.service.round.fetch(this.state.currentRoundId)
     const chatMessages = await store.service.chatMessage.getRecentChatMessages()
 
     this.room.chatMessages.push(...chatMessages)
-    // const roundData =
-    //   this.state.currentRoundId !== 0
-    //     ? await store.service.round.fetch(this.state.currentRoundId - 1)
-    //     : null
 
     if (roundData) {
       const round = new Round()
@@ -229,7 +226,7 @@ export class OnInitSpinRoom extends Command<SpinRoom, void> {
       this.room.spinTick = round.randomNum || 0
       this.state.spinTick = round.randomNum || 0
 
-      this.state.round.set(String(this.state.currentRoundId - 1), round)
+      this.state.round.set(String(this.state.currentRoundId), round)
     }
 
     batchEntryData.forEach(({ batchEntry, entries }) => {
@@ -329,8 +326,10 @@ export class OnBatchEntry extends Command<SpinRoom, BatchEntryMsgArgs> {
 
       // If player is actively in room ensure their state is set to isInRound
       store.service.user.getUserByAddress(batchEntry.player).then(user => {
-        if (user) {
-          this.state.users.get(user.sessionId).isInRound = true
+        if (!user) return
+        const stateUser = this.state.users.get(user.sessionId)
+        if (stateUser) {
+          stateUser.isInRound = true
         }
       })
     } catch (err) {
@@ -351,8 +350,12 @@ export class OnResetRound extends Command<SpinRoom, void> {
 
 export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
   execute(roundData: SettledRound) {
-    // const round = new Round()
     const round = this.state.round.get(String(this.state.currentRoundId))
+    if (!round) {
+      logger.warn(`Could not find round ${roundData.roundId} inside SpinRoom round map.`)
+      return
+    }
+
     round.roundId = roundData.roundId
     round.randomHash = roundData.randomHash
     round.revealKey = roundData.revealKey
@@ -399,6 +402,7 @@ export class OnRoundConcluded extends Command<SpinRoom, SettledRound> {
 
 export class OnNewRoundStarted extends Command<SpinRoom, INewRoundStarted> {
   execute(roundData: INewRoundStarted) {
+    console.log(roundData)
     const round = new Round()
     round.roundId = roundData.roundId
     round.randomHash = roundData.randomHash

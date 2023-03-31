@@ -1,33 +1,39 @@
-import { Wallet, providers, ContractTransaction, ContractReceipt, ethers } from 'ethers'
-import { Clock, Delayed } from '@colyseus/core'
+import {
+  Wallet,
+  providers,
+  type ContractTransaction,
+  type ContractReceipt,
+  ethers,
+  type Overrides,
+} from 'ethers'
+import { Clock, type Delayed } from '@colyseus/core'
 
 import CryptoToken from './token'
 import CryptoSeed from './seed'
-import { logger, createBatchEntry } from './utils'
-import { ensureNumber } from '../utils'
-import { Randomness, RandomTag } from '../../store/schema/randomness'
+import { logger, createBatchEntry, adjustTxGasOverrides } from './utils'
 import {
-  FareSpin,
+  ENTRIES_OPEN_COUNTDOWN_DURATION,
+  SEED_USER_SUBMIT_FEQUENCY,
+  RESULT_SCREEN_DURATION,
+  SEC_MS,
+  DEFAULT_SIMULATION_INTERVAL,
+  getCountdownScalingFactor,
+} from './constants'
+import { getRoomUserCount } from './db'
+import { ContractModes, Bytes32Zero } from '../constants'
+import { ensureNumber } from '../utils'
+import { type Randomness, RandomTag } from '../../store/schema/randomness'
+import {
+  type FareSpin,
   FareSpin__factory,
-  FareToken,
+  type FareToken,
   FareToken__factory,
-  FlatEntry,
-  FareSpinContractState,
+  type FlatEntry,
+  type FareSpinContractState,
 } from '../types'
 import cryptoConfig from '../../config/crypto.config'
 import { randomizer } from '../../utils'
 import store from '../../store'
-import {
-  ENTRIES_OPEN_COUNTDOWN_DURATION,
-  // PRE_SPIN_DURATION,
-  // WHEEL_SPINNING_DURATION,
-  // SEED_USER_SUBMIT_FEQUENCY,
-  RESULT_SCREEN_DURATION,
-  SEC_MS,
-  DEFAULT_SIMULATION_INTERVAL,
-  ContractModes,
-  Bytes32Zero,
-} from '../constants'
 import fareRandomness from '../utils/FareRandomness'
 import PubSub from '../../pubsub'
 
@@ -56,6 +62,8 @@ class CryptoAdmin {
   randomHash: string
   fullRandomNum: string
   isRoundPaused: boolean
+  currentRoundEntryCount = 0
+  overrides: Overrides
 
   async init() {
     logger.warn(
@@ -70,10 +78,16 @@ class CryptoAdmin {
         fare: this.fare,
         spin: this.spin,
       })
+      // this.overrides = adjustTxGasOverrides(6900000, 20000000000, cryptoConfig.txOverrides)
+      this.overrides = {
+        gasLimit: 2100000 + 6900000,
+        gasPrice: 70000000 + 20000000000,
+      }
 
-      await this.seed.init()
-
-      await this.fund.ensureSeedAccountBalances(this.seed.signers)
+      if (cryptoConfig.shouldAutoCreateBatchEntries) {
+        await this.seed.init()
+        await this.fund.ensureSeedAccountBalances(this.seed.signers)
+      }
 
       logger.info('CryptoAdmin has been initialized')
     } catch (err) {
@@ -90,10 +104,7 @@ class CryptoAdmin {
       const signer = this.seed.signers[userIdx]
       if (!signer) throw new Error("Signer account doesn't exist")
 
-      tx = await this.spin.connect(signer).placeBatchEntry(params, {
-        gasLimit: 2100000,
-        gasPrice: 70000000,
-      })
+      tx = await this.spin.connect(signer).placeBatchEntry(params, cryptoConfig.txOverrides)
       receipt = await tx.wait()
       logger.info(`Submitted batch entry for Player: (${signer.address.substring(0, 11)})`)
       this.placedUserIdxs.push(userIdx)
@@ -195,13 +206,13 @@ class CryptoAdmin {
 
   async pauseSpinRound(isPaused: boolean) {
     try {
-      const tx = await this.spin.setRoundPaused(isPaused, {
-        gasLimit: 9000000,
-        gasPrice: 70000000000,
-      })
+      if (this.isRoundPaused === isPaused) return // Return to avoid sending a tx when round is already paused
+
+      const tx = await this.spin.setRoundPaused(isPaused, this.overrides)
       const receipt = await tx.wait()
-      this.isRoundPaused = isPaused
       logger.info('Round paused successfully!')
+      this.isRoundPaused = isPaused
+
       return receipt
     } catch (err) {
       logger.warn(String(err))
@@ -221,10 +232,11 @@ class CryptoAdmin {
         randomness.fullRandomNum = this.fullRandomNum
       }
 
-      const resp = await this.spin.concludeRound(randomness.revealKey, randomness.fullRandomNum, {
-        gasLimit: 9000000,
-        gasPrice: 70000000000,
-      })
+      const resp = await this.spin.concludeRound(
+        randomness.revealKey,
+        randomness.fullRandomNum,
+        this.overrides
+      )
       await resp.wait()
     } catch (err) {
       logger.warn(String(err))
@@ -237,32 +249,25 @@ class CryptoAdmin {
     const randomness = await this.generateAndSaveRandomness(roundId)
     let resp: ContractTransaction
     try {
-      resp = await this.spin.startNewRound(randomness.randomHash, {
-        gasLimit: 9000000,
-        gasPrice: 70000000000,
-      })
+      resp = await this.spin.startNewRound(randomness.randomHash, this.overrides)
       await resp.wait()
     } catch (err: any) {
       logger.warn(String(err))
       try {
-        resp = await this.spin.startNewRound(randomness.randomHash, {
-          gasLimit: 9000000,
-          gasPrice: 70000000000,
-        })
+        resp = await this.spin.startNewRound(randomness.randomHash, this.overrides)
         await resp.wait()
       } catch (errs: any) {
         logger.warn(String(errs))
         try {
-          resp = await this.spin.startNewRound(randomness.randomHash, {
-            gasLimit: 9000000,
-            gasPrice: 70000000000,
-          })
+          resp = await this.spin.startNewRound(randomness.randomHash, this.overrides)
           await resp.wait()
         } catch (errs2: any) {
           logger.warn(String(errs2))
         }
       }
     }
+    this.isRoundPaused = false
+    this.currentRoundEntryCount = 0
   }
 
   async generateAndSaveRandomness(roundId: number) {
@@ -312,7 +317,7 @@ class CryptoAdmin {
     )
   }
 
-  async startCountdown(_countdown: number, shouldSendStartTx = false) {
+  async autoStartCountdown(_countdown: number, shouldSendStartTx = false) {
     if (shouldSendStartTx) {
       await this.startNewRound()
     }
@@ -323,9 +328,11 @@ class CryptoAdmin {
     this.setCountdown(this.countdown)
     this.countdown -= SEC_MS
 
-    setTimeout(() => {
-      this.determineSubmitSeedBatchEntry().catch(logger.error)
-    }, 3_000)
+    // if (cryptoConfig.shouldAutoCreateBatchEntries) {
+    //   setTimeout(() => {
+    //     this.determineSubmitSeedBatchEntry().catch(logger.error)
+    //   }, 3_000)
+    // }
 
     this.delayedInterval = this.clock.setInterval(() => {
       if (this.countdown <= 0) {
@@ -342,13 +349,44 @@ class CryptoAdmin {
       this.setCountdown(this.countdown)
       this.countdown -= SEC_MS
 
-      if (this.countdown <= 10_000 && this.countdown >= 7_000) {
-        this.determineSubmitSeedBatchEntry().catch(logger.error)
-      }
-
-      // if (this.countdown % SEED_USER_SUBMIT_FEQUENCY === 0) {
-      //   this.submitRandomBatchEntry().catch(logger.error)
+      // if (
+      //   this.countdown <= 10_000 &&
+      //   this.countdown >= 7_000 &&
+      //   cryptoConfig.shouldAutoCreateBatchEntries
+      // ) {
+      //   this.determineSubmitSeedBatchEntry().catch(logger.error)
       // }
+
+      if (
+        this.countdown % SEED_USER_SUBMIT_FEQUENCY === 0 &&
+        cryptoConfig.shouldAutoCreateBatchEntries
+      ) {
+        this.submitRandomBatchEntry().catch(logger.error)
+      }
+    }, 1_000)
+  }
+
+  async startSpinCountdown(_countdown = ENTRIES_OPEN_COUNTDOWN_DURATION) {
+    await store.service.round.setSpinRoomStatus('countdown', 0, _countdown / SEC_MS)
+    this.clock.start()
+    this.countdown = _countdown
+    this.setCountdown(this.countdown)
+    this.countdown -= SEC_MS
+
+    this.delayedInterval = this.clock.setInterval(() => {
+      if (this.countdown <= 0) {
+        this.logCountdown('COUNTDOWN')
+        this.setCountdown(this.countdown)
+          .then(() => {
+            this.delayedInterval.clear()
+            this.preSpinPause()
+          })
+          .catch(logger.error)
+        return
+      }
+      this.logCountdown('COUNTDOWN')
+      this.setCountdown(this.countdown)
+      this.countdown -= SEC_MS
     }, 1_000)
   }
 
@@ -383,13 +421,22 @@ class CryptoAdmin {
     setTimeout(async () => {
       logger.info('New round started successfully!')
       await store.service.round.resetFareSpinStateRound()
-      this.startCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION, false)
+
+      if (cryptoConfig.shouldAutoCreateBatchEntries) {
+        this.autoStartCountdown(ENTRIES_OPEN_COUNTDOWN_DURATION, false)
+      }
+
+      await store.service.round.setSpinRoomStatus('waiting-for-first-entry')
     }, RESULT_SCREEN_DURATION)
   }
 
   async setContractProperties() {
     this.isRoundPaused = await this.spin.isRoundPaused()
     this.currentRoundId = ensureNumber(await this.spin.getCurrentRoundId())
+    this.currentRoundEntryCount = (
+      await this.spin.getBatchEntryCount(this.currentRoundId)
+    ).toNumber()
+
     const currentRound = await this.spin.rounds(this.currentRoundId)
     this.revealKey = currentRound.revealKey
     this.randomHash = currentRound.randomHash
@@ -398,11 +445,24 @@ class CryptoAdmin {
     let contractState: FareSpinContractState | undefined
 
     const shouldEndPrevRound =
-      this.isRoundPaused && this.randomHash !== Bytes32Zero && this.revealKey === Bytes32Zero
+      this.isRoundPaused &&
+      this.randomHash !== Bytes32Zero &&
+      this.revealKey === Bytes32Zero &&
+      this.currentRoundEntryCount > 0
+
     const shouldPauseAndEndRound =
-      !this.isRoundPaused && this.randomHash !== Bytes32Zero && this.revealKey === Bytes32Zero
-    const shouldStartRound =
-      !this.isRoundPaused && this.randomHash === Bytes32Zero && this.revealKey === Bytes32Zero
+      !this.isRoundPaused &&
+      this.randomHash !== Bytes32Zero &&
+      this.revealKey === Bytes32Zero &&
+      this.currentRoundEntryCount > 0
+
+    const shouldStartRound = this.randomHash === Bytes32Zero && this.revealKey === Bytes32Zero
+
+    const shouldUnpauseRound =
+      this.isRoundPaused &&
+      this.randomHash !== Bytes32Zero &&
+      this.revealKey === Bytes32Zero &&
+      this.currentRoundEntryCount === 0
 
     if (shouldEndPrevRound) {
       contractState = 'should-end-prev-round'
@@ -410,9 +470,51 @@ class CryptoAdmin {
       contractState = 'should-pause-and-end-round'
     } else if (shouldStartRound) {
       contractState = 'should-start-round'
+    } else if (shouldUnpauseRound) {
+      contractState = 'should-unpause-round'
     }
 
     return contractState
+  }
+
+  async handleInitByContractState() {
+    try {
+      // Set current contract properties
+      const contractState = await this.setContractProperties()
+
+      // Handle current state of contract
+      switch (contractState) {
+        case 'should-end-prev-round':
+          logger.info('Should end previous round.')
+          await this.concludeRound()
+          await this.startNewRound()
+          break
+        case 'should-pause-and-end-round':
+          await this.pauseSpinRound(true)
+          await this.concludeRound()
+          await this.startNewRound()
+          logger.info('Should pause and end previous round.')
+          break
+        case 'should-start-round':
+          logger.info('Starting new round!')
+          await this.startNewRound()
+          break
+        case 'should-unpause-round':
+          logger.info('Unpausing round with no entries!')
+          await this.pauseSpinRound(false)
+          break
+        default:
+          logger.info('Round on going...')
+        // await store.service.round.setSpinRoomStatus('waiting-for-first-entry')
+        // logger.error('Unknown contract state. Exiting keeper process...')
+        // throw new Error('Unknown contract state')
+      }
+
+      await store.service.round.setSpinRoomStatus('waiting-for-first-entry')
+    } catch (err) {
+      logger.error(err)
+      throw err
+    }
   }
 
   async initPearKeeper(shouldResetCountdown = true) {
@@ -421,26 +523,8 @@ class CryptoAdmin {
       this.clock.stop()
       this.clock.clear()
 
-      // Set current contract properties
-      const contractState = await this.setContractProperties()
-      // Handle current state of contract
-      switch (contractState) {
-        case 'should-end-prev-round':
-          logger.info('Should end previous round.')
-          await this.concludeRound()
-          break
-        case 'should-pause-and-end-round':
-          await this.pauseSpinRound(true)
-          await this.concludeRound()
-          logger.info('Should pause and end previous round.')
-          break
-        case 'should-start-round':
-          logger.info('Should start round.')
-          break
-        default:
-          logger.error('Unknown contract state. Exiting keeper process...')
-          throw new Error('Unknown contract state')
-      }
+      // Initialize SpinRoom depending on smart contract state
+      await this.handleInitByContractState()
 
       this.countdown = await store.service.round.getSpinCountdownTimer()
       if (shouldResetCountdown) {
@@ -450,14 +534,10 @@ class CryptoAdmin {
 
       this.clock.start()
       logger.info('Spin countdown has started!')
-
       // Initialize event loop interval
       this.eventLoopIntervalId = setInterval(() => {
         this.clock.tick()
       }, DEFAULT_SIMULATION_INTERVAL) // 60fps (16.66ms)
-
-      // Ensure batch entries can be submitted
-      // await this.pauseSpinRound(false)
 
       // Bind subs
       PubSub.sub('spin-state', 'round-finished').listen((opts: any) => {
@@ -465,14 +545,32 @@ class CryptoAdmin {
         this.spinEnded()
       })
 
+      // Listen to smart contract for first entry submitted
+      if (!cryptoConfig.shouldAutoCreateBatchEntries) {
+        PubSub.sub('spin-state', 'current-round-first-batch-entry').listen(
+          async (roundId: number) => {
+            logger.info(`First entry submitted for FareSpin roundId => ${roundId}`)
+            logger.info('Received first batch entry. Initializing countdown timer...')
+            let spinRoomUserCount = 25
+            if (!cryptoConfig.shouldAutoCreateBatchEntries) {
+              spinRoomUserCount = await getRoomUserCount('Spin')
+            }
+            const scalingFactorCountdown = getCountdownScalingFactor(spinRoomUserCount || 1)
+            this.startSpinCountdown(scalingFactorCountdown).catch(logger.error)
+            this.currentRoundEntryCount = 1
+          }
+        )
+      } else {
+        // Should auto start countdown and submit seed batch entries
+        this.autoStartCountdown(this.countdown)
+      }
+
       /* Start spin event loop
        * 1. startCountdown - Start countdown from existing countdown number in Redis
        * 2. preSpinPause - Pauses batchEntries, starts 30 second timer for about to spin
        * 3. spinAndConcludeRound - Runs concludeRound (fetches random number), slows down wheel, lands on a color
        * 4. resetRound - Reset countdown timer and starts back at event #1
        */
-
-      this.startCountdown(this.countdown, true)
     } catch (err) {
       clearInterval(this.eventLoopIntervalId)
       logger.error(err)

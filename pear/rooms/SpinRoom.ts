@@ -1,7 +1,6 @@
 import { Dispatcher } from '@colyseus/command'
-import { Room, ServerError, Delayed } from '@colyseus/core'
+import { Room, ServerError, type Delayed, type Client } from '@colyseus/core'
 import shortId from 'shortid'
-import type { Client } from '@colyseus/core'
 
 import type { IDefaultRoomOptions, ICreateSpinRoomOptions } from '../types'
 import type { IGameMessage } from '../entities'
@@ -144,6 +143,9 @@ class SpinRoom extends Room<SpinState> {
       })
 
       PubSub.sub('spin-state', 'spin-room-status').listen<'spin-room-status'>(opt => {
+        if (opt.status === 'countdown' && this.state.roomStatus === 'waiting-for-first-entry') {
+          this.state.countdownTotal = opt.totalCountdown || 30
+        }
         this.state.roomStatus = opt.status
         // TODO: Refactor this code
         if (opt.status === 'spinning') {
@@ -265,11 +267,11 @@ class SpinRoom extends Room<SpinState> {
     this.clock.start(true)
 
     this.runInterval({
-      totalTime: 6,
-      holdTime: 6,
-      slowTime: 3,
-      startCruiseSpeed: 20,
-      endCruiseSpeed: 80,
+      totalTime: 3,
+      holdTime: 3,
+      slowTime: 2,
+      startCruiseSpeed: 25,
+      endCruiseSpeed: 90,
       stopSpeed: 120,
       selectedTick,
       tickDiffSlowdown: 24,

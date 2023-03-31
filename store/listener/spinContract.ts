@@ -1,18 +1,18 @@
 import type { BigNumber, Event } from 'ethers'
 
 import type { StoreQueue } from '../queue'
-import type { IServiceObj } from '../types'
+import {
+  type IServiceObj,
+  type IContractModeUpdatedQueue,
+  type IEntrySubmittedQueue,
+  type IEntrySettledQueue,
+  type IRoundConcludedQueue,
+  type IBatchEntriesSettledQueue,
+  type INewRoundStartedQueue,
+  type IBatchEntryWithdrawQueue,
+} from '../types'
 import { BNToNumber, formatBN } from '../utils'
 import { EventNames, ContractNames } from '../constants'
-import {
-  IContractModeUpdatedQueue,
-  IEntrySubmittedQueue,
-  IEntrySettledQueue,
-  IRoundConcludedQueue,
-  IBatchEntriesSettledQueue,
-  INewRoundStartedQueue,
-  IBatchEntryWithdrawQueue,
-} from '../types'
 import PubSub from '../../pubsub'
 
 const createSpinContractListener = (service: IServiceObj, storeQueue: StoreQueue) => {
@@ -28,17 +28,28 @@ const createSpinContractListener = (service: IServiceObj, storeQueue: StoreQueue
   }
 
   const entrySubmitted = async (
-    roundId: BigNumber,
-    batchEntryId: BigNumber,
+    _roundId: BigNumber,
+    _batchEntryId: BigNumber,
     player: string,
     event: Event
   ) => {
     const block = await event.getBlock()
+    const batchEntryId = BNToNumber(_batchEntryId)
+    const roundId = BNToNumber(_roundId)
+
+    // Pub to SpinRoom know when first batch entry is submitted
+    if (batchEntryId === 0) {
+      PubSub.pub<'current-round-first-batch-entry'>(
+        'spin-state',
+        'current-round-first-batch-entry',
+        roundId
+      )
+    }
 
     const queueData: IEntrySubmittedQueue = {
       txHash: event.transactionHash,
-      roundId: BNToNumber(roundId),
-      batchEntryId: BNToNumber(batchEntryId),
+      roundId,
+      batchEntryId,
       player,
       event: eventLog.parseForQueue(event, ContractNames.FareSpin),
       timestamp: Date.now(),

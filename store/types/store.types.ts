@@ -1,5 +1,5 @@
-import { Repository } from 'redis-om'
-import ChatMessageService from 'store/service/ChatMessage'
+import { type Repository } from 'redis-om'
+import type ChatMessageService from 'store/service/ChatMessage'
 
 import type {
   BatchEntry,
@@ -51,4 +51,10 @@ export interface IServiceObj {
   chatMessage?: ChatMessageService
 }
 
-export type SpinRoomStatus = 'starting' | 'countdown' | 'pausing' | 'spinning' | 'finished'
+export type SpinRoomStatus =
+  | 'starting'
+  | 'waiting-for-first-entry'
+  | 'countdown'
+  | 'pausing'
+  | 'spinning'
+  | 'finished'

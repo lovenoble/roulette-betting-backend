@@ -1,4 +1,4 @@
-import { utils, BigNumber } from 'ethers'
+import { utils, BigNumber, type Overrides } from 'ethers'
 
 import type { FlatEntry } from '../../types'
 import { Logger } from '../../../utils'
@@ -62,5 +62,22 @@ export async function delayAfterPromise(promise: Promise<any>, minWaitMs = 3000)
   const remaining = minWaitMs - elapsed
   if (remaining > 0) {
     await new Promise(resolve => setTimeout(resolve, remaining))
+  }
+}
+
+export function adjustTxGasOverrides(
+  gasLimitIncrease: number,
+  gasPriceIncrease: number,
+  overrides: Overrides
+): Overrides {
+  let newGasLimit = (overrides.gasLimit as number) ?? 0
+  let newGasPrice = (overrides.gasPrice as number) ?? 0
+
+  if (!newGasLimit && !newGasPrice) return overrides
+
+  return {
+    ...overrides,
+    gasLimit: newGasLimit + gasLimitIncrease,
+    gasPrice: newGasPrice + gasPriceIncrease,
   }
 }
